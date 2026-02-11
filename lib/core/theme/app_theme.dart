@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/constants/app_strings.dart';
 
 class AppTheme {
   const AppTheme._();
@@ -30,7 +29,7 @@ class AppTheme {
       inputDecorationTheme: const InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(
-            Radius.circular(AppDimens.radiusMedium),
+            Radius.circular(AppDimens.radiusMedium),//jjgj
           ),
         ),
       ),
