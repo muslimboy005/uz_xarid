@@ -31,7 +31,7 @@ class HomePage extends StatelessWidget {
                   'Clean Architecture (DDD) struktura tayyor.',
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
-                ),
+                ),// edit
               ),
             ),
           ],
