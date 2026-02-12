@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/localization/app_localizations.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.primary,

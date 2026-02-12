@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:uz_xarid/app/app.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/localization/app_localizations.dart';
+import 'package:uz_xarid/core/localization/locale_cubit.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
   const UzXaridAppBar({super.key, this.onSearchChanged, this.onMenuTap});
@@ -18,7 +19,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
 
     return AppBar(
@@ -53,7 +54,7 @@ class UzXaridSliverAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
 
     return SliverAppBar(
@@ -176,7 +177,7 @@ class _LanguageSelector extends StatelessWidget {
       elevation: 4,
       offset: const Offset(0, 32),
       onSelected: (locale) {
-        UzXaridApp.of(context).setLocale(locale);
+        context.read<LocaleCubit>().change(locale);
       },
       itemBuilder: (context) => [
         _buildItem(context, const Locale('ru'), 'RU', 'assets/svg/flag_ru.svg'),
