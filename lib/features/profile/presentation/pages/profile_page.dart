@@ -24,13 +24,18 @@ class ProfilePage extends StatelessWidget {
           // TODO: open profile menu
         },
       ),
-      body: Container(
-        color: AppColors.background,
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimens.paddingMedium),
-          child: Center(child: Text(l10n.profileBody)),
+      body: Column(
+        children: [
+           
 
-        ),
+          Container(
+            color: AppColors.background,
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimens.paddingMedium),
+              child: Center(child: Text(l10n.profileBody)),
+            ),
+          ),
+        ],
       ),
     );
   }

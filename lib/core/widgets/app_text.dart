@@ -38,7 +38,7 @@ class AppText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fw = AppFonts.getFontWeight(fontWeight);
-
+    
     // Agar color berilmagan bo'lsa, tema rangini olish
     // final textColor = color ?? Theme.of(context).textTheme.bodyLarge?.color ?? Theme.of(context).colorScheme.onSurface;
 
