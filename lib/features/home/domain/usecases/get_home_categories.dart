@@ -4,7 +4,8 @@ import 'package:uz_xarid/core/usecases/usecase.dart';
 import 'package:uz_xarid/features/home/domain/entities/category_entity.dart';
 import 'package:uz_xarid/features/home/domain/repositories/home_category_repository.dart';
 
-class GetHomeCategories extends UseCase<Either<Failure, List<CategoryEntity>>, CategoryParams> {
+class GetHomeCategories
+    extends UseCase<Either<Failure, List<CategoryEntity>>, CategoryParams> {
   GetHomeCategories(this.repository);
 
   final HomeCategoryRepository repository;

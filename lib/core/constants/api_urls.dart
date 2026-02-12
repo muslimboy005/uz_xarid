@@ -6,4 +6,5 @@ class ApiUrls {
   static const String profileUpdate = 'auth/user-update';
 
   static const String categories = 'category/';
+  static const String banner = 'banner/';
 }

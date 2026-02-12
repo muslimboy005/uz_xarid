@@ -16,7 +16,7 @@ class HomeSubCategoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorderColor),
       ),
-      padding: const EdgeInsets.only(left: 12, right: 12, top: 10),
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 10, bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -33,14 +33,13 @@ class HomeSubCategoryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Expanded(
-            child: Align(
-              alignment: Alignment.center,
-              child: SizedBox(
-                height: 150,
-                width: 150,
-                child: AppImage(path: category.image ?? '', fit: BoxFit.fill),
-              ),
+          Align(
+            alignment: Alignment.bottomCenter,
+
+            child: SizedBox(
+              height: 120,
+              width: 150,
+              child: AppImage(path: category.image ?? '', fit: BoxFit.fill),
             ),
           ),
         ],

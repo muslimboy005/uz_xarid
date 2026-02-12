@@ -10,7 +10,7 @@ part 'home_category_state.dart';
 
 class HomeCategoryBloc extends Bloc<HomeCategoryEvent, HomeCategoryState> {
   HomeCategoryBloc(this.getCategories)
-      : super(const HomeCategoryState(selectedIndex: 0)) {
+    : super(const HomeCategoryState(selectedIndex: 0)) {
     on<HomeCategoriesRequested>(_onRequested);
     on<HomeCategorySelected>(_onSelected);
   }
@@ -22,27 +22,24 @@ class HomeCategoryBloc extends Bloc<HomeCategoryEvent, HomeCategoryState> {
     Emitter<HomeCategoryState> emit,
   ) async {
     emit(state.copyWith(status: HomeCategoryStatus.loading, error: null));
-    final result = await getCategories(CategoryParams(
-      categoryType: event.categoryType,
-    ));
+    final result = await getCategories(
+      CategoryParams(categoryType: event.categoryType),
+    );
 
     if (result is Right<Failure, List<CategoryEntity>>) {
-      final items = result.right;
-      final newIndex =
-          items.isEmpty ? 0 : state.selectedIndex.clamp(0, items.length - 1);
-
       emit(
         state.copyWith(
           status: HomeCategoryStatus.success,
-          categories: items,
-          selectedIndex: newIndex,
+          categories: result.right,
         ),
       );
     } else if (result is Left<Failure, List<CategoryEntity>>) {
-      emit(state.copyWith(
-        status: HomeCategoryStatus.failure,
-        error: result.left.message ?? 'Xatolik',
-      ));
+      emit(
+        state.copyWith(
+          status: HomeCategoryStatus.failure,
+          error: result.left.message ?? 'Xatolik',
+        ),
+      );
     }
   }
 
