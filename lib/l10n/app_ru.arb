@@ -1,0 +1,18 @@
+{
+  "@@locale": "ru",
+  "appName": "Uz Xarid",
+  "homeTitle": "Uz Xarid",
+  "homeSubtitle": "Найдите товары быстро и удобно",
+  "homeBody": "Структура Clean Architecture (DDD) уже подготовлена.",
+  "catalogTitle": "Каталог",
+  "catalogBody": "Каталог товаров будет отображаться здесь.",
+  "favoritesTitle": "Избранные",
+  "favoritesBody": "Ваши избранные товары будут здесь.",
+  "profileTitle": "Профиль",
+  "profileBody": "Информация профиля будет отображаться здесь.",
+  "navHome": "Главная",
+  "navCatalog": "Каталог",
+  "navFavorites": "Избранные",
+  "navProfile": "Профиль",
+  "searchHint": "Искать..."
+}

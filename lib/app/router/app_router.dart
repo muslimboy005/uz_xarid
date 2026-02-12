@@ -6,6 +6,7 @@ import 'package:uz_xarid/features/home/presentation/pages/home_page.dart';
 import 'package:uz_xarid/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/profile_page.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -24,6 +25,7 @@ class AppRouter {
         builder: (context, state, child) {
           final String location = state.uri.path;
           final int currentIndex = _getIndexFromLocation(location);
+          final l10n = AppLocalizations.of(context)!;
 
           return Scaffold(
             body: child,
@@ -33,22 +35,22 @@ class AppRouter {
               selectedItemColor: AppColors.primary,
               unselectedItemColor: AppColors.textSecondary,
               onTap: (index) => _onItemTapped(context, index),
-              items: const [
+              items: [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  label: 'Главная',
+                  icon: const Icon(Icons.home_outlined),
+                  label: l10n.navHome,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.menu),
-                  label: 'Каталог',
+                  icon: const Icon(Icons.menu),
+                  label: l10n.navCatalog,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite_border),
-                  label: 'Избранные',
+                  icon: const Icon(Icons.favorite_border),
+                  label: l10n.navFavorites,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  label: 'Профиль',
+                  icon: const Icon(Icons.person_outline),
+                  label: l10n.navProfile,
                 ),
               ],
             ),
@@ -118,4 +120,3 @@ class AppRouter {
     }
   }
 }
-
