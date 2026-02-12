@@ -53,4 +53,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchHint => 'Search...';
+
+  @override
+  String get homeHeadline => 'Find. Buy. Sell.';
+
+  @override
+  String get categoryGoods => 'Goods & shopping';
+
+  @override
+  String get categoryConstruction => 'Construction';
+
+  @override
+  String get categoryAutoMoto => 'Auto & moto';
+
+  @override
+  String get categoryServices => 'Services & jobs';
 }

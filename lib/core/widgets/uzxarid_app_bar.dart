@@ -126,7 +126,9 @@ class _UzXaridAppBarContent extends StatelessWidget {
               top: 12,
               child: Row(
                 children: [
-                  Image.asset('assets/images/uzxarid.png', height: 28),
+
+                  Image.asset('assets/images/uzxarid.png', height: 42),
+
                   const Spacer(),
                   _LanguageSelector(currentLocale: locale),
                   const SizedBox(width: 12),
@@ -186,16 +188,13 @@ class _LanguageSelector extends StatelessWidget {
       ],
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(32),
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(32)),
         child: Row(
           children: [
             SvgPicture.asset(
               _flagAssetFor(languageCode),
-              width: 20,
-              height: 20,
+              width: 28,
+              height: 28,
             ),
             const SizedBox(width: 6),
             Text(
@@ -203,13 +202,14 @@ class _LanguageSelector extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
+                fontSize: 18,
               ),
             ),
-            const SizedBox(width: 2),
+            const SizedBox(width: 10),
             const Icon(
               Icons.keyboard_arrow_down,
               color: Colors.white,
-              size: 18,
+              size: 24,
             ),
           ],
         ),
@@ -247,13 +247,13 @@ class _MenuButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 36,
-        height: 36,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: const Icon(Icons.menu, color: AppColors.primary, size: 20),
+        child: const Icon(Icons.menu, color: AppColors.white, size: 25),
       ),
     );
   }

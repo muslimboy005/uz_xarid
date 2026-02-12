@@ -52,4 +52,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get searchHint => 'Искать...';
+
+  @override
+  String get homeHeadline => 'Найдите. Покупайте. Продавайте.';
+
+  @override
+  String get categoryGoods => 'Товары и покупки';
+
+  @override
+  String get categoryConstruction => 'Объекты строительства';
+
+  @override
+  String get categoryAutoMoto => 'Авто и мототехника';
+
+  @override
+  String get categoryServices => 'Услуги и работа';
 }

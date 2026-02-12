@@ -189,6 +189,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search...'**
   String get searchHint;
+
+  /// No description provided for @homeHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Find. Buy. Sell.'**
+  String get homeHeadline;
+
+  /// No description provided for @categoryGoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Goods & shopping'**
+  String get categoryGoods;
+
+  /// No description provided for @categoryConstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Construction'**
+  String get categoryConstruction;
+
+  /// No description provided for @categoryAutoMoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto & moto'**
+  String get categoryAutoMoto;
+
+  /// No description provided for @categoryServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services & jobs'**
+  String get categoryServices;
 }
 
 class _AppLocalizationsDelegate

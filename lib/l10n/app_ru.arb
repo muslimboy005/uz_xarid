@@ -14,5 +14,10 @@
   "navCatalog": "Каталог",
   "navFavorites": "Избранные",
   "navProfile": "Профиль",
-  "searchHint": "Искать..."
+  "searchHint": "Искать...",
+  "homeHeadline": "Найдите. Покупайте. Продавайте.",
+  "categoryGoods": "Товары и покупки",
+  "categoryConstruction": "Объекты строительства",
+  "categoryAutoMoto": "Авто и мототехника",
+  "categoryServices": "Услуги и работа"
 }

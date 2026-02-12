@@ -14,5 +14,10 @@
   "navCatalog": "Katalog",
   "navFavorites": "Sevimlilar",
   "navProfile": "Profil",
-  "searchHint": "Qidirish..."
+  "searchHint": "Qidirish...",
+  "homeHeadline": "Toping. Sotib oling. Soting.",
+  "categoryGoods": "Tovarlar va savdo",
+  "categoryConstruction": "Qurilish obyektlari",
+  "categoryAutoMoto": "Avto va mototexnika",
+  "categoryServices": "Xizmatlar va ish"
 }
