@@ -126,7 +126,9 @@ class _UzXaridAppBarContent extends StatelessWidget {
               top: 12,
               child: Row(
                 children: [
+
                   Image.asset('assets/images/uzxarid.png', height: 42),
+
                   const Spacer(),
                   _LanguageSelector(currentLocale: locale),
                   const SizedBox(width: 12),
