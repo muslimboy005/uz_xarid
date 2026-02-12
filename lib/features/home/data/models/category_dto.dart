@@ -9,22 +9,14 @@ class CategoryDto {
   final String name;
   final String? image;
 
-  CategoryDto({
-    required this.id,
-    required this.name,
-    this.image,
-  });
+  CategoryDto({required this.id, required this.name, this.image});
 
   factory CategoryDto.fromJson(Map<String, dynamic> json) =>
       _$CategoryDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$CategoryDtoToJson(this);
 
-  CategoryEntity toEntity() => CategoryEntity(
-        id: id,
-        name: name,
-        image: image,
-      );
+  CategoryEntity toEntity() => CategoryEntity(id: id, name: name, image: image);
 }
 
 @JsonSerializable()

@@ -5,4 +5,5 @@ class ApiUrls {
   static const String confirmOtp = 'auth/confirm';
 
   static const String categories = 'category/';
+  static const String banner = 'banner/';
 }
