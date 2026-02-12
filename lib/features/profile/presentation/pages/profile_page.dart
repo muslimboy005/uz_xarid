@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/core/constants/app_colors.dart';
 
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/localization/app_localizations.dart';
+import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Профиль'),
+      backgroundColor: AppColors.primary,
+      appBar: UzXaridAppBar(
+        onSearchChanged: (query) {
+          // TODO: implement profile search if needed
+        },
+        onMenuTap: () {
+          // TODO: open profile menu
+        },
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(AppDimens.paddingMedium),
-        child: Center(
-          child: Text('Profil ma’lumotlari shu yerda bo‘ladi.'),
+      body: Container(
+        color: AppColors.background,
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimens.paddingMedium),
+          child: Center(child: Text(l10n.profileBody)),
         ),
       ),
     );
   }
 }
-
