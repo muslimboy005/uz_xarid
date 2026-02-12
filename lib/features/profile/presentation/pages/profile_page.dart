@@ -1,57 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  bool _isAuthorized = false;
+
+  // Mock data faqat UI uchun
+  String _fullName = 'Darobov Baxodir';
+  String _phoneNumber = '+ 998 89 545 84 58';
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocProvider(
-      create: (_) => ProfileBloc()..add(const ProfileStarted()),
-      child: Scaffold(
-        backgroundColor: AppColors.primary,
-        appBar: UzXaridAppBar(
-          onSearchChanged: (query) {
-            // TODO: implement profile search if needed
-          },
-          onMenuTap: () {
-            // TODO: open profile menu
-          },
-        ),
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          color: AppColors.background,
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimens.paddingMedium),
-              child: BlocBuilder<ProfileBloc, ProfileState>(
-                builder: (context, state) {
-                  if (state.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  if (!state.isAuthorized) {
-                    return _UnauthProfileContent(l10n: l10n);
-                  }
-
-                  return _AuthorizedProfileContent(
-                    fullName: state.fullName ?? '',
-                    phoneNumber: state.phoneNumber ?? '',
-                  );
-                },
-              ),
-            ),
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      appBar: UzXaridAppBar(
+        onSearchChanged: (query) {},
+        onMenuTap: () {},
+      ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        color: AppColors.background,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(AppDimens.paddingMedium),
+            child: _isAuthorized
+                ? _AuthorizedProfileContent(
+                    fullName: _fullName,
+                    phoneNumber: _phoneNumber,
+                  )
+                : _UnauthProfileContent(
+                    l10n: l10n,
+                    onAuthorized: () {
+                      setState(() {
+                        _isAuthorized = true;
+                      });
+                    },
+                  ),
           ),
         ),
       ),
@@ -62,9 +60,11 @@ class ProfilePage extends StatelessWidget {
 class _UnauthProfileContent extends StatelessWidget {
   const _UnauthProfileContent({
     required this.l10n,
+    required this.onAuthorized,
   });
 
   final AppLocalizations l10n;
+  final VoidCallback onAuthorized;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +115,6 @@ class _UnauthProfileContent extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.read<ProfileBloc>().add(const ProfileAuthFlowStarted());
               _showPhoneBottomSheet(context);
             },
             child: const Text('Войти или создать профиль'),
@@ -187,9 +186,13 @@ class _UnauthProfileContent extends StatelessWidget {
               const SizedBox(height: 8),
               TextField(
                 controller: phoneController,
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  UzbekPhoneInputFormatter(),
+                ],
                 decoration: const InputDecoration(
-                  hintText: 'Введите номер',
+                  hintText: '+998 90 123-45-67',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -198,9 +201,20 @@ class _UnauthProfileContent extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context
-                        .read<ProfileBloc>()
-                        .add(ProfilePhoneSubmitted(phoneController.text));
+                    final digits =
+                        phoneController.text.replaceAll(RegExp(r'\D'), '');
+
+                    // Uzbek raqami uchun: 998 + 9 ta raqam = 12 ta digit
+                    if (digits.length != 12 || !digits.startsWith('998')) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Iltimos, to‘liq O‘zbekiston telefon raqamini kiriting'),
+                        ),
+                      );
+                      return;
+                    }
+
                     Navigator.of(context).pop();
                     _showOtpBottomSheet(
                       context,
@@ -274,8 +288,18 @@ class _UnauthProfileContent extends StatelessWidget {
               TextField(
                 controller: otpController,
                 keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  letterSpacing: 8,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
                 decoration: const InputDecoration(
-                  hintText: '———',
+                  hintText: '••••••',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -284,9 +308,15 @@ class _UnauthProfileContent extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context
-                        .read<ProfileBloc>()
-                        .add(ProfileOtpSubmitted(otpController.text));
+                    if (otpController.text.length != 6) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('6 xonali SMS kodini kiriting'),
+                        ),
+                      );
+                      return;
+                    }
+
                     Navigator.of(context).pop();
                     _showNameBottomSheet(context);
                   },
@@ -387,13 +417,10 @@ class _UnauthProfileContent extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.read<ProfileBloc>().add(
-                          ProfileNameSubmitted(
-                            firstName: firstNameController.text,
-                            lastName: lastNameController.text,
-                          ),
-                        );
                     Navigator.of(context).pop();
+                    // Faqat UI preview: bu yerda haqiqiy auth emas,
+                    // yuqoridagi `onAuthorized` callback orqali profil sahifasiga o‘tamiz.
+                    onAuthorized();
                   },
                   child: const Text('Продолжить'),
                 ),
@@ -640,4 +667,50 @@ class _ProfileMenuItem extends StatelessWidget {
     );
   }
 }
+
+/// Uzbek raqamlari uchun mask: +998 90 123-45-67
+class UzbekPhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Faqat raqamlarni olib qolamiz
+    var digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    // Har doim 998 bilan boshlansin
+    if (!digits.startsWith('998')) {
+      digits = '998$digits';
+    }
+
+    // Maksimal uzunlik: 998 + 9 ta raqam = 12 digit
+    if (digits.length > 12) {
+      digits = digits.substring(0, 12);
+    }
+
+    final buffer = StringBuffer();
+    buffer.write('+');
+
+    for (var i = 0; i < digits.length; i++) {
+      final char = digits[i];
+      buffer.write(char);
+
+      if (i == 2) {
+        buffer.write(' ');
+      } else if (i == 4) {
+        buffer.write(' ');
+      } else if (i == 7 || i == 9) {
+        buffer.write('-');
+      }
+    }
+
+    final formatted = buffer.toString();
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
 
