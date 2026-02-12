@@ -1,5 +1,4 @@
-  import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -35,8 +34,8 @@ class GlobalImageWidget extends StatelessWidget {
     return GestureDetector(
       onTap: callback,
       child: Container(
-        width: width?.w,
-        height: height?.h,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           borderRadius: borderRadius,
         ),
@@ -60,8 +59,8 @@ class GlobalImageWidget extends StatelessWidget {
       case ImageType.svg:
         return SvgPicture.asset(
           imagePath,
-          width: width?.w,
-          height: height?.h,
+          width: width,
+          height: height,
           fit: fit,
           colorFilter: color != null
               ? ColorFilter.mode(color!, BlendMode.srcIn)
@@ -72,8 +71,8 @@ class GlobalImageWidget extends StatelessWidget {
       case ImageType.network:
         return CachedNetworkImage(
           imageUrl: imagePath,
-          width: width?.w,
-          height: height?.h,
+          width: width,
+          height: height,
           fit: fit,
           // color: color,
           placeholder: (context, url) => placeholder ?? _defaultPlaceholder(),
@@ -84,8 +83,8 @@ class GlobalImageWidget extends StatelessWidget {
       default:
         return Image.asset(
           imagePath,
-          width: width?.w,
-          height: height?.h,
+          width: width,
+          height: height,
           fit: fit,
           color: color,
           errorBuilder: (context, error, stackTrace) =>
@@ -124,8 +123,8 @@ class GlobalImageWidget extends StatelessWidget {
 
   Widget _defaultPlaceholder() {
     return Container(
-      width: width?.w,
-      height: height?.h,
+      width: width,
+      height: height,
       color: Colors.grey[300],
       child: const Center(
         child: CircularProgressIndicator(),
@@ -135,8 +134,8 @@ class GlobalImageWidget extends StatelessWidget {
 
   Widget _defaultErrorWidget() {
     return Container(
-      width: width?.w,
-      height: height?.h,
+      width: width,
+      height: height,
       color: Colors.grey[300],
       child: const Icon(
         Icons.error,

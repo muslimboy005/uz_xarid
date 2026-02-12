@@ -14,5 +14,10 @@
   "navCatalog": "Catalog",
   "navFavorites": "Favorites",
   "navProfile": "Profile",
-  "searchHint": "Search..."
+  "searchHint": "Search...",
+  "homeHeadline": "Find. Buy. Sell.",
+  "categoryGoods": "Goods & shopping",
+  "categoryConstruction": "Construction",
+  "categoryAutoMoto": "Auto & moto",
+  "categoryServices": "Services & jobs"
 }

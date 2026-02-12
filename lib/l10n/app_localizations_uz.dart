@@ -52,4 +52,19 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get searchHint => 'Qidirish...';
+
+  @override
+  String get homeHeadline => 'Toping. Sotib oling. Soting.';
+
+  @override
+  String get categoryGoods => 'Tovarlar va savdo';
+
+  @override
+  String get categoryConstruction => 'Qurilish obyektlari';
+
+  @override
+  String get categoryAutoMoto => 'Avto va mototexnika';
+
+  @override
+  String get categoryServices => 'Xizmatlar va ish';
 }
