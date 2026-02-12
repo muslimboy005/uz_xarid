@@ -15,3 +15,12 @@ class HomeCategorySelected extends HomeCategoryEvent {
   @override
   List<Object?> get props => [index];
 }
+
+class HomeCategoriesRequested extends HomeCategoryEvent {
+  const HomeCategoriesRequested({this.categoryType = 'Product'});
+
+  final String categoryType;
+
+  @override
+  List<Object?> get props => [categoryType];
+}
