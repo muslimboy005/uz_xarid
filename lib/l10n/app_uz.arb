@@ -1,0 +1,18 @@
+{
+  "@@locale": "uz",
+  "appName": "Uz Xarid",
+  "homeTitle": "Uz Xarid",
+  "homeSubtitle": "Mahsulotlarni qulay va tez toping",
+  "homeBody": "Clean Architecture (DDD) struktura tayyor.",
+  "catalogTitle": "Katalog",
+  "catalogBody": "Mahsulotlar katalogi shu yerda bo‘ladi.",
+  "favoritesTitle": "Sevimlilar",
+  "favoritesBody": "Sevimli mahsulotlaringiz shu yerda bo‘ladi.",
+  "profileTitle": "Profil",
+  "profileBody": "Profil ma’lumotlari shu yerda bo‘ladi.",
+  "navHome": "Bosh sahifa",
+  "navCatalog": "Katalog",
+  "navFavorites": "Sevimlilar",
+  "navProfile": "Profil",
+  "searchHint": "Qidirish..."
+}

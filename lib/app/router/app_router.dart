@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/localization/app_localizations.dart';
 import 'package:uz_xarid/features/home/presentation/pages/home_page.dart';
 import 'package:uz_xarid/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/profile_page.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -25,7 +25,7 @@ class AppRouter {
         builder: (context, state, child) {
           final String location = state.uri.path;
           final int currentIndex = _getIndexFromLocation(location);
-          final l10n = AppLocalizations.of(context);
+          final l10n = AppLocalizations.of(context)!;
 
           return Scaffold(
             body: child,
@@ -120,4 +120,3 @@ class AppRouter {
     }
   }
 }
-
