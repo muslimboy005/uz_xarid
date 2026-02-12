@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 import 'package:uz_xarid/app/router/app_router.dart';
 import 'package:uz_xarid/core/localization/locale_cubit.dart';
@@ -12,6 +14,7 @@ class UzXaridApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return BlocProvider(
       create: (_) => LocaleCubit(),
       child: const _AppView(),
@@ -42,6 +45,7 @@ class _AppView extends StatelessWidget {
           ],
         );
       },
+
     );
   }
 }

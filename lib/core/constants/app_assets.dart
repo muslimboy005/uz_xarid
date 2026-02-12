@@ -1,0 +1,75 @@
+class AppAssets {
+  static const String _svg = 'assets/svg/';
+  static const String _png = 'assets/images/';
+
+  // SVG iconlar
+  static const String accessTimeFile = '${_svg}access_time_filed.svg';
+  static const String accountCircle1 = '${_svg}account_circle_1.svg';
+  static const String accountCircle2 = '${_svg}account_circle_2.svg';
+  static const String accountCircle = '${_svg}account_circle.svg';
+  static const String arrowOutward = '${_svg}arrow_outward.svg';
+  static const String backDropdown = '${_svg}back_dropdown.svg';
+  static const String backDropleft = '${_svg}back_dropleft.svg';
+  static const String backDropright = '${_svg}back_dropright.svg';
+  static const String barChart = '${_svg}bar_chart.svg';
+  static const String call = '${_svg}call.svg';
+  static const String call2 = '${_svg}call2.svg';
+  static const String chat = '${_svg}chat.svg';
+  static const String checkMark = '${_svg}check_mark.svg';
+  static const String cleaningServices = '${_svg}cleaning_services.svg';
+  static const String clock = '${_svg}clock.svg';
+  static const String close = '${_svg}close.svg';
+  static const String copy = '${_svg}copy.svg';
+  static const String creditScore = '${_svg}credit_score.svg';
+  static const String delete = '${_svg}delete.svg';
+  static const String doneAll = '${_svg}done_all.svg';
+  static const String edit = '${_svg}edit.svg';
+  static const String errorOutline = '${_svg}error_outline.svg';
+  static const String eventNote = '${_svg}event_note.svg';
+  static const String facebook = '${_svg}facebook.svg';
+  static const String favorite1 = '${_svg}favorite_1.svg';
+  static const String favorite2 = '${_svg}favorite_2.svg';
+  static const String favorites = '${_svg}favorites.svg';
+  static const String feed = '${_svg}feed.svg';
+  static const String filter = '${_svg}filter.svg';
+  static const String flagEn = '${_svg}flag_en.svg';
+  static const String flagRu = '${_svg}flag_ru.svg';
+  static const String flagUz = '${_svg}flag_uz.svg';
+  static const String forum = '${_svg}forum.svg';
+  static const String frame = '${_svg}frame.svg';
+  static const String heartOutline = '${_svg}heart_outline.svg';
+  static const String history = '${_svg}history.svg';
+  static const String home1 = '${_svg}home_1.svg';
+  static const String home2 = '${_svg}home_2.svg';
+  static const String information = '${_svg}information.svg';
+  static const String insta = '${_svg}Insta.svg';
+  static const String iosShare = '${_svg}ios_share.svg';
+  static const String labelImportant = '${_svg}label_important.svg';
+  static const String locationOn = '${_svg}location_on.svg';
+  static const String logout = '${_svg}logout.svg';
+  static const String mapLocation = '${_svg}map_location.svg';
+  static const String mapPin = '${_svg}map_pin.svg';
+  static const String menu1 = '${_svg}menu_1.svg';
+  static const String menu2 = '${_svg}menu_2.svg';
+  static const String minus = '${_svg}minus.svg';
+  static const String notifications = '${_svg}notifications.svg';
+  static const String playCircle = '${_svg}play_circle.svg';
+  static const String plus = '${_svg}plus.svg';
+  static const String savedSearch = '${_svg}saved_search.svg';
+  static const String search = '${_svg}search.svg';
+  static const String settingsPhone = '${_svg}settings_phone.svg';
+  static const String shoppingCart = '${_svg}shopping_cart.svg';
+  static const String starOutline = '${_svg}star_outline.svg';
+  static const String star = '${_svg}star.svg';
+  static const String telegram = '${_svg}telegram.svg';
+  static const String thumbDown = '${_svg}thumb_down.png';
+  static const String thumbTop = '${_svg}thumb_top.svg';
+  static const String visibility = '${_svg}visibility.svg';
+  static const String vk = '${_svg}VK.svg';
+  static const String watchLater = '${_svg}watch_later.svg';
+  static const String work = '${_svg}work.svg';
+  static const String wp = '${_svg}WP.svg';
+
+  // PNG (agar kerak bo'lsa)
+  static const String logo = '${_svg}logo.png';
+}
