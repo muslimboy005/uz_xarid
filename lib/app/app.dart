@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:uz_xarid/app/router/app_router.dart';
 import 'package:uz_xarid/core/constants/app_strings.dart';
@@ -9,11 +10,13 @@ class UzXaridApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: AppStrings.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      routerConfig: AppRouter.router,
+    return ScreenUtilInit(
+      child: MaterialApp.router(
+        title: AppStrings.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        routerConfig: AppRouter.router,
+      ),
     );
   }
 }
