@@ -22,8 +22,7 @@ abstract class Failure {
 
 // Server xatoliklari uchun
 class ServerFailure extends Failure {
-  const ServerFailure(String message, {int? statusCode})
-      : super(message, statusCode: statusCode);
+  const ServerFailure(super.message, {super.statusCode});
 
   factory ServerFailure.fromStatusCode(int statusCode, {String? customMessage}) {
     switch (statusCode) {
@@ -51,8 +50,7 @@ class ServerFailure extends Failure {
 
 // Tarmoq xatoliklari uchun
 class NetworkFailure extends Failure {
-  const NetworkFailure(String message, {int? statusCode})
-      : super(message, statusCode: statusCode);
+  const NetworkFailure(super.message, {super.statusCode});
 
   factory NetworkFailure.noConnection() {
     return const NetworkFailure("Internet aloqasi yo'q");
@@ -73,8 +71,7 @@ class NetworkFailure extends Failure {
 
 // Validatsiya xatoliklari uchun
 class ValidationFailure extends Failure {
-  const ValidationFailure(String message, {int? statusCode})
-      : super(message, statusCode: statusCode);
+  const ValidationFailure(super.message, {super.statusCode});
 
   factory ValidationFailure.invalidPhone() {
     return const ValidationFailure("Telefon raqam noto'g'ri formatda");
@@ -99,8 +96,7 @@ class ValidationFailure extends Failure {
 
 // Kesh xatoliklari uchun
 class CacheFailure extends Failure {
-  const CacheFailure(String message, {int? statusCode})
-      : super(message, statusCode: statusCode);
+  const CacheFailure(super.message, {super.statusCode});
 
   factory CacheFailure.notFound() {
     return const CacheFailure("Ma'lumot keshda topilmadi");
@@ -117,8 +113,7 @@ class CacheFailure extends Failure {
 
 // Autentifikatsiya xatoliklari uchun
 class AuthFailure extends Failure {
-  const AuthFailure(String message, {int? statusCode})
-      : super(message, statusCode: statusCode);
+  const AuthFailure(super.message, {super.statusCode});
 
   factory AuthFailure.invalidCredentials() {
     return const AuthFailure("Login yoki parol noto'g'ri");
@@ -143,8 +138,7 @@ class AuthFailure extends Failure {
 
 // Permission xatoliklari uchun
 class PermissionFailure extends Failure {
-  const PermissionFailure(String message, {int? statusCode})
-      : super(message, statusCode: statusCode);
+  const PermissionFailure(super.message, {super.statusCode});
 
   factory PermissionFailure.denied() {
     return const PermissionFailure("Ruxsat berilmadi");

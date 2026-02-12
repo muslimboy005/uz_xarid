@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
 import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failures.dart';
 import 'package:uz_xarid/features/home/data/datasources/home_category_api.dart';

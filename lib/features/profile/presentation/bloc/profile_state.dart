@@ -1,91 +1,28 @@
 part of 'profile_bloc.dart';
 
+enum ProfileStatus { initial, loading, success, failure }
+
 class ProfileState extends Equatable {
-  const ProfileState({
-    this.fullName,
-    this.email,
-    this.phoneNumber,
-    this.avatarUrl,
-    this.isLoading = false,
-    this.errorMessage,
-    this.isAuthorized = false,
-    this.authStep = ProfileAuthStep.none,
-    this.firstName,
-    this.lastName,
-    this.phoneInput,
-    this.otpInput,
-  });
+  const ProfileState({required this.status, required this.profileModel, required this.errorMessage, required this.otpModel});
 
-  final String? fullName;
-  final String? email;
-  final String? phoneNumber;
-  final String? avatarUrl;
-  final bool isLoading;
+  final ProfileStatus status;
+  final ProfileModel? profileModel;
+  final OtpModel? otpModel;
   final String? errorMessage;
-  final bool isAuthorized;
 
-  /// Simple auth flow state for UI (bottom sheets).
-  ///
-  /// 0 - none, 1 - phone, 2 - otp, 3 - name.
-  final int authStep;
+  factory ProfileState.initial() {
+    return ProfileState(status: ProfileStatus.initial, profileModel: null,otpModel: null, errorMessage: null);
+  }
 
-  final String? firstName;
-  final String? lastName;
-  final String? phoneInput;
-  final String? otpInput;
-
-  ProfileState copyWith({
-    String? fullName,
-    String? email,
-    String? phoneNumber,
-    String? avatarUrl,
-    bool? isLoading,
-    String? errorMessage,
-    bool? isAuthorized,
-    int? authStep,
-    String? firstName,
-    String? lastName,
-    String? phoneInput,
-    String? otpInput,
-  }) {
+  ProfileState copyWith({ProfileStatus? status, ProfileModel? profileModel, OtpModel? otpModel, String? errorMessage}) {
     return ProfileState(
-      fullName: fullName ?? this.fullName,
-      email: email ?? this.email,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
-      isAuthorized: isAuthorized ?? this.isAuthorized,
-      authStep: authStep ?? this.authStep,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      phoneInput: phoneInput ?? this.phoneInput,
-      otpInput: otpInput ?? this.otpInput,
+      status: status ?? this.status,
+      profileModel: profileModel ?? this.profileModel,
+      otpModel: otpModel ?? this.otpModel,
+      errorMessage: errorMessage ?? this.errorMessage
     );
   }
 
   @override
-  List<Object?> get props => [
-        fullName,
-        email,
-        phoneNumber,
-        avatarUrl,
-        isLoading,
-        errorMessage,
-        isAuthorized,
-        authStep,
-        firstName,
-        lastName,
-        phoneInput,
-        otpInput,
-      ];
+  List<Object?> get props => [status, profileModel, otpModel, errorMessage];
 }
-
-
-class ProfileAuthStep {
-  static const int none = 0;
-  static const int phone = 1;
-  static const int otp = 2;
-  static const int name = 3;
-}
-
