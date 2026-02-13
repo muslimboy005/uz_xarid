@@ -42,9 +42,8 @@ class ProfileSendOtpEvent extends ProfileEvent {
 }
 
 class ProfileConfirmOtpEvent extends ProfileEvent {
-  final String otp;
-  final String phone;
-  const ProfileConfirmOtpEvent(this.otp, this.phone);
+  final OtpModel otpModel;
+  const ProfileConfirmOtpEvent({required this.otpModel});
 }
 
 class ProfileSignSubmitEvent extends ProfileEvent {

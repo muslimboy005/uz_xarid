@@ -18,8 +18,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     this.profileSignSubmitUsecase,
   ) : super(ProfileState.initial()) {
     on<ProfileSendOtpEvent>(_sendOtp);
-    // on<ProfileConfirmOtpEvent>(_confirmOtp);
-    // on<ProfileSignSubmitEvent>(_confirmSign);
+    on<ProfileConfirmOtpEvent>(_confirmOtp);
+    on<ProfileSignSubmitEvent>(_confirmSign);
   }
 
   Future<void> _sendOtp(
@@ -39,12 +39,68 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           );
         },
         (success) {
+          // success bu ProfileModel
           emit(
             state.copyWith(
               status: ProfileStatus.success,
-              otpModel: success as OtpModel?,
+              profileModel: success,
             ),
           );
+        },
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _confirmOtp(ProfileConfirmOtpEvent event, Emitter<ProfileState> emit) async {
+    try {
+      emit(state.copyWith(status: ProfileStatus.loading));
+      final result = await profileConfirmOtpUsecase(event.otpModel);
+       result.either(
+        (failure) {
+          emit(
+            state.copyWith(
+              status: ProfileStatus.failure,
+              errorMessage: failure.toString(),
+            ),
+          );
+        },
+        (success) {
+          // success bu ProfileModel
+          emit(
+            state.copyWith(
+              status: ProfileStatus.success,
+              profileModel: success,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _confirmSign(ProfileSignSubmitEvent event, Emitter<ProfileState> emit) async {
+    try {
+      emit(state.copyWith(status: ProfileStatus.loading));
+      final result = await profileSignSubmitUsecase(event.fullNameEntity);
+      result.either(
+        (failure) {
+          emit(state.copyWith(status: ProfileStatus.failure, errorMessage: failure.toString()));
+        },
+        (success) {
+          emit(state.copyWith(status: ProfileStatus.success, profileModel: success));
         },
       );
     } catch (e) {
