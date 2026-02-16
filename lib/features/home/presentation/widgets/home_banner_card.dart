@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/features/home/domain/entities/banner_entity.dart';
+import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class HomeBannerCard extends StatelessWidget {
   const HomeBannerCard({super.key, required this.banner});
 
-  final BannerEntity banner;
+  final HomeBanner banner;
 
   Color _parseColor(String? value, {Color fallback = AppColors.green}) {
     if (value == null || value.isEmpty) return fallback;
@@ -97,17 +98,17 @@ class HomeBannerCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
-                        'Все товары',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.allProducts,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 18,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(
+                      const SizedBox(width: 8),
+                      const Icon(
                         Icons.arrow_forward_ios,
                         size: 16,
                         color: Colors.white,
