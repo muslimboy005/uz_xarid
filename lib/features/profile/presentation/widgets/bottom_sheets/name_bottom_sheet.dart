@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
+import 'package:uz_xarid/core/widgets/app_text.dart';
+import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 
@@ -11,8 +17,7 @@ class NameBottomSheet extends StatefulWidget {
     showModalBottomSheet<void>(
       context: parentContext,
       isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -56,7 +61,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
         } else if (state.status == ProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? 'Xatolik yuz berdi'),
+              content: Text(getFriendlyErrorMessage(state.errorMessage)),
               backgroundColor: Colors.red,
             ),
           );
@@ -65,78 +70,95 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
 
-        return Padding(
-          padding: EdgeInsets.only(
-            left: AppDimens.paddingMedium,
-            right: AppDimens.paddingMedium,
-            top: AppDimens.paddingMedium,
-            bottom:
-                MediaQuery.of(context).viewInsets.bottom +
-                AppDimens.paddingMedium,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    borderRadius: BorderRadius.circular(2),
+        return Container(
+          height:
+              MediaQuery.of(context).size.height -
+              (MediaQuery.of(context).padding.top + 250),
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: AppDimens.paddingMedium,
+              right: AppDimens.paddingMedium,
+              top: 10,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  AppDimens.paddingMedium,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade400,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              Text(
-                'Почти готово',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ваш профиль почти готов, представьтесь',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              Text(
-                'Имя',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _firstNameController,
-                enabled: !isLoading,
-                decoration: const InputDecoration(
-                  hintText: 'Ваше имя',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: AppDimens.paddingLarge),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 24), // Spacer for centering
+                    AppText(
+                      text: 'Почти готово',
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: AppColors.black500,
+                    ),
+                    AppImage(
+                      path: AppAssets.close,
+                      size: 24,
+                      onTap: () => Navigator.of(context).pop(),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              Text(
-                'Фамилия',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _lastNameController,
-                enabled: !isLoading,
-                decoration: const InputDecoration(
-                  hintText: 'Ваша фамилия',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 21),
+                AppText(
+                  text: 'Ваш профиль почти готов, представьтесь',
+                  fontSize: 14,
+                  fontWeight: 400,
+                  color: AppColors.black300,
                 ),
-              ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading
+                const SizedBox(height: 20),
+                AppText(
+                  text: 'Имя',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: AppColors.black500,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _firstNameController,
+                  enabled: !isLoading,
+                  decoration: const InputDecoration(
+                    hintText: 'Ваше имя',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: AppDimens.paddingLarge),
+                AppText(
+                  text: 'Фамилия',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: AppColors.black500,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _lastNameController,
+                  enabled: !isLoading,
+                  decoration: const InputDecoration(
+                    hintText: 'Ваша фамилия',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: AppDimens.paddingLarge),
+                ContainerW(
+                  color: AppColors.blue500,
+                  radius: 12,
+                  onTap: isLoading
                       ? null
                       : () {
                           if (_firstNameController.text.trim().isEmpty ||
@@ -161,20 +183,35 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                           );
                         },
                   child: isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Center(
+                            child: const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         )
-                      : const Text('Продолжить'),
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Center(
+                            child: AppText(
+                              text: 'Продолжить',
+                              fontSize: 16,
+                              fontWeight: 500,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

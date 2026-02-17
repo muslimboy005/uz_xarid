@@ -10,6 +10,7 @@ abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> confirmOtp(String otp, String phone);
   Future<Either<Failure, ProfileModel>> profileUpdate(FullNameEntity fullName);
   Future<Either<Failure, ProfileModel>> getProfile();
+  Future<Either<Failure, ProfileModel>> resendOtp(String phone);
 
   factory ProfileRepository(ProfileApi profileDataSource) =>
        ProfileRepositoryImpl(profileDataSource: profileDataSource);

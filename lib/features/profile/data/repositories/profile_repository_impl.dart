@@ -83,4 +83,20 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(ValidationFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, ProfileModel>> resendOtp(String phone) async {
+    try {
+      print('📡 Repository: resendOtp called');
+      final result = await _profileDataSource.resendOtp({'phone': phone});
+      print('✅ Repository: resendOtp success');
+      return Right(result);
+    } on DioException catch (e) {
+      print('❌ Repository: resendOtp DioError: ${e.message}');
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      print('❌ Repository: resendOtp error: $e');
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
 }

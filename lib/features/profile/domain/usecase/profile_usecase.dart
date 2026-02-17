@@ -41,3 +41,13 @@ class ProfileGetUsecase extends UseCase<Either<Failure, ProfileModel>, NoParams>
   return profileRepository.getProfile();
   }
 }
+
+class ProfileResendOtpUsecase extends UseCase<Either<Failure, ProfileModel>, String> {
+  final ProfileRepository profileRepository;
+  ProfileResendOtpUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(String phone) async {
+    return profileRepository.resendOtp(phone);
+  }
+}
+

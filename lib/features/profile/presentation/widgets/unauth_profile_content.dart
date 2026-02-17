@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
+import 'package:uz_xarid/core/widgets/app_text.dart';
+import 'package:uz_xarid/core/widgets/w__container.dart';
 
 import 'bottom_sheets/name_bottom_sheet.dart';
 import 'bottom_sheets/otp_bottom_sheet.dart';
@@ -14,60 +19,79 @@ class UnauthProfileContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Что даёт авторизация?',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
+        AppText(
+          text: 'Что даёт авторизация?',
+
+          fontWeight: 700,
+          fontSize: 16,
+          color: AppColors.black500,
         ),
-        const SizedBox(height: AppDimens.paddingLarge),
+        const SizedBox(height: 20),
         const _BenefitRow(
-          icon: Icons.work_outline,
+          icon: AppAssets.work,
           text: 'Возможность предлагать свои услуги',
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         const _BenefitRow(
-          icon: Icons.phone_in_talk_outlined,
+          icon: AppAssets.call,
           text: 'Пользоваться услугами других пользователей',
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         const _BenefitRow(
-          icon: Icons.local_fire_department_outlined,
+          icon: AppAssets.fire,
           text: 'Эксклюзивные предложения именно для вас',
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         const _BenefitRow(
-          icon: Icons.shopping_bag_outlined,
+          icon: AppAssets.chat,
           text: 'Размещение объявлений и избранное',
         ),
         const SizedBox(height: AppDimens.paddingLarge),
-        const Divider(),
+        const Divider(color: AppColors.black100),
         const SizedBox(height: AppDimens.paddingLarge),
-        SizedBox(
+        ContainerW(
           width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                vertical: AppDimens.paddingMedium,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          onTap: () => _showPhoneBottomSheet(context),
+          color: AppColors.blue500,
+          radius: 12,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Center(
+              child: AppText(
+                text: 'Войти или создать профиль',
+                fontSize: 12,
+                fontWeight: 500,
+                color: AppColors.white,
               ),
             ),
-            onPressed: () => _showPhoneBottomSheet(context),
-            child: const Text('Войти или создать профиль'),
           ),
         ),
+
+        // SizedBox(
+        //   width: double.infinity,
+        //   child: ElevatedButton(
+        //     style: ElevatedButton.styleFrom(
+        //       backgroundColor: AppColors.primary,
+        //       foregroundColor: Colors.white,
+        //       padding: const EdgeInsets.symmetric(
+        //         vertical: AppDimens.paddingMedium,
+        //       ),
+        //       shape: RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(12),
+        //       ),
+        //     ),
+        //     onPressed: () => _showPhoneBottomSheet(context),
+        //     child: const Text('Войти или создать профиль'),
+        //   ),
+        // ),
         const SizedBox(height: AppDimens.paddingLarge),
-        Text(
-          'Покупайте, продавайте и пользуйтесь услугами!\n'
-          'Размещайте объявления, находите нужное и добавляйте в избранное',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        AppText(
+          text:
+              'Покупайте, продавайте и пользуйтесь услугами!\nРазмещайте объявления, находите нужное и добавляйте в избранное',
+          fontSize: 12,
+          fontWeight: 400,
+          color: AppColors.black300,
+          maxLines: 3,
         ),
       ],
     );
@@ -80,8 +104,7 @@ class UnauthProfileContent extends StatelessWidget {
         Future.delayed(const Duration(milliseconds: 300), () {
           if (context.mounted) {
             _showOtpBottomSheet(context, phone);
-          } else {
-          }
+          } else {}
         });
       },
     );
@@ -109,26 +132,36 @@ class UnauthProfileContent extends StatelessWidget {
 class _BenefitRow extends StatelessWidget {
   const _BenefitRow({required this.icon, required this.text});
 
-  final IconData icon;
+  final String icon;
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 44,
-          height: 44,
+          width: 38.w,
+          height: 38.h,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+            color: AppColors.blue50,
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.primary),
+          child: AppImage(
+            path: icon,
+            color: AppColors.primary,
+            size: 30,
+            fit: BoxFit.none,
+          ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 6),
         Expanded(
-          child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+          child: AppText(
+            text: text,
+            fontSize: 12,
+            fontWeight: 500,
+            color: AppColors.black400,
+          ),
         ),
       ],
     );

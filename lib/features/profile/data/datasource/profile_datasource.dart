@@ -21,4 +21,7 @@ abstract class ProfileApi {
 
   @GET(ApiUrls.getProfile)
   Future<ProfileModel> getProfile();
+  
+  @POST(ApiUrls.resendOtp)
+  Future<ProfileModel> resendOtp(@Body() Map<String, dynamic> body);
 }

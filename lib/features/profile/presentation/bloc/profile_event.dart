@@ -24,6 +24,11 @@ class ProfileSendOtpEvent extends ProfileEvent {
   const ProfileSendOtpEvent({required this.otpModel});
 }
 
+class ProfileResendOtpEvent extends ProfileEvent {
+  final String phone;
+  const ProfileResendOtpEvent({required this.phone});
+}
+
 class ProfileConfirmOtpEvent extends ProfileEvent {
   final OtpModel otpModel;
   const ProfileConfirmOtpEvent({required this.otpModel});

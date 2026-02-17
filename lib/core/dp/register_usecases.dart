@@ -18,6 +18,8 @@ Future<void> registerUseCases(GetIt getIt) async {
       () => ProfileSignSubmitUsecase(getIt<ProfileRepository>()),
     )..registerLazySingleton<ProfileGetUsecase>(
       () => ProfileGetUsecase(getIt<ProfileRepository>()),
+    )..registerLazySingleton<ProfileResendOtpUsecase>(
+      () => ProfileResendOtpUsecase(getIt<ProfileRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }

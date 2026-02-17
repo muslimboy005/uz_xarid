@@ -45,3 +45,10 @@ class UzbekPhoneInputFormatter extends TextInputFormatter {
     );
   }
 }
+
+String formatPhone(String phone) {
+  final digits = phone.replaceAll(RegExp(r'\D'), '');
+  final last4 = digits.substring(digits.length - 4);
+  return '(**$last4)';
+}
+

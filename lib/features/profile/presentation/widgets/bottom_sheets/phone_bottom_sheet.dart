@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
+import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 
 class PhoneBottomSheet extends StatefulWidget {
@@ -52,7 +57,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
         } else if (state.status == ProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? 'Xatolik yuz berdi'),
+              content: Text(getFriendlyErrorMessage(state.errorMessage)),
               backgroundColor: Colors.red,
             ),
           );
@@ -61,47 +66,73 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
 
-        return Padding(
+        // Calculate height: Screen Height - Top Padding - AppBar Height (112)
+        // UzXaridAppBar height is 112.
+        return Container(
+          height:
+              MediaQuery.of(context).size.height -
+              (MediaQuery.of(context).padding.top + 250),
           padding: EdgeInsets.only(
             left: AppDimens.paddingMedium,
             right: AppDimens.paddingMedium,
-            top: AppDimens.paddingMedium,
+            top: AppDimens.paddingSmall2,
             bottom:
                 MediaQuery.of(context).viewInsets.bottom +
                 AppDimens.paddingMedium,
           ),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Center(
                 child: Container(
                   width: 40,
                   height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
+                    color: AppColors.black400,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              Text(
-                'Вход в аккаунт',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 24), // Spacer for centering
+                  AppText(
+                    text: 'Вход в аккаунт',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: AppColors.black500,
+                  ),
+                  AppImage(
+                    path: AppAssets.close,
+                    size: 24,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Мы отправим проверочный код на введённый номер по SMS.',
-                style: Theme.of(context).textTheme.bodyMedium,
+              SizedBox(height: 21),
+              AppText(
+                text: 'Мы отправим проверочный код на\nвведённый номер по SMS.',
+                textAlign: TextAlign.center,
+                fontSize: 14,
+                fontWeight: 400,
+                color: AppColors.black300,
+                maxLines: 2,
               ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              Text(
-                'Телефон',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: AppText(
+                  text: 'Телефон',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: AppColors.black500,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -115,12 +146,24 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 decoration: const InputDecoration(
                   hintText: '+998 90 123-45-67',
                   border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                 ),
               ),
-              const SizedBox(height: AppDimens.paddingLarge),
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: isLoading
                       ? null
                       : () {
@@ -147,8 +190,8 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                         },
                   child: isLoading
                       ? const SizedBox(
-                          height: 20,
-                          width: 20,
+                          height: 24,
+                          width: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
@@ -156,15 +199,42 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                             ),
                           ),
                         )
-                      : const Text('Получить код'),
+                      : const Text(
+                          'Получить код',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
-              const SizedBox(height: AppDimens.paddingMedium),
-              DefaultTextStyle.merge(
-                style: Theme.of(context).textTheme.bodySmall,
-                child: const Text(
-                  'Авторизациядан o\'tish орқали сиз шахсий маълумотларни '
-                  'қайта ишлаш сиёсатга розилик биладирасиз',
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Text.rich(
+                  TextSpan(
+                    text: 'Avtotizatsiyadan o\'tish orqali siz ',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    children: [
+                      TextSpan(
+                        text:
+                            'shaxsiy ma\'lumotlarni\nqayta ishlash siyosatiga',
+                        style: TextStyle(
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        // recognizer: TapGestureRecognizer()..onTap = () {},
+                      ),
+                      TextSpan(
+                        text: ' rozilios bildirasiz',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
