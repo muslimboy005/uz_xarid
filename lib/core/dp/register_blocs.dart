@@ -11,6 +11,8 @@ Future<void> registerBlocs(GetIt getIt) async {
         getIt<ProfileConfirmOtpUsecase>(),
         getIt<ProfileSendOtpUsecase>(),
         getIt<ProfileSignSubmitUsecase>(),
+        getIt<ProfileGetUsecase>(),
+        // getIt<SecureStorageService>(),
       ),
     );
     

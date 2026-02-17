@@ -1,5 +1,8 @@
+// core/network/dio_client.dart
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:uz_xarid/core/network/auth_interseptor.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import '../constants/api_urls.dart';
 import 'main_model.dart';
@@ -13,9 +16,19 @@ class DioClient {
         baseUrl: ApiUrls.baseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
       ),
     );
 
+    // ✅ BIRINCHI - Auth Interceptor
+    _dio.interceptors.add(
+      AuthInterceptor(GetIt.I<SecureStorageService>()),
+    );
+
+    // IKKINCHI - Log Interceptor
     _dio.interceptors.add(
       LogInterceptor(
         requestBody: true,
@@ -38,6 +51,7 @@ class DioClient {
       'Content-Type': contentType ?? 'application/json; charset=UTF-8',
     };
 
+    // ✅ Interceptor token qo'shadi, bu backward compatibility uchun
     if (withToken) {
       final token = await GetIt.I<SecureStorageService>().getToken();
       if (token != null) {
@@ -48,15 +62,17 @@ class DioClient {
     return headers;
   }
 
+  // ... qolgan methodlar o'zgarishsiz
+  
   Future<MainModel> get(
-      String uri, {
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        bool withToken = true,
-      }) async {
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool withToken = true,
+  }) async {
     final headers = await _createHeaders(withToken: withToken);
     return _request(
-          () => _dio.get(
+      () => _dio.get(
         uri,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
@@ -66,21 +82,21 @@ class DioClient {
   }
 
   Future<MainModel> post(
-      String uri, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        bool withToken = true,
-        String? contentType,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool withToken = true,
+    String? contentType,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final headers = await _createHeaders(
       withToken: withToken,
       contentType: contentType,
     );
     return _request(
-          () => _dio.post(
+      () => _dio.post(
         uri,
         data: data,
         queryParameters: queryParameters,
@@ -93,21 +109,21 @@ class DioClient {
   }
 
   Future<MainModel> put(
-      String uri, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        bool withToken = true,
-        String? contentType,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool withToken = true,
+    String? contentType,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final headers = await _createHeaders(
       withToken: withToken,
       contentType: contentType,
     );
     return _request(
-          () => _dio.put(
+      () => _dio.put(
         uri,
         data: data,
         queryParameters: queryParameters,
@@ -120,21 +136,21 @@ class DioClient {
   }
 
   Future<MainModel> patch(
-      String uri, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        bool withToken = true,
-        String? contentType,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String uri, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool withToken = true,
+    String? contentType,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final headers = await _createHeaders(
       withToken: withToken,
       contentType: contentType,
     );
     return _request(
-          () => _dio.patch(
+      () => _dio.patch(
         uri,
         data: data,
         queryParameters: queryParameters,
@@ -147,19 +163,19 @@ class DioClient {
   }
 
   Future<MainModel> delete(
-      String uri, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        bool withToken = true,
-        String? contentType,
-      }) async {
+    String uri, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool withToken = true,
+    String? contentType,
+  }) async {
     final headers = await _createHeaders(
       withToken: withToken,
       contentType: contentType,
     );
     return _request(
-          () => _dio.delete(
+      () => _dio.delete(
         uri,
         data: data,
         queryParameters: queryParameters,
@@ -204,7 +220,7 @@ class DioClient {
         result: null,
         errorCode: null,
         detail:
-        data is Map<String, dynamic> ? data : {'description': e.message},
+            data is Map<String, dynamic> ? data : {'description': e.message},
         timestamp: DateTime.now().toIso8601String(),
       );
     }
@@ -218,5 +234,4 @@ class DioClient {
       timestamp: DateTime.now().toIso8601String(),
     );
   }
-
 }

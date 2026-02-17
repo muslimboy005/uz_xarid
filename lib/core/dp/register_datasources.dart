@@ -6,7 +6,7 @@ import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dar
 
 Future<void> registerDataSources(GetIt getIt) async {
   getIt
-    ..registerSingleton<DioClient>(DioClient())
+    ..registerLazySingleton<DioClient>(() => DioClient())
     ..registerLazySingleton<ProfileApi>(
       () => ProfileApi(getIt<DioClient>().dio),
     );

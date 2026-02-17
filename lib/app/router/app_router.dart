@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/dp/infection.dart';
+import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/home/presentation/pages/home_page.dart';
 import 'package:uz_xarid/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/pages/favorites_page.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/profile_page.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
@@ -79,12 +83,21 @@ class AppRouter {
             ),
           ),
           GoRoute(
-            path: '/profile',
-            name: 'profile',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ProfilePage(),
-            ),
-          ),
+      path: '/profile',
+      name: "profile",
+      builder: (context, state) => BlocProvider(
+        create: (_) {
+          final bloc = getIt<ProfileBloc>();
+          getIt<SecureStorageService>().hasToken().then((hasToken) {
+            if (hasToken) {
+              bloc.add(ProfileLoadEvent());
+            }
+          });
+          return bloc;
+        },
+        child: const ProfilePage(),
+      ),
+    ),
         ],
       ),
     ],
