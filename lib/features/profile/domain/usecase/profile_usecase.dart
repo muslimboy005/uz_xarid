@@ -7,13 +7,13 @@ import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 
 
-class ProfileSendOtpUsecase extends UseCase<Either<Failure, ProfileModel>,OtpModel> {
-
+class ProfileSendOtpUsecase extends UseCase<Either<Failure, ProfileModel>,String> {
   final ProfileRepository profileRepository;
   ProfileSendOtpUsecase(this.profileRepository);
   @override
-  Future<Either<Failure, ProfileModel>> call(OtpModel otp) {
-    return profileRepository.sendOtp(otp.phone);
+  Future<Either<Failure, ProfileModel>> call(String phone) async {
+
+
   }
 }
 
@@ -24,7 +24,7 @@ class ProfileConfirmOtpUsecase extends UseCase<Either<Failure, ProfileModel>, Ot
   ProfileConfirmOtpUsecase(this.profileRepository);
   @override
   Future<Either<Failure, ProfileModel>> call(OtpModel otp) async {
-    return profileRepository.confirmOtp(otp.otp, otp.phone);
+    return profileRepository.confirmOtp(otp.phone, otp.otp!);
   }
 }
 
@@ -36,3 +36,22 @@ class ProfileSignSubmitUsecase extends UseCase<Either<Failure, ProfileModel>, Fu
     return profileRepository.profileUpdate(fullName);
   }
 }
+
+class ProfileGetUsecase extends UseCase<Either<Failure, ProfileModel>, NoParams> {
+  final ProfileRepository profileRepository;
+  ProfileGetUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(NoParams param) {
+  return profileRepository.getProfile();
+  }
+}
+
+class ProfileResendOtpUsecase extends UseCase<Either<Failure, ProfileModel>, String> {
+  final ProfileRepository profileRepository;
+  ProfileResendOtpUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(String phone) async {
+    return profileRepository.resendOtp(phone);
+  }
+}
+

@@ -69,6 +69,8 @@ class AppAssets {
   static const String watchLater = '${_svg}watch_later.svg';
   static const String work = '${_svg}work.svg';
   static const String wp = '${_svg}WP.svg';
+  static const String fire = '${_svg}fire.svg';
+  
 
   // PNG (agar kerak bo'lsa)
   static const String logo = '${_svg}logo.png';
