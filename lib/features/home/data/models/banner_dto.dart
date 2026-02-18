@@ -1,4 +1,4 @@
-import 'package:uz_xarid/features/home/domain/entities/banner_entity.dart';
+import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
 
 class BannerDto {
   final int id;
@@ -56,7 +56,7 @@ class BannerDto {
     );
   }
 
-  BannerEntity toEntity() => BannerEntity(
+  HomeBanner toHomeBanner() => HomeBanner(
     id: id,
     title: title,
     description: description,

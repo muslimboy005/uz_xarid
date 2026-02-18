@@ -6,19 +6,49 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dio/dio_client.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/features/home/data/datasources/home_category_api.dart';
-import 'package:uz_xarid/features/home/data/datasources/home_banner_api.dart';
-import 'package:uz_xarid/features/home/data/repositories/home_banner_repository_impl.dart';
-import 'package:uz_xarid/features/home/data/repositories/home_category_repository_impl.dart';
-import 'package:uz_xarid/features/home/domain/usecases/get_home_banners.dart';
-import 'package:uz_xarid/features/home/domain/usecases/get_home_categories.dart';
-import 'package:uz_xarid/features/home/presentation/bloc/home_banner_cubit.dart';
-import 'package:uz_xarid/features/home/presentation/bloc/home_category_bloc.dart';
+import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
+import 'package:uz_xarid/features/home/data/repositories/home_repository_impl.dart';
+import 'package:uz_xarid/features/home/domain/usecases/get_home.dart';
+import 'package:uz_xarid/features/home/presentation/bloc/home_bloc.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/home_banner_card.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/home_category_card.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/home_subcategory_card.dart';
+import 'package:uz_xarid/features/home/presentation/widgets/recommendation_card.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
+
+Widget _servicesEmpty(BuildContext context, AppLocalizations l10n) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 32),
+    decoration: BoxDecoration(
+      color: AppColors.black50,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.settings, size: 48, color: AppColors.textSecondary),
+        const SizedBox(height: 12),
+        Text(
+          l10n.servicesEmptyTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.servicesEmptySubtitle,
+          textAlign: TextAlign.center,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
+    ),
+  );
+}
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -49,28 +79,13 @@ class HomePage extends StatelessWidget {
       ),
     ];
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final dioClient = DioClient();
-            final api = HomeCategoryApi(dioClient.dio);
-            final repo = HomeCategoryRepositoryImpl(api);
-            final useCase = GetHomeCategories(repo);
-            return HomeCategoryBloc(useCase)
-              ..add(const HomeCategoriesRequested());
-          },
-        ),
-        BlocProvider(
-          create: (_) {
-            final dioClient = DioClient();
-            final api = HomeBannerApi(dioClient.dio);
-            final repo = HomeBannerRepositoryImpl(api);
-            final useCase = GetHomeBanners(repo);
-            return HomeBannerCubit(useCase)..fetchBanners();
-          },
-        ),
-      ],
+    return BlocProvider(
+      create: (_) {
+        final dioClient = DioClient();
+        final repo = HomeRepositoryImpl(homeApi: HomeApi(dioClient.dio));
+        final useCase = GetHome(repo);
+        return HomeBloc(useCase)..add(const HomeRequested());
+      },
       child: Scaffold(
         backgroundColor: AppColors.primary,
         appBar: UzXaridAppBar(
@@ -115,7 +130,7 @@ class HomePage extends StatelessWidget {
                       horizontal: AppDimens.paddingMedium,
                     ),
 
-                    child: BlocBuilder<HomeCategoryBloc, HomeCategoryState>(
+                    child: BlocBuilder<HomeBloc, HomeState>(
                       builder: (context, state) {
                         return GridView.builder(
                           itemCount: categories.length,
@@ -138,11 +153,11 @@ class HomePage extends StatelessWidget {
                                 isHighlighted: isSelected,
                                 categoryType: category.categoryType,
                                 onTap: () {
-                                  final bloc = context.read<HomeCategoryBloc>();
-                                  bloc.add(HomeCategorySelected(index));
+                                  final bloc = context.read<HomeBloc>();
                                   bloc.add(
-                                    HomeCategoriesRequested(
-                                      categoryType: category.categoryType,
+                                    HomeCategorySelected(
+                                      index,
+                                      category.categoryType,
                                     ),
                                   );
                                 },
@@ -154,9 +169,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),
-                  BlocBuilder<HomeCategoryBloc, HomeCategoryState>(
+                  BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
-                      if (state.status == HomeCategoryStatus.failure) {
+                      if (state.status == HomeStatus.failure) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Text(
@@ -168,7 +183,7 @@ class HomePage extends StatelessWidget {
                       }
 
                       final isLoading =
-                          state.status == HomeCategoryStatus.loading &&
+                          state.status == HomeStatus.loading &&
                           state.categories.isEmpty;
                       final items = state.categories
                           .where((c) => c.name.trim().isNotEmpty)
@@ -234,8 +249,14 @@ class HomePage extends StatelessWidget {
                         isLoading ? loadingCards : dataCards,
                       );
 
-                      return SizedBox(
-                        height: cardHeight * 2 + 16,
+                      return Container(
+                        width: double.infinity,
+                        height: cardHeight * 2 + 46,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.black50,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -252,20 +273,22 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDimens.paddingMedium,
                     ),
-                    child: BlocBuilder<HomeBannerCubit, HomeBannerState>(
+                    child: BlocBuilder<HomeBloc, HomeState>(
                       builder: (context, state) {
-                        if (state.status == HomeBannerStatus.failure) {
+                        if (state.status == HomeStatus.failure &&
+                            state.banners.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16),
                             child: Text(
-                              state.error ?? 'Banner yuklashda xatolik',
+                              state.error ?? l10n.dataLoadError,
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(color: AppColors.red),
                             ),
                           );
                         }
 
-                        if (state.status == HomeBannerStatus.loading) {
+                        if (state.status == HomeStatus.loading &&
+                            state.banners.isEmpty) {
                           return Shimmer.fromColors(
                             baseColor: AppColors.black100,
                             highlightColor: AppColors.black50,
@@ -294,6 +317,382 @@ class HomePage extends StatelessWidget {
                               return HomeBannerCard(banner: banner);
                             },
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: AppDimens.paddingLarge),
+                  Container(
+                    width: double.infinity,
+                    height: 420,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.black50,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppDimens.paddingMedium,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                l10n.recommendationsTitle,
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textPrimary,
+                                    ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    l10n.seeAll,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.arrow_forward_ios, size: 16),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 340,
+                          child: BlocBuilder<HomeBloc, HomeState>(
+                            builder: (context, state) {
+                              if (state.status == HomeStatus.failure &&
+                                  state.recommendations.isEmpty) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Text(
+                                    state.error ?? l10n.dataLoadError,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: AppColors.red),
+                                  ),
+                                );
+                              }
+
+                              if (state.status == HomeStatus.loading &&
+                                  state.recommendations.isEmpty) {
+                                return ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  itemBuilder: (_, __) => Container(
+                                    width: 230,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.black50,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 12),
+                                  itemCount: 3,
+                                );
+                              }
+
+                              if (state.recommendations.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                itemCount: state.recommendations.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(width: 12),
+                                itemBuilder: (context, index) =>
+                                    RecommendationCard(
+                                      item: state.recommendations[index],
+                                    ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppDimens.paddingLarge),
+                  // Gifts section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.paddingMedium,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 329,
+                            height: 500,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage(
+                                  'assets/images/rectangel.png',
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 14,
+                              top: 14,
+                              bottom: 14,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    l10n.recommendationsTitle,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  width: 290,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      l10n.giftHeadline,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  height: 330,
+                                  child: BlocBuilder<HomeBloc, HomeState>(
+                                    builder: (context, state) {
+                                      if (state.status == HomeStatus.failure &&
+                                          state.gifts.isEmpty) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          child: Text(
+                                            state.error ?? l10n.dataLoadError,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color: AppColors.red,
+                                                ),
+                                          ),
+                                        );
+                                      }
+                                      if (state.status == HomeStatus.loading &&
+                                          state.gifts.isEmpty) {
+                                        return ListView.separated(
+                                          scrollDirection: Axis.horizontal,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          itemBuilder: (_, __) => Container(
+                                            width: 240,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.black50,
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                          ),
+                                          separatorBuilder: (_, __) =>
+                                              const SizedBox(width: 12),
+                                          itemCount: 2,
+                                        );
+                                      }
+                                      if (state.gifts.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        itemCount: state.gifts.length,
+                                        separatorBuilder: (_, __) =>
+                                            const SizedBox(width: 12),
+                                        itemBuilder: (context, index) =>
+                                            RecommendationCard(
+                                              item: state.gifts[index],
+                                            ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    // TODO: implement gift tap
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(
+                                      top: 15,
+                                      right: 14,
+                                      left: 10,
+                                    ),
+                                    width: 240,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.blue600,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        l10n.view,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                              color: AppColors.white,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppDimens.paddingLarge),
+                  // Services section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.paddingMedium,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: FittedBox(
+                            alignment: Alignment.centerLeft,
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              l10n.servicesTitle,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.textPrimary,
+                                  ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.servicesSeeAll,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_forward_ios, size: 16),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.paddingMedium,
+                    ),
+                    child: BlocBuilder<HomeBloc, HomeState>(
+                      builder: (context, state) {
+                        if (state.status == HomeStatus.failure &&
+                            state.services.isEmpty) {
+                          return _servicesEmpty(context, l10n);
+                        }
+
+                        if (state.status == HomeStatus.loading &&
+                            state.services.isEmpty) {
+                          return SizedBox(
+                            height: 340,
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: 0.72,
+                                  ),
+                              itemCount: 4,
+                              itemBuilder: (_, __) => Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.black50,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (state.services.isEmpty) {
+                          return _servicesEmpty(context, l10n);
+                        }
+
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.72,
+                              ),
+                          itemCount: state.services.length,
+                          itemBuilder: (context, index) =>
+                              RecommendationCard(item: state.services[index]),
                         );
                       },
                     ),

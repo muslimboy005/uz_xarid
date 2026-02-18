@@ -219,6 +219,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Services & jobs'**
   String get categoryServices;
+
+  /// No description provided for @recommendationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended for you'**
+  String get recommendationsTitle;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get seeAll;
+
+  /// No description provided for @allProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'All products'**
+  String get allProducts;
+
+  /// No description provided for @topTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Top'**
+  String get topTag;
+
+  /// No description provided for @reviewsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'reviews'**
+  String get reviewsLabel;
+
+  /// No description provided for @dataLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load data'**
+  String get dataLoadError;
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
+
+  /// No description provided for @giftHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect gifts for everyone'**
+  String get giftHeadline;
+
+  /// No description provided for @servicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Services nearby'**
+  String get servicesTitle;
+
+  /// No description provided for @servicesSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get servicesSeeAll;
+
+  /// No description provided for @servicesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No services found'**
+  String get servicesEmptyTitle;
+
+  /// No description provided for @servicesEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry! No services around you'**
+  String get servicesEmptySubtitle;
 }
 
 class _AppLocalizationsDelegate

@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/dio/dio_client.dart';
-import 'package:uz_xarid/core/error/failure.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 part 'profile_datasource.g.dart';

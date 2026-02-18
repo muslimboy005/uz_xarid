@@ -17,8 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isAuthorized = false;
 
   // Mock data faqat UI uchun
-  String _fullName = 'Darobov Baxodir';
-  String _phoneNumber = '+ 998 89 545 84 58';
+  final String _fullName = 'Darobov Baxodir';
+  final String _phoneNumber = '+ 998 89 545 84 58';
 
   @override
   Widget build(BuildContext context) {

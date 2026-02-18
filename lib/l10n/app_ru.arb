@@ -19,5 +19,17 @@
   "categoryGoods": "Товары и покупки",
   "categoryConstruction": "Объекты строительства",
   "categoryAutoMoto": "Авто и мототехника",
-  "categoryServices": "Услуги и работа"
+  "categoryServices": "Услуги и работа",
+  "recommendationsTitle": "Рекомендуем вам",
+  "seeAll": "Все",
+  "allProducts": "Все товары",
+  "topTag": "Топ",
+  "reviewsLabel": "отзывов",
+  "dataLoadError": "Не удалось загрузить данные",
+  "view": "Посмотреть",
+  "giftHeadline": "Идеальные подарки для всех",
+  "servicesTitle": "Сервис рядом",
+  "servicesSeeAll": "Все",
+  "servicesEmptyTitle": "Сервисы не найдены",
+  "servicesEmptySubtitle": "Извините! Рядом сервисов нет"
 }
