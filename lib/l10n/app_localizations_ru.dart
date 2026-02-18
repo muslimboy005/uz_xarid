@@ -67,4 +67,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categoryServices => 'Услуги и работа';
+
+  @override
+  String get recommendationsTitle => 'Рекомендуем вам';
+
+  @override
+  String get seeAll => 'Все';
+
+  @override
+  String get allProducts => 'Все товары';
+
+  @override
+  String get topTag => 'Топ';
+
+  @override
+  String get reviewsLabel => 'отзывов';
+
+  @override
+  String get dataLoadError => 'Не удалось загрузить данные';
+
+  @override
+  String get view => 'Посмотреть';
+
+  @override
+  String get giftHeadline => 'Идеальные подарки для всех';
+
+  @override
+  String get servicesTitle => 'Сервис рядом';
+
+  @override
+  String get servicesSeeAll => 'Все';
+
+  @override
+  String get servicesEmptyTitle => 'Сервисы не найдены';
+
+  @override
+  String get servicesEmptySubtitle => 'Извините! Рядом сервисов нет';
 }

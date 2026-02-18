@@ -19,5 +19,17 @@
   "categoryGoods": "Tovarlar va savdo",
   "categoryConstruction": "Qurilish obyektlari",
   "categoryAutoMoto": "Avto va mototexnika",
-  "categoryServices": "Xizmatlar va ish"
+  "categoryServices": "Xizmatlar va ish",
+  "recommendationsTitle": "Sizga tavsiya qilamiz",
+  "seeAll": "Barchasi",
+  "allProducts": "Barcha tovarlar",
+  "topTag": "Top",
+  "reviewsLabel": "ta sharh",
+  "dataLoadError": "Maʼlumot yuklanmadi",
+  "view": "Ko'rish",
+  "giftHeadline": "Barchaga ideal sovg'alar",
+  "servicesTitle": "Yaqin atrofdagi xizmatlar",
+  "servicesSeeAll": "Barchasi",
+  "servicesEmptyTitle": "Xizmatlar topilmadi",
+  "servicesEmptySubtitle": "Kechirasiz! Yaqin atrofda xizmatlar yo'q"
 }

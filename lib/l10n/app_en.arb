@@ -19,5 +19,17 @@
   "categoryGoods": "Goods & shopping",
   "categoryConstruction": "Construction",
   "categoryAutoMoto": "Auto & moto",
-  "categoryServices": "Services & jobs"
+  "categoryServices": "Services & jobs",
+  "recommendationsTitle": "Recommended for you",
+  "seeAll": "All",
+  "allProducts": "All products",
+  "topTag": "Top",
+  "reviewsLabel": "reviews",
+  "dataLoadError": "Failed to load data",
+  "view": "View",
+  "giftHeadline": "Perfect gifts for everyone",
+  "servicesTitle": "Services nearby",
+  "servicesSeeAll": "All",
+  "servicesEmptyTitle": "No services found",
+  "servicesEmptySubtitle": "Sorry! No services around you"
 }

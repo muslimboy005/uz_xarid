@@ -10,12 +10,14 @@ class HomeCategory {
     required this.asset,
     this.onTap,
     this.isHighlighted = false,
+    this.categoryType = 'Product',
   });
 
   final String title;
   final String asset;
   final VoidCallback? onTap;
   final bool isHighlighted;
+  final String categoryType;
 }
 
 class HomeCategoryCard extends StatelessWidget {

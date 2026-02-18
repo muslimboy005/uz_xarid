@@ -67,4 +67,41 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get categoryServices => 'Xizmatlar va ish';
+
+  @override
+  String get recommendationsTitle => 'Sizga tavsiya qilamiz';
+
+  @override
+  String get seeAll => 'Barchasi';
+
+  @override
+  String get allProducts => 'Barcha tovarlar';
+
+  @override
+  String get topTag => 'Top';
+
+  @override
+  String get reviewsLabel => 'ta sharh';
+
+  @override
+  String get dataLoadError => 'Maʼlumot yuklanmadi';
+
+  @override
+  String get view => 'Ko\'rish';
+
+  @override
+  String get giftHeadline => 'Barchaga ideal sovg\'alar';
+
+  @override
+  String get servicesTitle => 'Yaqin atrofdagi xizmatlar';
+
+  @override
+  String get servicesSeeAll => 'Barchasi';
+
+  @override
+  String get servicesEmptyTitle => 'Xizmatlar topilmadi';
+
+  @override
+  String get servicesEmptySubtitle =>
+      'Kechirasiz! Yaqin atrofda xizmatlar yo\'q';
 }

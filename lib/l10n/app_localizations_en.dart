@@ -68,4 +68,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryServices => 'Services & jobs';
+
+  @override
+  String get recommendationsTitle => 'Recommended for you';
+
+  @override
+  String get seeAll => 'All';
+
+  @override
+  String get allProducts => 'All products';
+
+  @override
+  String get topTag => 'Top';
+
+  @override
+  String get reviewsLabel => 'reviews';
+
+  @override
+  String get dataLoadError => 'Failed to load data';
+
+  @override
+  String get view => 'View';
+
+  @override
+  String get giftHeadline => 'Perfect gifts for everyone';
+
+  @override
+  String get servicesTitle => 'Services nearby';
+
+  @override
+  String get servicesSeeAll => 'All';
+
+  @override
+  String get servicesEmptyTitle => 'No services found';
+
+  @override
+  String get servicesEmptySubtitle => 'Sorry! No services around you';
 }

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:uz_xarid/features/home/domain/entities/category_entity.dart';
+import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
 
 part 'category_dto.g.dart';
 
@@ -9,22 +9,14 @@ class CategoryDto {
   final String name;
   final String? image;
 
-  CategoryDto({
-    required this.id,
-    required this.name,
-    this.image,
-  });
+  CategoryDto({required this.id, required this.name, this.image});
 
   factory CategoryDto.fromJson(Map<String, dynamic> json) =>
       _$CategoryDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$CategoryDtoToJson(this);
 
-  CategoryEntity toEntity() => CategoryEntity(
-        id: id,
-        name: name,
-        image: image,
-      );
+  HomeCategory toHomeCategory() => HomeCategory(id: id, name: name, image: image);
 }
 
 @JsonSerializable()
