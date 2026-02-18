@@ -34,7 +34,6 @@ class OtpBottomSheet extends StatefulWidget {
     showModalBottomSheet<void>(
       context: parentContext,
       isScrollControlled: true,
-
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -54,39 +53,33 @@ class OtpBottomSheet extends StatefulWidget {
 class _OtpBottomSheetState extends State<OtpBottomSheet> {
   final TextEditingController _otpController = TextEditingController();
 
-  // Timer related
   Timer? _timer;
-  int _start = 120; // 2 minutes
-  bool _isResendEnabled = false;
   int _retryCount = 0;
+
+  final _timerSeconds = ValueNotifier<int>(120);
+  final _isResendEnabled = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
-    startTimer();
+    _startTimer();
   }
 
-  void startTimer() {
+  void _startTimer() {
     if (_retryCount >= 3) {
-      setState(() {
-        _isResendEnabled = false;
-      });
+      _isResendEnabled.value = false;
       return;
     }
 
-    _start = 120;
-    _isResendEnabled = false;
+    _timerSeconds.value = 120;
+    _isResendEnabled.value = false;
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_start == 0) {
-        setState(() {
-          _isResendEnabled = true;
-          timer.cancel();
-        });
+      if (_timerSeconds.value == 0) {
+        _isResendEnabled.value = true;
+        timer.cancel();
       } else {
-        setState(() {
-          _start--;
-        });
+        _timerSeconds.value--;
       }
     });
   }
@@ -95,6 +88,8 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
   void dispose() {
     _timer?.cancel();
     _otpController.dispose();
+    _timerSeconds.dispose();
+    _isResendEnabled.dispose();
     super.dispose();
   }
 
@@ -119,7 +114,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
           Future.delayed(const Duration(milliseconds: 200), () {
             if (profileData?.askName == true) {
               widget.onAskName();
-            } else {}
+            }
           });
         } else if (state.status == ProfileStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -163,7 +158,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(width: 24), // Spacer for centering
+                    const SizedBox(width: 24),
                     AppText(
                       text: 'Введите код',
                       fontSize: 16,
@@ -212,7 +207,6 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
                 Pinput(
                   controller: _otpController,
@@ -261,14 +255,11 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     ),
                   ),
                   showCursor: true,
-                  // Placeholder for empty fields as requested (dash)
                   preFilledWidget: const Text(
                     '-',
                     style: TextStyle(color: Colors.grey, fontSize: 24),
                   ),
-                  onCompleted: (pin) {
-                    // Optional: Auto submit when filled
-                  },
+                  onCompleted: (_) {},
                 ),
                 const SizedBox(height: 20),
                 ContainerW(
@@ -314,37 +305,45 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                 ),
                 const SizedBox(height: AppDimens.paddingMedium),
                 const SizedBox(height: 20),
-                Center(
-                  child: TextButton(
-                    onPressed: (isLoading || !_isResendEnabled)
-                        ? null
-                        : () {
-                            if (_retryCount >= 3) return;
+                ValueListenableBuilder<bool>(
+                  valueListenable: _isResendEnabled,
+                  builder: (context, resendEnabled, _) {
+                    return ValueListenableBuilder<int>(
+                      valueListenable: _timerSeconds,
+                      builder: (context, seconds, _) {
+                        return Center(
+                          child: TextButton(
+                            onPressed: (isLoading || !resendEnabled)
+                                ? null
+                                : () {
+                                    if (_retryCount >= 3) return;
 
-                            final phoneDigits = widget.phone.replaceAll(
-                              RegExp(r'\D'),
-                              '',
-                            );
-                            context.read<ProfileBloc>().add(
-                              ProfileResendOtpEvent(phone: phoneDigits),
-                            );
+                                    final phoneDigits = widget.phone.replaceAll(
+                                      RegExp(r'\D'),
+                                      '',
+                                    );
+                                    context.read<ProfileBloc>().add(
+                                      ProfileResendOtpEvent(phone: phoneDigits),
+                                    );
 
-                            setState(() {
-                              _retryCount++;
-                              startTimer();
-                            });
-                          },
-                    child: Text(
-                      _isResendEnabled
-                          ? 'Отправить код повторно'
-                          : 'Отправить код повторно ($_start)',
-                      style: TextStyle(
-                        color: (isLoading || !_isResendEnabled)
-                            ? Colors.grey
-                            : Colors.blue,
-                      ),
-                    ),
-                  ),
+                                    _retryCount++;
+                                    _startTimer();
+                                  },
+                            child: Text(
+                              resendEnabled
+                                  ? 'Отправить код повторно'
+                                  : 'Отправить код повторно ($seconds)',
+                              style: TextStyle(
+                                color: (isLoading || !resendEnabled)
+                                    ? Colors.grey
+                                    : Colors.blue,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),

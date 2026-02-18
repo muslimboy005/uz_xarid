@@ -14,6 +14,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileSignSubmitUsecase profileSignSubmitUsecase;
   final ProfileGetUsecase profileGetUsecase;
   final ProfileResendOtpUsecase profileResendOtpUsecase;
+  final ProfileUpdateUsecase profileUpdateUsecase;
 
   ProfileBloc(
     this.profileConfirmOtpUsecase,
@@ -21,6 +22,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     this.profileSignSubmitUsecase,
     this.profileGetUsecase,
     this.profileResendOtpUsecase,
+    this.profileUpdateUsecase,
   ) : super(ProfileState.initial()) {
     on<ProfileSendOtpEvent>(_sendOtp);
     on<ProfileConfirmOtpEvent>(_confirmOtp);
@@ -28,6 +30,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileLogoutEvent>(_logout);
     on<ProfileLoadEvent>(_loadProfile);
     on<ProfileResendOtpEvent>(_resendOtp);
+    on<ProfileUpdateEvent>(_updateProfile);
   }
 
   Future<void> _sendOtp(
@@ -36,25 +39,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     try {
       emit(state.copyWith(status: ProfileStatus.loading));
-      print('🚀 ProfileBloc: Sending OTP to ${event.otpModel}');
-
       final result = await profileSendOtpUsecase(event.otpModel);
-
       result.either(
-        (failure) {
-          print('❌ ProfileBloc: Send OTP Failed: ${failure.toString()}');
-          emit(
-            state.copyWith(
-              status: ProfileStatus.failure,
-              errorMessage: failure.toString(),
-            ),
-          );
-        },
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
         (success) {
           if (success.status == false) {
-            print(
-              '⚠️ ProfileBloc: Send OTP Status False: ${success.data.detail}',
-            );
             emit(
               state.copyWith(
                 status: ProfileStatus.failure,
@@ -62,7 +56,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               ),
             );
           } else {
-            print('✅ ProfileBloc: OTP Sent: ${success.data.detail}');
             emit(
               state.copyWith(
                 status: ProfileStatus.success,
@@ -73,7 +66,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     } catch (e) {
-      print('❌ ProfileBloc: Exception in sendOtp: $e');
       emit(
         state.copyWith(
           status: ProfileStatus.failure,
@@ -89,25 +81,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     try {
       emit(state.copyWith(status: ProfileStatus.loading));
-      print('🚀 ProfileBloc: Confirming OTP...');
-
       final result = await profileConfirmOtpUsecase(event.otpModel);
-
       result.either(
-        (failure) {
-          print('❌ ProfileBloc: OTP Confirm Failed: ${failure.toString()}');
-          emit(
-            state.copyWith(
-              status: ProfileStatus.failure,
-              errorMessage: failure.toString(),
-            ),
-          );
-        },
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
         (success) {
           if (success.status == false) {
-            print(
-              '⚠️ ProfileBloc: Confirm OTP Status False: ${success.data.detail}',
-            );
             emit(
               state.copyWith(
                 status: ProfileStatus.failure,
@@ -115,10 +98,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               ),
             );
           } else {
-            print('✅ ProfileBloc: OTP Confirmed Successfully');
-            print('AskName: ${success.data.askName}');
-            print('User: ${success.data.user?.firstName}');
-
             emit(
               state.copyWith(
                 status: ProfileStatus.success,
@@ -129,7 +108,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     } catch (e) {
-      print('❌ ProfileBloc: Exception in confirmOtp: $e');
       emit(
         state.copyWith(
           status: ProfileStatus.failure,
@@ -145,25 +123,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     try {
       emit(state.copyWith(status: ProfileStatus.loading));
-      print('🚀 ProfileBloc: Submitting Name...');
-
       final result = await profileSignSubmitUsecase(event.fullNameEntity);
-
       result.either(
-        (failure) {
-          print('❌ ProfileBloc: Profile Update Failed: ${failure.toString()}');
-          emit(
-            state.copyWith(
-              status: ProfileStatus.failure,
-              errorMessage: failure.toString(),
-            ),
-          );
-        },
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
         (success) {
           if (success.status == false) {
-            print(
-              '⚠️ ProfileBloc: Profile Update Status False: ${success.data.detail}',
-            );
             emit(
               state.copyWith(
                 status: ProfileStatus.failure,
@@ -171,9 +140,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               ),
             );
           } else {
-            print('✅ ProfileBloc: Profile Updated Successfully');
-            print('AskName: ${success.data.askName}');
-            print('User: ${success.data.user}');
             emit(
               state.copyWith(
                 status: ProfileStatus.success,
@@ -184,7 +150,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     } catch (e) {
-      print('❌ ProfileBloc: Exception in confirmSign: $e');
       emit(
         state.copyWith(
           status: ProfileStatus.failure,
@@ -202,10 +167,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       if (!emit.isDone) {
         emit(ProfileState.initial());
       }
-      print('✅ ProfileBloc: User logged out');
-    } catch (e) {
-      print('❌ ProfileBloc: Logout error: $e');
-    }
+    } catch (_) {}
   }
 
   Future<void> _loadProfile(
@@ -213,24 +175,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     try {
-      print('🚀 ProfileBloc: Loading Profile...');
       emit(state.copyWith(status: ProfileStatus.loading));
       final result = await profileGetUsecase(NoParams());
       result.either(
-        (failure) {
-          print('❌ ProfileBloc: Load Profile Failed: ${failure.toString()}');
-          emit(
-            state.copyWith(
-              status: ProfileStatus.failure,
-              errorMessage: failure.toString(),
-            ),
-          );
-        },
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
         (success) {
           if (success.status == false) {
-            print(
-              '⚠️ ProfileBloc: Load Profile Status False: ${success.data.detail}',
-            );
             emit(
               state.copyWith(
                 status: ProfileStatus.failure,
@@ -238,7 +193,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               ),
             );
           } else {
-            print('✅ ProfileBloc: Profile Loaded Successfully');
             emit(
               state.copyWith(
                 status: ProfileStatus.success,
@@ -249,7 +203,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     } catch (e) {
-      print('❌ ProfileBloc: Exception in loadProfile: $e');
       emit(
         state.copyWith(
           status: ProfileStatus.failure,
@@ -264,24 +217,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     try {
-      print('🚀 ProfileBloc: Resending OTP...');
       emit(state.copyWith(status: ProfileStatus.loading));
       final result = await profileResendOtpUsecase(event.phone);
       result.either(
-        (failure) {
-          print('❌ ProfileBloc: Resend OTP Failed: ${failure.toString()}');
-          emit(
-            state.copyWith(
-              status: ProfileStatus.failure,
-              errorMessage: failure.toString(),
-            ),
-          );
-        },
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
         (success) {
           if (success.status == false) {
-            print(
-              '⚠️ ProfileBloc: Resend OTP Status False: ${success.data.detail}',
-            );
             emit(
               state.copyWith(
                 status: ProfileStatus.failure,
@@ -289,7 +235,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               ),
             );
           } else {
-            print('✅ ProfileBloc: OTP Resend Successfully');
             emit(
               state.copyWith(
                 status: ProfileStatus.success,
@@ -300,7 +245,61 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     } catch (e) {
-      print('❌ ProfileBloc: Exception in resendOtp: $e');
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _updateProfile(
+    ProfileUpdateEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: ProfileStatus.loading));
+      final result = await profileUpdateUsecase(
+        ProfileUpdateEntity(
+          firstName: event.firstName,
+          lastName: event.lastName,
+          phone: event.phone,
+          email: event.email,
+          gender: event.gender,
+          birthDate: event.birthDate,
+          city: event.city,
+          street: event.street,
+          house: event.house,
+          district: event.district,
+        ),
+      );
+      result.either(
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
+        (success) {
+          if (success.status == false) {
+            emit(
+              state.copyWith(
+                status: ProfileStatus.failure,
+                errorMessage: success.data.detail ?? 'Xatolik yuz berdi',
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                status: ProfileStatus.updateSuccess,
+                profileModel: success,
+              ),
+            );
+          }
+        },
+      );
+    } catch (e) {
       emit(
         state.copyWith(
           status: ProfileStatus.failure,

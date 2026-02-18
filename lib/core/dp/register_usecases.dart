@@ -1,5 +1,3 @@
-
-
 import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
@@ -16,10 +14,15 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<ProfileSignSubmitUsecase>(
       () => ProfileSignSubmitUsecase(getIt<ProfileRepository>()),
-    )..registerLazySingleton<ProfileGetUsecase>(
+    )
+    ..registerLazySingleton<ProfileGetUsecase>(
       () => ProfileGetUsecase(getIt<ProfileRepository>()),
-    )..registerLazySingleton<ProfileResendOtpUsecase>(
+    )
+    ..registerLazySingleton<ProfileResendOtpUsecase>(
       () => ProfileResendOtpUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<ProfileUpdateUsecase>(
+      () => ProfileUpdateUsecase(getIt<ProfileRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }

@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
+import 'package:uz_xarid/core/widgets/app_text.dart';
+import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 
 class AuthorizedProfileContent extends StatelessWidget {
-  const AuthorizedProfileContent({
-    super.key,
-    required this.fullName,
-    required this.phoneNumber,
-  });
+  const AuthorizedProfileContent({super.key, required this.user});
 
-  final String fullName;
-  final String phoneNumber;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -22,46 +23,72 @@ class AuthorizedProfileContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Главная > Профиль',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => context.go('/home'),
+                child: AppText(
+                  text: 'Главная',
+                  fontSize: 12,
+                  fontWeight: 400,
+                  color: AppColors.black300,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(
+                  Icons.chevron_right,
+                  size: 14,
+                  color: AppColors.black300,
+                ),
+              ),
+              AppText(
+                text: 'Профиль',
+                fontSize: 12,
+                fontWeight: 600,
+                color: AppColors.blue500,
+              ),
+            ],
           ),
           const SizedBox(height: AppDimens.paddingMedium),
           Row(
             children: [
-              Text(
-                'Профиль',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+              AppText(
+                text: 'Профиль',
+                fontSize: 24,
+                fontWeight: 700,
+                color: AppColors.black500,
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Базовый аккаунт',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+              const SizedBox(width: 12),
+              ContainerW(
+                color: AppColors.blue500,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      AppImage(path: AppAssets.labelImportant),
+                      const SizedBox(width: 8),
+                      AppText(
+                        text: 'Базовый аккаунт',
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: AppColors.white,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppDimens.paddingLarge),
-          Card(
+          ContainerW(
+            color: AppColors.white,
+            radius: 16,
             child: Padding(
-              padding: const EdgeInsets.all(AppDimens.paddingMedium),
+              padding: EdgeInsets.all(12),
               child: Row(
                 children: [
                   const CircleAvatar(radius: 24, child: Icon(Icons.person)),
@@ -69,16 +96,18 @@ class AuthorizedProfileContent extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        fullName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      AppText(
+                        text: "${user.firstName} ${user.lastName}",
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: AppColors.black500,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        phoneNumber,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      AppText(
+                        text: user.phone,
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: AppColors.black300,
                       ),
                     ],
                   ),
@@ -86,35 +115,77 @@ class AuthorizedProfileContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppDimens.paddingMedium),
-          const Card(
-            child: Column(
-              children: [
-                _ProfileMenuItem(
-                  icon: Icons.person_outline,
-                  title: 'Личные данные',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.campaign_outlined,
-                  title: 'Мои объявления',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.shopping_cart_outlined,
-                  title: 'Мои заказы',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.favorite_border,
-                  title: 'Избранное',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.notifications_outlined,
-                  title: 'Push-уведомления',
-                ),
-              ],
+          SizedBox(height: 22),
+          ContainerW(
+            color: AppColors.red,
+            radius: 8,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                children: [
+                  AppImage(path: AppAssets.information),
+                  SizedBox(width: 6),
+                  AppText(
+                    text: 'Подтвердите аккаунт',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: AppColors.white,
+                  ),
+                  Spacer(),
+                  AppImage(
+                    path: AppAssets.backDropright,
+                    color: AppColors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 22),
+          ContainerW(
+            color: AppColors.white,
+            radius: 16,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  _ProfileMenuItem(
+                    icon: AppAssets.accountCircle,
+                    title: 'Личные данные',
+                    onTap: () async {
+                      await context.push('/profile/personal-data');
+                      if (context.mounted) {
+                        context.read<ProfileBloc>().add(
+                          const ProfileLoadEvent(),
+                        );
+                      }
+                    },
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.feed,
+                    title: 'Мои объявления',
+                    onTap: () => context.push('/profile/my-ads'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.shoppingCart,
+                    title: 'Мои заказы',
+                    onTap: () => context.push('/profile/my-orders'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.favorite1,
+                    title: 'Избранное',
+                    onTap: () => context.push('/profile/favorites'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.notifications,
+                    title: 'Push-уведомления',
+                    onTap: () => context.push('/profile/notifications'),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: AppDimens.paddingMedium),
-          Card(
+          ContainerW(
             color: AppColors.primary.withOpacity(0.06),
             child: ListTile(
               leading: const Icon(Icons.work_outline),
@@ -124,62 +195,96 @@ class AuthorizedProfileContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppDimens.paddingMedium),
-          const Card(
-            child: Column(
-              children: [
-                _ProfileMenuItem(
-                  icon: Icons.location_on_outlined,
-                  title: 'Мои адреса',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.payment_outlined,
-                  title: 'Оплата и тарифы',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.support_agent_outlined,
-                  title: 'Поддержка',
-                ),
-                _ProfileMenuItem(
-                  icon: Icons.history,
-                  title: 'История просмотров',
-                ),
-              ],
+          ContainerW(
+            color: AppColors.white,
+            radius: 16,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  _ProfileMenuItem(
+                    icon: AppAssets.mapLocation,
+                    title: 'Мои адреса',
+                    onTap: () => context.push('/profile/my-addresses'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.creditScore,
+                    title: 'Оплата и тарифы',
+                    onTap: () => context.push('/profile/payment'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.chat,
+                    title: 'Поддержка',
+                    onTap: () => context.push('/profile/support'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.accessTimeFilled,
+                    title: 'История просмотров',
+                    onTap: () => context.push('/profile/view-history'),
+                  ),
+                  SizedBox(height: 4),
+                  Divider(),
+                  SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 14,
+                    ),
+                    child: GestureDetector(
+                      onTap: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                            title: const Text('Выйти из аккаунта?'),
+                            content: const Text(
+                              'Вы уверены, что хотите выйти?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext, false),
+                                child: const Text('Отмена'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext, true),
+                                child: const Text(
+                                  'Выйти',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmed == true && context.mounted) {
+                          await getIt<SecureStorageService>().clearAll();
+                          if (context.mounted) {
+                            context.read<ProfileBloc>().add(
+                              const ProfileLogoutEvent(),
+                            );
+                          }
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          AppImage(path: AppAssets.logout),
+                          SizedBox(width: 8),
+                          AppText(
+                            text: 'Выйти',
+                            fontSize: 16,
+                            fontWeight: 600,
+                            color: AppColors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: AppDimens.paddingMedium),
-          TextButton.icon(
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (dialogContext) => AlertDialog(
-                  title: const Text('Выйти из аккаунта?'),
-                  content: const Text('Вы уверены, что хотите выйти?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext, false),
-                      child: const Text('Отмена'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext, true),
-                      child: const Text(
-                        'Выйти',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirmed == true && context.mounted) {
-                await getIt<SecureStorageService>().clearAll();
-                if (context.mounted) {
-                  context.read<ProfileBloc>().add(const ProfileLogoutEvent());
-                }
-              }
-            },
-            icon: const Icon(Icons.logout, color: Colors.red),
-            label: const Text('Выйти', style: TextStyle(color: Colors.red)),
-          ),
         ],
       ),
     );
@@ -187,23 +292,36 @@ class AuthorizedProfileContent extends StatelessWidget {
 }
 
 class _ProfileMenuItem extends StatelessWidget {
-  const _ProfileMenuItem({required this.icon, required this.title});
+  const _ProfileMenuItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
 
-  final IconData icon;
+  final String icon;
   final String title;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(icon),
-          title: Text(title),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        child: Row(
+          children: [
+            AppImage(path: icon, size: 24, color: AppColors.black500),
+            const SizedBox(width: 8),
+
+            AppText(
+              text: title,
+              fontSize: 14,
+              fontWeight: 700,
+              color: AppColors.black500,
+            ),
+          ],
         ),
-        const Divider(height: 1),
-      ],
+      ),
     );
   }
 }
