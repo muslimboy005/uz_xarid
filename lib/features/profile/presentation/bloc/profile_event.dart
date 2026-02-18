@@ -20,7 +20,7 @@ class ProfileAuthFlowStarted extends ProfileEvent {
 }
 
 class ProfileSendOtpEvent extends ProfileEvent {
-  final  String otpModel;
+  final String otpModel;
   const ProfileSendOtpEvent({required this.otpModel});
 }
 
@@ -43,7 +43,46 @@ class ProfileLogoutEvent extends ProfileEvent {
   const ProfileLogoutEvent();
 }
 
-
 class ProfileLoadEvent extends ProfileEvent {
   const ProfileLoadEvent();
+}
+
+class ProfileUpdateEvent extends ProfileEvent {
+  final String firstName;
+  final String lastName;
+  final String? phone;
+  final String? email;
+  final String? city;
+  final String? street;
+  final String? house;
+  final String? district;
+  final String? gender;
+  final String? birthDate;
+
+  const ProfileUpdateEvent({
+    required this.firstName,
+    required this.lastName,
+    this.phone,
+    this.email,
+    this.city,
+    this.street,
+    this.house,
+    this.district,
+    this.gender,
+    this.birthDate,
+  });
+
+  @override
+  List<Object?> get props => [
+    firstName,
+    lastName,
+    phone,
+    email,
+    city,
+    street,
+    house,
+    district,
+    gender,
+    birthDate,
+  ];
 }

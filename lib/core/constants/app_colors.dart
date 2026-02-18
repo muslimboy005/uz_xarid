@@ -12,7 +12,7 @@ class AppColors {
   static const Color textPrimary = Color(0xFF1A1A1A);
   static const Color textSecondary = Color(0xFF757575);
   static const Color blue500 = Color(0xFF1262D1);
-  static const Color background = Color(0xFFFFFFFF);
+  static const Color background = Color(0xFFF2F2F2);
   static const Color cardBorderColor = Color(0xFFDCDDDE);
   static const Color white = Color(0xFFFFFFFF);
   static const Color black500 = Color(0xFF171D23);

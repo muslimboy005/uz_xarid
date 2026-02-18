@@ -16,8 +16,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
- main
   @override
   void initState() {
     super.initState();
@@ -32,7 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
         body: Container(
           height: MediaQuery.of(context).size.height,
-          color: AppColors.background,
+          color: AppColors.black50,
           child: SafeArea(
             top: false,
             child: Padding(
@@ -52,20 +50,23 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       const UnauthProfileContent(),
 
-                      if (state.status == ProfileStatus.success && isAuthorized)
+                      // loading paytida ham eski data bo'lsa ko'rsatamiz (flash oldini olish)
+                      if (isAuthorized ||
+                          (state.status == ProfileStatus.loading &&
+                              profile != null &&
+                              profile.data.user != null))
                         Container(
-                          color: AppColors.background,
+                          color: AppColors.black50,
                           child: AuthorizedProfileContent(
-                            fullName:
-                                "${state.profileModel!.data.user!.firstName} ${state.profileModel!.data.user!.lastName}",
-                            phoneNumber: state.profileModel!.data.user!.phone,
+                            user: state.profileModel!.data.user!,
                           ),
                         ),
 
+                      // Faqat birinchi yuklanishda (data yo'q) spinner ko'rsatamiz
                       if (state.status == ProfileStatus.loading &&
                           profile == null)
                         Container(
-                          color: AppColors.background,
+                          color: AppColors.black50,
                           child: const Center(
                             child: CircularProgressIndicator(),
                           ),

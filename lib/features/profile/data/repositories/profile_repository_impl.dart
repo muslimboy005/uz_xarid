@@ -15,15 +15,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, ProfileModel>> sendOtp(String phone) async {
     try {
-      print('📡 Repository: sendOtp called with $phone');
       final result = await _profileDataSource.sendOtp({'phone': phone});
-      print('✅ Repository: sendOtp success');
       return Right(result);
     } on DioException catch (e) {
-      print('❌ Repository: sendOtp DioError: ${e.message}');
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
-      print('❌ Repository: sendOtp error: $e');
       return Left(ValidationFailure(e.toString()));
     }
   }
@@ -34,39 +30,28 @@ class ProfileRepositoryImpl implements ProfileRepository {
     String otp,
   ) async {
     try {
-      print('📡 Repository: confirmOtp called');
       final result = await _profileDataSource.confirmOtp({
         'phone': phone,
         'code': otp,
       });
-      print('✅ Repository: confirmOtp success');
       return Right(result);
     } on DioException catch (e) {
-      print('❌ Repository: confirmOtp DioError: ${e.message}');
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
-      print('❌ Repository: confirmOtp error: $e');
       return Left(ValidationFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, ProfileModel>> profileUpdate(
-    FullNameEntity fullName,
+    ProfileUpdateEntity entity,
   ) async {
     try {
-      print('📡 Repository: profileUpdate called');
-      final result = await _profileDataSource.profileUpdate({
-        'first_name': fullName.firstName,
-        'last_name': fullName.lastName,
-      });
-      print('✅ Repository: profileUpdate success');
+      final result = await _profileDataSource.profileUpdate(entity.toMap());
       return Right(result);
     } on DioException catch (e) {
-      print('❌ Repository: profileUpdate DioError: ${e.message}');
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
-      print('❌ Repository: profileUpdate error: $e');
       return Left(ValidationFailure(e.toString()));
     }
   }
@@ -74,12 +59,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, ProfileModel>> getProfile() async {
     try {
-      print('📡 Repository: getProfile called');
       final result = await _profileDataSource.getProfile();
-      print('✅ Repository: getProfile success');
       return Right(result);
     } catch (e) {
-      print('❌ Repository: getProfile error: $e');
       return Left(ValidationFailure(e.toString()));
     }
   }
@@ -87,15 +69,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, ProfileModel>> resendOtp(String phone) async {
     try {
-      print('📡 Repository: resendOtp called');
       final result = await _profileDataSource.resendOtp({'phone': phone});
-      print('✅ Repository: resendOtp success');
       return Right(result);
     } on DioException catch (e) {
-      print('❌ Repository: resendOtp DioError: ${e.message}');
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
-      print('❌ Repository: resendOtp error: $e');
       return Left(ValidationFailure(e.toString()));
     }
   }
