@@ -5,6 +5,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -18,6 +19,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.black50,
@@ -26,7 +29,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProfileBreadcrumb(
-              labels: const ['Главная', 'Профиль', 'Push-уведомления'],
+              labels: [l10n.navHome, l10n.profileTitle, l10n.notificationsTitle],
               onTaps: [
                 () => context.go('/home'),
                 () => context.go('/profile'),
@@ -51,7 +54,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: AppText(
-                      text: 'Push-уведомления',
+                      text: l10n.notificationsTitle,
                       fontSize: 20,
                       fontWeight: 700,
                       color: AppColors.black500,
@@ -87,17 +90,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       Padding(
                         padding: const EdgeInsets.all(8),
                         child: _TabBar(
-                          tabs: const ['Договоры', 'Системный'],
+                          tabs: [l10n.notificationsContractsTab, l10n.notificationsSystemTab],
                           selectedIndex: _selectedTab,
                           onTap: (i) => setState(() => _selectedTab = i),
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: _EmptyState(
                           icon: Icons.notifications_rounded,
-                          title: 'Пока пусто',
-                          subtitle:
-                              'Уведомления появятся здесь, как\nтолько они будут доступны',
+                          title: l10n.notificationsEmptyTitle,
+                          subtitle: l10n.notificationsEmptySubtitle,
                         ),
                       ),
                     ],

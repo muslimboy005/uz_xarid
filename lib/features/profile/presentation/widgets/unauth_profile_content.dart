@@ -6,6 +6,7 @@ import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
@@ -19,35 +20,37 @@ class UnauthProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(
-          text: 'Что даёт авторизация?',
+          text: l10n.profileAuthBenefitsTitle,
 
           fontWeight: 700,
           fontSize: 16,
           color: AppColors.black500,
         ),
         const SizedBox(height: 20),
-        const _BenefitRow(
+        _BenefitRow(
           icon: AppAssets.work,
-          text: 'Возможность предлагать свои услуги',
+          text: l10n.profileBenefitOfferServices,
         ),
         const SizedBox(height: 12),
-        const _BenefitRow(
+        _BenefitRow(
           icon: AppAssets.call,
-          text: 'Пользоваться услугами других пользователей',
+          text: l10n.profileBenefitUseServices,
         ),
         const SizedBox(height: 12),
-        const _BenefitRow(
+        _BenefitRow(
           icon: AppAssets.fire,
-          text: 'Эксклюзивные предложения именно для вас',
+          text: l10n.profileBenefitExclusive,
         ),
         const SizedBox(height: 12),
-        const _BenefitRow(
+        _BenefitRow(
           icon: AppAssets.chat,
-          text: 'Размещение объявлений и избранное',
+          text: l10n.profileBenefitAdsFavorites,
         ),
         const SizedBox(height: AppDimens.paddingLarge),
         const Divider(color: AppColors.black100),
@@ -61,7 +64,7 @@ class UnauthProfileContent extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 14),
             child: Center(
               child: AppText(
-                text: 'Войти или создать профиль',
+                text: l10n.profileAuthCta,
                 fontSize: 12,
                 fontWeight: 500,
                 color: AppColors.white,
@@ -89,8 +92,7 @@ class UnauthProfileContent extends StatelessWidget {
         // ),
         const SizedBox(height: AppDimens.paddingLarge),
         AppText(
-          text:
-              'Покупайте, продавайте и пользуйтесь услугами!\nРазмещайте объявления, находите нужное и добавляйте в избранное',
+          text: l10n.profileAuthDescription,
           fontSize: 12,
           fontWeight: 400,
           color: AppColors.black300,

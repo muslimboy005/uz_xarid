@@ -185,9 +185,7 @@ class HomePage extends StatelessWidget {
                       final isLoading =
                           state.status == HomeStatus.loading &&
                           state.categories.isEmpty;
-                      final items = state.categories
-                          .where((c) => c.name.trim().isNotEmpty)
-                          .toList();
+                      final items = state.categories;
 
                       if (!isLoading && items.isEmpty) {
                         return const SizedBox.shrink();
