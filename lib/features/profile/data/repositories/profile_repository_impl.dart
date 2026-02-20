@@ -4,17 +4,62 @@ import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dar
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:dio/dio.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileApi _profileDataSource;
 
-  ProfileRepositoryImpl({required ProfileApi profileDataSource}) :
-  _profileDataSource = profileDataSource;
+  ProfileRepositoryImpl({required ProfileApi profileDataSource})
+    : _profileDataSource = profileDataSource;
 
   @override
   Future<Either<Failure, ProfileModel>> sendOtp(String phone) async {
     try {
-      final result = await _profileDataSource.sendOtp(phone);
+      final result = await _profileDataSource.sendOtp({'phone': phone});
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> confirmOtp(
+    String phone,
+    String otp,
+  ) async {
+    try {
+      final result = await _profileDataSource.confirmOtp({
+        'phone': phone,
+        'code': otp,
+      });
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> profileUpdate(
+    ProfileUpdateEntity entity,
+  ) async {
+    try {
+      final result = await _profileDataSource.profileUpdate(entity.toMap());
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> getProfile() async {
+    try {
+      final result = await _profileDataSource.getProfile();
       return Right(result);
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
@@ -22,19 +67,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, ProfileModel>> confirmOtp(String phone, String otp) async {
-    try{
-      final result = await _profileDataSource.confirmOtp(phone, otp);
-      return Right(result);
-    } catch (e) {
-      return Left(ValidationFailure(e.toString()));
-    }
-  }
-  @override
-  Future<Either<Failure, ProfileModel>> profileUpdate(FullNameEntity fullName) async {
+  Future<Either<Failure, ProfileModel>> resendOtp(String phone) async {
     try {
-      final result = await _profileDataSource.profileUpdate(fullName);
+      final result = await _profileDataSource.resendOtp({'phone': phone});
       return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
     }

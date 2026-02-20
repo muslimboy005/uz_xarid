@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 import 'package:uz_xarid/app/router/app_router.dart';
@@ -29,20 +30,22 @@ class _AppView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LocaleCubit, Locale>(
       builder: (context, locale) {
-        return MaterialApp.router(
-          onGenerateTitle: (context) =>
-              AppLocalizations.of(context)!.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          routerConfig: AppRouter.router,
-          locale: locale,
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
+        return ScreenUtilInit(
+          child: MaterialApp.router(
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)!.appName,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            routerConfig: AppRouter.router,
+            locale: locale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+          ),
         );
       },
 

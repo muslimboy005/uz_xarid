@@ -3,7 +3,7 @@ class AppAssets {
   static const String _png = 'assets/images/';
 
   // SVG iconlar
-  static const String accessTimeFile = '${_svg}access_time_filed.svg';
+  static const String accessTimeFilled = '${_svg}access_time_filled.svg';
   static const String accountCircle1 = '${_svg}account_circle_1.svg';
   static const String accountCircle2 = '${_svg}account_circle_2.svg';
   static const String accountCircle = '${_svg}account_circle.svg';
@@ -69,7 +69,10 @@ class AppAssets {
   static const String watchLater = '${_svg}watch_later.svg';
   static const String work = '${_svg}work.svg';
   static const String wp = '${_svg}WP.svg';
+  static const String fire = '${_svg}fire.svg';
+  static const String eyeOff = '${_svg}visibility.svg';
+  static const String eyeOn = '${_svg}visibility.svg';
 
   // PNG (agar kerak bo'lsa)
-  static const String logo = '${_svg}logo.png';
+  static const String logo = '${_png}logo.png';
 }
