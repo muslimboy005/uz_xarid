@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
@@ -169,127 +171,158 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (q) {}, onMenuTap: () {}),
-          backgroundColor: AppColors.black50,
+          backgroundColor: AppColors.primary,
           body: SafeArea(
-            child: Column(
-              children: [
-                ProfileBreadcrumb(
-                  labels: const ['Главная', 'Профиль', 'Личные данные'],
-                  onTaps: [
-                    () => context.go('/home'),
-                    () => context.go('/profile'),
-                    null,
-                  ],
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _sectionHeader('Личные данные'),
-                        const SizedBox(height: 12),
-                        _card(
-                          children: [
-                            _avatarRow(),
-                            const SizedBox(height: 16),
-                            _label('Имя'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _firstNameController,
-                              hintText: 'Введите имя',
-                              keyboardType: TextInputType.name,
-                              enabled: !isLoading,
+            child: Container(
+              color: AppColors.background,
+              child: Column(
+                children: [
+                  ProfileBreadcrumb(
+                    labels: const ['Главная', 'Профиль', 'Личные данные'],
+                    onTaps: [
+                      () => context.go('/home'),
+                      () => context.go('/profile'),
+                      null,
+                    ],
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 0),
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => context.pop(),
+                                  child: ContainerW(
+                                    color: AppColors.white,
+                                    radius: 8,
+                                    borderColor: AppColors.black100,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: AppImage(
+                                        path: AppAssets.backDropleft,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                AppText(
+                                  text: 'Личные данные',
+                                  fontSize: 20,
+                                  fontWeight: 700,
+                                  color: AppColors.black500,
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 12),
-                            _label('Фамилия'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _lastNameController,
-                              hintText: 'Введите фамилию',
-                              keyboardType: TextInputType.name,
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label('Пол'),
-                            const SizedBox(height: 6),
-                            _genderDropdown(isLoading),
-                            const SizedBox(height: 12),
-                            _label('Дата рождения'),
-                            const SizedBox(height: 6),
-                            _dateField(isLoading),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _sectionHeader('Контактные данные'),
-                        const SizedBox(height: 12),
-                        _card(
-                          children: [
-                            _label('Телефон'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _phoneController,
-                              hintText: '+998 XX XXX-XX-XX',
-                              keyboardType: TextInputType.phone,
-                              inputFormatters: [UzbekPhoneInputFormatter()],
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label('Электронная почта'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _emailController,
-                              hintText: 'Введите E-mail',
-                              keyboardType: TextInputType.emailAddress,
-                              enabled: !isLoading,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _sectionHeader('Адрес'),
-                        const SizedBox(height: 12),
-                        _card(
-                          children: [
-                            _label('Город'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _cityController,
-                              hintText: 'Введите город',
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label('Улица'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _streetController,
-                              hintText: 'Введите улицу',
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label('Дом / Квартира'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _houseController,
-                              hintText: 'Дом / Квартира',
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label('Район'),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _districtController,
-                              hintText: 'Введите район',
-                              enabled: !isLoading,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+                          ),
+                          // _sectionHeader('Личные данные'),
+                          const SizedBox(height: 12),
+                          _card(
+                            children: [
+                              _avatarRow(),
+                              const SizedBox(height: 16),
+                              _label('Имя'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _firstNameController,
+                                hintText: 'Введите имя',
+                                keyboardType: TextInputType.name,
+                                enabled: !isLoading,
+                              ),
+                              const SizedBox(height: 12),
+                              _label('Фамилия'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _lastNameController,
+                                hintText: 'Введите фамилию',
+                                keyboardType: TextInputType.name,
+                                enabled: !isLoading,
+                              ),
+                              const SizedBox(height: 12),
+                              _label('Пол'),
+                              const SizedBox(height: 6),
+                              _genderDropdown(isLoading),
+                              const SizedBox(height: 12),
+                              _label('Дата рождения'),
+                              const SizedBox(height: 6),
+                              _dateField(isLoading),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _sectionHeader('Контактные данные'),
+                          const SizedBox(height: 12),
+                          _card(
+                            children: [
+                              _label('Телефон'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _phoneController,
+                                hintText: '+998 XX XXX-XX-XX',
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [UzbekPhoneInputFormatter()],
+                                enabled: !isLoading,
+                              ),
+                              const SizedBox(height: 12),
+                              _label('Электронная почта'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _emailController,
+                                hintText: 'Введите E-mail',
+                                keyboardType: TextInputType.emailAddress,
+                                enabled: !isLoading,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _sectionHeader('Адрес'),
+                          const SizedBox(height: 12),
+                          _card(
+                            children: [
+                              _label('Город'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _cityController,
+                                hintText: 'Введите город',
+                                enabled: !isLoading,
+                              ),
+                              const SizedBox(height: 12),
+                              _label('Улица'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _streetController,
+                                hintText: 'Введите улицу',
+                                enabled: !isLoading,
+                              ),
+                              const SizedBox(height: 12),
+                              _label('Дом / Квартира'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _houseController,
+                                hintText: 'Дом / Квартира',
+                                enabled: !isLoading,
+                              ),
+                              const SizedBox(height: 12),
+                              _label('Район'),
+                              const SizedBox(height: 6),
+                              WTextField(
+                                controller: _districtController,
+                                hintText: 'Введите район',
+                                enabled: !isLoading,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                _bottomButtons(context, isLoading),
-              ],
+                  _bottomButtons(context, isLoading),
+                ],
+              ),
             ),
           ),
         );
@@ -306,7 +339,11 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           imageProvider = FileImage(avatar);
         } else if (_serverAvatarUrl.value != null &&
             _serverAvatarUrl.value!.isNotEmpty) {
-          imageProvider = NetworkImage(_serverAvatarUrl.value!);
+          String url = _serverAvatarUrl.value!.replaceFirst('file://', '');
+          if (url.startsWith('/')) {
+            url = 'https://uzxarid.felixits.uz$url';
+          }
+          imageProvider = NetworkImage(url);
         }
 
         return Row(
@@ -319,6 +356,11 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                     radius: 36,
                     backgroundColor: AppColors.blue50,
                     backgroundImage: imageProvider,
+                    onBackgroundImageError: imageProvider != null
+                        ? (exception, stackTrace) {
+                            // Xatoliklarni jim qabul qilamiz, debugger qotib qolmasligi uchun
+                          }
+                        : null,
                     child: imageProvider == null
                         ? const Icon(
                             Icons.person,

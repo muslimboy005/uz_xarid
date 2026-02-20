@@ -1,4 +1,3 @@
-
 class ProfileModel {
   final bool status;
   final ProfileData data;
@@ -6,6 +5,10 @@ class ProfileModel {
   ProfileModel({required this.status, required this.data});
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    // Agar to'g'ridan-to'g'ri user ma'lumoti kelsa (masalan me/ dan)
+    if (json.containsKey('id') && !json.containsKey('status')) {
+      return ProfileModel(status: true, data: ProfileData.fromJson(json));
+    }
 
     return ProfileModel(
       status: json['status'] ?? false,
@@ -32,7 +35,6 @@ class ProfileData {
     if (json == null || json.isEmpty) {
       return ProfileData();
     }
-
 
     User? user;
     if (json['user'] != null) {
@@ -114,7 +116,6 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-
     return User(
       id: json['id'],
       lastLogin: json['last_login'] != null

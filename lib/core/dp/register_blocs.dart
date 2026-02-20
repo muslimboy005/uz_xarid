@@ -13,6 +13,8 @@ Future<void> registerBlocs(GetIt getIt) async {
       getIt<ProfileGetUsecase>(),
       getIt<ProfileResendOtpUsecase>(),
       getIt<ProfileUpdateUsecase>(),
+      getIt<ProfileCreateBusinessUsecase>(),
+      getIt<ProfileUpdateBusinessUsecase>(),
     ),
   );
 

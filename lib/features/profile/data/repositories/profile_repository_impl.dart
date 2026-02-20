@@ -5,6 +5,7 @@ import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dar
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileApi _profileDataSource;
@@ -97,6 +98,124 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Right(result);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> getBusinessMe() async {
+    try {
+      final result = await _profileDataSource.getBusinessMe();
+      return Right(result);
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> createBusiness(
+    BusinessEntity entity,
+  ) async {
+    try {
+      final formData = FormData.fromMap(entity.toMap());
+
+      if (entity.avatarPath != null && entity.avatarPath!.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'avatar',
+            await MultipartFile.fromFile(
+              entity.avatarPath!,
+              filename: entity.avatarPath!.split('/').last,
+            ),
+          ),
+        );
+      }
+
+      if (entity.bannerPath != null && entity.bannerPath!.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'banner',
+            await MultipartFile.fromFile(
+              entity.bannerPath!,
+              filename: entity.bannerPath!.split('/').last,
+            ),
+          ),
+        );
+      }
+
+      final result = await _profileDataSource.createBusiness(formData);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> updateBusiness(
+    String id,
+    BusinessEntity entity,
+  ) async {
+    try {
+      final formData = FormData.fromMap(entity.toMap());
+
+      if (entity.avatarPath != null && entity.avatarPath!.isNotEmpty) {
+        formData.files.add(
+          MapEntry('avatar', await MultipartFile.fromFile(entity.avatarPath!)),
+        );
+      }
+
+      if (entity.bannerPath != null && entity.bannerPath!.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'banner',
+            await MultipartFile.fromFile(
+              entity.bannerPath!,
+              filename: entity.bannerPath!.split('/').last,
+            ),
+          ),
+        );
+      }
+
+      final result = await _profileDataSource.updateBusiness(id, formData);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> deleteBusiness(String id) async {
+    try {
+      final result = await _profileDataSource.deleteBusiness(id);
+      return Right(result);
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> updateBusinessImage(String id) async {
+    try {
+      final result = await _profileDataSource.updateBusinessImage(
+        id,
+        FormData.fromMap({}),
+      );
+      return Right(result);
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProfileModel>> getBusinessById(String id) async {
+    try {
+      final result = await _profileDataSource.getBusinessById(id);
+      return Right(result);
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
     }

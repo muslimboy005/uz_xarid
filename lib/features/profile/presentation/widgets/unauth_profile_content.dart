@@ -7,6 +7,9 @@ import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+
 import 'bottom_sheets/name_bottom_sheet.dart';
 import 'bottom_sheets/otp_bottom_sheet.dart';
 import 'bottom_sheets/phone_bottom_sheet.dart';
@@ -120,6 +123,11 @@ class UnauthProfileContent extends StatelessWidget {
             _showNameBottomSheet(context);
           }
         });
+      },
+      onOtpSuccess: () {
+        if (context.mounted) {
+          context.read<ProfileBloc>().add(const ProfileLoadEvent());
+        }
       },
     );
   }

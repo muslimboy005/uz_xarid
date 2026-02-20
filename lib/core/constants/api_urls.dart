@@ -8,6 +8,11 @@ class ApiUrls {
   static const String resendOtp = 'auth/resend/';
   static const String tokenRefresh = 'auth/token/refresh/';
 
+  static const String business = 'business/';
+  static const String businessId = 'business/{id}/';
+  static const String businessMe = 'business/me/';
+  static const String businessDelete = 'business/delete/';
+
   static const String categories = 'category/';
   static const String banner = 'banner/';
   static const String recommendations = 'ad/recommendations/';
