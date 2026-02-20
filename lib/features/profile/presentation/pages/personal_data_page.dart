@@ -15,7 +15,6 @@ import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/core/widgets/w_text_form.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class PersonalDataPage extends StatefulWidget {
   const PersonalDataPage({super.key});
@@ -118,14 +117,12 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   void _onSave() {
-    final l10n = AppLocalizations.of(context)!;
-
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
 
     if (firstName.isEmpty || lastName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.nameRequiredError)),
+        const SnackBar(content: Text('Ism va familiyani kiriting')),
       );
       return;
     }
@@ -149,8 +146,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return BlocConsumer<ProfileBloc, ProfileState>(
       listenWhen: (prev, curr) =>
           curr.status == ProfileStatus.updateSuccess ||
@@ -222,115 +217,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                   color: AppColors.black500,
                                 ),
                               ],
-            child: Column(
-              children: [
-                ProfileBreadcrumb(
-                  labels: [l10n.navHome, l10n.profileTitle, l10n.personalDataTitle],
-                  onTaps: [
-                    () => context.go('/home'),
-                    () => context.go('/profile'),
-                    null,
-                  ],
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _sectionHeader(l10n.personalDataTitle),
-                        const SizedBox(height: 12),
-                        _card(
-                          children: [
-                            _avatarRow(),
-                            const SizedBox(height: 16),
-                            _label(l10n.firstNameLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _firstNameController,
-                              hintText: l10n.firstNameHint,
-                              keyboardType: TextInputType.name,
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label(l10n.lastNameLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _lastNameController,
-                              hintText: l10n.lastNameHint,
-                              keyboardType: TextInputType.name,
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label(l10n.genderLabel),
-                            const SizedBox(height: 6),
-                            _genderDropdown(isLoading),
-                            const SizedBox(height: 12),
-                            _label(l10n.birthDateLabel),
-                            const SizedBox(height: 6),
-                            _dateField(isLoading),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _sectionHeader(l10n.contactDataTitle),
-                        const SizedBox(height: 12),
-                        _card(
-                          children: [
-                            _label(l10n.phoneLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _phoneController,
-                              hintText: l10n.phoneHint,
-                              keyboardType: TextInputType.phone,
-                              inputFormatters: [UzbekPhoneInputFormatter()],
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label(l10n.emailLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _emailController,
-                              hintText: l10n.emailHint,
-                              keyboardType: TextInputType.emailAddress,
-                              enabled: !isLoading,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _sectionHeader(l10n.addressTitle),
-                        const SizedBox(height: 12),
-                        _card(
-                          children: [
-                            _label(l10n.cityLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _cityController,
-                              hintText: l10n.cityHint,
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label(l10n.streetLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _streetController,
-                              hintText: l10n.streetHint,
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label(l10n.houseLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _houseController,
-                              hintText: l10n.houseHint,
-                              enabled: !isLoading,
-                            ),
-                            const SizedBox(height: 12),
-                            _label(l10n.districtLabel),
-                            const SizedBox(height: 6),
-                            WTextField(
-                              controller: _districtController,
-                              hintText: l10n.districtHint,
-                              enabled: !isLoading,
                             ),
                           ),
                           // _sectionHeader('Личные данные'),
@@ -445,8 +331,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Widget _avatarRow() {
-    final l10n = AppLocalizations.of(context)!;
-
     return ValueListenableBuilder<File?>(
       valueListenable: _avatarFile,
       builder: (context, avatar, _) {
@@ -512,7 +396,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    text: l10n.profilePhotoLabel,
+                    text: 'Фото профиля',
                     fontSize: 14,
                     fontWeight: 600,
                     color: AppColors.black500,
@@ -521,7 +405,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                   GestureDetector(
                     onTap: _pickImageFromGallery,
                     child: AppText(
-                      text: l10n.chooseFromGallery,
+                      text: 'Выбрать из галереи',
                       fontSize: 13,
                       fontWeight: 400,
                       color: AppColors.blue500,
@@ -537,12 +421,27 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Map<String, String> _localizedGenderLabels(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return {'male': l10n.genderMale, 'female': l10n.genderFemale};
+    final lang = Localizations.localeOf(context).languageCode;
+    switch (lang) {
+      case 'uz':
+        return {'male': 'Erkak', 'female': 'Ayol'};
+      case 'ru':
+        return {'male': 'Мужчина', 'female': 'Женщина'};
+      default:
+        return {'male': 'Male', 'female': 'Female'};
+    }
   }
 
   String _genderHint(BuildContext context) {
-    return AppLocalizations.of(context)!.genderHint;
+    final lang = Localizations.localeOf(context).languageCode;
+    switch (lang) {
+      case 'uz':
+        return 'Jinsni tanlang';
+      case 'ru':
+        return 'Выберите пол';
+      default:
+        return 'Select gender';
+    }
   }
 
   Widget _genderDropdown(bool disabled) {
@@ -597,8 +496,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Widget _dateField(bool disabled) {
-    final l10n = AppLocalizations.of(context)!;
-
     return ValueListenableBuilder<DateTime?>(
       valueListenable: _selectedDate,
       builder: (context, date, _) {
@@ -616,7 +513,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
               children: [
                 Expanded(
                   child: AppText(
-                    text: date != null ? _formatDate(date) : l10n.birthDatePlaceholder,
+                    text: date != null ? _formatDate(date) : 'ДД.ММ.ГГГГ',
                     fontSize: 14,
                     fontWeight: 400,
                     color: date != null
@@ -679,8 +576,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Widget _bottomButtons(BuildContext context, bool isLoading) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Container(
       color: AppColors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -697,7 +592,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: Text(l10n.actionCancel),
+              child: const Text('Отмена'),
             ),
           ),
           const SizedBox(width: 12),
@@ -721,7 +616,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                         color: AppColors.white,
                       ),
                     )
-                  : Text(l10n.actionSave),
+                  : const Text('Сохранить'),
             ),
           ),
         ],
