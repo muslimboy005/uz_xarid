@@ -1,0 +1,665 @@
+//@version=5
+indicator("Pro Signal Suite v3.0", overlay=true, max_labels_count=500, max_lines_count=300)
+
+// ══════════════════════════════════════════════════════════
+//                    INPUT SOZLAMALARI
+// ══════════════════════════════════════════════════════════
+
+// Bollinger Bands
+lengthBB  = input.int(20,    "BB Length",      minval=1,   group="Bollinger Bands")
+multBB    = input.float(2.0, "BB Multiplier",  minval=0.1, step=0.1, group="Bollinger Bands")
+
+// MACD
+macdFast  = input.int(12, "Fast Length",      minval=1, group="MACD")
+macdSlow  = input.int(26, "Slow Length",      minval=1, group="MACD")
+macdSig   = input.int(9,  "Signal Smoothing", minval=1, group="MACD")
+
+// RSI
+rsiLen    = input.int(14, "RSI Length",  minval=1,  group="RSI")
+rsiOB     = input.int(70, "Overbought",  minval=50, maxval=100, group="RSI")
+rsiOS     = input.int(30, "Oversold",   minval=0,  maxval=50,  group="RSI")
+
+// Stochastic
+stochK    = input.int(14, "Stoch %K",    minval=1,  group="Stochastic")
+stochD    = input.int(3,  "Stoch %D",    minval=1,  group="Stochastic")
+stochSmth = input.int(3,  "Stoch Smooth",minval=1,  group="Stochastic")
+stochOB   = input.int(80, "Stoch OB",   minval=50, group="Stochastic")
+stochOS   = input.int(20, "Stoch OS",   minval=0,  group="Stochastic")
+
+// ADX
+adxLen    = input.int(14, "ADX Length",      minval=1,  group="ADX")
+adxThresh = input.int(25, "Trend Threshold", minval=10, group="ADX")
+
+// Supertrend
+stFactor  = input.float(3.0, "Supertrend Factor",  minval=0.5, step=0.1, group="Supertrend")
+stPeriod  = input.int(10,    "Supertrend Period",  minval=1,   group="Supertrend")
+
+// CCI
+cciLen    = input.int(20,  "CCI Length",  minval=1, group="CCI")
+cciOB     = input.int(100, "CCI OB",     minval=50, group="CCI")
+cciOS     = input.int(-100,"CCI OS",     maxval=-50, group="CCI")
+
+// Williams %R
+willLen   = input.int(14, "Williams %R Length", minval=1, group="Williams %R")
+
+// ATR
+atrLen    = input.int(14,   "ATR Length",     minval=1,   group="ATR / TP-SL")
+atrMult   = input.float(1.5,"ATR Multiplier", minval=0.5, step=0.1, group="ATR / TP-SL")
+tpMult    = input.float(2.0,"TP Multiplier",  minval=0.5, step=0.1, group="ATR / TP-SL")
+showTPSL  = input.bool(true, "Show TP / SL Labels", group="ATR / TP-SL")
+
+// EMA
+emaFastLen = input.int(50,  "EMA Fast", minval=1, group="EMA")
+emaSlowLen = input.int(200, "EMA Slow", minval=1, group="EMA")
+
+// Signal
+sigMode         = input.string("Balanced", "Signal Mode", options=["Aggressive","Balanced","Conservative"], group="Signal Settings")
+useVolumeFilter = input.bool(true, "Volume Filter",    group="Signal Settings")
+useDivergence   = input.bool(true, "Divergence Filter",group="Signal Settings")
+usePatterns     = input.bool(true, "Candlestick Patterns", group="Signal Settings")
+
+// Display
+showBB        = input.bool(true,  "Show BB",            group="Display")
+showEMA       = input.bool(true,  "Show EMA Lines",     group="Display")
+showST        = input.bool(true,  "Show Supertrend",    group="Display")
+showVWAP      = input.bool(true,  "Show VWAP",         group="Display")
+showParSAR    = input.bool(false, "Show Parabolic SAR", group="Display")
+showPanel     = input.bool(true,  "Show Status Panel",  group="Display")
+panelPos_inp  = input.string("Top Right", "Panel Position", options=["Top Right","Top Left","Bottom Right","Bottom Left"], group="Display")
+
+// ══════════════════════════════════════════════════════════
+//                     HISOBLASHLAR
+// ══════════════════════════════════════════════════════════
+
+// Bollinger Bands
+bbBasis   = ta.sma(close, lengthBB)
+bbDev     = multBB * ta.stdev(close, lengthBB)
+bbUpper   = bbBasis + bbDev
+bbLower   = bbBasis - bbDev
+bbWidth   = (bbUpper - bbLower) / bbBasis * 100
+bbSqueeze = bbWidth < ta.sma(bbWidth, 20) * 0.85
+
+// MACD
+[macdLine, sigLine, macdHist] = ta.macd(close, macdFast, macdSlow, macdSig)
+macdMom = macdLine - sigLine
+
+// RSI
+rsi = ta.rsi(close, rsiLen)
+
+// Stochastic
+stochKVal = ta.sma(ta.stoch(close, high, low, stochK), stochSmth)
+stochDVal = ta.sma(stochKVal, stochD)
+
+// ATR
+atr = ta.atr(atrLen)
+
+// EMA
+ema50  = ta.ema(close, emaFastLen)
+ema200 = ta.ema(close, emaSlowLen)
+uptrend   = ema50 > ema200
+downtrend = ema50 < ema200
+
+// ADX
+upMove      = high - high[1]
+downMove    = low[1] - low
+plusDM      = (upMove > downMove and upMove > 0)   ? upMove   : 0.0
+minusDM     = (downMove > upMove and downMove > 0) ? downMove : 0.0
+trueR       = ta.rma(ta.tr, adxLen)
+plusDI_raw  = ta.rma(plusDM,  adxLen) / trueR * 100
+minusDI_raw = ta.rma(minusDM, adxLen) / trueR * 100
+diSum       = plusDI_raw + minusDI_raw
+diDiff      = math.abs(plusDI_raw - minusDI_raw)
+adx         = ta.rma(diSum == 0 ? 0.0 : diDiff / diSum * 100, adxLen)
+trendStrong = adx > adxThresh
+
+// ── SUPERTREND ──────────────────────────────────────────
+stAtr       = ta.atr(stPeriod)
+stUpperBand = hl2 + stFactor * stAtr
+stLowerBand = hl2 - stFactor * stAtr
+
+var float stUpperFinal = na
+var float stLowerFinal = na
+var int   stDir        = 1
+
+stUpperFinal := na(stUpperFinal[1]) ? stUpperBand : (stUpperBand < stUpperFinal[1] or close[1] > stUpperFinal[1] ? stUpperBand : stUpperFinal[1])
+stLowerFinal := na(stLowerFinal[1]) ? stLowerBand : (stLowerBand > stLowerFinal[1] or close[1] < stLowerFinal[1] ? stLowerBand : stLowerFinal[1])
+
+stDir := close > stUpperFinal[1] ? 1 : close < stLowerFinal[1] ? -1 : nz(stDir[1], 1)
+
+stLine       = stDir == 1 ? stLowerFinal : stUpperFinal
+stBull       = stDir ==  1
+stBear       = stDir == -1
+stBullCross  = stDir == 1 and stDir[1] == -1
+stBearCross  = stDir == -1 and stDir[1] == 1
+
+// ── VWAP ────────────────────────────────────────────────
+vwapVal     = ta.vwap(hlc3)
+priceAboveVWAP = close > vwapVal
+priceBelowVWAP = close < vwapVal
+
+// ── CCI ─────────────────────────────────────────────────
+cciVal     = ta.cci(close, cciLen)
+cciBull    = cciVal < cciOS
+cciBear    = cciVal > cciOB
+cciBullCross = ta.crossover(cciVal,  cciOS)
+cciBearCross = ta.crossunder(cciVal, cciOB)
+
+// ── WILLIAMS %R ──────────────────────────────────────────
+willR      = ta.wpr(willLen)
+willBull   = willR < -80
+willBear   = willR > -20
+willBullCross = ta.crossover(willR,  -80)
+willBearCross = ta.crossunder(willR, -20)
+
+// ── PARABOLIC SAR ────────────────────────────────────────
+psarVal    = ta.sar(0.02, 0.02, 0.2)
+psarBull   = close > psarVal
+psarBear   = close < psarVal
+psarBullCross = psarBull and not psarBull[1]
+psarBearCross = psarBear and not psarBear[1]
+
+// ── HULL MA ──────────────────────────────────────────────
+hullLen  = 21
+hmaVal   = ta.wma(2 * ta.wma(close, hullLen / 2) - ta.wma(close, hullLen), math.floor(math.sqrt(hullLen)))
+hmaBull  = hmaVal > hmaVal[1]
+hmaBear  = hmaVal < hmaVal[1]
+
+// Volume
+volAvg  = ta.sma(volume, 20)
+highVol = volume > volAvg * 1.2
+
+// Ichimoku
+tenkan = (ta.highest(high, 9)  + ta.lowest(low, 9))  / 2
+kijun  = (ta.highest(high, 26) + ta.lowest(low, 26)) / 2
+ichimokuBull = close > tenkan and tenkan > kijun
+ichimokuBear = close < tenkan and tenkan < kijun
+
+// ── CANDLESTICK PATTERNS ─────────────────────────────────
+// Hammer
+bodySize     = math.abs(close - open)
+candleRange  = high - low
+lowerWick    = math.min(open, close) - low
+upperWick    = high - math.max(open, close)
+isHammer     = lowerWick >= bodySize * 2 and upperWick <= bodySize * 0.3 and candleRange > 0
+isHammerBull = isHammer and close > open
+
+// Shooting Star
+isShootingStar     = upperWick >= bodySize * 2 and lowerWick <= bodySize * 0.3 and candleRange > 0
+isShootingStarBear = isShootingStar and close < open
+
+// Bullish Engulfing
+isBullEngulf = close > open and close[1] < open[1] and open <= close[1] and close >= open[1]
+
+// Bearish Engulfing
+isBearEngulf = close < open and close[1] > open[1] and open >= close[1] and close <= open[1]
+
+// Doji
+isDoji    = bodySize <= candleRange * 0.1 and candleRange > 0
+isBullDoji = isDoji and lowerWick > upperWick
+isBearDoji = isDoji and upperWick > lowerWick
+
+// Morning Star (3-bar)
+morningStar = close[2] < open[2] and math.abs(close[1] - open[1]) < math.abs(close[2] - open[2]) * 0.3 and close > open and close > (open[2] + close[2]) / 2
+eveningStar = close[2] > open[2] and math.abs(close[1] - open[1]) < math.abs(close[2] - open[2]) * 0.3 and close < open and close < (open[2] + close[2]) / 2
+
+bullPattern = usePatterns and (isHammerBull or isBullEngulf or isBullDoji or morningStar)
+bearPattern = usePatterns and (isShootingStarBear or isBearEngulf or isBearDoji or eveningStar)
+
+// ── DIVERGENCE ────────────────────────────────────────────
+pivotHigh = ta.pivothigh(high, 3, 3)
+pivotLow  = ta.pivotlow(low,  3, 3)
+
+var float prevLowPrice  = na
+var float prevLowRsi    = na
+bullDivergence = false
+
+if not na(pivotLow)
+    if not na(prevLowPrice)
+        bullDivergence := low < prevLowPrice and rsi > prevLowRsi
+    prevLowPrice := low
+    prevLowRsi   := rsi
+
+var float prevHighPrice = na
+var float prevHighRsi   = na
+bearDivergence = false
+
+if not na(pivotHigh)
+    if not na(prevHighPrice)
+        bearDivergence := high > prevHighPrice and rsi < prevHighRsi
+    prevHighPrice := high
+    prevHighRsi   := rsi
+
+// ══════════════════════════════════════════════════════════
+//                   SIGNAL SHARTLARI
+// ══════════════════════════════════════════════════════════
+
+macdBullCross  = ta.crossover(macdLine, sigLine)
+macdBearCross  = ta.crossunder(macdLine, sigLine)
+macdBull       = macdLine > sigLine
+macdBear       = macdLine < sigLine
+
+rsiBull        = rsi < rsiOS + 10
+rsiBear        = rsi > rsiOB - 10
+
+stochBullCross = ta.crossover(stochKVal, stochDVal) and stochKVal < stochOS
+stochBearCross = ta.crossunder(stochKVal, stochDVal) and stochKVal > stochOB
+stochBull      = stochKVal < stochOS
+stochBear      = stochKVal > stochOB
+
+priceBelowBB  = close < bbLower
+priceAboveBB  = close > bbUpper
+priceNearLow  = close < bbBasis and close > bbLower
+priceNearHigh = close > bbBasis and close < bbUpper
+
+volOk   = not useVolumeFilter or highVol
+divBull = not useDivergence or bullDivergence
+divBear = not useDivergence or bearDivergence
+
+// Kuchli tasdiq (asosiy agregatlar)
+coreBull = macdBull and stBull and priceAboveVWAP and hmaBull
+coreBear = macdBear and stBear and priceBelowVWAP and hmaBear
+
+longCondition  = false
+shortCondition = false
+
+if sigMode == "Aggressive"
+    longCondition  := (macdBullCross or stochBullCross or stBullCross or cciBullCross or willBullCross or bullPattern) and (rsiBull or priceBelowBB or willBull or cciBull) and volOk
+    shortCondition := (macdBearCross or stochBearCross or stBearCross or cciBearCross or willBearCross or bearPattern) and (rsiBear or priceAboveBB or willBear or cciBear) and volOk
+
+else if sigMode == "Balanced"
+    longCondition  := (macdBullCross or stBullCross) and (rsiBull or stochBullCross or priceBelowBB or willBull or bullPattern) and not downtrend and trendStrong and (psarBull or priceAboveVWAP) and volOk
+    shortCondition := (macdBearCross or stBearCross) and (rsiBear or stochBearCross or priceAboveBB or willBear or bearPattern) and not uptrend  and trendStrong and (psarBear or priceBelowVWAP) and volOk
+
+else
+    longCondition  := macdBullCross and rsiBull and priceBelowBB  and uptrend   and trendStrong and highVol and stBull  and psarBull  and priceAboveVWAP and (ichimokuBull or divBull) and (bullPattern or hmaBull)
+    shortCondition := macdBearCross and rsiBear and priceAboveBB  and downtrend and trendStrong and highVol and stBear  and psarBear  and priceBelowVWAP and (ichimokuBear or divBear) and (bearPattern or hmaBear)
+
+// ══════════════════════════════════════════════════════════
+//               KUCH HISOBLASH (0–100 garchi 130 bo'lsa ham normalize qilinadi)
+// ══════════════════════════════════════════════════════════
+
+buyS  = 0
+sellS = 0
+
+// MACD (12)
+if macdBull
+    buyS  := buyS  + 6
+if macdMom > 0
+    buyS  := buyS  + int(math.min(macdMom * 3, 6))
+if macdBear
+    sellS := sellS + 6
+if macdMom < 0
+    sellS := sellS + int(math.min(math.abs(macdMom) * 3, 6))
+
+// RSI (12)
+if rsi < 30
+    buyS  := buyS  + 12
+else if rsi < 40
+    buyS  := buyS  + 7
+else if rsi < 50
+    buyS  := buyS  + 3
+if rsi > 70
+    sellS := sellS + 12
+else if rsi > 60
+    sellS := sellS + 7
+else if rsi > 50
+    sellS := sellS + 3
+
+// Stochastic (8)
+if stochBull
+    buyS  := buyS  + 8
+else if stochKVal < 40
+    buyS  := buyS  + 4
+if stochBear
+    sellS := sellS + 8
+else if stochKVal > 60
+    sellS := sellS + 4
+
+// CCI (8)
+if cciVal < cciOS
+    buyS  := buyS  + 8
+else if cciVal < 0
+    buyS  := buyS  + 3
+if cciVal > cciOB
+    sellS := sellS + 8
+else if cciVal > 0
+    sellS := sellS + 3
+
+// Williams %R (8)
+if willBull
+    buyS  := buyS  + 8
+else if willR < -60
+    buyS  := buyS  + 4
+if willBear
+    sellS := sellS + 8
+else if willR > -40
+    sellS := sellS + 4
+
+// Supertrend (10)
+if stBull
+    buyS  := buyS  + 10
+if stBear
+    sellS := sellS + 10
+
+// Parabolic SAR (6)
+if psarBull
+    buyS  := buyS  + 6
+if psarBear
+    sellS := sellS + 6
+
+// Hull MA (6)
+if hmaBull
+    buyS  := buyS  + 6
+if hmaBear
+    sellS := sellS + 6
+
+// VWAP (6)
+if priceAboveVWAP
+    buyS  := buyS  + 6
+if priceBelowVWAP
+    sellS := sellS + 6
+
+// BB (8)
+if priceBelowBB
+    buyS  := buyS  + 8
+else if priceNearLow
+    buyS  := buyS  + 4
+if priceAboveBB
+    sellS := sellS + 8
+else if priceNearHigh
+    sellS := sellS + 4
+
+// Trend EMA (8)
+if uptrend
+    buyS  := buyS  + 8
+else if downtrend
+    sellS := sellS + 8
+
+// ADX (6)
+if trendStrong and uptrend
+    buyS  := buyS  + 6
+if trendStrong and downtrend
+    sellS := sellS + 6
+
+// Ichimoku (4)
+if ichimokuBull
+    buyS  := buyS  + 4
+if ichimokuBear
+    sellS := sellS + 4
+
+// Volume (4)
+if highVol and macdBull
+    buyS  := buyS  + 4
+if highVol and macdBear
+    sellS := sellS + 4
+
+// Candlestick Patterns (6)
+if bullPattern
+    buyS  := buyS  + 6
+if bearPattern
+    sellS := sellS + 6
+
+// Divergence (4)
+if bullDivergence
+    buyS  := buyS  + 4
+if bearDivergence
+    sellS := sellS + 4
+
+buyS  := int(math.min(buyS,  100))
+sellS := int(math.min(sellS, 100))
+
+mktBias = buyS > sellS ? "BULLISH 📈" : sellS > buyS ? "BEARISH 📉" : "NEUTRAL ➡️"
+
+// ══════════════════════════════════════════════════════════
+//                    TP / SL HISOBI
+// ══════════════════════════════════════════════════════════
+
+slBuy  = close - atr * atrMult
+tpBuy  = close + atr * atrMult * tpMult
+slSell = close + atr * atrMult
+tpSell = close - atr * atrMult * tpMult
+
+// ══════════════════════════════════════════════════════════
+//                      VIZUALIZATSIYA
+// ══════════════════════════════════════════════════════════
+
+// Bollinger Bands
+p1 = plot(showBB ? bbUpper : na, "Upper BB", color.new(color.green, 50), 2)
+p2 = plot(showBB ? bbLower : na, "Lower BB", color.new(color.red,   50), 2)
+plot(showBB ? bbBasis : na, "Mid BB", color.new(color.blue, 50), 1, plot.style_circles)
+fill(p1, p2, color.new(color.blue, 95))
+
+// BB Squeeze
+plotchar(bbSqueeze, "BB Squeeze", "◆", location.top, color.new(color.purple, 20), size=size.tiny)
+
+// EMA
+plot(showEMA ? ema50  : na, "EMA 50",  color.new(color.yellow, 20), 2)
+plot(showEMA ? ema200 : na, "EMA 200", color.new(color.white,  20), 2)
+
+// Supertrend
+plot(showST ? stLine : na, "Supertrend", stBull ? color.new(color.lime, 20) : color.new(color.red, 20), 2)
+
+// VWAP
+plot(showVWAP ? vwapVal : na, "VWAP", color.new(color.fuchsia, 20), 2)
+
+// Hull MA
+plot(hmaBull ? hmaVal : na, "HMA Bull", color.new(color.aqua,   30), 2)
+plot(hmaBear ? hmaVal : na, "HMA Bear", color.new(color.orange, 30), 2)
+
+// Ichimoku
+plot(tenkan, "Tenkan", color.new(color.orange, 40), 1)
+plot(kijun,  "Kijun",  color.new(color.aqua,   40), 1)
+
+// Parabolic SAR
+plotchar(showParSAR ? psarVal : na, "PSAR", "•", location.absolute, psarBull ? color.new(color.lime, 20) : color.new(color.red, 20), size=size.tiny)
+
+// BUY / SELL
+plotshape(longCondition,  "BUY",  shape.triangleup,   location.belowbar, color.new(color.lime, 0), size=size.normal, text="BUY")
+plotshape(shortCondition, "SELL", shape.triangledown,  location.abovebar, color.new(color.red,  0), size=size.normal, text="SELL")
+
+// Candlestick Patterns
+plotshape(bullPattern and usePatterns, "Bull Pattern", shape.labelup,   location.belowbar, color.new(color.teal,   20), size=size.tiny, text="PAT")
+plotshape(bearPattern and usePatterns, "Bear Pattern", shape.labeldown, location.abovebar, color.new(color.maroon, 20), size=size.tiny, text="PAT")
+
+// Divergence
+plotshape(bullDivergence and useDivergence, "Bull Div", shape.diamond, location.belowbar, color.new(color.aqua,   10), size=size.tiny, text="DIV↑")
+plotshape(bearDivergence and useDivergence, "Bear Div", shape.diamond, location.abovebar, color.new(color.orange, 10), size=size.tiny, text="DIV↓")
+
+// MACD cross
+plotchar(macdBullCross and not longCondition,  "MACD↗", "↗", location.belowbar, color.new(color.aqua,   30), size=size.tiny)
+plotchar(macdBearCross and not shortCondition, "MACD↘", "↘", location.abovebar, color.new(color.orange, 30), size=size.tiny)
+
+// TP / SL Labels
+if showTPSL and longCondition
+    label.new(bar_index, slBuy,  "SL: " + str.tostring(slBuy,  "#.####") + "\nRR 1:" + str.tostring(tpMult, "#.#"), style=label.style_label_up,   color=color.new(color.red,  20), textcolor=color.white, size=size.small)
+    label.new(bar_index, tpBuy,  "TP: " + str.tostring(tpBuy,  "#.####"),                                            style=label.style_label_down, color=color.new(color.lime, 20), textcolor=color.white, size=size.small)
+
+if showTPSL and shortCondition
+    label.new(bar_index, slSell, "SL: " + str.tostring(slSell, "#.####") + "\nRR 1:" + str.tostring(tpMult, "#.#"), style=label.style_label_down, color=color.new(color.red,  20), textcolor=color.white, size=size.small)
+    label.new(bar_index, tpSell, "TP: " + str.tostring(tpSell, "#.####"),                                            style=label.style_label_up,   color=color.new(color.lime, 20), textcolor=color.white, size=size.small)
+
+// ══════════════════════════════════════════════════════════
+//                     STATUS PANEL
+// ══════════════════════════════════════════════════════════
+
+if showPanel
+    panelPos = panelPos_inp == "Top Right" ? position.top_right : panelPos_inp == "Top Left" ? position.top_left : panelPos_inp == "Bottom Right" ? position.bottom_right : position.bottom_left
+
+    var table t = table.new(panelPos, 2, 19,
+         bgcolor      = color.new(#0d0d0d, 5),
+         border_width = 2,
+         border_color = color.new(#2962FF, 40),
+         frame_width  = 2,
+         frame_color  = color.new(#2962FF, 30))
+
+    if barstate.islast
+        // Header
+        table.cell(t, 0, 0, "📊 PRO SIGNAL v3", text_color=color.white, text_size=size.normal, bgcolor=color.new(#2962FF, 20), text_halign=text.align_center)
+        table.cell(t, 1, 0, "VALUE",             text_color=color.white, text_size=size.normal, bgcolor=color.new(#2962FF, 20), text_halign=text.align_center)
+
+        // Market Bias
+        biasColor = buyS > sellS + 15 ? color.lime : sellS > buyS + 15 ? color.red : color.yellow
+        table.cell(t, 0, 1, "Market", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 1, mktBias,  text_color=biasColor, text_size=size.normal, bgcolor=color.new(biasColor, 85), text_halign=text.align_center)
+
+        // Buy Strength
+        buyBarC = buyS >= 75 ? color.lime : buyS >= 50 ? color.yellow : color.gray
+        table.cell(t, 0, 2, "🟢 Buy Str", text_color=color.white, text_size=size.small)
+        table.cell(t, 1, 2, str.tostring(buyS) + "% " + str.repeat("█", int(buyS / 10)), text_color=buyBarC, text_size=size.small)
+
+        // Sell Strength
+        sellBarC = sellS >= 75 ? color.red : sellS >= 50 ? color.orange : color.gray
+        table.cell(t, 0, 3, "🔴 Sell Str", text_color=color.white, text_size=size.small)
+        table.cell(t, 1, 3, str.tostring(sellS) + "% " + str.repeat("█", int(sellS / 10)), text_color=sellBarC, text_size=size.small)
+
+        // Supertrend
+        stLbl = stBull ? "Bullish ✅" : "Bearish ❌"
+        stClr = stBull ? color.lime   : color.red
+        table.cell(t, 0, 4, "Supertrend", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 4, stLbl, text_color=stClr, text_size=size.small, bgcolor=color.new(stClr, 88))
+
+        // MACD
+        macdSt  = macdLine > sigLine ? "Bullish ↗" : "Bearish ↘"
+        macdClr = macdLine > sigLine ? color.lime   : color.red
+        table.cell(t, 0, 5, "MACD",  text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 5, macdSt,  text_color=macdClr, text_size=size.small, bgcolor=color.new(macdClr, 85))
+
+        // RSI
+        rsiLbl = rsi >= 70 ? "OB 🔴" : rsi <= 30 ? "OS 🟢" : rsi >= 60 ? "High" : rsi <= 40 ? "Low" : "Neutral"
+        rsiClr = rsi >= 70 ? color.red : rsi <= 30 ? color.lime : rsi >= 60 ? color.orange : rsi <= 40 ? color.aqua : color.yellow
+        table.cell(t, 0, 6, "RSI", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 6, str.tostring(rsi, "#.1") + "  " + rsiLbl, text_color=rsiClr, text_size=size.small)
+
+        // Stochastic
+        stochLbl = stochKVal >= stochOB ? "OB 🔴" : stochKVal <= stochOS ? "OS 🟢" : "Neutral"
+        stochClr = stochKVal >= stochOB ? color.red : stochKVal <= stochOS ? color.lime : color.yellow
+        table.cell(t, 0, 7, "Stoch", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 7, str.tostring(stochKVal, "#.1") + "  " + stochLbl, text_color=stochClr, text_size=size.small)
+
+        // CCI
+        cciLbl = cciVal > cciOB ? "OB 🔴" : cciVal < cciOS ? "OS 🟢" : cciVal > 0 ? "Positive" : "Negative"
+        cciClr = cciVal > cciOB ? color.red : cciVal < cciOS ? color.lime : cciVal > 0 ? color.orange : color.aqua
+        table.cell(t, 0, 8, "CCI", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 8, str.tostring(cciVal, "#.1") + "  " + cciLbl, text_color=cciClr, text_size=size.small)
+
+        // Williams %R
+        willLbl = willR > -20 ? "OB 🔴" : willR < -80 ? "OS 🟢" : "Neutral"
+        willClr = willR > -20 ? color.red : willR < -80 ? color.lime : color.yellow
+        table.cell(t, 0, 9, "Will %R", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 9, str.tostring(willR, "#.1") + "  " + willLbl, text_color=willClr, text_size=size.small)
+
+        // VWAP
+        vwapLbl = priceAboveVWAP ? "Above ✅" : "Below ❌"
+        vwapClr = priceAboveVWAP ? color.lime : color.red
+        table.cell(t, 0, 10, "VWAP", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 10, vwapLbl, text_color=vwapClr, text_size=size.small)
+
+        // Hull MA
+        hmaLbl = hmaBull ? "Rising ▲" : "Falling ▼"
+        hmaClr = hmaBull ? color.lime : color.red
+        table.cell(t, 0, 11, "Hull MA", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 11, hmaLbl, text_color=hmaClr, text_size=size.small)
+
+        // Parabolic SAR
+        psarLbl = psarBull ? "Above SAR ✅" : "Below SAR ❌"
+        psarClr = psarBull ? color.lime : color.red
+        table.cell(t, 0, 12, "PSAR", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 12, psarLbl, text_color=psarClr, text_size=size.small)
+
+        // ADX
+        adxLbl = adx >= adxThresh ? "Trending ✅" : "Weak ❌"
+        adxClr = adx >= adxThresh ? color.lime : color.gray
+        table.cell(t, 0, 13, "ADX", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 13, str.tostring(adx, "#.1") + "  " + adxLbl, text_color=adxClr, text_size=size.small)
+
+        // Candlestick Pattern
+        patLbl = morningStar ? "Morning Star ☀️" : eveningStar ? "Evening Star 🌙" : isBullEngulf ? "Bull Engulf" : isBearEngulf ? "Bear Engulf" : isHammerBull ? "Hammer 🔨" : isShootingStarBear ? "Shoot Star ⭐" : isBullDoji ? "Bull Doji" : isBearDoji ? "Bear Doji" : "—"
+        patClr = bullPattern ? color.lime : bearPattern ? color.red : color.gray
+        table.cell(t, 0, 14, "Pattern", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 14, patLbl, text_color=patClr, text_size=size.small)
+
+        // BB Squeeze
+        sqzLbl = bbSqueeze ? "SQUEEZE 💥" : "Normal"
+        sqzClr = bbSqueeze ? color.purple : color.gray
+        table.cell(t, 0, 15, "BB Squeeze", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 15, sqzLbl, text_color=sqzClr, text_size=size.small, bgcolor=color.new(sqzClr, 88))
+
+        // Trend
+        trendLbl = uptrend ? "Uptrend ▲" : downtrend ? "Downtrend ▼" : "Sideways ➡"
+        trendClr = uptrend ? color.lime  : downtrend ? color.red      : color.yellow
+        table.cell(t, 0, 16, "Trend", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 16, trendLbl, text_color=trendClr, text_size=size.small)
+
+        // Divergence
+        divLbl = bullDivergence ? "Bull Div 🟢" : bearDivergence ? "Bear Div 🔴" : "None"
+        divClr = bullDivergence ? color.lime : bearDivergence ? color.red : color.gray
+        table.cell(t, 0, 17, "Divergence", text_color=color.new(color.white, 20), text_size=size.small)
+        table.cell(t, 1, 17, divLbl, text_color=divClr, text_size=size.small)
+
+        // Action
+        rec    = "😐 Wait"
+        recClr = color.gray
+        recBg  = color.new(color.gray, 88)
+
+        if buyS >= 80 and not downtrend
+            rec    := "🚀 STRONG BUY"
+            recClr := color.lime
+            recBg  := color.new(color.lime, 75)
+        else if buyS >= 65
+            rec    := "✅ Buy"
+            recClr := color.aqua
+            recBg  := color.new(color.aqua, 85)
+        else if sellS >= 80 and not uptrend
+            rec    := "⚠️ STRONG SELL"
+            recClr := color.red
+            recBg  := color.new(color.red, 75)
+        else if sellS >= 65
+            rec    := "🔻 Sell"
+            recClr := color.orange
+            recBg  := color.new(color.orange, 85)
+        else if buyS > 45 and sellS > 45
+            rec    := "⏸ Mixed"
+            recClr := color.yellow
+            recBg  := color.new(color.yellow, 85)
+
+        table.cell(t, 0, 18, "💡 Action", text_color=color.white, text_size=size.small, bgcolor=color.new(#2962FF, 60))
+        table.cell(t, 1, 18, rec, text_color=recClr, text_size=size.small, bgcolor=recBg, text_halign=text.align_center)
+
+// ══════════════════════════════════════════════════════════
+//                      ALERTLAR
+// ══════════════════════════════════════════════════════════
+
+alertcondition(longCondition,  "🟢 BUY Signal",  "🟢 BUY Signal! Price: {{close}}\nCheck chart for SL/TP labels.")
+alertcondition(shortCondition, "🔴 SELL Signal", "🔴 SELL Signal! Price: {{close}}\nCheck chart for SL/TP labels.")
+
+alertcondition(buyS  >= 80 and buyS[1]  < 80, "🚀 Strong Buy Zone",  "STRONG BUY ZONE! Price: {{close}}")
+alertcondition(sellS >= 80 and sellS[1] < 80, "⚠️ Strong Sell Zone", "STRONG SELL ZONE! Price: {{close}}")
+
+alertcondition(macdBullCross,  "MACD Bull Cross",  "MACD Bullish Crossover — {{close}}")
+alertcondition(macdBearCross,  "MACD Bear Cross",  "MACD Bearish Crossover — {{close}}")
+
+alertcondition(stBullCross, "Supertrend Bull", "Supertrend turned BULLISH! Price: {{close}}")
+alertcondition(stBearCross, "Supertrend Bear", "Supertrend turned BEARISH! Price: {{close}}")
+
+alertcondition(stochBullCross, "Stoch Bull Cross", "Stochastic Bullish Cross in OS zone — {{close}}")
+alertcondition(stochBearCross, "Stoch Bear Cross", "Stochastic Bearish Cross in OB zone — {{close}}")
+
+alertcondition(cciBullCross, "CCI Bull Cross", "CCI crossed above OS level — {{close}}")
+alertcondition(cciBearCross, "CCI Bear Cross", "CCI crossed below OB level — {{close}}")
+
+alertcondition(willBullCross, "Williams Bull", "Williams %R exiting Oversold — {{close}}")
+alertcondition(willBearCross, "Williams Bear", "Williams %R exiting Overbought — {{close}}")
+
+alertcondition(psarBullCross, "PSAR Bull", "Parabolic SAR turned Bullish — {{close}}")
+alertcondition(psarBearCross, "PSAR Bear", "Parabolic SAR turned Bearish — {{close}}")
+
+alertcondition(bullPattern and usePatterns, "Bull Pattern", "Bullish Candlestick Pattern detected! Price: {{close}}")
+alertcondition(bearPattern and usePatterns, "Bear Pattern", "Bearish Candlestick Pattern detected! Price: {{close}}")
+
+alertcondition(bullDivergence and useDivergence, "Bull Divergence", "RSI Bullish Divergence! Price: {{close}}")
+alertcondition(bearDivergence and useDivergence, "Bear Divergence", "RSI Bearish Divergence! Price: {{close}}")
+
+alertcondition(ta.cross(rsi, rsiOS), "RSI Oversold",   "RSI Oversold zone — {{close}}")
+alertcondition(ta.cross(rsi, rsiOB), "RSI Overbought", "RSI Overbought zone — {{close}}")
+
+alertcondition(bbSqueeze and not bbSqueeze[1], "BB Squeeze Start", "BB Squeeze started — Katta harakat kutilmoqda! {{close}}")

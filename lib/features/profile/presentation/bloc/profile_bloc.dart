@@ -272,6 +272,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           street: event.street,
           house: event.house,
           district: event.district,
+          avatarPath: event.avatarPath,
         ),
       );
       result.either(

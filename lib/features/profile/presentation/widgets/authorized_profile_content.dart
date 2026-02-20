@@ -91,7 +91,20 @@ class AuthorizedProfileContent extends StatelessWidget {
               padding: EdgeInsets.all(12),
               child: Row(
                 children: [
-                  const CircleAvatar(radius: 24, child: Icon(Icons.person)),
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: AppColors.blue50,
+                    backgroundImage: user.avatar.isNotEmpty
+                        ? NetworkImage(user.avatar)
+                        : null,
+                    child: user.avatar.isEmpty
+                        ? const Icon(
+                            Icons.person,
+                            color: AppColors.blue500,
+                            size: 24,
+                          )
+                        : null,
+                  ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,12 +199,54 @@ class AuthorizedProfileContent extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.paddingMedium),
           ContainerW(
-            color: AppColors.primary.withOpacity(0.06),
-            child: ListTile(
-              leading: const Icon(Icons.work_outline),
-              title: const Text('Станьте бизнес пользователем'),
-              subtitle: const Text('Перейти'),
-              onTap: () {},
+            radius: 16,
+            gradient: LinearGradient(
+              colors: [Color(0xFF171D23), Color(0xFF0A4F99)],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 0,
+                bottom: 0,
+              ),
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: "Станьте бизнес\nпользователем",
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: AppColors.white,
+                        maxLines: 2,
+                      ),
+                      SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () => context.push('/profile/my-business'),
+                        child: Row(
+                          children: [
+                            AppText(
+                              text: "Перейти",
+                              fontSize: 12,
+                              fontWeight: 500,
+                              color: AppColors.white,
+                            ),
+                            SizedBox(width: 4),
+                            AppImage(
+                              path: AppAssets.backDropright,
+                              color: AppColors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  AppImage(path: AppAssets.businessImage, size: 120),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: AppDimens.paddingMedium),

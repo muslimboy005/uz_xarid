@@ -85,6 +85,7 @@ class User {
   final bool isActive;
   final DateTime? dateJoined;
   final String phone;
+  final String gender;
   final String username;
   final DateTime? validatedAt;
   final bool isVerify;
@@ -102,6 +103,7 @@ class User {
     this.isStaff = false,
     this.isActive = true,
     this.dateJoined,
+    this.gender = '',
     required this.phone,
     this.username = '',
     this.validatedAt,
@@ -128,6 +130,7 @@ class User {
           ? DateTime.tryParse(json['date_joined'])
           : null,
       phone: json['phone'] ?? '',
+      gender: json['gender'] ?? '',
       username: json['username'] ?? '',
       validatedAt: json['validated_at'] != null
           ? DateTime.tryParse(json['validated_at'])
@@ -151,6 +154,7 @@ class User {
       'is_active': isActive,
       if (dateJoined != null) 'date_joined': dateJoined!.toIso8601String(),
       'phone': phone,
+      'gender': gender,
       'username': username,
       if (validatedAt != null) 'validated_at': validatedAt!.toIso8601String(),
       'is_verify': isVerify,

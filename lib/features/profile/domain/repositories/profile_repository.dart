@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failure.dart';
 import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dart';
@@ -14,6 +15,6 @@ abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> getProfile();
   Future<Either<Failure, ProfileModel>> resendOtp(String phone);
 
-  factory ProfileRepository(ProfileApi profileDataSource) =>
-      ProfileRepositoryImpl(profileDataSource: profileDataSource);
+  factory ProfileRepository(ProfileApi profileDataSource, Dio dio) =>
+      ProfileRepositoryImpl(profileDataSource: profileDataSource, dio: dio);
 }

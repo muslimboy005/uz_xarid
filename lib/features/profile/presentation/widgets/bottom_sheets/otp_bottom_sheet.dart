@@ -128,7 +128,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
 
-        return Container(
+        return SizedBox(
           height:
               MediaQuery.of(context).size.height -
               (MediaQuery.of(context).padding.top + 250),

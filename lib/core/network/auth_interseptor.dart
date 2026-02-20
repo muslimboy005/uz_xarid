@@ -1,70 +1,144 @@
-// core/network/auth_interceptor.dart
-
 import 'package:dio/dio.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorageService secureStorageService;
 
-  AuthInterceptor(this.secureStorageService);
+  static const _publicEndpoints = ['auth/send-code', 'auth/confirm'];
+  static const _refreshEndpoint = 'auth/token/refresh/';
+
+  bool _isRefreshing = false;
+  final _pendingRequests =
+      <({RequestOptions options, ErrorInterceptorHandler handler})>[];
+
+  late final Dio _refreshDio;
+
+  AuthInterceptor(this.secureStorageService) {
+    _refreshDio = Dio(
+      BaseOptions(
+        baseUrl: 'https://uzxarid.felixits.uz/api/v1/',
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+  }
+
+  bool _isPublic(String path) => _publicEndpoints.any((e) => path.contains(e));
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // Public endpoint'lar (token kerak emas)
-    final publicEndpoints = [
-      'auth/send-code',
-      'auth/confirm',
-    ];
-
-    // Agar public endpoint bo'lsa - skip
-    final isPublicEndpoint = publicEndpoints.any(
-      (endpoint) => options.path.contains(endpoint),
-    );
-
-    if (!isPublicEndpoint) {
-      // Token olish
+    if (!_isPublic(options.path)) {
       final token = await secureStorageService.getToken();
-
       if (token != null && token.isNotEmpty) {
         options.headers['Authorization'] = 'Bearer $token';
-        print('✅ AuthInterceptor: Added token to ${options.path}');
-        print('Token: ${token.substring(0, 30)}...');
-      } else {
-        print('⚠️ AuthInterceptor: No token for ${options.path}');
       }
-    } else {
-      print('ℹ️ AuthInterceptor: Public endpoint ${options.path}');
     }
-
-    return handler.next(options);
+    handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('✅ Response: ${response.statusCode} - ${response.requestOptions.path}');
-    return handler.next(response);
+    handler.next(response);
   }
 
- // AuthInterceptor'da onError:
+  @override
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (err.response?.statusCode != 401) {
+      return handler.next(err);
+    }
 
-@override
-void onError(DioException err, ErrorInterceptorHandler handler) {
-  if (err.response?.statusCode == 401) {
-    final responseData = err.response?.data;
-    final isTokenExpired = responseData is Map &&
-        responseData['data']?['code'] == 'token_not_valid';
+    final path = err.requestOptions.path;
 
-    if (isTokenExpired) {
-      // Token expired - storage'ni tozalaymiz
-      secureStorageService.clearAll().then((_) {
-        print('✅ Expired token cleared');
-      });
+    if (path.contains(_refreshEndpoint) || _isPublic(path)) {
+      await secureStorageService.clearAll();
+      return handler.next(err);
+    }
+
+    if (_isRefreshing) {
+      _pendingRequests.add((options: err.requestOptions, handler: handler));
+      return;
+    }
+
+    _isRefreshing = true;
+
+    try {
+      final refreshToken = await secureStorageService.getRefreshToken();
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        await secureStorageService.clearAll();
+        _rejectAll(err);
+        return handler.next(err);
+      }
+
+      final response = await _refreshDio.post(
+        _refreshEndpoint,
+        data: {'refresh': refreshToken},
+      );
+
+      final newAccess = response.data['access'] as String?;
+
+      if (newAccess == null || newAccess.isEmpty) {
+        await secureStorageService.clearAll();
+        _rejectAll(err);
+        return handler.next(err);
+      }
+
+      await secureStorageService.saveToken(newAccess);
+
+      _retryAll(newAccess);
+
+      final retried = await _retry(err.requestOptions, newAccess);
+      return handler.resolve(retried);
+    } catch (_) {
+      await secureStorageService.clearAll();
+      _rejectAll(err);
+      return handler.next(err);
+    } finally {
+      _isRefreshing = false;
     }
   }
 
-  return handler.next(err);
-}
+  Future<Response<dynamic>> _retry(
+    RequestOptions options,
+    String newToken,
+  ) async {
+    options.headers['Authorization'] = 'Bearer $newToken';
+    return _refreshDio.fetch(options);
+  }
+
+  void _retryAll(String newToken) {
+    for (final pending in _pendingRequests) {
+      _retry(pending.options, newToken).then(
+        (res) => pending.handler.resolve(res),
+        onError: (e) => pending.handler.next(
+          DioException(requestOptions: pending.options, error: e),
+        ),
+      );
+    }
+    _pendingRequests.clear();
+  }
+
+  void _rejectAll(DioException err) {
+    for (final pending in _pendingRequests) {
+      pending.handler.next(
+        DioException(
+          requestOptions: pending.options,
+          response: err.response,
+          type: err.type,
+          error: err.error,
+        ),
+      );
+    }
+    _pendingRequests.clear();
+  }
 }

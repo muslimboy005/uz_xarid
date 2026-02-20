@@ -78,6 +78,7 @@ class ContainerW extends StatelessWidget {
     this.child,
     this.margin,
     this.text,
+    this.gradient,
     this.width,
     this.height,
     this.color,
@@ -96,6 +97,7 @@ class ContainerW extends StatelessWidget {
   final BorderRadius? borderRadius;
   final double? height;
   final double? radius;
+  final Gradient? gradient;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? margin;
   final GlobalKey<FormState>? formKey;
@@ -127,6 +129,7 @@ class ContainerW extends StatelessWidget {
           borderRadius: borderRadius ?? BorderRadius.circular(radius!),
           border: border ?? Border.all(color: borderColor ?? Colors.transparent),
           boxShadow: boxShadow, // Tema soyasini ishlatish
+          gradient: gradient,
         ),
         child: child ?? Center(
           child: AppText(
