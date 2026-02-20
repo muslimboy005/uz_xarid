@@ -15,7 +15,7 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.hintText,
     this.controller,
     this.validator,
@@ -25,7 +25,7 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.onTap,
     this.readOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +188,7 @@ class WTextField extends StatefulWidget {
 
 class _WTextFieldState extends State<WTextField> {
   late final FocusNode _focusNode;
-  bool _obscureText = true;
+  final bool _obscureText = true;
   bool _hasUserStartedTyping = false;
 
   @override

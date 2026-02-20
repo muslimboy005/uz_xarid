@@ -207,7 +207,7 @@ class HomePage extends StatelessWidget {
                             children: [
                               first,
                               const SizedBox(height: 12),
-                              if (second != null) second,
+                              ?second,
                             ],
                           );
                         });

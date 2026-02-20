@@ -16,6 +16,7 @@ class ProfileUpdateEntity {
   final String? street;
   final String? house;
   final String? district;
+  final String? avatarPath;
 
   ProfileUpdateEntity({
     required this.firstName,
@@ -28,6 +29,7 @@ class ProfileUpdateEntity {
     this.street,
     this.house,
     this.district,
+    this.avatarPath,
   });
 
   Map<String, dynamic> toMap() {

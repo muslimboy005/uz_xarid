@@ -34,8 +34,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   final _avatarFile = ValueNotifier<File?>(null);
   final _selectedGender = ValueNotifier<String?>(null);
   final _selectedDate = ValueNotifier<DateTime?>(null);
-
-  final List<String> _genders = ['Мужчина', 'Женщина'];
+  final _serverAvatarUrl = ValueNotifier<String?>(null);
 
   bool _filledFromServer = false;
 
@@ -54,6 +53,13 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     _lastNameController.text = profile.lastName;
     _phoneController.text = profile.phone;
     _emailController.text = profile.email;
+    final g = profile.gender;
+    if (g == 'male' || g == 'female') {
+      _selectedGender.value = g;
+    }
+    if (profile.avatar.isNotEmpty) {
+      _serverAvatarUrl.value = profile.avatar;
+    }
     if (profile.dateJoined != null) {
       _selectedDate.value = profile.dateJoined;
     }
@@ -72,6 +78,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     _avatarFile.dispose();
     _selectedGender.dispose();
     _selectedDate.dispose();
+    _serverAvatarUrl.dispose();
     super.dispose();
   }
 
@@ -130,6 +137,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
         district: _districtController.text.trim(),
         gender: _selectedGender.value,
         birthDate: _formatDate(_selectedDate.value),
+        avatarPath: _avatarFile.value?.path,
       ),
     );
   }
@@ -293,6 +301,14 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     return ValueListenableBuilder<File?>(
       valueListenable: _avatarFile,
       builder: (context, avatar, _) {
+        ImageProvider? imageProvider;
+        if (avatar != null) {
+          imageProvider = FileImage(avatar);
+        } else if (_serverAvatarUrl.value != null &&
+            _serverAvatarUrl.value!.isNotEmpty) {
+          imageProvider = NetworkImage(_serverAvatarUrl.value!);
+        }
+
         return Row(
           children: [
             GestureDetector(
@@ -302,8 +318,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                   CircleAvatar(
                     radius: 36,
                     backgroundColor: AppColors.blue50,
-                    backgroundImage: avatar != null ? FileImage(avatar) : null,
-                    child: avatar == null
+                    backgroundImage: imageProvider,
+                    child: imageProvider == null
                         ? const Icon(
                             Icons.person,
                             color: AppColors.blue500,
@@ -362,7 +378,33 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     );
   }
 
+  Map<String, String> _localizedGenderLabels(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
+    switch (lang) {
+      case 'uz':
+        return {'male': 'Erkak', 'female': 'Ayol'};
+      case 'ru':
+        return {'male': 'Мужчина', 'female': 'Женщина'};
+      default:
+        return {'male': 'Male', 'female': 'Female'};
+    }
+  }
+
+  String _genderHint(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
+    switch (lang) {
+      case 'uz':
+        return 'Jinsni tanlang';
+      case 'ru':
+        return 'Выберите пол';
+      default:
+        return 'Select gender';
+    }
+  }
+
   Widget _genderDropdown(bool disabled) {
+    final genderLabels = _localizedGenderLabels(context);
+
     return ValueListenableBuilder<String?>(
       valueListenable: _selectedGender,
       builder: (context, gender, _) {
@@ -378,7 +420,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
             child: DropdownButton<String>(
               value: gender,
               hint: AppText(
-                text: 'Выберите пол',
+                text: _genderHint(context),
                 fontSize: 14,
                 fontWeight: 400,
                 color: AppColors.black300,
@@ -390,12 +432,12 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
               ),
               items: disabled
                   ? null
-                  : _genders
+                  : genderLabels.entries
                         .map(
-                          (g) => DropdownMenuItem(
-                            value: g,
+                          (e) => DropdownMenuItem<String>(
+                            value: e.key,
                             child: AppText(
-                              text: g,
+                              text: e.value,
                               fontSize: 14,
                               fontWeight: 400,
                               color: AppColors.black500,

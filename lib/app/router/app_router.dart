@@ -14,6 +14,7 @@ import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/favorites_profile_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/my_addresses_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/my_ads_page.dart';
+import 'package:uz_xarid/features/profile/presentation/pages/my_business_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/my_orders_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/notifications_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/payment_page.dart';
@@ -175,6 +176,11 @@ class AppRouter {
                 path: 'view-history',
                 name: 'profile-view-history',
                 builder: (context, state) => const ViewHistoryPage(),
+              ),
+              GoRoute(
+                path: 'my-business',
+                name: 'profile-my-business',
+                builder: (context, state) => const MyBusinessPage(),
               ),
             ],
           ),

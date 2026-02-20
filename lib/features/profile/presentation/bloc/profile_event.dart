@@ -58,6 +58,7 @@ class ProfileUpdateEvent extends ProfileEvent {
   final String? district;
   final String? gender;
   final String? birthDate;
+  final String? avatarPath;
 
   const ProfileUpdateEvent({
     required this.firstName,
@@ -70,6 +71,7 @@ class ProfileUpdateEvent extends ProfileEvent {
     this.district,
     this.gender,
     this.birthDate,
+    this.avatarPath,
   });
 
   @override
@@ -84,5 +86,6 @@ class ProfileUpdateEvent extends ProfileEvent {
     district,
     gender,
     birthDate,
+    avatarPath,
   ];
 }
