@@ -15,6 +15,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/profile/data/model/otp_model.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class OtpBottomSheet extends StatefulWidget {
   final String phone;
@@ -95,6 +96,8 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) async {
         if (state.status == ProfileStatus.success) {
@@ -160,7 +163,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                   children: [
                     const SizedBox(width: 24),
                     AppText(
-                      text: 'Введите код',
+                      text: l10n.otpSheetTitle,
                       fontSize: 16,
                       fontWeight: 700,
                       color: AppColors.black500,
@@ -180,24 +183,11 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     text: TextSpan(
                       style: Theme.of(context).textTheme.bodyMedium,
                       children: [
-                        const TextSpan(
-                          text: 'Код был отправлен на ваш номер телефона  ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.black300,
-                          ),
-                        ),
                         TextSpan(
-                          text: "${formatPhone(widget.phone)}.",
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w600,
+                          text: l10n.otpSentToNumber(
+                            formatPhone(widget.phone),
                           ),
-                        ),
-                        const TextSpan(
-                          text: 'Пожалуйста, проверьте SMS.',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             color: AppColors.black300,
@@ -270,8 +260,8 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                       : () {
                           if (_otpController.text.length != 6) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('6 xonali SMS kodini kiriting'),
+                              SnackBar(
+                                content: Text(l10n.otpInputError),
                               ),
                             );
                             return;
@@ -295,7 +285,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     child: Center(
                       child: AppText(
-                        text: 'Продолжить',
+                        text: l10n.actionContinue,
                         fontSize: 16,
                         fontWeight: 500,
                         color: AppColors.white,
@@ -331,8 +321,10 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                                   },
                             child: Text(
                               resendEnabled
-                                  ? 'Отправить код повторно'
-                                  : 'Отправить код повторно ($seconds)',
+                                  ? l10n.otpResend
+                                  : l10n.otpResendCountdown(
+                                      seconds.toString(),
+                                    ),
                               style: TextStyle(
                                 color: (isLoading || !resendEnabled)
                                     ? Colors.grey

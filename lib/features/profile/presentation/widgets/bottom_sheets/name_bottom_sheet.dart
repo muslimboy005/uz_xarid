@@ -9,6 +9,7 @@ import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class NameBottomSheet extends StatefulWidget {
   const NameBottomSheet({super.key});
@@ -47,6 +48,8 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state.status == ProfileStatus.success) {
@@ -103,7 +106,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                   children: [
                     const SizedBox(width: 24), // Spacer for centering
                     AppText(
-                      text: 'Почти готово',
+                      text: l10n.nameSheetTitle,
                       fontSize: 16,
                       fontWeight: 700,
                       color: AppColors.black500,
@@ -117,14 +120,14 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                 ),
                 const SizedBox(height: 21),
                 AppText(
-                  text: 'Ваш профиль почти готов, представьтесь',
+                  text: l10n.nameSheetSubtitle,
                   fontSize: 14,
                   fontWeight: 400,
                   color: AppColors.black300,
                 ),
                 const SizedBox(height: 20),
                 AppText(
-                  text: 'Имя',
+                  text: l10n.firstNameLabel,
                   fontSize: 14,
                   fontWeight: 700,
                   color: AppColors.black500,
@@ -133,14 +136,14 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                 TextField(
                   controller: _firstNameController,
                   enabled: !isLoading,
-                  decoration: const InputDecoration(
-                    hintText: 'Ваше имя',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    hintText: l10n.firstNameHint,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppDimens.paddingLarge),
                 AppText(
-                  text: 'Фамилия',
+                  text: l10n.lastNameLabel,
                   fontSize: 14,
                   fontWeight: 700,
                   color: AppColors.black500,
@@ -149,9 +152,9 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                 TextField(
                   controller: _lastNameController,
                   enabled: !isLoading,
-                  decoration: const InputDecoration(
-                    hintText: 'Ваша фамилия',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    hintText: l10n.lastNameHint,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: AppDimens.paddingLarge),
@@ -164,9 +167,9 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                           if (_firstNameController.text.trim().isEmpty ||
                               _lastNameController.text.trim().isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  'Iltimos, ism va familiyani kiriting',
+                                  l10n.nameRequiredError,
                                 ),
                               ),
                             );
@@ -202,7 +205,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           child: Center(
                             child: AppText(
-                              text: 'Продолжить',
+                              text: l10n.actionContinue,
                               fontSize: 16,
                               fontWeight: 500,
                               color: AppColors.white,

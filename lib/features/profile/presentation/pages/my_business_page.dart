@@ -7,6 +7,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class MyBusinessPage extends StatefulWidget {
   const MyBusinessPage({super.key});
@@ -52,6 +53,8 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
@@ -61,7 +64,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
           child: Column(
             children: [
               ProfileBreadcrumb(
-                labels: const ['Главная', 'Профиль', 'Мой бизнес'],
+                labels: [l10n.navHome, l10n.profileTitle, l10n.myBusinessTitle],
                 onTaps: [
                   () => context.go('/home'),
                   () => context.go('/profile'),
@@ -87,7 +90,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                     ),
                     const SizedBox(width: 12),
                     AppText(
-                      text: 'Мой бизнес',
+                      text: l10n.myBusinessTitle,
                       fontSize: 20,
                       fontWeight: 700,
                       color: AppColors.black500,
@@ -102,7 +105,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _SectionHeader(title: 'Информация о компании'),
+                      _SectionHeader(title: l10n.companyInfoSection),
                       const SizedBox(height: 8),
                       ContainerW(
                         color: AppColors.white,
@@ -139,17 +142,17 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                           children: [
                                             AppImage(
                                               path: AppAssets.edit,
-                                              color: AppColors.black500,
-                                              size: 20,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            AppText(
-                                              text: 'Изменить аватар',
-                                              fontSize: 14,
-                                              fontWeight: 500,
-                                              color: AppColors.black500,
-                                            ),
-                                          ],
+                                            color: AppColors.black500,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          AppText(
+                                            text: l10n.changeAvatar,
+                                            fontSize: 14,
+                                            fontWeight: 500,
+                                            color: AppColors.black500,
+                                          ),
+                                        ],
                                         ),
                                       ),
                                     ),
@@ -158,19 +161,19 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                               const SizedBox(height: 16),
                               // Company name
-                              _FieldLabel(label: 'Название компании'),
+                              _FieldLabel(label: l10n.companyNameLabel),
                               const SizedBox(height: 8),
                               _TextField(
                                 controller: _companyNameController,
-                                hint: 'Введите название компании',
+                                hint: l10n.companyNameHint,
                               ),
                               const SizedBox(height: 12),
                               // Description
-                              _FieldLabel(label: 'Отзыв'),
+                              _FieldLabel(label: l10n.companyAboutLabel),
                               const SizedBox(height: 8),
                               _TextField(
                                 controller: _descriptionController,
-                                hint: 'Описание',
+                                hint: l10n.companyAboutHint,
                                 maxLines: 4,
                               ),
                               const SizedBox(height: 12),
@@ -199,7 +202,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       ),
                                       const SizedBox(height: 4),
                                       AppText(
-                                        text: 'Загрузить обложку',
+                                        text: l10n.uploadCover,
                                         fontSize: 13,
                                         fontWeight: 400,
                                         color: AppColors.black300,
@@ -227,11 +230,11 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               horizontal: 16,
                               vertical: 14,
                             ),
-                            child: Row(
+                                child: Row(
                               children: [
                                 Expanded(
                                   child: AppText(
-                                    text: 'Контактные данные',
+                                    text: l10n.contactDataToggle,
                                     fontSize: 15,
                                     fontWeight: 600,
                                     color: AppColors.black500,
@@ -257,19 +260,19 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _FieldLabel(label: 'Телефон 1'),
+                                _FieldLabel(label: l10n.phone1Label),
                                 const SizedBox(height: 6),
                                 _TextField(
                                   controller: _phone1Controller,
-                                  hint: 'Введите номер',
+                                  hint: l10n.phoneHint,
                                   keyboardType: TextInputType.phone,
                                 ),
                                 const SizedBox(height: 12),
-                                _FieldLabel(label: 'Телефон 2'),
+                                _FieldLabel(label: l10n.phone2Label),
                                 const SizedBox(height: 6),
                                 _TextField(
                                   controller: _phone2Controller,
-                                  hint: 'Введите номер',
+                                  hint: l10n.phoneHint,
                                   keyboardType: TextInputType.phone,
                                 ),
                               ],
@@ -280,7 +283,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                       const SizedBox(height: 12),
 
                       // ── Рабочее время ────────────────────────────────
-                      _SectionHeader(title: 'Рабочее время'),
+                      _SectionHeader(title: l10n.workingTimeSection),
                       const SizedBox(height: 12),
                       ContainerW(
                         color: AppColors.white,
@@ -290,25 +293,25 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _FieldLabel(label: 'Рабочие дни и время'),
+                              _FieldLabel(label: l10n.workingDaysLabel),
                               const SizedBox(height: 6),
                               _DropdownField(
                                 value: _workingHours,
-                                hint: 'Например: Пн.–Пя. с 9:00 до 18:00',
-                                items: const [
-                                  'Пн.–Пя. с 9:00 до 18:00',
-                                  'Пн.–Сб. с 9:00 до 18:00',
-                                  'Ежедневно с 9:00 до 22:00',
+                                hint: l10n.workingDaysHint,
+                                items: [
+                                  l10n.workingDaysOptionWeekdays,
+                                  l10n.workingDaysOptionSat,
+                                  l10n.workingDaysOptionDaily,
                                 ],
                                 onChanged: (v) =>
                                     setState(() => _workingHours = v),
                               ),
                               const SizedBox(height: 12),
-                              _FieldLabel(label: 'Перерыв (обед)'),
+                              _FieldLabel(label: l10n.lunchBreakLabel),
                               const SizedBox(height: 6),
                               _DropdownField(
                                 value: _lunchBreak,
-                                hint: 'Например: 13:00–14:00',
+                                hint: l10n.lunchBreakHint,
                                 items: const [
                                   '13:00–14:00',
                                   '12:00–13:00',
@@ -324,7 +327,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                       const SizedBox(height: 12),
 
                       // ── Адрес ────────────────────────────────────────
-                      _SectionHeader(title: 'Адрес'),
+                      _SectionHeader(title: l10n.addressTitle),
                       const SizedBox(height: 12),
                       ContainerW(
                         color: AppColors.white,
@@ -334,11 +337,11 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _FieldLabel(label: 'Город'),
+                              _FieldLabel(label: l10n.cityLabel),
                               const SizedBox(height: 6),
                               _TextField(
                                 controller: _cityController,
-                                hint: 'Введите город',
+                                hint: l10n.cityHint,
                               ),
                               const SizedBox(height: 12),
                               Row(
@@ -348,11 +351,11 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        _FieldLabel(label: 'Улица'),
+                                        _FieldLabel(label: l10n.streetLabel),
                                         const SizedBox(height: 6),
                                         _TextField(
                                           controller: _streetController,
-                                          hint: 'Введите улицу',
+                                          hint: l10n.streetHint,
                                         ),
                                       ],
                                     ),
@@ -363,11 +366,11 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        _FieldLabel(label: 'Дом / Квартира'),
+                                        _FieldLabel(label: l10n.houseLabel),
                                         const SizedBox(height: 6),
                                         _TextField(
                                           controller: _houseController,
-                                          hint: 'Дом / Квартира',
+                                          hint: l10n.houseHint,
                                         ),
                                       ],
                                     ),
@@ -375,11 +378,11 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              _FieldLabel(label: 'Ориентир'),
+                              _FieldLabel(label: l10n.landmarkLabel),
                               const SizedBox(height: 6),
                               _TextField(
                                 controller: _landmarkController,
-                                hint: 'Укажите ближайший ориентир',
+                                hint: l10n.landmarkHint,
                               ),
                             ],
                           ),
@@ -388,7 +391,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                       const SizedBox(height: 12),
 
                       // ── Социальные сети ──────────────────────────────
-                      _SectionHeader(title: 'Социальные сети'),
+                      _SectionHeader(title: l10n.socialNetworksSection),
                       const SizedBox(height: 12),
                       ContainerW(
                         color: AppColors.white,
@@ -402,28 +405,28 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 label: 'Instagram',
                                 icon: Icons.camera_alt_outlined,
                                 controller: _instagramController,
-                                hint: 'Введите ссылку на Instagram',
+                                hint: l10n.instagramHint,
                               ),
                               const SizedBox(height: 12),
                               _SocialField(
                                 label: 'Facebook',
                                 icon: Icons.facebook_rounded,
                                 controller: _facebookController,
-                                hint: 'Введите ссылку на Facebook',
+                                hint: l10n.facebookHint,
                               ),
                               const SizedBox(height: 12),
                               _SocialField(
                                 label: 'Telegram',
                                 icon: Icons.send_rounded,
                                 controller: _telegramController,
-                                hint: 'Введите ссылку на Telegram',
+                                hint: l10n.telegramHint,
                               ),
                               const SizedBox(height: 12),
                               _SocialField(
                                 label: 'YouTube',
                                 icon: Icons.play_circle_outline_rounded,
                                 controller: _youtubeController,
-                                hint: 'Введите ссылку на YouTube',
+                                hint: l10n.youtubeHint,
                               ),
                             ],
                           ),
@@ -442,16 +445,16 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 decoration: BoxDecoration(
                                   color: AppColors.white,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.black100),
-                                ),
-                                child: Center(
-                                  child: AppText(
-                                    text: 'Отмена',
-                                    fontSize: 15,
-                                    fontWeight: 600,
-                                    color: AppColors.black500,
-                                  ),
-                                ),
+                              border: Border.all(color: AppColors.black100),
+                            ),
+                            child: Center(
+                              child: AppText(
+                                text: l10n.actionCancel,
+                                fontSize: 15,
+                                fontWeight: 600,
+                                color: AppColors.black500,
+                              ),
+                            ),
                               ),
                             ),
                           ),
@@ -461,18 +464,18 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               onTap: () {},
                               child: Container(
                                 height: 50,
-                                decoration: BoxDecoration(
-                                  color: AppColors.blue500,
-                                  borderRadius: BorderRadius.circular(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.blue500,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: AppText(
+                                  text: l10n.actionSave,
+                                  fontSize: 15,
+                                  fontWeight: 600,
+                                  color: AppColors.white,
                                 ),
-                                child: Center(
-                                  child: AppText(
-                                    text: 'Сохранить',
-                                    fontSize: 15,
-                                    fontWeight: 600,
-                                    color: AppColors.white,
-                                  ),
-                                ),
+                              ),
                               ),
                             ),
                           ),

@@ -5,6 +5,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({super.key});
@@ -18,6 +19,8 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.black50,
@@ -26,7 +29,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProfileBreadcrumb(
-              labels: const ['Главная', 'Профиль', 'Мои заказы'],
+              labels: [l10n.navHome, l10n.profileTitle, l10n.myOrdersTitle],
               onTaps: [
                 () => context.go('/home'),
                 () => context.go('/profile'),
@@ -50,7 +53,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   ),
                   const SizedBox(width: 12),
                   AppText(
-                    text: 'Мои заказы',
+                    text: l10n.myOrdersTitle,
                     fontSize: 22,
                     fontWeight: 700,
                     color: AppColors.black500,
@@ -70,17 +73,16 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                       Padding(
                         padding: const EdgeInsets.all(8),
                         child: _TabBar(
-                          tabs: const ['Мои заказы', 'Мои запросы'],
+                          tabs: [l10n.myOrdersTab, l10n.myRequestsTab],
                           selectedIndex: _selectedTab,
                           onTap: (i) => setState(() => _selectedTab = i),
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: _EmptyState(
                           icon: Icons.shopping_cart_rounded,
-                          title: 'У вас пока нет заказов.',
-                          subtitle:
-                              'Сделайте первый заказ и попробуйте,\nкак это удобно!',
+                          title: l10n.myOrdersEmptyTitle,
+                          subtitle: l10n.myOrdersEmptySubtitle,
                         ),
                       ),
                     ],

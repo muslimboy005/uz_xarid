@@ -9,6 +9,7 @@ import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class PhoneBottomSheet extends StatefulWidget {
   final ValueChanged<String> onCodeSent;
@@ -49,6 +50,8 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state.status == ProfileStatus.success) {
@@ -103,7 +106,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 children: [
                   const SizedBox(width: 24), // Spacer for centering
                   AppText(
-                    text: 'Вход в аккаунт',
+                    text: l10n.loginSheetTitle,
                     fontSize: 16,
                     fontWeight: 700,
                     color: AppColors.black500,
@@ -117,7 +120,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
               ),
               SizedBox(height: 21),
               AppText(
-                text: 'Мы отправим проверочный код на\nвведённый номер по SMS.',
+                text: l10n.loginSheetDescription,
                 textAlign: TextAlign.center,
                 fontSize: 14,
                 fontWeight: 400,
@@ -128,7 +131,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: AppText(
-                  text: 'Телефон',
+                  text: l10n.loginPhoneLabel,
                   fontSize: 14,
                   fontWeight: 700,
                   color: AppColors.black500,
@@ -143,10 +146,10 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   FilteringTextInputFormatter.digitsOnly,
                   UzbekPhoneInputFormatter(),
                 ],
-                decoration: const InputDecoration(
-                  hintText: '+998 90 123-45-67',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
+                decoration: InputDecoration(
+                  hintText: l10n.loginPhoneHint,
+                  border: const OutlineInputBorder(),
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,
                   ),
@@ -175,9 +178,9 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                           if (digits.length != 12 ||
                               !digits.startsWith('998')) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  'Telefon raqamni to\'liq kiriting',
+                                  l10n.loginPhoneError,
                                 ),
                               ),
                             );
@@ -198,27 +201,26 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                               Colors.white,
                             ),
                           ),
-                        )
-                      : const Text(
-                          'Получить код',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    )
+                    : Text(
+                        l10n.loginGetCode,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                ),
+                      ),
+              ),
               ),
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: Text.rich(
                   TextSpan(
-                    text: 'Avtotizatsiyadan o\'tish orqali siz ',
+                    text: l10n.loginPolicyPrefix,
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     children: [
                       TextSpan(
-                        text:
-                            'shaxsiy ma\'lumotlarni\nqayta ishlash siyosatiga',
+                        text: l10n.loginPolicyLink,
                         style: TextStyle(
                           color: Colors.blue.shade700,
                           fontWeight: FontWeight.w500,
@@ -226,7 +228,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                         // recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                       TextSpan(
-                        text: ' rozilios bildirasiz',
+                        text: l10n.loginPolicySuffix,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,

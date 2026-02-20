@@ -291,6 +291,804 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sorry! No services around you'**
   String get servicesEmptySubtitle;
+
+  /// No description provided for @actionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get actionCancel;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get actionContinue;
+
+  /// No description provided for @actionGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get actionGo;
+
+  /// No description provided for @actionLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get actionLogout;
+
+  /// No description provided for @profileBasicAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic account'**
+  String get profileBasicAccount;
+
+  /// No description provided for @profileVerifyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your account'**
+  String get profileVerifyAccount;
+
+  /// No description provided for @profileMenuPersonalData.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal data'**
+  String get profileMenuPersonalData;
+
+  /// No description provided for @profileMenuMyAds.
+  ///
+  /// In en, this message translates to:
+  /// **'My ads'**
+  String get profileMenuMyAds;
+
+  /// No description provided for @profileMenuMyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get profileMenuMyOrders;
+
+  /// No description provided for @profileMenuFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get profileMenuFavorites;
+
+  /// No description provided for @profileMenuNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get profileMenuNotifications;
+
+  /// No description provided for @profileMenuMyBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'My business'**
+  String get profileMenuMyBusiness;
+
+  /// No description provided for @profileMenuMyAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'My addresses'**
+  String get profileMenuMyAddresses;
+
+  /// No description provided for @profileMenuPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments and tariffs'**
+  String get profileMenuPayment;
+
+  /// No description provided for @profileMenuSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get profileMenuSupport;
+
+  /// No description provided for @profileMenuViewHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'View history'**
+  String get profileMenuViewHistory;
+
+  /// No description provided for @profileBecomeBusinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a business\nuser'**
+  String get profileBecomeBusinessTitle;
+
+  /// No description provided for @profileLogoutDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out of account?'**
+  String get profileLogoutDialogTitle;
+
+  /// No description provided for @profileLogoutDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get profileLogoutDialogMessage;
+
+  /// No description provided for @profileAuthBenefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why sign in?'**
+  String get profileAuthBenefitsTitle;
+
+  /// No description provided for @profileBenefitOfferServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer your own services'**
+  String get profileBenefitOfferServices;
+
+  /// No description provided for @profileBenefitUseServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Use services from other users'**
+  String get profileBenefitUseServices;
+
+  /// No description provided for @profileBenefitExclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive offers just for you'**
+  String get profileBenefitExclusive;
+
+  /// No description provided for @profileBenefitAdsFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Post ads and manage favorites'**
+  String get profileBenefitAdsFavorites;
+
+  /// No description provided for @profileAuthCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in or create profile'**
+  String get profileAuthCta;
+
+  /// No description provided for @profileAuthDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy, sell, and use services! Post ads, find what you need, and add to favorites.'**
+  String get profileAuthDescription;
+
+  /// No description provided for @loginSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account login'**
+  String get loginSheetTitle;
+
+  /// No description provided for @loginSheetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'We will send a verification code to the entered number via SMS.'**
+  String get loginSheetDescription;
+
+  /// No description provided for @loginPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get loginPhoneLabel;
+
+  /// No description provided for @loginPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'+998 90 123-45-67'**
+  String get loginPhoneHint;
+
+  /// No description provided for @loginPhoneError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the full phone number'**
+  String get loginPhoneError;
+
+  /// No description provided for @loginGetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Get code'**
+  String get loginGetCode;
+
+  /// No description provided for @loginPolicyPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'By signing in you agree to the '**
+  String get loginPolicyPrefix;
+
+  /// No description provided for @loginPolicyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'personal data processing policy'**
+  String get loginPolicyLink;
+
+  /// No description provided for @loginPolicySuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get loginPolicySuffix;
+
+  /// No description provided for @otpSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get otpSheetTitle;
+
+  /// No description provided for @otpSentToNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'The code was sent to your phone number {phone}. Please check the SMS.'**
+  String otpSentToNumber(Object phone);
+
+  /// No description provided for @otpInputError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit SMS code'**
+  String get otpInputError;
+
+  /// No description provided for @otpResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code again'**
+  String get otpResend;
+
+  /// No description provided for @otpResendCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code again ({seconds})'**
+  String otpResendCountdown(Object seconds);
+
+  /// No description provided for @nameSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost done'**
+  String get nameSheetTitle;
+
+  /// No description provided for @nameSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile is almost ready—please introduce yourself'**
+  String get nameSheetSubtitle;
+
+  /// No description provided for @firstNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstNameLabel;
+
+  /// No description provided for @firstNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first name'**
+  String get firstNameHint;
+
+  /// No description provided for @lastNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastNameLabel;
+
+  /// No description provided for @lastNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last name'**
+  String get lastNameHint;
+
+  /// No description provided for @nameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter first and last name'**
+  String get nameRequiredError;
+
+  /// No description provided for @personalDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal data'**
+  String get personalDataTitle;
+
+  /// No description provided for @contactDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact data'**
+  String get contactDataTitle;
+
+  /// No description provided for @addressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get addressTitle;
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phoneLabel;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'+998 XX XXX-XX-XX'**
+  String get phoneHint;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter email'**
+  String get emailHint;
+
+  /// No description provided for @cityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get cityLabel;
+
+  /// No description provided for @cityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter city'**
+  String get cityHint;
+
+  /// No description provided for @streetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Street'**
+  String get streetLabel;
+
+  /// No description provided for @streetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter street'**
+  String get streetHint;
+
+  /// No description provided for @houseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'House / Apartment'**
+  String get houseLabel;
+
+  /// No description provided for @houseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'House / Apartment'**
+  String get houseHint;
+
+  /// No description provided for @districtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get districtLabel;
+
+  /// No description provided for @districtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter district'**
+  String get districtHint;
+
+  /// No description provided for @profilePhotoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo'**
+  String get profilePhotoLabel;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @genderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get genderLabel;
+
+  /// No description provided for @genderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get genderMale;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get genderFemale;
+
+  /// No description provided for @genderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select gender'**
+  String get genderHint;
+
+  /// No description provided for @birthDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get birthDateLabel;
+
+  /// No description provided for @birthDatePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'DD.MM.YYYY'**
+  String get birthDatePlaceholder;
+
+  /// No description provided for @myOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get myOrdersTitle;
+
+  /// No description provided for @myRequestsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'My requests'**
+  String get myRequestsTab;
+
+  /// No description provided for @myOrdersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get myOrdersTab;
+
+  /// No description provided for @myOrdersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any orders yet.'**
+  String get myOrdersEmptyTitle;
+
+  /// No description provided for @myOrdersEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place your first order and see how convenient it is!'**
+  String get myOrdersEmptySubtitle;
+
+  /// No description provided for @favoritesProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesProfileTitle;
+
+  /// No description provided for @favoritesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTab;
+
+  /// No description provided for @savedFilterTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved filter'**
+  String get savedFilterTab;
+
+  /// No description provided for @favoritesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get favoritesEmptyTitle;
+
+  /// No description provided for @favoritesEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ads to favorites'**
+  String get favoritesEmptySubtitle;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsContractsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Contracts'**
+  String get notificationsContractsTab;
+
+  /// No description provided for @notificationsSystemTab.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get notificationsSystemTab;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications will appear here as soon as they are available'**
+  String get notificationsEmptySubtitle;
+
+  /// No description provided for @comingSoonSection.
+  ///
+  /// In en, this message translates to:
+  /// **'{section} — coming soon'**
+  String comingSoonSection(Object section);
+
+  /// No description provided for @supportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get supportTitle;
+
+  /// No description provided for @paymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments and tariffs'**
+  String get paymentTitle;
+
+  /// No description provided for @viewHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View history'**
+  String get viewHistoryTitle;
+
+  /// No description provided for @myAddressesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My addresses'**
+  String get myAddressesTitle;
+
+  /// No description provided for @myAdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My ads'**
+  String get myAdsTitle;
+
+  /// No description provided for @profileVerifyBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your account'**
+  String get profileVerifyBanner;
+
+  /// No description provided for @myBusinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My business'**
+  String get myBusinessTitle;
+
+  /// No description provided for @companyInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Company information'**
+  String get companyInfoSection;
+
+  /// No description provided for @changeAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Change avatar'**
+  String get changeAvatar;
+
+  /// No description provided for @companyNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Company name'**
+  String get companyNameLabel;
+
+  /// No description provided for @companyNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter company name'**
+  String get companyNameHint;
+
+  /// No description provided for @companyAboutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get companyAboutLabel;
+
+  /// No description provided for @companyAboutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get companyAboutHint;
+
+  /// No description provided for @uploadCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload cover'**
+  String get uploadCover;
+
+  /// No description provided for @contactDataToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact information'**
+  String get contactDataToggle;
+
+  /// No description provided for @phone1Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone 1'**
+  String get phone1Label;
+
+  /// No description provided for @phone2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone 2'**
+  String get phone2Label;
+
+  /// No description provided for @workingTimeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Working hours'**
+  String get workingTimeSection;
+
+  /// No description provided for @workingDaysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Working days and time'**
+  String get workingDaysLabel;
+
+  /// No description provided for @workingDaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Mon–Fri 9:00–18:00'**
+  String get workingDaysHint;
+
+  /// No description provided for @workingDaysOptionWeekdays.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon–Fri 9:00–18:00'**
+  String get workingDaysOptionWeekdays;
+
+  /// No description provided for @workingDaysOptionSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon–Sat 9:00–18:00'**
+  String get workingDaysOptionSat;
+
+  /// No description provided for @workingDaysOptionDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily 9:00–22:00'**
+  String get workingDaysOptionDaily;
+
+  /// No description provided for @lunchBreakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch break'**
+  String get lunchBreakLabel;
+
+  /// No description provided for @lunchBreakHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 13:00–14:00'**
+  String get lunchBreakHint;
+
+  /// No description provided for @landmarkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark'**
+  String get landmarkLabel;
+
+  /// No description provided for @landmarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify the nearest landmark'**
+  String get landmarkHint;
+
+  /// No description provided for @socialNetworksSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Social networks'**
+  String get socialNetworksSection;
+
+  /// No description provided for @instagramHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Instagram link'**
+  String get instagramHint;
+
+  /// No description provided for @facebookHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Facebook link'**
+  String get facebookHint;
+
+  /// No description provided for @telegramHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Telegram link'**
+  String get telegramHint;
+
+  /// No description provided for @youtubeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter YouTube link'**
+  String get youtubeHint;
+
+  /// No description provided for @savedFilterCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category:'**
+  String get savedFilterCategoryLabel;
+
+  /// No description provided for @savedFilterRegionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Region:'**
+  String get savedFilterRegionLabel;
+
+  /// No description provided for @savedFilterCityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City:'**
+  String get savedFilterCityLabel;
+
+  /// No description provided for @savedFilterBusinessOnlyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Business-only ads:'**
+  String get savedFilterBusinessOnlyLabel;
+
+  /// No description provided for @savedFilterCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency:'**
+  String get savedFilterCurrencyLabel;
+
+  /// No description provided for @savedFilterSortByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by:'**
+  String get savedFilterSortByLabel;
+
+  /// No description provided for @savedFilterStatusEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No new ads found'**
+  String get savedFilterStatusEmpty;
+
+  /// No description provided for @savedFilterDateSample.
+  ///
+  /// In en, this message translates to:
+  /// **'1 min ago'**
+  String get savedFilterDateSample;
+
+  /// No description provided for @savedFilterCategoryHomeGarden.
+  ///
+  /// In en, this message translates to:
+  /// **'Home & garden'**
+  String get savedFilterCategoryHomeGarden;
+
+  /// No description provided for @savedFilterRegionTashkent.
+  ///
+  /// In en, this message translates to:
+  /// **'Tashkent region'**
+  String get savedFilterRegionTashkent;
+
+  /// No description provided for @savedFilterCityTashkent.
+  ///
+  /// In en, this message translates to:
+  /// **'Tashkent'**
+  String get savedFilterCityTashkent;
+
+  /// No description provided for @savedFilterBusinessOnlyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Business-only ads'**
+  String get savedFilterBusinessOnlyValue;
+
+  /// No description provided for @savedFilterCurrencyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'USD'**
+  String get savedFilterCurrencyValue;
+
+  /// No description provided for @savedFilterSortMostRelevant.
+  ///
+  /// In en, this message translates to:
+  /// **'Most relevant'**
+  String get savedFilterSortMostRelevant;
 }
 
 class _AppLocalizationsDelegate
