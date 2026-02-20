@@ -98,8 +98,21 @@ class AuthorizedProfileContent extends StatelessWidget {
                     radius: 24,
                     backgroundColor: AppColors.blue50,
                     backgroundImage: user.avatar.isNotEmpty
-                        ? NetworkImage(user.avatar)
+                        ? NetworkImage(() {
+                            String url = user.avatar.replaceFirst(
+                              'file://',
+                              '',
+                            );
+                            if (url.startsWith('/')) {
+                              return 'https://uzxarid.felixits.uz$url';
+                            }
+                            return url;
+                          }())
                         : null,
+                    onBackgroundImageError: (exception, stackTrace) {
+                      // Xatoliklarni (masalan, 404 default.png uchun) ushlab qolamiz
+                      // bu IDE debugger'ni to'xtatib qolishini oldini oladi.
+                    },
                     child: user.avatar.isEmpty
                         ? const Icon(
                             Icons.person,

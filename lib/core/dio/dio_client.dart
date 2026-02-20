@@ -24,9 +24,7 @@ class DioClient {
     );
 
     // ✅ BIRINCHI - Auth Interceptor
-    _dio.interceptors.add(
-      AuthInterceptor(GetIt.I<SecureStorageService>()),
-    );
+    _dio.interceptors.add(AuthInterceptor(GetIt.I<SecureStorageService>()));
 
     // IKKINCHI - Log Interceptor
     _dio.interceptors.add(
@@ -42,41 +40,17 @@ class DioClient {
 
   Dio get dio => _dio;
 
-  Future<Map<String, String>> _createHeaders({
-    bool withToken = true,
-    String? contentType,
-  }) async {
-    final headers = <String, String>{
-      'Accept': 'application/json',
-      'Content-Type': contentType ?? 'application/json; charset=UTF-8',
-    };
-
-    // ✅ Interceptor token qo'shadi, bu backward compatibility uchun
-    if (withToken) {
-      final token = await GetIt.I<SecureStorageService>().getToken();
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-    }
-
-    return headers;
-  }
-
-  // ... qolgan methodlar o'zgarishsiz
-  
   Future<MainModel> get(
     String uri, {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool withToken = true,
   }) async {
-    final headers = await _createHeaders(withToken: withToken);
     return _request(
       () => _dio.get(
         uri,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
-        options: Options(headers: headers),
       ),
     );
   }
@@ -91,10 +65,6 @@ class DioClient {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final headers = await _createHeaders(
-      withToken: withToken,
-      contentType: contentType,
-    );
     return _request(
       () => _dio.post(
         uri,
@@ -103,7 +73,6 @@ class DioClient {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-        options: Options(headers: headers),
       ),
     );
   }
@@ -118,10 +87,6 @@ class DioClient {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final headers = await _createHeaders(
-      withToken: withToken,
-      contentType: contentType,
-    );
     return _request(
       () => _dio.put(
         uri,
@@ -130,7 +95,6 @@ class DioClient {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-        options: Options(headers: headers),
       ),
     );
   }
@@ -145,10 +109,6 @@ class DioClient {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final headers = await _createHeaders(
-      withToken: withToken,
-      contentType: contentType,
-    );
     return _request(
       () => _dio.patch(
         uri,
@@ -157,7 +117,6 @@ class DioClient {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-        options: Options(headers: headers),
       ),
     );
   }
@@ -170,17 +129,12 @@ class DioClient {
     bool withToken = true,
     String? contentType,
   }) async {
-    final headers = await _createHeaders(
-      withToken: withToken,
-      contentType: contentType,
-    );
     return _request(
       () => _dio.delete(
         uri,
         data: data,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
-        options: Options(headers: headers),
       ),
     );
   }
@@ -219,8 +173,9 @@ class DioClient {
         status: res?.statusCode ?? 0,
         result: null,
         errorCode: null,
-        detail:
-            data is Map<String, dynamic> ? data : {'description': e.message},
+        detail: data is Map<String, dynamic>
+            ? data
+            : {'description': e.message},
         timestamp: DateTime.now().toIso8601String(),
       );
     }

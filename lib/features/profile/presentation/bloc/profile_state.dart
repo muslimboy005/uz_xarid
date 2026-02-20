@@ -1,6 +1,14 @@
 part of 'profile_bloc.dart';
 
-enum ProfileStatus { initial, loading, success, failure, updateSuccess }
+enum ProfileStatus {
+  initial,
+  loading,
+  success,
+  failure,
+  updateSuccess,
+  createBusinessSuccess,
+  updateBusinessSuccess,
+}
 
 class ProfileState extends Equatable {
   const ProfileState({

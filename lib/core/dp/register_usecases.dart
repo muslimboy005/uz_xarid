@@ -28,6 +28,12 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<ProfileUpdateUsecase>(
       () => ProfileUpdateUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<ProfileCreateBusinessUsecase>(
+      () => ProfileCreateBusinessUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<ProfileUpdateBusinessUsecase>(
+      () => ProfileUpdateBusinessUsecase(getIt<ProfileRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }

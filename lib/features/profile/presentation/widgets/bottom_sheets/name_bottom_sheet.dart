@@ -38,6 +38,7 @@ class NameBottomSheet extends StatefulWidget {
 class _NameBottomSheetState extends State<NameBottomSheet> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
+  bool _isSuccessHandled = false;
 
   @override
   void dispose() {
@@ -52,7 +53,8 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
 
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) {
-        if (state.status == ProfileStatus.success) {
+        if (state.status == ProfileStatus.success && !_isSuccessHandled) {
+          _isSuccessHandled = true;
           if (context.mounted) {
             final profileBloc = context.read<ProfileBloc>();
             Navigator.of(context).pop();

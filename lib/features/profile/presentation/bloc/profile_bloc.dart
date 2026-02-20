@@ -5,6 +5,7 @@ import 'package:uz_xarid/features/profile/data/model/otp_model.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
+import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 part 'profile_event.dart';
 part 'profile_state.dart';
 
@@ -15,6 +16,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileGetUsecase profileGetUsecase;
   final ProfileResendOtpUsecase profileResendOtpUsecase;
   final ProfileUpdateUsecase profileUpdateUsecase;
+  final ProfileCreateBusinessUsecase profileCreateBusinessUsecase;
+  final ProfileUpdateBusinessUsecase profileUpdateBusinessUsecase;
 
   ProfileBloc(
     this.profileConfirmOtpUsecase,
@@ -23,6 +26,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     this.profileGetUsecase,
     this.profileResendOtpUsecase,
     this.profileUpdateUsecase,
+    this.profileCreateBusinessUsecase,
+    this.profileUpdateBusinessUsecase,
   ) : super(ProfileState.initial()) {
     on<ProfileSendOtpEvent>(_sendOtp);
     on<ProfileConfirmOtpEvent>(_confirmOtp);
@@ -31,6 +36,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileLoadEvent>(_loadProfile);
     on<ProfileResendOtpEvent>(_resendOtp);
     on<ProfileUpdateEvent>(_updateProfile);
+    on<ProfileCreateBusinessEvent>(_createBusiness);
+    on<ProfileUpdateBusinessEvent>(_updateBusiness);
   }
 
   Future<void> _sendOtp(
@@ -298,6 +305,74 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               ),
             );
           }
+        },
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _createBusiness(
+    ProfileCreateBusinessEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: ProfileStatus.loading));
+      final result = await profileCreateBusinessUsecase(event.entity);
+      result.either(
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
+        (success) {
+          emit(
+            state.copyWith(
+              status: ProfileStatus.createBusinessSuccess,
+              profileModel: success,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: ProfileStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _updateBusiness(
+    ProfileUpdateBusinessEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: ProfileStatus.loading));
+      final result = await profileUpdateBusinessUsecase(
+        BusinessUpdateParams(id: event.id, entity: event.entity),
+      );
+      result.either(
+        (failure) => emit(
+          state.copyWith(
+            status: ProfileStatus.failure,
+            errorMessage: failure.toString(),
+          ),
+        ),
+        (success) {
+          emit(
+            state.copyWith(
+              status: ProfileStatus.updateBusinessSuccess,
+              profileModel: success,
+            ),
+          );
         },
       );
     } catch (e) {

@@ -20,28 +20,33 @@ import 'package:uz_xarid/l10n/app_localizations.dart';
 class OtpBottomSheet extends StatefulWidget {
   final String phone;
   final VoidCallback onAskName;
+  final VoidCallback? onOtpSuccess;
 
   const OtpBottomSheet({
     super.key,
     required this.phone,
     required this.onAskName,
+    this.onOtpSuccess,
   });
 
   static void show(
     BuildContext parentContext,
     String phone, {
     required VoidCallback onAskName,
+    VoidCallback? onOtpSuccess,
   }) {
     showModalBottomSheet<void>(
       context: parentContext,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       builder: (sheetContext) {
         return BlocProvider.value(
           value: parentContext.read<ProfileBloc>(),
-          child: OtpBottomSheet(phone: phone, onAskName: onAskName),
+          child: OtpBottomSheet(
+            phone: phone,
+            onAskName: onAskName,
+            onOtpSuccess: onOtpSuccess,
+          ),
         );
       },
     );
@@ -56,6 +61,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
 
   Timer? _timer;
   int _retryCount = 0;
+  bool _isSuccessHandled = false;
 
   final _timerSeconds = ValueNotifier<int>(120);
   final _isResendEnabled = ValueNotifier<bool>(false);
@@ -100,7 +106,8 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
 
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) async {
-        if (state.status == ProfileStatus.success) {
+        if (state.status == ProfileStatus.success && !_isSuccessHandled) {
+          _isSuccessHandled = true;
           final profileData = state.profileModel?.data;
 
           if (profileData?.token != null) {
@@ -110,8 +117,10 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
             );
           }
 
+          widget.onOtpSuccess?.call();
+
           if (context.mounted) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true); // Return true indicating success
           }
 
           Future.delayed(const Duration(milliseconds: 200), () {

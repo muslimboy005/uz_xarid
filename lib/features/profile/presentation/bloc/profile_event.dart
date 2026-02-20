@@ -89,3 +89,20 @@ class ProfileUpdateEvent extends ProfileEvent {
     avatarPath,
   ];
 }
+
+class ProfileCreateBusinessEvent extends ProfileEvent {
+  final BusinessEntity entity;
+  const ProfileCreateBusinessEvent(this.entity);
+
+  @override
+  List<Object?> get props => [entity];
+}
+
+class ProfileUpdateBusinessEvent extends ProfileEvent {
+  final String id;
+  final BusinessEntity entity;
+  const ProfileUpdateBusinessEvent(this.id, this.entity);
+
+  @override
+  List<Object?> get props => [id, entity];
+}

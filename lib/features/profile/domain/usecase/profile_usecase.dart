@@ -5,6 +5,7 @@ import 'package:uz_xarid/features/profile/data/model/otp_model.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 
 class ProfileSendOtpUsecase
     extends UseCase<Either<Failure, ProfileModel>, String> {
@@ -68,5 +69,71 @@ class ProfileResendOtpUsecase
   @override
   Future<Either<Failure, ProfileModel>> call(String phone) async {
     return profileRepository.resendOtp(phone);
+  }
+}
+
+class ProfileGetBusinessMeUsecase
+    extends UseCase<Either<Failure, ProfileModel>, NoParams> {
+  final ProfileRepository profileRepository;
+  ProfileGetBusinessMeUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(NoParams param) {
+    return profileRepository.getBusinessMe();
+  }
+}
+
+class ProfileCreateBusinessUsecase
+    extends UseCase<Either<Failure, ProfileModel>, BusinessEntity> {
+  final ProfileRepository profileRepository;
+  ProfileCreateBusinessUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(BusinessEntity entity) {
+    return profileRepository.createBusiness(entity);
+  }
+}
+
+class BusinessUpdateParams {
+  final String id;
+  final BusinessEntity entity;
+  BusinessUpdateParams({required this.id, required this.entity});
+}
+
+class ProfileUpdateBusinessUsecase
+    extends UseCase<Either<Failure, ProfileModel>, BusinessUpdateParams> {
+  final ProfileRepository profileRepository;
+  ProfileUpdateBusinessUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(BusinessUpdateParams params) {
+    return profileRepository.updateBusiness(params.id, params.entity);
+  }
+}
+
+class ProfileDeleteBusinessUsecase
+    extends UseCase<Either<Failure, ProfileModel>, String> {
+  final ProfileRepository profileRepository;
+  ProfileDeleteBusinessUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(String id) {
+    return profileRepository.deleteBusiness(id);
+  }
+}
+
+class ProfileUpdateBusinessImageUsecase
+    extends UseCase<Either<Failure, ProfileModel>, String> {
+  final ProfileRepository profileRepository;
+  ProfileUpdateBusinessImageUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(String id) {
+    return profileRepository.updateBusinessImage(id);
+  }
+}
+
+class ProfileGetBusinessByIdUsecase
+    extends UseCase<Either<Failure, ProfileModel>, String> {
+  final ProfileRepository profileRepository;
+  ProfileGetBusinessByIdUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, ProfileModel>> call(String id) {
+    return profileRepository.getBusinessById(id);
   }
 }

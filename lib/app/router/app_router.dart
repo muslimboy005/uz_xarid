@@ -180,7 +180,10 @@ class AppRouter {
               GoRoute(
                 path: 'my-business',
                 name: 'profile-my-business',
-                builder: (context, state) => const MyBusinessPage(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => getIt<ProfileBloc>(),
+                  child: const MyBusinessPage(),
+                ),
               ),
             ],
           ),
