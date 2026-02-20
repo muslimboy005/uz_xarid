@@ -6,6 +6,8 @@
   "homeBody": "Структура Clean Architecture (DDD) уже подготовлена.",
   "catalogTitle": "Каталог",
   "catalogBody": "Каталог товаров будет отображаться здесь.",
+  "allCategories": "Все категории",
+  "actionRetry": "Повторить",
   "favoritesTitle": "Избранные",
   "favoritesBody": "Ваши избранные товары будут здесь.",
   "profileTitle": "Профиль",

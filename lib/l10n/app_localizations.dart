@@ -136,6 +136,18 @@ abstract class AppLocalizations {
   /// **'Products catalog will appear here.'**
   String get catalogBody;
 
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get allCategories;
+
+  /// No description provided for @actionRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get actionRetry;
+
   /// No description provided for @favoritesTitle.
   ///
   /// In en, this message translates to:

@@ -8,15 +8,36 @@ class CategoryDto {
   final int id;
   final String name;
   final String? image;
+  final List<CategoryDto> children;
+  @JsonKey(name: 'show_home')
+  final bool showHome;
 
-  CategoryDto({required this.id, required this.name, this.image});
+  CategoryDto({
+    required this.id,
+    required this.name,
+    this.image,
+    this.children = const [],
+    this.showHome = true,
+  });
 
   factory CategoryDto.fromJson(Map<String, dynamic> json) =>
       _$CategoryDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$CategoryDtoToJson(this);
 
-  HomeCategory toHomeCategory() => HomeCategory(id: id, name: name, image: image);
+  String _safeName() => name.trim().isEmpty ? 'Category $id' : name;
+
+  HomeCategory toHomeCategory() => HomeCategory(
+    id: id,
+    name: name.isEmpty ? _safeName() : name,
+    image: image,
+  );
+
+  /// Flatten this category and all nested children into a single list.
+  List<HomeCategory> toHomeCategoriesFlatten() => [
+    toHomeCategory(),
+    for (final child in children) ...child.toHomeCategoriesFlatten(),
+  ];
 }
 
 @JsonSerializable()

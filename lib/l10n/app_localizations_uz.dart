@@ -27,6 +27,12 @@ class AppLocalizationsUz extends AppLocalizations {
   String get catalogBody => 'Mahsulotlar katalogi shu yerda bo‘ladi.';
 
   @override
+  String get allCategories => 'Barcha turkumlar';
+
+  @override
+  String get actionRetry => 'Qayta urinish';
+
+  @override
   String get favoritesTitle => 'Sevimlilar';
 
   @override

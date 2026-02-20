@@ -27,6 +27,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get catalogBody => 'Каталог товаров будет отображаться здесь.';
 
   @override
+  String get allCategories => 'Все категории';
+
+  @override
+  String get actionRetry => 'Повторить';
+
+  @override
   String get favoritesTitle => 'Избранные';
 
   @override

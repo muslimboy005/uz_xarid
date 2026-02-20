@@ -28,6 +28,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogBody => 'Products catalog will appear here.';
 
   @override
+  String get allCategories => 'All categories';
+
+  @override
+  String get actionRetry => 'Retry';
+
+  @override
   String get favoritesTitle => 'Favorites';
 
   @override

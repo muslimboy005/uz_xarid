@@ -6,6 +6,8 @@
   "homeBody": "Clean Architecture (DDD) structure is ready for your project.",
   "catalogTitle": "Catalog",
   "catalogBody": "Products catalog will appear here.",
+  "allCategories": "All categories",
+  "actionRetry": "Retry",
   "favoritesTitle": "Favorites",
   "favoritesBody": "Your favorite products will appear here.",
   "profileTitle": "Profile",
