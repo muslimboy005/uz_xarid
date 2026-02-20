@@ -6,6 +6,8 @@
   "homeBody": "Clean Architecture (DDD) struktura tayyor.",
   "catalogTitle": "Katalog",
   "catalogBody": "Mahsulotlar katalogi shu yerda bo‘ladi.",
+  "allCategories": "Barcha turkumlar",
+  "actionRetry": "Qayta urinish",
   "favoritesTitle": "Sevimlilar",
   "favoritesBody": "Sevimli mahsulotlaringiz shu yerda bo‘ladi.",
   "profileTitle": "Profil",

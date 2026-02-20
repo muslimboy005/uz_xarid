@@ -10,6 +10,11 @@ CategoryDto _$CategoryDtoFromJson(Map<String, dynamic> json) => CategoryDto(
   id: (json['id'] as num).toInt(),
   name: json['name'] as String,
   image: json['image'] as String?,
+  children: (json['children'] as List<dynamic>?)
+          ?.map((e) => CategoryDto.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  showHome: json['show_home'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$CategoryDtoToJson(CategoryDto instance) =>
@@ -17,6 +22,8 @@ Map<String, dynamic> _$CategoryDtoToJson(CategoryDto instance) =>
       'id': instance.id,
       'name': instance.name,
       'image': instance.image,
+      'children': instance.children.map((e) => e.toJson()).toList(),
+      'show_home': instance.showHome,
     };
 
 CategoryResponseDto _$CategoryResponseDtoFromJson(Map<String, dynamic> json) =>

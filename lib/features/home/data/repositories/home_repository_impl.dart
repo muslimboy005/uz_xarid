@@ -27,7 +27,10 @@ class HomeRepositoryImpl implements HomeRepository {
       final servicesResponse = await homeApi.getServices(pageSize);
 
       final entity = HomeEntity(
+        // Show only top-level categories returned by the API (expected 6),
+        // preserving order and falling back to safe name when empty.
         categories: categoriesResponse.data.results
+            .where((e) => e.showHome)
             .map((e) => e.toHomeCategory())
             .toList(),
         banners: bannersResponse.data.results
