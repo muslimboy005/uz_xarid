@@ -11,6 +11,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class AuthorizedProfileContent extends StatelessWidget {
   const AuthorizedProfileContent({super.key, required this.user});
@@ -19,6 +20,8 @@ class AuthorizedProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +31,7 @@ class AuthorizedProfileContent extends StatelessWidget {
               GestureDetector(
                 onTap: () => context.go('/home'),
                 child: AppText(
-                  text: 'Главная',
+                  text: l10n.navHome,
                   fontSize: 12,
                   fontWeight: 400,
                   color: AppColors.black300,
@@ -43,7 +46,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                 ),
               ),
               AppText(
-                text: 'Профиль',
+                text: l10n.profileTitle,
                 fontSize: 12,
                 fontWeight: 600,
                 color: AppColors.blue500,
@@ -54,7 +57,7 @@ class AuthorizedProfileContent extends StatelessWidget {
           Row(
             children: [
               AppText(
-                text: 'Профиль',
+                text: l10n.profileTitle,
                 fontSize: 24,
                 fontWeight: 700,
                 color: AppColors.black500,
@@ -72,7 +75,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                       AppImage(path: AppAssets.labelImportant),
                       const SizedBox(width: 8),
                       AppText(
-                        text: 'Базовый аккаунт',
+                        text: l10n.profileBasicAccount,
                         fontSize: 12,
                         fontWeight: 500,
                         color: AppColors.white,
@@ -138,8 +141,8 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   AppImage(path: AppAssets.information),
                   SizedBox(width: 6),
-                  AppText(
-                    text: 'Подтвердите аккаунт',
+              AppText(
+                    text: l10n.profileVerifyAccount,
                     fontSize: 12,
                     fontWeight: 500,
                     color: AppColors.white,
@@ -163,7 +166,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   _ProfileMenuItem(
                     icon: AppAssets.accountCircle,
-                    title: 'Личные данные',
+                    title: l10n.profileMenuPersonalData,
                     onTap: () async {
                       await context.push('/profile/personal-data');
                       if (context.mounted) {
@@ -175,22 +178,22 @@ class AuthorizedProfileContent extends StatelessWidget {
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.feed,
-                    title: 'Мои объявления',
+                    title: l10n.profileMenuMyAds,
                     onTap: () => context.push('/profile/my-ads'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.shoppingCart,
-                    title: 'Мои заказы',
+                    title: l10n.profileMenuMyOrders,
                     onTap: () => context.push('/profile/my-orders'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.favorite1,
-                    title: 'Избранное',
+                    title: l10n.profileMenuFavorites,
                     onTap: () => context.push('/profile/favorites'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.notifications,
-                    title: 'Push-уведомления',
+                    title: l10n.profileMenuNotifications,
                     onTap: () => context.push('/profile/notifications'),
                   ),
                 ],
@@ -214,21 +217,21 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText(
-                        text: "Станьте бизнес\nпользователем",
-                        fontSize: 16,
-                        fontWeight: 700,
-                        color: AppColors.white,
-                        maxLines: 2,
-                      ),
+                      children: [
+                        AppText(
+                          text: l10n.profileBecomeBusinessTitle,
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: AppColors.white,
+                          maxLines: 2,
+                        ),
                       SizedBox(height: 8),
                       GestureDetector(
                         onTap: () => context.push('/profile/my-business'),
                         child: Row(
                           children: [
                             AppText(
-                              text: "Перейти",
+                              text: l10n.actionGo,
                               fontSize: 12,
                               fontWeight: 500,
                               color: AppColors.white,
@@ -259,22 +262,22 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   _ProfileMenuItem(
                     icon: AppAssets.mapLocation,
-                    title: 'Мои адреса',
+                    title: l10n.profileMenuMyAddresses,
                     onTap: () => context.push('/profile/my-addresses'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.creditScore,
-                    title: 'Оплата и тарифы',
+                    title: l10n.profileMenuPayment,
                     onTap: () => context.push('/profile/payment'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.chat,
-                    title: 'Поддержка',
+                    title: l10n.profileMenuSupport,
                     onTap: () => context.push('/profile/support'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.accessTimeFilled,
-                    title: 'История просмотров',
+                    title: l10n.profileMenuViewHistory,
                     onTap: () => context.push('/profile/view-history'),
                   ),
                   SizedBox(height: 4),
@@ -290,22 +293,22 @@ class AuthorizedProfileContent extends StatelessWidget {
                         final confirmed = await showDialog<bool>(
                           context: context,
                           builder: (dialogContext) => AlertDialog(
-                            title: const Text('Выйти из аккаунта?'),
-                            content: const Text(
-                              'Вы уверены, что хотите выйти?',
+                            title: Text(l10n.profileLogoutDialogTitle),
+                            content: Text(
+                              l10n.profileLogoutDialogMessage,
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pop(dialogContext, false),
-                                child: const Text('Отмена'),
+                                child: Text(l10n.actionCancel),
                               ),
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pop(dialogContext, true),
-                                child: const Text(
-                                  'Выйти',
-                                  style: TextStyle(color: Colors.red),
+                                child: Text(
+                                  l10n.actionLogout,
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ),
                             ],
@@ -322,15 +325,15 @@ class AuthorizedProfileContent extends StatelessWidget {
                         }
                       },
                       child: Row(
-                        children: [
-                          AppImage(path: AppAssets.logout),
-                          SizedBox(width: 8),
-                          AppText(
-                            text: 'Выйти',
-                            fontSize: 16,
-                            fontWeight: 600,
-                            color: AppColors.red,
-                          ),
+                      children: [
+                        AppImage(path: AppAssets.logout),
+                        SizedBox(width: 8),
+                        AppText(
+                          text: l10n.actionLogout,
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: AppColors.red,
+                        ),
                         ],
                       ),
                     ),

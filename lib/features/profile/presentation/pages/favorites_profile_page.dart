@@ -5,6 +5,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class FavoritesProfilePage extends StatefulWidget {
   const FavoritesProfilePage({super.key});
@@ -16,38 +17,42 @@ class FavoritesProfilePage extends StatefulWidget {
 class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
   int _selectedTab = 0;
 
-  // Mock saved filters data
-  final _savedFilters = const [
-    _FilterItem(
-      title: 'iPhone 14 Pro 256GB',
-      date: '1 min ago',
-      fields: {
-        'Категория:': 'Дом и сад',
-        'Регион:': 'Ташкентская область',
-        'Город:': 'Ташкент',
-        'Только бизнес объявления:': 'Только бизнес объявлен...',
-        'Валюта:': 'у.е.',
-        'Сортировать по:': 'Наиболее важный',
-      },
-      statusText: 'Новые объявления не найдены',
-    ),
-    _FilterItem(
-      title: 'iPhone 14 Pro 256GB',
-      date: '1 min ago',
-      fields: {
-        'Категория:': 'Дом и сад',
-        'Регион:': 'Ташкентская область',
-        'Город:': 'Ташкент',
-        'Только бизнес объявления:': 'Только бизнес объявлен...',
-        'Валюта:': 'у.е.',
-        'Сортировать по:': 'Наиболее важный',
-      },
-      statusText: 'Новые объявления не найдены',
-    ),
-  ];
+  List<_FilterItem> _savedFilters(AppLocalizations l10n) => [
+        _FilterItem(
+          title: 'iPhone 14 Pro 256GB',
+          date: l10n.savedFilterDateSample,
+          fields: {
+            l10n.savedFilterCategoryLabel: l10n.savedFilterCategoryHomeGarden,
+            l10n.savedFilterRegionLabel: l10n.savedFilterRegionTashkent,
+            l10n.savedFilterCityLabel: l10n.savedFilterCityTashkent,
+            l10n.savedFilterBusinessOnlyLabel:
+                l10n.savedFilterBusinessOnlyValue,
+            l10n.savedFilterCurrencyLabel: l10n.savedFilterCurrencyValue,
+            l10n.savedFilterSortByLabel: l10n.savedFilterSortMostRelevant,
+          },
+          statusText: l10n.savedFilterStatusEmpty,
+        ),
+        _FilterItem(
+          title: 'iPhone 14 Pro 256GB',
+          date: l10n.savedFilterDateSample,
+          fields: {
+            l10n.savedFilterCategoryLabel: l10n.savedFilterCategoryHomeGarden,
+            l10n.savedFilterRegionLabel: l10n.savedFilterRegionTashkent,
+            l10n.savedFilterCityLabel: l10n.savedFilterCityTashkent,
+            l10n.savedFilterBusinessOnlyLabel:
+                l10n.savedFilterBusinessOnlyValue,
+            l10n.savedFilterCurrencyLabel: l10n.savedFilterCurrencyValue,
+            l10n.savedFilterSortByLabel: l10n.savedFilterSortMostRelevant,
+          },
+          statusText: l10n.savedFilterStatusEmpty,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final savedFilters = _savedFilters(l10n);
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.black50,
@@ -56,7 +61,7 @@ class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProfileBreadcrumb(
-              labels: const ['Главная', 'Профиль', 'Избранное'],
+              labels: [l10n.navHome, l10n.profileTitle, l10n.favoritesProfileTitle],
               onTaps: [
                 () => context.go('/home'),
                 () => context.go('/profile'),
@@ -80,7 +85,7 @@ class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
                   ),
                   const SizedBox(width: 12),
                   AppText(
-                    text: 'Избранное',
+                    text: l10n.favoritesProfileTitle,
                     fontSize: 22,
                     fontWeight: 700,
                     color: AppColors.black500,
@@ -92,7 +97,7 @@ class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _TabBar(
-                tabs: const ['Избранное', 'Сохранённый фильтр'],
+                tabs: [l10n.favoritesTab, l10n.savedFilterTab],
                 selectedIndex: _selectedTab,
                 onTap: (i) => setState(() => _selectedTab = i),
                 activeColor: AppColors.white,
@@ -102,17 +107,17 @@ class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
             const SizedBox(height: 16),
             Expanded(
               child: _selectedTab == 0
-                  ? const _EmptyState(
+                  ? _EmptyState(
                       icon: Icons.favorite_border_rounded,
-                      title: 'Избранных нет',
-                      subtitle: 'Добавьте объявления в избранное',
+                      title: l10n.favoritesEmptyTitle,
+                      subtitle: l10n.favoritesEmptySubtitle,
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _savedFilters.length,
+                      itemCount: savedFilters.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, i) =>
-                          _SavedFilterCard(item: _savedFilters[i]),
+                          _SavedFilterCard(item: savedFilters[i]),
                     ),
             ),
             const SizedBox(height: 16),
