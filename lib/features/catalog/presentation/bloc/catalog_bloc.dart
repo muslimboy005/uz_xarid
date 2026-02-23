@@ -9,7 +9,7 @@ part 'catalog_event.dart';
 part 'catalog_state.dart';
 
 class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
-  CatalogBloc(this._getCategories) : super(const CatalogState()) {
+  CatalogBloc(this._getCategories, GetCategoriesParams getCategoriesParams) : super(const CatalogState()) {
     on<CatalogLoadRequested>(_onLoadRequested);
     on<CatalogCategorySelected>(_onCategorySelected);
     on<CatalogBackPressed>(_onBackPressed);

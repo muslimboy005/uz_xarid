@@ -34,6 +34,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<ProfileUpdateBusinessUsecase>(
       () => ProfileUpdateBusinessUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<GetCategoriesParams>(
+      () => GetCategoriesParams(),
     );
   log("Register Use Cases Complate For GetIT");
 }
