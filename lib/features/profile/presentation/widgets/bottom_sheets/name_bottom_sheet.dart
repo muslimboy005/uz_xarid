@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
@@ -74,11 +75,20 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
       },
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
+        final cardColor = context.cardSurface;
+        final textColor = context.textPrimary;
+        final textSecondary = context.textSecondary;
+        final surfaceContainer = context.surfaceContainer;
+        final borderColor = context.borderColor;
 
-        return SizedBox(
+        return Container(
           height:
               MediaQuery.of(context).size.height -
               (MediaQuery.of(context).padding.top + 250),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
           child: Padding(
             padding: EdgeInsets.only(
               left: AppDimens.paddingMedium,
@@ -97,7 +107,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade400,
+                      color: textSecondary,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -106,16 +116,17 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(width: 24), // Spacer for centering
+                    const SizedBox(width: 24),
                     AppText(
                       text: l10n.nameSheetTitle,
                       fontSize: 16,
                       fontWeight: 700,
-                      color: AppColors.black500,
+                      color: textColor,
                     ),
                     AppImage(
                       path: AppAssets.close,
                       size: 24,
+                      color: textColor,
                       onTap: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -125,22 +136,29 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                   text: l10n.nameSheetSubtitle,
                   fontSize: 14,
                   fontWeight: 400,
-                  color: AppColors.black300,
+                  color: textSecondary,
                 ),
                 const SizedBox(height: 20),
                 AppText(
                   text: l10n.firstNameLabel,
                   fontSize: 14,
                   fontWeight: 700,
-                  color: AppColors.black500,
+                  color: textColor,
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _firstNameController,
                   enabled: !isLoading,
+                  style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     hintText: l10n.firstNameHint,
-                    border: const OutlineInputBorder(),
+                    hintStyle: TextStyle(color: textSecondary),
+                    fillColor: surfaceContainer,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppDimens.paddingLarge),
@@ -148,15 +166,22 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                   text: l10n.lastNameLabel,
                   fontSize: 14,
                   fontWeight: 700,
-                  color: AppColors.black500,
+                  color: textColor,
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _lastNameController,
                   enabled: !isLoading,
+                  style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     hintText: l10n.lastNameHint,
-                    border: const OutlineInputBorder(),
+                    hintStyle: TextStyle(color: textSecondary),
+                    fillColor: surfaceContainer,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+                      borderSide: BorderSide(color: borderColor),
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppDimens.paddingLarge),

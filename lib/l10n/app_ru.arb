@@ -84,6 +84,7 @@
   "profileMenuPayment": "Оплата и тарифы",
   "profileMenuSupport": "Поддержка",
   "profileMenuViewHistory": "История просмотров",
+  "profileMenuSettings": "Настройки",
   "profileBecomeBusinessTitle": "Станьте бизнес\nпользователем",
   "profileLogoutDialogTitle": "Выйти из аккаунта?",
   "profileLogoutDialogMessage": "Вы уверены, что хотите выйти?",
@@ -214,5 +215,10 @@
   "savedFilterCityTashkent": "Ташкент",
   "savedFilterBusinessOnlyValue": "Только бизнес объявления",
   "savedFilterCurrencyValue": "у.е.",
-  "savedFilterSortMostRelevant": "Наиболее важный"
+  "savedFilterSortMostRelevant": "Наиболее важный",
+  "settingsTitle": "Настройки",
+  "settingsLanguage": "Язык",
+  "settingsTheme": "Тема",
+  "settingsThemeLight": "Светлая",
+  "settingsThemeDark": "Тёмная"
 }

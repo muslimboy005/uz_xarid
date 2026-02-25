@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
@@ -23,7 +24,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: AppColors.black50,
+      backgroundColor: context.bodyBackground,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,11 +44,15 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   GestureDetector(
                     onTap: () => context.pop(),
                     child: ContainerW(
-                      color: AppColors.white,
+                      color: context.cardSurface,
                       radius: 8,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Icon(Icons.arrow_back_ios_new, size: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 16,
+                          color: context.textPrimary,
+                        ),
                       ),
                     ),
                   ),
@@ -56,7 +61,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                     text: l10n.myOrdersTitle,
                     fontSize: 22,
                     fontWeight: 700,
-                    color: AppColors.black500,
+                    color: context.textPrimary,
                   ),
                 ],
               ),
@@ -66,7 +71,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ContainerW(
-                  color: AppColors.white,
+                  color: context.cardSurface,
                   radius: 16,
                   child: Column(
                     children: [
@@ -111,9 +116,13 @@ class _TabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceContainer = context.surfaceContainer;
+    final cardColor = context.cardSurface;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.black50,
+        color: surfaceContainer,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.all(4),
@@ -127,7 +136,7 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.white : Colors.transparent,
+                  color: selected ? cardColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [
@@ -144,7 +153,7 @@ class _TabBar extends StatelessWidget {
                     text: tabs[i],
                     fontSize: 13,
                     fontWeight: selected ? 600 : 400,
-                    color: selected ? AppColors.black500 : AppColors.black300,
+                    color: selected ? textColor : textSecondary,
                   ),
                 ),
               ),
@@ -165,6 +174,8 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -173,7 +184,7 @@ class _EmptyState extends StatelessWidget {
             width: 68,
             height: 68,
             decoration: BoxDecoration(
-              color: AppColors.blue500,
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Icon(icon, color: AppColors.white, size: 34),
@@ -183,7 +194,7 @@ class _EmptyState extends StatelessWidget {
             text: title,
             fontSize: 16,
             fontWeight: 700,
-            color: AppColors.black500,
+            color: textColor,
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 8),
@@ -191,7 +202,7 @@ class _EmptyState extends StatelessWidget {
               text: subtitle!,
               fontSize: 13,
               fontWeight: 400,
-              color: AppColors.black300,
+              color: textSecondary,
               textAlign: TextAlign.center,
             ),
           ],

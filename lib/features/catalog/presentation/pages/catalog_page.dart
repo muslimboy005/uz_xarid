@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
+import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
 import 'package:uz_xarid/features/catalog/presentation/bloc/catalog_bloc.dart';
@@ -34,6 +36,8 @@ class _CatalogPageState extends State<CatalogPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final bodyBg = context.bodyBackground;
+    final dividerColor = context.borderColor;
 
     return BlocProvider(
       create: (_) {
@@ -61,7 +65,7 @@ class _CatalogPageState extends State<CatalogPage> {
           },
         ),
         body: Container(
-          color: AppColors.background,
+          color: bodyBg,
           height: MediaQuery.of(context).size.height,
 
           child: BlocBuilder<CatalogBloc, CatalogState>(
@@ -95,7 +99,7 @@ class _CatalogPageState extends State<CatalogPage> {
                 );
                 slivers.add(
                   SliverToBoxAdapter(
-                    child: Divider(height: 1, color: AppColors.cardBorderColor),
+                    child: Divider(height: 1, color: dividerColor),
                   ),
                 );
               }
@@ -203,12 +207,12 @@ class _CatalogPageState extends State<CatalogPage> {
             e.$1,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
-          trailing: const Icon(
+          trailing: Icon(
             Icons.chevron_right,
-            color: AppColors.textSecondary,
+            color: context.textSecondary,
           ),
           onTap: () {
             bloc.add(CatalogLoadRequested(categoryType: e.$2));
@@ -224,9 +228,17 @@ class _CatalogPageState extends State<CatalogPage> {
     AppLocalizations l10n,
   ) {
     if (state.status == CatalogStatus.loading) {
-      return SliverFillRemaining(
-        hasScrollBody: false,
-        child: const Center(child: CircularProgressIndicator()),
+      return SliverPadding(
+        padding: const EdgeInsets.only(top: 16, bottom: 24),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: const ShimmerListTile(height: 64),
+            ),
+            childCount: 8,
+          ),
+        ),
       );
     }
     if (state.status == CatalogStatus.failure) {
@@ -266,7 +278,7 @@ class _CatalogPageState extends State<CatalogPage> {
         child: Center(
           child: AppText(
             text: l10n.catalogBody,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.textSecondary),
             textAlign: TextAlign.center,
           ),
         ),
@@ -283,6 +295,7 @@ class _CatalogPageState extends State<CatalogPage> {
   ) {
     final items = _buildExpandableCategoryItems(
       context,
+      state,
       state.rootCategories,
       0,
       null,
@@ -295,6 +308,7 @@ class _CatalogPageState extends State<CatalogPage> {
   /// [parentId]: bu ro'yxatning otasi (root uchun null); bir xil otadagi bolalardan faqat bittasi ochiq bo'ladi.
   List<Widget> _buildExpandableCategoryItems(
     BuildContext context,
+    CatalogState state,
     List<CategoryEntity> categories,
     int indentLevel,
     int? parentId,
@@ -320,7 +334,7 @@ class _CatalogPageState extends State<CatalogPage> {
               });
             } else {
               context.push(
-                '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}',
+                '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}&categoryType=${Uri.encodeComponent(state.categoryType)}',
               );
             }
           },
@@ -331,7 +345,7 @@ class _CatalogPageState extends State<CatalogPage> {
         final horizontalPadding = AppDimens.paddingMedium + (childIndent * 16.0);
         list.add(
           Material(
-            color: AppColors.white,
+            color: context.cardSurface,
             child: InkWell(
               onTap: () {
                 final subcategories = category.children
@@ -342,7 +356,7 @@ class _CatalogPageState extends State<CatalogPage> {
                         })
                     .toList();
                 context.push(
-                  '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}',
+                  '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}&categoryType=${Uri.encodeComponent(state.categoryType)}',
                   extra: subcategories,
                 );
               },
@@ -360,13 +374,13 @@ class _CatalogPageState extends State<CatalogPage> {
                         l10n.seeAll,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: context.textPrimary,
                         ),
                       ),
                     ),
                     Icon(
                       Icons.chevron_right,
-                      color: AppColors.textPrimary,
+                      color: context.textPrimary,
                       size: 24,
                     ),
                   ],
@@ -380,12 +394,13 @@ class _CatalogPageState extends State<CatalogPage> {
             height: 1,
             indent: horizontalPadding,
             endIndent: AppDimens.paddingMedium,
-            color: AppColors.cardBorderColor,
+            color: context.borderColor,
           ),
         );
         list.addAll(
           _buildExpandableCategoryItems(
             context,
+            state,
             category.children,
             childIndent,
             category.id,
@@ -399,7 +414,7 @@ class _CatalogPageState extends State<CatalogPage> {
             height: 1,
             indent: AppDimens.paddingMedium + (indentLevel * 16.0),
             endIndent: AppDimens.paddingMedium,
-            color: AppColors.cardBorderColor,
+            color: context.borderColor,
           ),
         );
       }

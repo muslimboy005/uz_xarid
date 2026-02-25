@@ -244,6 +244,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get profileMenuViewHistory => 'Ko\'rish tarixi';
 
   @override
+  String get profileMenuSettings => 'Sozlamalar';
+
+  @override
   String get profileBecomeBusinessTitle => 'Biznes foydalanuvchi\nbo‘ling';
 
   @override
@@ -605,4 +608,19 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get savedFilterSortMostRelevant => 'Eng muhimlari';
+
+  @override
+  String get settingsTitle => 'Sozlamalar';
+
+  @override
+  String get settingsLanguage => 'Til';
+
+  @override
+  String get settingsTheme => 'Mavzu';
+
+  @override
+  String get settingsThemeLight => 'Yorug\'';
+
+  @override
+  String get settingsThemeDark => 'Qorong\'u';
 }

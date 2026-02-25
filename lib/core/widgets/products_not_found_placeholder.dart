@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// Mahsulotlar topilmasa ko‘rsatiladigan blok: ko‘k kvadrat + kub ikonkasi, sarlavha va izoh.
@@ -37,7 +38,7 @@ class ProductsNotFoundPlaceholder extends StatelessWidget {
               l10n.productsNotFoundTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.textPrimary,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -45,7 +46,7 @@ class ProductsNotFoundPlaceholder extends StatelessWidget {
             Text(
               l10n.productsNotFoundSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.textSecondary,
                     height: 1.4,
                   ),
               textAlign: TextAlign.center,

@@ -32,6 +32,7 @@ dependencies:
   image_picker: ^1.2.1
   dotted_border: ^3.1.0
   talker_dio_logger: ^5.1.14
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

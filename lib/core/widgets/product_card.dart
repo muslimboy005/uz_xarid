@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
@@ -63,9 +64,9 @@ class ProductCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.06),
@@ -129,13 +130,13 @@ class ProductCard extends StatelessWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: AppColors.textPrimary),
+                                  ?.copyWith(color: context.textPrimary),
                             ),
                             const SizedBox(width: 8),
                             Icon(
                               Icons.chat_bubble_outline,
                               size: 14,
-                              color: AppColors.textSecondary,
+                              color: context.textSecondary,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -143,7 +144,7 @@ class ProductCard extends StatelessWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: context.textSecondary),
                             ),
                           ],
                         ),
@@ -156,7 +157,7 @@ class ProductCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w700,
                                   height: 1.25,
-                                  color: AppColors.textPrimary,
+                                  color: context.textPrimary,
                                 ),
                           ),
                         ),
@@ -167,7 +168,7 @@ class ProductCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: context.textSecondary,
                                   decoration: TextDecoration.lineThrough,
                                 ),
                           ),

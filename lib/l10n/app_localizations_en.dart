@@ -244,6 +244,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileMenuViewHistory => 'View history';
 
   @override
+  String get profileMenuSettings => 'Settings';
+
+  @override
   String get profileBecomeBusinessTitle => 'Become a business\nuser';
 
   @override
@@ -601,4 +604,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savedFilterSortMostRelevant => 'Most relevant';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
 }

@@ -4,5 +4,6 @@ class AppKeys {
   // Example global keys & storage keys
   static const String tokenKey = 'token';
   static const String languageKey = 'language';
+  static const String themeModeKey = 'theme_mode';
 }
 

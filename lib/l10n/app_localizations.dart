@@ -562,6 +562,12 @@ abstract class AppLocalizations {
   /// **'View history'**
   String get profileMenuViewHistory;
 
+  /// No description provided for @profileMenuSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get profileMenuSettings;
+
   /// No description provided for @profileBecomeBusinessTitle.
   ///
   /// In en, this message translates to:
@@ -1257,6 +1263,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Most relevant'**
   String get savedFilterSortMostRelevant;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
 }
 
 class _AppLocalizationsDelegate

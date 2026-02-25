@@ -35,6 +35,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         state.copyWith(
           status: HomeStatus.success,
           categories: data.categories,
+          categoryIdToChildren: data.categoryIdToChildren,
           banners: data.banners,
           recommendations: data.recommendations,
           gifts: data.gifts,

@@ -58,6 +58,8 @@ class HomeRecommendation {
 
 class HomeEntity {
   final List<HomeCategory> categories;
+  /// Har bir turkum id si uchun uning bolalari (children) – product list da strip uchun.
+  final Map<int, List<HomeCategory>> categoryIdToChildren;
   final List<HomeBanner> banners;
   final List<HomeRecommendation> recommendations;
   final List<HomeRecommendation> gifts;
@@ -65,6 +67,7 @@ class HomeEntity {
 
   const HomeEntity({
     required this.categories,
+    this.categoryIdToChildren = const {},
     required this.banners,
     required this.recommendations,
     required this.gifts,

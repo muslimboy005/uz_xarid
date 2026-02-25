@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 
@@ -148,7 +149,7 @@ class WTextField extends StatefulWidget {
     this.prefixIconOnePath,
     this.prefixIconTwoPath,
     this.controller,
-    this.borderNoFocusColor = AppColors.black100,
+    this.borderNoFocusColor,
     this.suffixIconWidget,
     this.keyboardType,
     this.textInputAction = TextInputAction.done,
@@ -162,7 +163,7 @@ class WTextField extends StatefulWidget {
     this.maxLength,
     this.hasClearButton = false,
     this.hasError = false,
-    this.fillColor = AppColors.black50,
+    this.fillColor,
     this.borderColor,
     this.cursorColor,
     this.borderRadius = 8,
@@ -248,12 +249,17 @@ class _WTextFieldState extends State<WTextField> {
   @override
   Widget build(BuildContext context) {
     final isFocused = _focusNode.hasFocus;
+    final textColor = context.textPrimary;
+    final hintColor = context.textSecondary;
+    final focusBorderColor = Theme.of(context).colorScheme.primary;
 
     final borderColor = widget.hasError
         ? AppColors.red
         : isFocused
-        ? (widget.borderColor ?? AppColors.blue500)
-        : widget.borderNoFocusColor ?? AppColors.black100;
+            ? (widget.borderColor ?? focusBorderColor)
+            : widget.borderNoFocusColor ?? context.borderColor;
+
+    final effectiveFillColor = widget.fillColor ?? context.surfaceContainer;
 
     // TextFormField widgetini yaratish
     final textField = Column(
@@ -261,7 +267,7 @@ class _WTextFieldState extends State<WTextField> {
       children: [
         AppText(
           text: widget.title ?? "",
-          color: AppColors.black500,
+          color: textColor,
           fontSize: 14,
           fontWeight: 700,
         ),
@@ -278,14 +284,13 @@ class _WTextFieldState extends State<WTextField> {
           maxLines: widget.isObscureText ? 1 : widget.maxLines,
           minLines: widget.minLines,
           maxLength: widget.maxLength,
-          cursorColor: widget.cursorColor,
+          cursorColor: widget.cursorColor ?? focusBorderColor,
           textAlign: widget.textAlign,
-          style:
-              widget.textStyle ??
-              const TextStyle(
+          style: widget.textStyle ??
+              TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: AppColors.black500,
+                color: textColor,
               ),
           onTap: widget.onTap,
           onChanged: widget.onChanged,
@@ -301,29 +306,26 @@ class _WTextFieldState extends State<WTextField> {
           decoration: InputDecoration(
             isDense: true,
             filled: true,
-            fillColor: widget.fillColor,
+            fillColor: effectiveFillColor,
             contentPadding: widget.contentPadding ?? _calculateContentPadding(),
 
-            // MUAMMO SHU YERDA! Align ni olib tashlaymiz
-            hintText: widget.hintText, // Oddiy hintText ishlatamiz
+            hintText: widget.hintText,
 
-            hintStyle:
-                widget.hintStyle ??
-                const TextStyle(
-                  color: AppColors.black300,
+            hintStyle: widget.hintStyle ??
+                TextStyle(
+                  color: hintColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                 ),
 
-            // Agar richText kerak bo'lsa, label ishlatamiz
             label: widget.richText && widget.hintText != null
                 ? RichText(
                     text: TextSpan(
                       children: [
                         TextSpan(
                           text: widget.hintText,
-                          style: const TextStyle(
-                            color: AppColors.black300,
+                          style: TextStyle(
+                            color: hintColor,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),

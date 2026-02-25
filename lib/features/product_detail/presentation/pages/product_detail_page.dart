@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
+import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -42,6 +44,9 @@ class ProductDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = context.bodyBackground;
+    final cardColor = context.cardSurface;
+    final iconColor = context.textPrimary;
     return BlocProvider(
       create: (_) {
         final bloc = getIt<ProductDetailBloc>();
@@ -49,25 +54,25 @@ class ProductDetailPage extends StatelessWidget {
         return bloc;
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: bgColor,
         appBar: AppBar(
-          backgroundColor: AppColors.white,
-          surfaceTintColor: AppColors.white,
+          backgroundColor: cardColor,
+          surfaceTintColor: cardColor,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, size: 20),
             onPressed: () => context.pop(),
-            color: AppColors.textPrimary,
+            color: iconColor,
           ),
           actions: [
             IconButton(
               icon: const Icon(Icons.favorite_border),
-              color: AppColors.textPrimary,
+              color: iconColor,
               onPressed: () {},
             ),
             IconButton(
               icon: const Icon(Icons.share_outlined),
-              color: AppColors.textPrimary,
+              color: iconColor,
               onPressed: () {},
             ),
           ],
@@ -75,7 +80,23 @@ class ProductDetailPage extends StatelessWidget {
         body: BlocBuilder<ProductDetailBloc, ProductDetailState>(
           builder: (context, state) {
             if (state.status == ProductDetailStatus.loading) {
-              return const Center(child: CircularProgressIndicator());
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    ShimmerDetailImage(height: 300),
+                    SizedBox(height: 12),
+                    ShimmerDetailBlock(height: 100),
+                    SizedBox(height: 16),
+                    ShimmerDetailBlock(height: 60),
+                    SizedBox(height: 16),
+                    ShimmerDetailBlock(height: 80),
+                    SizedBox(height: 16),
+                    ShimmerDetailBlock(height: 120),
+                    SizedBox(height: 32),
+                  ],
+                ),
+              );
             }
             if (state.status == ProductDetailStatus.failure) {
               final l10n = AppLocalizations.of(context)!;
@@ -160,14 +181,14 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     return buf.toString().split('').reversed.join();
   }
 
-  Color _parseHexColor(String hex) {
+  Color _parseHexColor(String hex, BuildContext context) {
     try {
       final h = hex.replaceAll('#', '');
       if (h.length >= 6) {
         return Color(0xFF000000 | int.parse(h.substring(0, 6), radix: 16));
       }
     } catch (_) {}
-    return AppColors.textSecondary;
+    return context.textSecondary;
   }
 
   @override
@@ -207,21 +228,23 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   Widget _buildImageGallery() {
     final images = ad.images;
+    final cardColor = context.cardSurface;
+    final mutedColor = context.textSecondary;
     if (images.isEmpty) {
       return Container(
         height: 300,
-        color: AppColors.white,
-        child: const Center(
+        color: cardColor,
+        child: Center(
           child: Icon(
             Icons.image_not_supported,
             size: 64,
-            color: AppColors.black200,
+            color: mutedColor,
           ),
         ),
       );
     }
     return Container(
-      color: AppColors.white,
+      color: cardColor,
       child: Stack(
         children: [
           SizedBox(
@@ -236,11 +259,11 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 placeholder: (_, __) => const Center(
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                errorWidget: (_, __, ___) => const Center(
+                errorWidget: (_, __, ___) => Center(
                   child: Icon(
                     Icons.broken_image,
                     size: 48,
-                    color: AppColors.black200,
+                    color: mutedColor,
                   ),
                 ),
               ),
@@ -254,6 +277,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               child: Center(
                 child: _CircleArrow(
                   icon: Icons.chevron_left,
+                  context: context,
                   onTap: _currentImage > 0
                       ? () => _imagePageController.previousPage(
                           duration: const Duration(milliseconds: 300),
@@ -270,6 +294,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               child: Center(
                 child: _CircleArrow(
                   icon: Icons.chevron_right,
+                  context: context,
                   onTap: _currentImage < images.length - 1
                       ? () => _imagePageController.nextPage(
                           duration: const Duration(milliseconds: 300),
@@ -311,8 +336,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildTitleSection() {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
     return Container(
-      color: AppColors.white,
+      color: context.cardSurface,
       padding: const EdgeInsets.all(AppDimens.paddingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,36 +353,24 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   ad.rating!.toStringAsFixed(1),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(width: 6),
               ],
-              Icon(
-                Icons.chat_bubble_outline,
-                size: 14,
-                color: AppColors.textSecondary,
-              ),
+              Icon(Icons.chat_bubble_outline, size: 14, color: textSecondary),
               const SizedBox(width: 3),
               Text(
                 '${ad.reviewCount ?? 0} ${AppLocalizations.of(context)!.reviewsLabel}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textSecondary),
               ),
               const Spacer(),
               if (ad.viewsCount != null) ...[
-                Icon(
-                  Icons.visibility_outlined,
-                  size: 14,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.visibility_outlined, size: 14, color: textSecondary),
                 const SizedBox(width: 3),
                 Text(
                   '${ad.viewsCount}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textSecondary),
                 ),
               ],
             ],
@@ -365,7 +380,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             ad.title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: textColor,
               height: 1.3,
             ),
           ),
@@ -373,9 +388,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             const SizedBox(height: 4),
             Text(
               ad.categoryName!,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textSecondary),
             ),
           ],
         ],
@@ -384,8 +397,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildColorSection() {
+    final borderColor = context.borderColor;
     return Container(
-      color: AppColors.white,
+      color: context.cardSurface,
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.paddingMedium,
         vertical: 12,
@@ -395,9 +409,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         children: [
           Text(
             AppLocalizations.of(context)!.productDetailColorLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: context.textPrimary,
+            ),
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -411,12 +426,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: _parseHexColor(c.colorHex),
+                    color: _parseHexColor(c.colorHex, context),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: selected
-                          ? AppColors.primary
-                          : AppColors.cardBorderColor,
+                      color: selected ? AppColors.primary : borderColor,
                       width: selected ? 3 : 1.5,
                     ),
                   ),
@@ -430,8 +443,12 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildSizeSection() {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+    final cardColor = context.cardSurface;
     return Container(
-      color: AppColors.white,
+      color: cardColor,
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.paddingMedium,
         vertical: 12,
@@ -441,9 +458,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         children: [
           Text(
             AppLocalizations.of(context)!.productDetailSizeLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
           ),
           const SizedBox(height: 10),
           SingleChildScrollView(
@@ -461,7 +479,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     child: CustomPaint(
                       foregroundPainter: available
                           ? null
-                          : _DashedBorderPainter(),
+                          : _DashedBorderPainter(color: textSecondary),
                       child: Container(
                         constraints: const BoxConstraints(minWidth: 56),
                         padding: const EdgeInsets.symmetric(
@@ -471,13 +489,11 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         decoration: BoxDecoration(
                           color: selected && available
                               ? AppColors.primary
-                              : AppColors.white,
+                              : cardColor,
                           borderRadius: BorderRadius.circular(10),
                           border: available
                               ? Border.all(
-                                  color: selected
-                                      ? AppColors.primary
-                                      : AppColors.cardBorderColor,
+                                  color: selected ? AppColors.primary : borderColor,
                                   width: 1.5,
                                 )
                               : null,
@@ -485,19 +501,18 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         alignment: Alignment.center,
                         child: Text(
                           s.name,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: !available
-                                    ? AppColors.textSecondary
-                                    : selected
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: !available
+                                ? textSecondary
+                                : selected
                                     ? AppColors.white
-                                    : AppColors.textPrimary,
-                                decoration: available
-                                    ? null
-                                    : TextDecoration.lineThrough,
-                                decorationColor: AppColors.textSecondary,
-                              ),
+                                    : textColor,
+                            decoration: available
+                                ? null
+                                : TextDecoration.lineThrough,
+                            decorationColor: textSecondary,
+                          ),
                         ),
                       ),
                     ),
@@ -516,7 +531,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         ad.price != null && ad.finalPrice != null && ad.price != ad.finalPrice;
     final curr = (ad.currency ?? 'uzs') == 'uzs' ? 'so\'m' : ad.currency!;
     return Container(
-      color: AppColors.white,
+      color: context.cardSurface,
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.paddingMedium,
         vertical: 14,
@@ -528,7 +543,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             Text(
               '${_formatPrice(ad.price)} $curr',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
                 decoration: TextDecoration.lineThrough,
               ),
             ),
@@ -546,7 +561,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   Widget _buildActionButtons() {
     return Container(
-      color: AppColors.white,
+      color: context.cardSurface,
       padding: const EdgeInsets.all(AppDimens.paddingMedium),
       child: Column(
         children: [
@@ -615,14 +630,17 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   Widget _buildSellerSection() {
     final l10n = AppLocalizations.of(context)!;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final surfaceContainer = context.surfaceContainer;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -631,7 +649,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               l10n.adAuthorTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 16),
@@ -642,7 +660,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.black50,
+                    color: surfaceContainer,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -650,16 +668,16 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ? CachedNetworkImage(
                           imageUrl: ad.userAvatar!,
                           fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => const Icon(
+                          errorWidget: (_, __, ___) => Icon(
                             Icons.person_outline,
                             size: 28,
-                            color: AppColors.textSecondary,
+                            color: textSecondary,
                           ),
                         )
-                      : const Icon(
+                      : Icon(
                           Icons.person_outline,
                           size: 28,
-                          color: AppColors.textSecondary,
+                          color: textSecondary,
                         ),
                 ),
                 const SizedBox(width: 12),
@@ -671,7 +689,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         ad.userName ?? '—',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: textColor,
                         ),
                       ),
                       if (ad.userDateJoined != null && ad.userDateJoined!.isNotEmpty) ...[
@@ -681,7 +699,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                             Icon(
                               Icons.calendar_today_outlined,
                               size: 14,
-                              color: AppColors.textSecondary,
+                              color: textSecondary,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
@@ -693,7 +711,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                                   return Text(
                                     l10n.adAuthorOnPlatformSince(formatted),
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: textSecondary,
                                     ),
                                   );
                                 },
@@ -715,8 +733,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   // TODO: muallifning boshqa e'lonlari sahifasiga o'tish
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: AppColors.black50,
-                  foregroundColor: AppColors.textPrimary,
+                  backgroundColor: surfaceContainer,
+                  foregroundColor: textColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -739,14 +757,14 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   Widget _buildTabSection() {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      color: AppColors.white,
+      color: context.cardSurface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TabBar(
             controller: _tabController,
             labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
+            unselectedLabelColor: context.textSecondary,
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
             labelStyle: Theme.of(
@@ -772,6 +790,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildDescriptionTab() {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final cardColor = context.cardSurface;
+    final surfaceContainer = context.surfaceContainer;
     return Padding(
       padding: const EdgeInsets.all(AppDimens.paddingMedium),
       child: Column(
@@ -781,7 +803,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             Text(
               ad.description!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimary,
+                color: textColor,
                 height: 1.5,
               ),
             ),
@@ -792,7 +814,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               AppLocalizations.of(context)!.productDetailFeatures,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 10),
@@ -804,7 +826,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   horizontal: 12,
                   vertical: 10,
                 ),
-                color: isEven ? AppColors.black50 : AppColors.white,
+                color: isEven ? surfaceContainer : cardColor,
                 child: Row(
                   children: [
                     Expanded(
@@ -812,7 +834,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       child: Text(
                         o.name,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: textSecondary,
                         ),
                       ),
                     ),
@@ -822,7 +844,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         o.value,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          color: textColor,
                         ),
                       ),
                     ),
@@ -838,15 +860,17 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   Widget _buildReviewsTab() {
     final l10n = AppLocalizations.of(context)!;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
     return Padding(
       padding: const EdgeInsets.all(AppDimens.paddingMedium),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -870,7 +894,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               l10n.reviewsEmptyTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: textColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -878,7 +902,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             Text(
               l10n.reviewsEmptySubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -913,6 +937,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildSimilarSection() {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -927,7 +953,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 AppLocalizations.of(context)!.productDetailSimilarProducts,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: textColor,
                 ),
               ),
               TextButton(
@@ -937,14 +963,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   children: [
                     Text(
                       AppLocalizations.of(context)!.seeAll,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: textSecondary),
                     ),
                     const SizedBox(width: 2),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 18,
-                      color: AppColors.textSecondary,
-                    ),
+                    Icon(Icons.chevron_right, size: 18, color: textSecondary),
                   ],
                 ),
               ),
@@ -973,34 +995,43 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 }
 
 class _CircleArrow extends StatelessWidget {
-  const _CircleArrow({required this.icon, this.onTap});
+  const _CircleArrow({
+    required this.icon,
+    required this.context,
+    this.onTap,
+  });
 
   final IconData icon;
+  final BuildContext context;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = this.context.isDark;
+    final bgColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.white.withValues(alpha: 0.85);
+    final shadowColor = isDark ? Colors.black26 : Colors.black12;
+    final iconColor = onTap != null
+        ? this.context.textPrimary
+        : this.context.textSecondary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
+          color: bgColor,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: shadowColor,
               blurRadius: 4,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          size: 22,
-          color: onTap != null ? AppColors.textPrimary : AppColors.black200,
-        ),
+        child: Icon(icon, size: 22, color: iconColor),
       ),
     );
   }
@@ -1027,14 +1058,18 @@ class _SimilarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final curr = (item.currency ?? 'uzs') == 'uzs' ? 'so\'m' : item.currency!;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final cardColor = context.cardSurface;
+    final borderColor = context.borderColor;
     return GestureDetector(
       onTap: () => context.push('/ad/${item.slug}'),
       child: Container(
         width: 180,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: borderColor),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -1048,13 +1083,15 @@ class _SimilarCard extends StatelessWidget {
                       imageUrl: item.mainImage!,
                       fit: BoxFit.cover,
                       errorWidget: (_, __, ___) => Container(
-                        color: AppColors.black100,
-                        child: const Icon(Icons.image),
+                        color: context.surfaceContainer,
+                        child: Icon(Icons.image, color: textSecondary),
                       ),
                     )
                   : Container(
-                      color: AppColors.black100,
-                      child: const Center(child: Icon(Icons.image)),
+                      color: context.surfaceContainer,
+                      child: Center(
+                        child: Icon(Icons.image, color: textSecondary),
+                      ),
                     ),
             ),
             Expanded(
@@ -1074,21 +1111,23 @@ class _SimilarCard extends StatelessWidget {
                           const SizedBox(width: 3),
                           Text(
                             item.rating!.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(fontWeight: FontWeight.w600),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
                           ),
                           if (item.reviewCount != null) ...[
                             const SizedBox(width: 4),
                             Icon(
                               Icons.chat_bubble_outline,
                               size: 12,
-                              color: AppColors.textSecondary,
+                              color: textSecondary,
                             ),
                             const SizedBox(width: 2),
                             Text(
                               '${item.reviewCount}',
                               style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: textSecondary),
                             ),
                           ],
                         ],
@@ -1102,7 +1141,7 @@ class _SimilarCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: textColor,
                           height: 1.2,
                         ),
                       ),
@@ -1155,10 +1194,14 @@ class _SimilarCard extends StatelessWidget {
 }
 
 class _DashedBorderPainter extends CustomPainter {
+  const _DashedBorderPainter({required this.color});
+
+  final Color color;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.textSecondary.withValues(alpha: 0.5)
+      ..color = color.withValues(alpha: 0.5)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
