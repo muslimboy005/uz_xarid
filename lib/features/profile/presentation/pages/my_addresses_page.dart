@@ -34,13 +34,11 @@ class MyAddressesPage extends StatelessWidget {
             ),
             Expanded(
               child: Center(
-                child: Text(
-                  l10n.comingSoonSection(l10n.myAddressesTitle),
-                ),
+                child: Text(l10n.comingSoonSection(l10n.myAddressesTitle)),
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     );
