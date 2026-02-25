@@ -18,4 +18,8 @@ class ApiUrls {
   static const String recommendations = 'ad/recommendations/';
   static const String gifts = 'ad/gift/';
   static const String services = 'ad/services/';
+
+  static const String ad = 'ad/';
+  static const String color = 'color/';
+  static const String size = 'size/';
 }

@@ -7,9 +7,19 @@ import 'package:uz_xarid/core/localization/locale_cubit.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const UzXaridAppBar({super.key, this.onSearchChanged, this.onMenuTap});
+  const UzXaridAppBar({
+    super.key,
+    this.leading,
+    this.onSearchChanged,
+    this.onSearchTap,
+    this.onMenuTap,
+  });
 
+  /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
+  final Widget? leading;
   final ValueChanged<String>? onSearchChanged;
+  /// Qidirish maydonini bosganda ochiladigan sahifa (masalan, to'liq qidirish ekrani).
+  final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
 
   static const double _height = 112;
@@ -30,7 +40,9 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
       flexibleSpace: _UzXaridAppBarContent(
         locale: locale,
         hintText: l10n.searchHint,
+        leading: leading,
         onSearchChanged: onSearchChanged,
+        onSearchTap: onSearchTap,
         onMenuTap: onMenuTap,
       ),
     );
@@ -45,9 +57,17 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
 ///   ],
 /// )
 class UzXaridSliverAppBar extends StatelessWidget {
-  const UzXaridSliverAppBar({super.key, this.onSearchChanged, this.onMenuTap});
+  const UzXaridSliverAppBar({
+    super.key,
+    this.leading,
+    this.onSearchChanged,
+    this.onSearchTap,
+    this.onMenuTap,
+  });
 
+  final Widget? leading;
   final ValueChanged<String>? onSearchChanged;
+  final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
 
   static const double _height = 112;
@@ -68,7 +88,9 @@ class UzXaridSliverAppBar extends StatelessWidget {
       flexibleSpace: _UzXaridAppBarContent(
         locale: locale,
         hintText: l10n.searchHint,
+        leading: leading,
         onSearchChanged: onSearchChanged,
+        onSearchTap: onSearchTap,
         onMenuTap: onMenuTap,
       ),
     );
@@ -79,13 +101,17 @@ class _UzXaridAppBarContent extends StatelessWidget {
   const _UzXaridAppBarContent({
     required this.locale,
     required this.hintText,
+    this.leading,
     this.onSearchChanged,
+    this.onSearchTap,
     this.onMenuTap,
   });
 
   final Locale locale;
   final String hintText;
+  final Widget? leading;
   final ValueChanged<String>? onSearchChanged;
+  final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
 
   static const double _height = 112;
@@ -119,14 +145,17 @@ class _UzXaridAppBarContent extends StatelessWidget {
                 ),
               ),
             ),
-            // Logo + language + menu row (ko'k fonda)
+            // Leading (back) + logo + language + menu row (ko'k fonda)
             Positioned(
               left: 16,
               right: 16,
               top: 12,
               child: Row(
                 children: [
-
+                  if (leading != null) ...[
+                    leading!,
+                    const SizedBox(width: 8),
+                  ],
                   Image.asset('assets/images/uzxarid.png', height: 42),
 
                   const Spacer(),
@@ -144,6 +173,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
               child: _SearchField(
                 hintText: hintText,
                 onChanged: onSearchChanged,
+                onTap: onSearchTap,
               ),
             ),
           ],
@@ -260,14 +290,19 @@ class _MenuButton extends StatelessWidget {
 }
 
 class _SearchField extends StatelessWidget {
-  const _SearchField({required this.hintText, this.onChanged});
+  const _SearchField({
+    required this.hintText,
+    this.onChanged,
+    this.onTap,
+  });
 
   final String hintText;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final child = Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -280,7 +315,9 @@ class _SearchField extends StatelessWidget {
         ],
       ),
       child: TextField(
+        readOnly: onTap != null,
         onChanged: onChanged,
+        onTap: onTap,
         decoration: InputDecoration(
           hintText: hintText,
           border: InputBorder.none,
@@ -315,5 +352,6 @@ class _SearchField extends StatelessWidget {
         ),
       ),
     );
+    return child;
   }
 }

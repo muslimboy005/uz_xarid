@@ -2,6 +2,8 @@
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 import 'package:uz_xarid/core/network/auth_interseptor.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import '../constants/api_urls.dart';
@@ -34,6 +36,18 @@ class DioClient {
         requestHeader: true,
         responseHeader: false,
         error: true,
+      ),
+    );
+    _dio.interceptors.add(
+      TalkerDioLogger(
+        settings: const TalkerDioLoggerSettings(
+          enabled: true,
+          printRequestHeaders: true,
+          printRequestExtra: true,
+          printResponseHeaders: true,
+          printResponseData: false,
+          //printResponseMessage: false,
+        ),
       ),
     );
   }
