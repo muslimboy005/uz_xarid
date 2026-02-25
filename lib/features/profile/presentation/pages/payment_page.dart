@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
@@ -16,11 +17,17 @@ class PaymentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final bodyBg = context.bodyBackground;
+    final cardColor = context.cardSurface;
+    final textColor = context.textPrimary;
+    final borderColor = context.borderColor;
+    final surfaceContainer = context.surfaceContainer;
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: AppColors.background,
+        color: bodyBg,
         child: SafeArea(
           child: Column(
             children: [
@@ -41,11 +48,14 @@ class PaymentPage extends StatelessWidget {
                         ContainerW(
                           onTap: () => context.pop(),
                           radius: 10,
-                          color: AppColors.white,
-                          border: Border.all(color: AppColors.black100),
+                          color: cardColor,
+                          border: Border.all(color: borderColor),
                           child: Padding(
                             padding: const EdgeInsets.all(10),
-                            child: AppImage(path: AppAssets.backDropleft),
+                            child: AppImage(
+                              path: AppAssets.backDropleft,
+                              color: textColor,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -53,20 +63,21 @@ class PaymentPage extends StatelessWidget {
                           text: 'Оплата и тарифы',
                           fontSize: 20,
                           fontWeight: 700,
-                          color: AppColors.black500,
+                          color: textColor,
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     ContainerW(
-                      color: AppColors.white,
+                      color: cardColor,
                       radius: 12,
-                      border: Border.all(color: AppColors.black100),
+                      border: Border.all(color: borderColor),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
                             _buildTariffCard(
+                              context: context,
                               title: 'Базовый аккаунт',
                               price: '0.00',
                               unit: "so'm, Oylik",
@@ -92,6 +103,7 @@ class PaymentPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             _buildTariffCard(
+                              context: context,
                               title: 'Бизнес-аккаунт',
                               price: '300 000',
                               unit: "so'm, Oylik",
@@ -120,9 +132,9 @@ class PaymentPage extends StatelessWidget {
 
                     const SizedBox(height: 32),
                     ContainerW(
-                      color: AppColors.white,
+                      color: cardColor,
                       radius: 12,
-                      border: Border.all(color: AppColors.black100),
+                      border: Border.all(color: borderColor),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -134,10 +146,10 @@ class PaymentPage extends StatelessWidget {
                                   text: 'История',
                                   fontSize: 20,
                                   fontWeight: 700,
-                                  color: AppColors.black500,
+                                  color: textColor,
                                 ),
                                 ContainerW(
-                                  color: AppColors.black50,
+                                  color: surfaceContainer,
                                   radius: 8,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -146,9 +158,9 @@ class PaymentPage extends StatelessWidget {
                                     ),
                                     child: Row(
                                       children: [
-                                        const Icon(
+                                        Icon(
                                           Icons.insert_drive_file,
-                                          color: AppColors.black400,
+                                          color: context.textSecondary,
                                           size: 18,
                                         ),
                                         const SizedBox(width: 8),
@@ -156,7 +168,7 @@ class PaymentPage extends StatelessWidget {
                                           text: 'Export file',
                                           fontSize: 14,
                                           fontWeight: 500,
-                                          color: AppColors.black500,
+                                          color: textColor,
                                         ),
                                       ],
                                     ),
@@ -165,7 +177,7 @@ class PaymentPage extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 16),
-                            _buildHistoryTable(),
+                            _buildHistoryTable(context),
                           ],
                         ),
                       ),
@@ -175,170 +187,6 @@ class PaymentPage extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTariffCard({
-    required String title,
-    required String price,
-    required String unit,
-    required bool isCurrentPlan,
-    required List<_FeatureItem> features,
-  }) {
-    return ContainerW(
-      color: AppColors.white,
-      radius: 16,
-      border: Border.all(color: AppColors.black100),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            ProfileBreadcrumb(
-              labels: [l10n.navHome, l10n.profileTitle, l10n.paymentTitle],
-              onTaps: [
-                () => context.go('/home'),
-                () => context.go('/profile'),
-                null,
-              ],
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(AppDimens.paddingMedium),
-                children: [
-                  Row(
-                    children: [
-                      ContainerW(
-                        onTap: () => context.pop(),
-                        radius: 10,
-                        color: AppColors.white,
-                        border: Border.all(color: AppColors.black100),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: AppImage(path: AppAssets.backDropleft),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      AppText(
-                        text: 'Оплата и тарифы',
-                        fontSize: 20,
-                        fontWeight: 700,
-                        color: context.textPrimary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  ContainerW(
-                    color: context.cardSurface,
-                    radius: 12,
-                    border: Border.all(color: context.borderColor),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          _buildTariffCard(
-                            context: context,
-                            title: 'Базовый аккаунт',
-                            price: '0.00',
-                            unit: "so'm, Oylik",
-                            isCurrentPlan: true,
-                            features: [
-                              _FeatureItem('Размещение до 5 объявлений', true),
-                              _FeatureItem('Просмотр статистики', true),
-                              _FeatureItem(
-                                'Добавление ссылок на соцсети',
-                                true,
-                              ),
-                              _FeatureItem('Базовая поддержка', true),
-                              _FeatureItem('Без автопродления', false),
-                              _FeatureItem('Без рекламы и продвижения', false),
-                              _FeatureItem('Без приоритета в поиске', false),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          _buildTariffCard(
-                            context: context,
-                            title: 'Бизнес-аккаунт',
-                            price: '300 000',
-                            unit: "so'm, Oylik",
-                            isCurrentPlan: false,
-                            features: [
-                              _FeatureItem('Всё из базового плана', true),
-                              _FeatureItem(
-                                'Без ограничений по объявлениям',
-                                true,
-                              ),
-                              _FeatureItem('Автопродление объявлений', true),
-                              _FeatureItem('Реклама и продвижение', true),
-                              _FeatureItem(
-                                'Приоритетное размещение в поиске',
-                                true,
-                              ),
-                              _FeatureItem('Поддержка 24/7', true),
-                              _FeatureItem('Персональный менеджер', true),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  ContainerW(
-                    color: context.cardSurface,
-                    radius: 12,
-                    border: Border.all(color: context.borderColor),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              AppText(
-                                text: 'История',
-                                fontSize: 20,
-                                fontWeight: 700,
-                                color: context.textPrimary,
-                              ),
-                              ContainerW(
-                                color: context.surfaceContainer,
-                                radius: 8,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 10,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.insert_drive_file,
-                                        color: context.textSecondary,
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      AppText(
-                                        text: 'Export file',
-                                        fontSize: 14,
-                                        fontWeight: 500,
-                                        color: context.textPrimary,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          _buildHistoryTable(context),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

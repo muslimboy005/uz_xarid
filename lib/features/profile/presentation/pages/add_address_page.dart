@@ -8,6 +8,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/w_text_form.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
@@ -17,11 +18,17 @@ class AddAddressPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final bodyBg = context.bodyBackground;
+    final cardColor = context.cardSurface;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: AppColors.background,
+        color: bodyBg,
         child: SafeArea(
           child: Column(
             children: [
@@ -44,11 +51,14 @@ class AddAddressPage extends StatelessWidget {
                     ContainerW(
                       onTap: () => context.pop(),
                       radius: 10,
-                      color: AppColors.white,
-                      border: Border.all(color: AppColors.black100),
+                      color: cardColor,
+                      border: Border.all(color: borderColor),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
-                        child: AppImage(path: AppAssets.backDropleft),
+                        child: AppImage(
+                          path: AppAssets.backDropleft,
+                          color: textColor,
+                        ),
                       ),
                     ),
                   ],
@@ -65,27 +75,27 @@ class AddAddressPage extends StatelessWidget {
                       text: 'Qayerga yetkazamiz?',
                       fontSize: 24,
                       fontWeight: 700,
-                      color: AppColors.black500,
+                      color: textColor,
                     ),
                     const SizedBox(height: 8),
                     AppText(
                       text: 'Xaritadan manzilni kiriting',
                       fontSize: 14,
                       fontWeight: 400,
-                      color: AppColors.black300,
+                      color: textSecondary,
                     ),
                     const SizedBox(height: 24),
                     ContainerW(
-                      color: AppColors.white,
+                      color: cardColor,
                       radius: 12,
-                      border: Border.all(color: AppColors.black100),
+                      border: Border.all(color: borderColor),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
                           children: [
                             ContainerW(
                               color: AppColors.primary,
-                              radius: 20, // Circular looking
+                              radius: 20,
                               child: const Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: Icon(
@@ -104,21 +114,21 @@ class AddAddressPage extends StatelessWidget {
                                     text: 'Parkent kochasi 4/2',
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    color: AppColors.black500,
+                                    color: textColor,
                                   ),
                                   const SizedBox(height: 4),
                                   AppText(
                                     text: 'Toshkent',
                                     fontSize: 14,
                                     fontWeight: 400,
-                                    color: AppColors.black300,
+                                    color: textSecondary,
                                   ),
                                 ],
                               ),
                             ),
-                            const Icon(
+                            Icon(
                               Icons.chevron_right,
-                              color: AppColors.black500,
+                              color: textColor,
                             ),
                           ],
                         ),
@@ -132,9 +142,9 @@ class AddAddressPage extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppDimens.paddingLarge),
-                  decoration: const BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: context.cardSurface,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
                     ),
@@ -145,8 +155,8 @@ class AddAddressPage extends StatelessWidget {
                       WTextField(
                         title: 'Город',
                         hintText: 'Введите город',
-                        fillColor: AppColors.black50,
-                        borderNoFocusColor: AppColors.black100,
+                        fillColor: context.surfaceContainer,
+                        borderNoFocusColor: context.borderColor,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -155,8 +165,8 @@ class AddAddressPage extends StatelessWidget {
                             child: WTextField(
                               title: 'Улица',
                               hintText: 'Введите улицу',
-                              fillColor: AppColors.black50,
-                              borderNoFocusColor: AppColors.black100,
+                              fillColor: context.surfaceContainer,
+                              borderNoFocusColor: context.borderColor,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -164,8 +174,8 @@ class AddAddressPage extends StatelessWidget {
                             child: WTextField(
                               title: 'Дом / Квартира',
                               hintText: 'Дом / Квартира',
-                              fillColor: AppColors.black50,
-                              borderNoFocusColor: AppColors.black100,
+                              fillColor: context.surfaceContainer,
+                              borderNoFocusColor: context.borderColor,
                             ),
                           ),
                         ],
@@ -174,8 +184,8 @@ class AddAddressPage extends StatelessWidget {
                       WTextField(
                         title: 'Ориентир',
                         hintText: 'Укажите ближайший ориентир',
-                        fillColor: AppColors.black50,
-                        borderNoFocusColor: AppColors.black100,
+                        fillColor: context.surfaceContainer,
+                        borderNoFocusColor: context.borderColor,
                       ),
                       const SizedBox(height: 48),
                       ContainerW(
