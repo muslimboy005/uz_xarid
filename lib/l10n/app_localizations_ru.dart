@@ -243,6 +243,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileMenuViewHistory => 'История просмотров';
 
   @override
+  String get profileMenuSettings => 'Настройки';
+
+  @override
   String get profileBecomeBusinessTitle => 'Станьте бизнес\nпользователем';
 
   @override
@@ -602,4 +605,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get savedFilterSortMostRelevant => 'Наиболее важный';
+
+  @override
+  String get settingsTitle => 'Настройки';
+
+  @override
+  String get settingsLanguage => 'Язык';
+
+  @override
+  String get settingsTheme => 'Тема';
+
+  @override
+  String get settingsThemeLight => 'Светлая';
+
+  @override
+  String get settingsThemeDark => 'Тёмная';
 }

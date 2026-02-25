@@ -27,6 +27,7 @@ import 'package:uz_xarid/features/profile/presentation/pages/profile_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/support_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/view_history_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/add_address_page.dart';
+import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -65,6 +66,8 @@ class AppRouter {
           final categoryId = int.tryParse(idStr ?? '');
           final listSource =
               state.uri.queryParameters['source'] ?? 'recommendations';
+          final categoryType =
+              state.uri.queryParameters['categoryType'] ?? 'Product';
           List<SubcategoryItem> subcategories = const [];
           final extra = state.extra;
           if (extra is List && extra.isNotEmpty) {
@@ -93,6 +96,7 @@ class AppRouter {
                 : null,
             listSource: listSource,
             subcategories: subcategories,
+            categoryType: categoryType,
           );
         },
       ),
@@ -248,6 +252,11 @@ class AppRouter {
                 path: 'view-history',
                 name: 'profile-view-history',
                 builder: (context, state) => const ViewHistoryPage(),
+              ),
+              GoRoute(
+                path: 'settings',
+                name: 'profile-settings',
+                builder: (context, state) => const SettingsPage(),
               ),
               GoRoute(
                 path: 'my-business',

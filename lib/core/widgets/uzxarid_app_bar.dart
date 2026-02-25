@@ -18,6 +18,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
   final Widget? leading;
   final ValueChanged<String>? onSearchChanged;
+
   /// Qidirish maydonini bosganda ochiladigan sahifa (masalan, to'liq qidirish ekrani).
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
@@ -118,17 +119,16 @@ class _UzXaridAppBarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
     return SafeArea(
       bottom: false,
       child: SizedBox(
         height: _height,
         child: Stack(
           children: [
-            // Asosiy oq fon (butun pastki body bilan bir xil)
-            Positioned.fill(
-              top: 0,
-              child: ColoredBox(color: AppColors.background),
-            ),
+            // Asosiy fon (dark/light rejimga mos)
+            Positioned.fill(top: 0, child: ColoredBox(color: bodyBg)),
             // Ko'k header qismi – pastki burchaklari yumaloq
             Positioned(
               top: 0,
@@ -152,15 +152,12 @@ class _UzXaridAppBarContent extends StatelessWidget {
               top: 12,
               child: Row(
                 children: [
-                  if (leading != null) ...[
-                    leading!,
-                    const SizedBox(width: 8),
-                  ],
+                  if (leading != null) ...[leading!, const SizedBox(width: 8)],
                   Image.asset('assets/images/uzxarid.png', height: 42),
 
                   const Spacer(),
-                  _LanguageSelector(currentLocale: locale),
-                  const SizedBox(width: 12),
+                  // _LanguageSelector(currentLocale: locale),
+                  // const SizedBox(width: 12),
                   _MenuButton(onTap: onMenuTap),
                 ],
               ),
@@ -290,11 +287,7 @@ class _MenuButton extends StatelessWidget {
 }
 
 class _SearchField extends StatelessWidget {
-  const _SearchField({
-    required this.hintText,
-    this.onChanged,
-    this.onTap,
-  });
+  const _SearchField({required this.hintText, this.onChanged, this.onTap});
 
   final String hintText;
   final ValueChanged<String>? onChanged;
@@ -302,13 +295,15 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fillColor = isDark ? AppColors.darkCard : Colors.white;
     final child = Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: fillColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -318,8 +313,12 @@ class _SearchField extends StatelessWidget {
         readOnly: onTap != null,
         onChanged: onChanged,
         onTap: onTap,
+        style: TextStyle(color: isDark ? AppColors.darkTextPrimary : null),
         decoration: InputDecoration(
           hintText: hintText,
+          hintStyle: TextStyle(
+            color: isDark ? AppColors.darkTextSecondary : null,
+          ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

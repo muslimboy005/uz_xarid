@@ -27,12 +27,17 @@ class HomeCategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isHighlighted = category.isHighlighted;
-    final bgColor = isHighlighted ? AppColors.primary : AppColors.white;
+    final bgColor = isHighlighted
+        ? AppColors.primary
+        : (isDark ? AppColors.darkCard : AppColors.white);
     final borderColor = isHighlighted
         ? AppColors.primary
-        : AppColors.cardBorderColor;
-    final textColor = isHighlighted ? AppColors.white : AppColors.textPrimary;
+        : (isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor);
+    final textColor = isHighlighted
+        ? AppColors.white
+        : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary);
     final innerBorder = isHighlighted
         ? Border.all(color: Colors.white, width: 2)
         : null;

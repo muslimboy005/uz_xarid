@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
 
@@ -23,8 +24,9 @@ class CatalogCategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final horizontalPadding = AppDimens.paddingMedium + (indentLevel * 16.0);
+    final textColor = context.textPrimary;
     return Material(
-      color: AppColors.white,
+      color: context.cardSurface,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -53,7 +55,7 @@ class CatalogCategoryTile extends StatelessWidget {
                   category.displayName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: isExpanded ? AppColors.primary : AppColors.textPrimary,
+                    color: isExpanded ? AppColors.primary : textColor,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -62,7 +64,7 @@ class CatalogCategoryTile extends StatelessWidget {
               if (category.hasChildren)
                 Icon(
                   isExpanded ? Icons.keyboard_arrow_down : Icons.chevron_right,
-                  color: isExpanded ? AppColors.primary : AppColors.textPrimary,
+                  color: isExpanded ? AppColors.primary : textColor,
                   size: 24,
                 ),
             ],

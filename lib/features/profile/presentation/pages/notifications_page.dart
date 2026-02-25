@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
@@ -23,7 +24,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: AppColors.black50,
+      backgroundColor: context.bodyBackground,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

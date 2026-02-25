@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 
 /// Pinned navigation bar for catalog: path bo‘laklari har biri bosiladigan.
@@ -25,13 +26,15 @@ class CatalogNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
     final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+          color: textColor,
         );
     return Container(
       height: height,
-      color: AppColors.white,
+      color: context.cardSurface,
       padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
       child: Row(
         children: [
@@ -41,7 +44,7 @@ class CatalogNavBar extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, size: 20),
                 onPressed: onBack,
-                color: AppColors.textPrimary,
+                color: textColor,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(
                   minWidth: 32,
@@ -62,7 +65,7 @@ class CatalogNavBar extends StatelessWidget {
                         child: Text(
                           '>',
                           style: textStyle?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -90,9 +93,9 @@ class CatalogNavBar extends StatelessWidget {
               ),
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right,
-            color: AppColors.textSecondary,
+            color: textSecondary,
             size: 20,
           ),
           const SizedBox(width: 8),
@@ -109,7 +112,7 @@ class CatalogNavBar extends StatelessWidget {
           else
             Icon(
               Icons.local_shipping_outlined,
-              color: AppColors.textSecondary,
+              color: textSecondary,
               size: 22,
             ),
         ],

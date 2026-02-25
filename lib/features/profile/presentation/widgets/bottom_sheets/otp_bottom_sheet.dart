@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:pinput/pinput.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
@@ -138,11 +139,20 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
       },
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
+        final cardColor = context.cardSurface;
+        final textColor = context.textPrimary;
+        final textSecondary = context.textSecondary;
+        final surfaceContainer = context.surfaceContainer;
+        final borderColor = context.borderColor;
 
-        return SizedBox(
+        return Container(
           height:
               MediaQuery.of(context).size.height -
               (MediaQuery.of(context).padding.top + 250),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: EdgeInsets.only(
               left: AppDimens.paddingMedium,
@@ -160,7 +170,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.black500,
+                      color: textSecondary,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -174,11 +184,12 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                       text: l10n.otpSheetTitle,
                       fontSize: 16,
                       fontWeight: 700,
-                      color: AppColors.black500,
+                      color: textColor,
                     ),
                     AppImage(
                       path: AppAssets.close,
                       size: 24,
+                      color: textColor,
                       onTap: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -195,10 +206,10 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                           text: l10n.otpSentToNumber(
                             formatPhone(widget.phone),
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.black300,
+                            color: textSecondary,
                           ),
                         ),
                       ],
@@ -213,49 +224,49 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                   defaultPinTheme: PinTheme(
                     width: 50,
                     height: 50,
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 20,
-                      color: Colors.black,
+                      color: textColor,
                       fontWeight: FontWeight.w600,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: surfaceContainer,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: borderColor),
                     ),
                   ),
                   focusedPinTheme: PinTheme(
                     width: 50,
                     height: 50,
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 20,
-                      color: Colors.black,
+                      color: textColor,
                       fontWeight: FontWeight.w600,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue, width: 2),
+                      border: Border.all(color: AppColors.primary, width: 2),
                     ),
                   ),
                   submittedPinTheme: PinTheme(
                     width: 50,
                     height: 50,
-                    textStyle: const TextStyle(
+                    textStyle: TextStyle(
                       fontSize: 20,
-                      color: Colors.black,
+                      color: textColor,
                       fontWeight: FontWeight.w600,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: surfaceContainer,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: borderColor),
                     ),
                   ),
                   showCursor: true,
-                  preFilledWidget: const Text(
+                  preFilledWidget: Text(
                     '-',
-                    style: TextStyle(color: Colors.grey, fontSize: 24),
+                    style: TextStyle(color: textSecondary, fontSize: 24),
                   ),
                   onCompleted: (_) {},
                 ),
@@ -335,8 +346,8 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                                     ),
                               style: TextStyle(
                                 color: (isLoading || !resendEnabled)
-                                    ? Colors.grey
-                                    : Colors.blue,
+                                    ? textSecondary
+                                    : AppColors.primary,
                               ),
                             ),
                           ),

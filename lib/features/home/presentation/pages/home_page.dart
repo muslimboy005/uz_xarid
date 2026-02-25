@@ -15,35 +15,37 @@ import 'package:uz_xarid/features/home/presentation/widgets/home_category_card.d
 import 'package:uz_xarid/features/home/presentation/widgets/home_subcategory_card.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/recommendation_card.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 
 Widget _servicesEmpty(BuildContext context, AppLocalizations l10n) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final bgColor = isDark ? AppColors.darkCard : AppColors.black50;
+  final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+  final textSecondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.symmetric(vertical: 32),
     decoration: BoxDecoration(
-      color: AppColors.black50,
+      color: bgColor,
       borderRadius: BorderRadius.circular(16),
     ),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.settings, size: 48, color: AppColors.textSecondary),
+        Icon(Icons.settings, size: 48, color: textSecondary),
         const SizedBox(height: 12),
         Text(
           l10n.servicesEmptyTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: textColor,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           l10n.servicesEmptySubtitle,
           textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textSecondary),
         ),
       ],
     ),
@@ -56,6 +58,10 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
+    final containerBg = isDark ? AppColors.darkCard : AppColors.black50;
+    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
     final categories = [
       HomeCategory(
         title: l10n.categoryGoods,
@@ -99,7 +105,7 @@ class HomePage extends StatelessWidget {
         ),
         body: Container(
           height: MediaQuery.of(context).size.height,
-          color: AppColors.background,
+          color: bodyBg,
           child: SafeArea(
             top: false,
             child: SingleChildScrollView(
@@ -119,49 +125,46 @@ class HomePage extends StatelessWidget {
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: textColor,
                               height: 1.1,
                             ),
                       ),
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.paddingMedium,
-                    ),
-
+                  SizedBox(
+                    height: 90,
                     child: BlocBuilder<HomeBloc, HomeState>(
                       builder: (context, state) {
-                        return GridView.builder(
+                        return ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppDimens.paddingMedium,
+                          ),
                           itemCount: categories.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 220,
-                                mainAxisSpacing: 12,
-                                crossAxisSpacing: 12,
-                                childAspectRatio: 1.9,
-                              ),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 12),
                           itemBuilder: (context, index) {
                             final category = categories[index];
                             final isSelected = index == state.selectedIndex;
-                            return HomeCategoryCard(
-                              category: HomeCategory(
-                                title: category.title,
-                                asset: category.asset,
-                                isHighlighted: isSelected,
-                                categoryType: category.categoryType,
-                                onTap: () {
-                                  final bloc = context.read<HomeBloc>();
-                                  bloc.add(
-                                    HomeCategorySelected(
-                                      index,
-                                      category.categoryType,
-                                    ),
-                                  );
-                                },
+                            return SizedBox(
+                              width: 160,
+                              child: HomeCategoryCard(
+                                category: HomeCategory(
+                                  title: category.title,
+                                  asset: category.asset,
+                                  isHighlighted: isSelected,
+                                  categoryType: category.categoryType,
+                                  onTap: () {
+                                    final bloc = context.read<HomeBloc>();
+                                    bloc.add(
+                                      HomeCategorySelected(
+                                        index,
+                                        category.categoryType,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             );
                           },
@@ -169,7 +172,6 @@ class HomePage extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(height: AppDimens.paddingLarge),
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
                       if (state.status == HomeStatus.failure) {
@@ -205,32 +207,21 @@ class HomePage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               first,
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 6),
                               ?second,
                             ],
                           );
                         });
                       }
 
-                      const cardWidth = 150.0;
-                      const cardHeight = 180.0;
+                      const cardWidth = 92.0;
+                      const cardHeight = 108.0;
 
                       final loadingCards = List.generate(
                         6,
-                        (_) => Shimmer.fromColors(
-                          baseColor: AppColors.black100,
-                          highlightColor: AppColors.black50,
-                          child: Container(
-                            width: cardWidth,
-                            height: cardHeight,
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColors.cardBorderColor,
-                              ),
-                            ),
-                          ),
+                        (_) => const ShimmerCategoryCard(
+                          width: cardWidth,
+                          height: cardHeight,
                         ),
                       );
 
@@ -241,11 +232,32 @@ class HomePage extends StatelessWidget {
                               height: cardHeight,
                               child: InkWell(
                                 onTap: () {
+                                  final children =
+                                      state.categoryIdToChildren[c.id] ?? [];
+                                  final subcategories = children
+                                      .map(
+                                        (sub) => {
+                                          'id': sub.id,
+                                          'name': sub.name,
+                                          'image': sub.image,
+                                        },
+                                      )
+                                      .toList();
+                                  const types = [
+                                    'Product',
+                                    'Home',
+                                    'Auto',
+                                    'Service',
+                                  ];
+                                  final ct = state.selectedIndex < types.length
+                                      ? types[state.selectedIndex]
+                                      : 'Product';
                                   context.push(
-                                    '/products?categoryId=${c.id}&title=${Uri.encodeComponent(c.name)}',
+                                    '/products?categoryId=${c.id}&title=${Uri.encodeComponent(c.name)}&categoryType=${Uri.encodeComponent(ct)}',
+                                    extra: subcategories,
                                   );
                                 },
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(10),
                                 child: HomeSubCategoryCard(category: c),
                               ),
                             ),
@@ -258,18 +270,17 @@ class HomePage extends StatelessWidget {
 
                       return Container(
                         width: double.infinity,
-                        height: cardHeight * 2 + 46,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        height: cardHeight * 2 + 22,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: AppColors.black50,
-                          borderRadius: BorderRadius.circular(18),
+                          color: containerBg,
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.only(left: 19),
                           itemCount: columns.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 12),
+                          separatorBuilder: (_, __) => const SizedBox(width: 6),
                           itemBuilder: (context, index) => columns[index],
                         ),
                       );
@@ -296,16 +307,9 @@ class HomePage extends StatelessWidget {
 
                         if (state.status == HomeStatus.loading &&
                             state.banners.isEmpty) {
-                          return Shimmer.fromColors(
-                            baseColor: AppColors.black100,
-                            highlightColor: AppColors.black50,
-                            child: Container(
-                              height: 240,
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
+                          return const ShimmerBanner(
+                            height: 240,
+                            borderRadius: 20,
                           );
                         }
 
@@ -334,7 +338,7 @@ class HomePage extends StatelessWidget {
                     height: 420,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.black50,
+                      color: containerBg,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Column(
@@ -351,7 +355,7 @@ class HomePage extends StatelessWidget {
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.w800,
-                                      color: AppColors.textPrimary,
+                                      color: textColor,
                                     ),
                               ),
                               InkWell(
@@ -362,14 +366,18 @@ class HomePage extends StatelessWidget {
                                   children: [
                                     Text(
                                       l10n.seeAll,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
+                                        color: textColor,
                                       ),
                                     ),
                                     const SizedBox(width: 4),
-                                    const Icon(Icons.arrow_forward_ios, size: 16),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: textColor,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -404,13 +412,8 @@ class HomePage extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
-                                  itemBuilder: (_, __) => Container(
-                                    width: 230,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.black50,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
+                                  itemBuilder: (_, __) =>
+                                      const ShimmerProductCard(width: 230),
                                   separatorBuilder: (_, __) =>
                                       const SizedBox(width: 12),
                                   itemCount: 3,
@@ -538,14 +541,10 @@ class HomePage extends StatelessWidget {
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
                                           ),
-                                          itemBuilder: (_, __) => Container(
-                                            width: 240,
-                                            decoration: BoxDecoration(
-                                              color: AppColors.black50,
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                          ),
+                                          itemBuilder: (_, __) =>
+                                              const ShimmerProductCardSmall(
+                                                width: 240,
+                                              ),
                                           separatorBuilder: (_, __) =>
                                               const SizedBox(width: 12),
                                           itemCount: 2,
@@ -627,7 +626,7 @@ class HomePage extends StatelessWidget {
                               style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
+                                    color: textColor,
                                   ),
                             ),
                           ),
@@ -642,14 +641,14 @@ class HomePage extends StatelessWidget {
                             children: [
                               Text(
                                 l10n.servicesSeeAll,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
+                                  color: textColor,
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Icon(Icons.arrow_forward_ios, size: 16),
+                              Icon(Icons.arrow_forward_ios, size: 16, color: textColor),
                             ],
                           ),
                         ),
@@ -683,12 +682,8 @@ class HomePage extends StatelessWidget {
                                     childAspectRatio: 0.72,
                                   ),
                               itemCount: 4,
-                              itemBuilder: (_, __) => Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.black50,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
+                              itemBuilder: (_, __) =>
+                                  const ShimmerServiceCard(),
                             ),
                           );
                         }

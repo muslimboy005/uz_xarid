@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// To'liq qidirish ekrani: kategoriyalar, tez-tez qidiriladi, tavsiyalar.
@@ -14,8 +15,10 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final scaffoldBg = context.bodyBackground;
+    final textColor = context.textPrimary;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: scaffoldBg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +43,7 @@ class SearchPage extends StatelessWidget {
                       l10n.searchFindByCategory,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -50,7 +53,7 @@ class SearchPage extends StatelessWidget {
                       l10n.searchFrequentlySearched,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -60,16 +63,16 @@ class SearchPage extends StatelessWidget {
                       l10n.recommendationsTitle,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const SizedBox(
+                    SizedBox(
                       height: 120,
                       child: Center(
                         child: Text(
                           '',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(color: context.textSecondary),
                         ),
                       ),
                     ),
@@ -84,6 +87,7 @@ class SearchPage extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
+    final textColor = context.textPrimary;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
       child: Column(
@@ -93,7 +97,7 @@ class SearchPage extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.arrow_back, size: 24),
                 onPressed: () => context.pop(),
-                color: AppColors.textPrimary,
+                color: textColor,
               ),
               Expanded(
                 child: Center(
@@ -101,7 +105,7 @@ class SearchPage extends StatelessWidget {
                     l10n.searchTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -116,9 +120,9 @@ class SearchPage extends StatelessWidget {
   Widget _buildSearchField(BuildContext context, AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.cardSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorderColor),
+        border: Border.all(color: context.borderColor),
       ),
       child: TextField(
         decoration: InputDecoration(
@@ -160,7 +164,7 @@ class SearchPage extends StatelessWidget {
         itemBuilder: (context, index) {
           return ActionChip(
             label: Text(categories[index]),
-            backgroundColor: AppColors.black50,
+            backgroundColor: context.surfaceContainer,
             side: BorderSide.none,
             onPressed: () {},
           );
@@ -176,13 +180,13 @@ class SearchPage extends StatelessWidget {
       children: _frequentSearches
           .map(
             (term) => ActionChip(
-              avatar: const Icon(
+              avatar: Icon(
                 Icons.search,
                 size: 18,
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
               label: Text(term),
-              backgroundColor: AppColors.black50,
+              backgroundColor: context.surfaceContainer,
               side: BorderSide.none,
               onPressed: () {},
             ),

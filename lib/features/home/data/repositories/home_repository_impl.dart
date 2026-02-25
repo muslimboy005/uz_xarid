@@ -26,13 +26,24 @@ class HomeRepositoryImpl implements HomeRepository {
       final giftsResponse = await homeApi.getGifts(pageSize);
       final servicesResponse = await homeApi.getServices(pageSize);
 
+      final results = categoriesResponse.data.results;
+      final categoryIdToChildren = <int, List<HomeCategory>>{};
+      for (final dto in results) {
+        if (dto.children.isNotEmpty) {
+          categoryIdToChildren[dto.id] = dto.children
+              .map((c) => c.toHomeCategory())
+              .toList();
+        }
+      }
+
       final entity = HomeEntity(
         // Show only top-level categories returned by the API (expected 6),
         // preserving order and falling back to safe name when empty.
-        categories: categoriesResponse.data.results
+        categories: results
             .where((e) => e.showHome)
             .map((e) => e.toHomeCategory())
             .toList(),
+        categoryIdToChildren: categoryIdToChildren,
         banners: bannersResponse.data.results
             .map((e) => e.toHomeBanner())
             .toList(),

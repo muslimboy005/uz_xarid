@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 
 /// A reusable breadcrumb row for profile section pages.
@@ -12,18 +13,20 @@ class ProfileBreadcrumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textSecondary = context.textSecondary;
+    final activeColor = AppColors.primary;
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
       child: Row(
         children: [
           for (int i = 0; i < labels.length; i++) ...[
             if (i > 0)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Icon(
                   Icons.chevron_right,
                   size: 16,
-                  color: AppColors.black300,
+                  color: textSecondary,
                 ),
               ),
             GestureDetector(
@@ -32,9 +35,7 @@ class ProfileBreadcrumb extends StatelessWidget {
                 text: labels[i],
                 fontSize: 13,
                 fontWeight: i == labels.length - 1 ? 600 : 400,
-                color: i == labels.length - 1
-                    ? AppColors.blue500
-                    : AppColors.black300,
+                color: i == labels.length - 1 ? activeColor : textSecondary,
               ),
             ),
           ],
