@@ -11,6 +11,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/logout_bottom_sheet.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class AuthorizedProfileContent extends StatelessWidget {
@@ -154,7 +155,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   AppImage(path: AppAssets.information),
                   SizedBox(width: 6),
-              AppText(
+                  AppText(
                     text: l10n.profileVerifyAccount,
                     fontSize: 12,
                     fontWeight: 500,
@@ -230,14 +231,14 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText(
-                          text: l10n.profileBecomeBusinessTitle,
-                          fontSize: 16,
-                          fontWeight: 700,
-                          color: AppColors.white,
-                          maxLines: 2,
-                        ),
+                    children: [
+                      AppText(
+                        text: l10n.profileBecomeBusinessTitle,
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: AppColors.white,
+                        maxLines: 2,
+                      ),
                       SizedBox(height: 8),
                       GestureDetector(
                         onTap: () => context.push('/profile/my-business'),
@@ -303,29 +304,11 @@ class AuthorizedProfileContent extends StatelessWidget {
                     ),
                     child: GestureDetector(
                       onTap: () async {
-                        final confirmed = await showDialog<bool>(
+                        final confirmed = await showModalBottomSheet<bool>(
                           context: context,
-                          builder: (dialogContext) => AlertDialog(
-                            title: Text(l10n.profileLogoutDialogTitle),
-                            content: Text(
-                              l10n.profileLogoutDialogMessage,
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(dialogContext, false),
-                                child: Text(l10n.actionCancel),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(dialogContext, true),
-                                child: Text(
-                                  l10n.actionLogout,
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
-                          ),
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (dialogContext) => const LogoutBottomSheet(),
                         );
 
                         if (confirmed == true && context.mounted) {
@@ -338,15 +321,15 @@ class AuthorizedProfileContent extends StatelessWidget {
                         }
                       },
                       child: Row(
-                      children: [
-                        AppImage(path: AppAssets.logout),
-                        SizedBox(width: 8),
-                        AppText(
-                          text: l10n.actionLogout,
-                          fontSize: 16,
-                          fontWeight: 600,
-                          color: AppColors.red,
-                        ),
+                        children: [
+                          AppImage(path: AppAssets.logout),
+                          SizedBox(width: 8),
+                          AppText(
+                            text: l10n.actionLogout,
+                            fontSize: 16,
+                            fontWeight: 600,
+                            color: AppColors.red,
+                          ),
                         ],
                       ),
                     ),

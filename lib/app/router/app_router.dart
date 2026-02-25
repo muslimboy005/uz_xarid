@@ -26,6 +26,7 @@ import 'package:uz_xarid/features/profile/presentation/pages/personal_data_page.
 import 'package:uz_xarid/features/profile/presentation/pages/profile_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/support_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/view_history_page.dart';
+import 'package:uz_xarid/features/profile/presentation/pages/add_address_page.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -68,21 +69,28 @@ class AppRouter {
           final extra = state.extra;
           if (extra is List && extra.isNotEmpty) {
             try {
-              subcategories = extra.map((e) {
-                if (e is Map) {
-                  return SubcategoryItem(
-                    id: (e['id'] as num).toInt(),
-                    name: e['name'] as String? ?? '',
-                    image: e['image'] as String?,
-                  );
-                }
-                return null;
-              }).whereType<SubcategoryItem>().toList();
+              subcategories = extra
+                  .map((e) {
+                    if (e is Map) {
+                      return SubcategoryItem(
+                        id: (e['id'] as num).toInt(),
+                        name: e['name'] as String? ?? '',
+                        image: e['image'] as String?,
+                      );
+                    }
+                    return null;
+                  })
+                  .whereType<SubcategoryItem>()
+                  .toList();
             } catch (_) {}
           }
           return ProductListPage(
-            title: title.isNotEmpty ? Uri.decodeComponent(title) : 'Mahsulotlar',
-            categoryId: (categoryId != null && categoryId > 0) ? categoryId : null,
+            title: title.isNotEmpty
+                ? Uri.decodeComponent(title)
+                : 'Mahsulotlar',
+            categoryId: (categoryId != null && categoryId > 0)
+                ? categoryId
+                : null,
             listSource: listSource,
             subcategories: subcategories,
           );
@@ -220,6 +228,11 @@ class AppRouter {
                 path: 'my-addresses',
                 name: 'profile-my-addresses',
                 builder: (context, state) => const MyAddressesPage(),
+              ),
+              GoRoute(
+                path: 'add-address',
+                name: 'profile-add-address',
+                builder: (context, state) => const AddAddressPage(),
               ),
               GoRoute(
                 path: 'payment',
