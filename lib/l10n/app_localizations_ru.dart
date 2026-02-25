@@ -27,6 +27,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get catalogBody => 'Каталог товаров будет отображаться здесь.';
 
   @override
+  String get productsNotFoundTitle => 'Товары не найдены';
+
+  @override
+  String get productsNotFoundSubtitle =>
+      'По вашему запросу товары не найдены.\nПожалуйста, попробуйте снова.';
+
+  @override
   String get allCategories => 'Все категории';
 
   @override
@@ -58,6 +65,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get searchHint => 'Искать...';
+
+  @override
+  String get searchTitle => 'Поиск';
+
+  @override
+  String get searchFindByCategory => 'Найти по категории';
+
+  @override
+  String get searchFrequentlySearched => 'Часто ищут';
 
   @override
   String get homeHeadline => 'Найдите. Покупайте. Продавайте.';
@@ -96,6 +112,56 @@ class AppLocalizationsRu extends AppLocalizations {
   String get view => 'Посмотреть';
 
   @override
+  String get adAuthorTitle => 'Автор объявления';
+
+  @override
+  String get adAuthorOtherAds => 'Другие объявления автора';
+
+  @override
+  String adAuthorOnPlatformSince(String date) {
+    return 'На платформе с $date';
+  }
+
+  @override
+  String get tabFullInfo => 'Полная информация';
+
+  @override
+  String get tabReviews => 'Отзывы';
+
+  @override
+  String get reviewsEmptyTitle => 'Отзывов нет';
+
+  @override
+  String get reviewsEmptySubtitle => 'Отзывы пока отсутствуют';
+
+  @override
+  String get reviewsWriteReview => 'Написать отзыв';
+
+  @override
+  String get productDetailErrorDefault => 'Ошибка';
+
+  @override
+  String get productDetailColorLabel => 'Цвет:';
+
+  @override
+  String get productDetailSizeLabel => 'Размер:';
+
+  @override
+  String get productDetailCall => 'Позвонить';
+
+  @override
+  String get productDetailTelegram => 'Telegram';
+
+  @override
+  String get productDetailPlaceOrder => 'Оформить заказ';
+
+  @override
+  String get productDetailFeatures => 'Характеристики';
+
+  @override
+  String get productDetailSimilarProducts => 'Похожие товары';
+
+  @override
   String get giftHeadline => 'Идеальные подарки для всех';
 
   @override
@@ -103,6 +169,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get servicesSeeAll => 'Все';
+
+  @override
+  String get productListFilters => 'Фильтры';
+
+  @override
+  String get sortPopular => 'Популярные';
+
+  @override
+  String get sortCheaper => 'Подешевле';
+
+  @override
+  String get sortExpensive => 'Подороже';
+
+  @override
+  String get sortHighRating => 'Высокий рейтинг';
 
   @override
   String get servicesEmptyTitle => 'Сервисы не найдены';

@@ -27,6 +27,13 @@ class AppLocalizationsUz extends AppLocalizations {
   String get catalogBody => 'Mahsulotlar katalogi shu yerda bo‘ladi.';
 
   @override
+  String get productsNotFoundTitle => 'Mahsulotlar topilmadi';
+
+  @override
+  String get productsNotFoundSubtitle =>
+      'So\'rovingiz bo\'yicha mahsulotlar topa olmadik.\nIltimos, qaytadan urinib ko\'ring';
+
+  @override
   String get allCategories => 'Barcha turkumlar';
 
   @override
@@ -58,6 +65,15 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get searchHint => 'Qidirish...';
+
+  @override
+  String get searchTitle => 'Qidirish';
+
+  @override
+  String get searchFindByCategory => 'Kategoriyadan topish';
+
+  @override
+  String get searchFrequentlySearched => 'Tez-tez qidiriladi';
 
   @override
   String get homeHeadline => 'Toping. Sotib oling. Soting.';
@@ -96,6 +112,56 @@ class AppLocalizationsUz extends AppLocalizations {
   String get view => 'Ko\'rish';
 
   @override
+  String get adAuthorTitle => 'E\'lon muallifi';
+
+  @override
+  String get adAuthorOtherAds => 'Muallifning boshqa e\'lonlari';
+
+  @override
+  String adAuthorOnPlatformSince(String date) {
+    return 'Platformada $date dan beri';
+  }
+
+  @override
+  String get tabFullInfo => 'To\'liq ma\'lumot';
+
+  @override
+  String get tabReviews => 'Sharhlar';
+
+  @override
+  String get reviewsEmptyTitle => 'Sharhlar yo\'q';
+
+  @override
+  String get reviewsEmptySubtitle => 'Sharhlar hali mavjud emas';
+
+  @override
+  String get reviewsWriteReview => 'Sharh yozish';
+
+  @override
+  String get productDetailErrorDefault => 'Xatolik';
+
+  @override
+  String get productDetailColorLabel => 'Rang:';
+
+  @override
+  String get productDetailSizeLabel => 'O\'lcham:';
+
+  @override
+  String get productDetailCall => 'Qo\'ng\'iroq';
+
+  @override
+  String get productDetailTelegram => 'Telegram';
+
+  @override
+  String get productDetailPlaceOrder => 'Buyurtma berish';
+
+  @override
+  String get productDetailFeatures => 'Xususiyatlar';
+
+  @override
+  String get productDetailSimilarProducts => 'O\'xshash tovarlar';
+
+  @override
   String get giftHeadline => 'Barchaga ideal sovg\'alar';
 
   @override
@@ -103,6 +169,21 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get servicesSeeAll => 'Barchasi';
+
+  @override
+  String get productListFilters => 'Filtrlər';
+
+  @override
+  String get sortPopular => 'Mashhur';
+
+  @override
+  String get sortCheaper => 'Arzonroq';
+
+  @override
+  String get sortExpensive => 'Qimmatroq';
+
+  @override
+  String get sortHighRating => 'Yuqori reyting';
 
   @override
   String get servicesEmptyTitle => 'Xizmatlar topilmadi';

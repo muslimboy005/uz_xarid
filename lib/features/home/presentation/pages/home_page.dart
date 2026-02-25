@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dio/dio_client.dart';
+import 'package:uz_xarid/core/widgets/products_not_found_placeholder.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
 import 'package:uz_xarid/features/home/data/repositories/home_repository_impl.dart';
@@ -89,6 +89,7 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.primary,
         appBar: UzXaridAppBar(
+          onSearchTap: () => context.push('/search'),
           onSearchChanged: (query) {
             // TODO: implement real search logic
           },
@@ -238,7 +239,15 @@ class HomePage extends StatelessWidget {
                             (c) => SizedBox(
                               width: cardWidth,
                               height: cardHeight,
-                              child: HomeSubCategoryCard(category: c),
+                              child: InkWell(
+                                onTap: () {
+                                  context.push(
+                                    '/products?categoryId=${c.id}&title=${Uri.encodeComponent(c.name)}',
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(16),
+                                child: HomeSubCategoryCard(category: c),
+                              ),
                             ),
                           )
                           .toList();
@@ -345,19 +354,24 @@ class HomePage extends StatelessWidget {
                                       color: AppColors.textPrimary,
                                     ),
                               ),
-                              Row(
-                                children: [
-                                  Text(
-                                    l10n.seeAll,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
+                              InkWell(
+                                onTap: () => context.push(
+                                  '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      l10n.seeAll,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.arrow_forward_ios, size: 16),
-                                ],
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.arrow_forward_ios, size: 16),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -404,7 +418,7 @@ class HomePage extends StatelessWidget {
                               }
 
                               if (state.recommendations.isEmpty) {
-                                return const SizedBox.shrink();
+                                return ProductsNotFoundPlaceholder(l10n: l10n);
                               }
 
                               return ListView.separated(
@@ -557,9 +571,9 @@ class HomePage extends StatelessWidget {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () {
-                                    // TODO: implement gift tap
-                                  },
+                                  onTap: () => context.push(
+                                    '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
+                                  ),
                                   child: Container(
                                     margin: const EdgeInsets.only(
                                       top: 15,
@@ -619,20 +633,25 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              l10n.servicesSeeAll,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                        InkWell(
+                          onTap: () => context.push(
+                            '/products?title=${Uri.encodeComponent(l10n.servicesTitle)}&source=services',
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l10n.servicesSeeAll,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.arrow_forward_ios, size: 16),
-                          ],
+                              const SizedBox(width: 4),
+                              const Icon(Icons.arrow_forward_ios, size: 16),
+                            ],
+                          ),
                         ),
                       ],
                     ),

@@ -9,21 +9,30 @@ class CatalogCategoryTile extends StatelessWidget {
     super.key,
     required this.category,
     required this.onTap,
+    this.isExpanded = false,
+    this.indentLevel = 0,
   });
 
   final CategoryEntity category;
   final VoidCallback onTap;
+  /// When true, shows chevron down (expanded); otherwise chevron right (collapsed).
+  final bool isExpanded;
+  /// Indent level for nested subcategories (e.g. 1 = one level in).
+  final int indentLevel;
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = AppDimens.paddingMedium + (indentLevel * 16.0);
     return Material(
       color: AppColors.white,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimens.paddingMedium,
-            vertical: AppDimens.paddingSmall2,
+          padding: EdgeInsets.only(
+            left: horizontalPadding,
+            right: AppDimens.paddingMedium,
+            top: AppDimens.paddingSmall2,
+            bottom: AppDimens.paddingSmall2,
           ),
           child: Row(
             children: [
@@ -43,17 +52,17 @@ class CatalogCategoryTile extends StatelessWidget {
                 child: Text(
                   category.displayName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: isExpanded ? AppColors.primary : AppColors.textPrimary,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (category.hasChildren)
-                const Icon(
-                  Icons.chevron_right,
-                  color: AppColors.textSecondary,
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_down : Icons.chevron_right,
+                  color: isExpanded ? AppColors.primary : AppColors.textPrimary,
                   size: 24,
                 ),
             ],

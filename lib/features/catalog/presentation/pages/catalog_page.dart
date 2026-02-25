@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
@@ -11,18 +13,46 @@ import 'package:uz_xarid/features/catalog/presentation/widgets/catalog_category_
 import 'package:uz_xarid/features/catalog/presentation/widgets/catalog_nav_bar.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
-class CatalogPage extends StatelessWidget {
-  const CatalogPage({super.key});
+class CatalogPage extends StatefulWidget {
+  const CatalogPage({
+    super.key,
+    this.initialCategoryType,
+    this.initialCategoryId,
+  });
+
+  final String? initialCategoryType;
+  final int? initialCategoryId;
+
+  @override
+  State<CatalogPage> createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
+  /// Har bir ota uchida faqat bitta bola ochiq: parentId -> ochiq bolaning id si. Root uchun key: null.
+  final Map<int?, int?> _expandedByParentId = {};
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
-      create: (_) => getIt<CatalogBloc>(),
+      create: (_) {
+        final bloc = getIt<CatalogBloc>();
+        if (widget.initialCategoryType != null &&
+            widget.initialCategoryType!.isNotEmpty) {
+          bloc.add(
+            CatalogLoadRequested(
+              categoryType: widget.initialCategoryType!,
+              openCategoryId: widget.initialCategoryId,
+            ),
+          );
+        }
+        return bloc;
+      },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.primary,
         appBar: UzXaridAppBar(
+          onSearchTap: () => context.push('/search'),
           onSearchChanged: (query) {
             // TODO: implement real search logic
           },
@@ -30,41 +60,49 @@ class CatalogPage extends StatelessWidget {
             // TODO: open drawer or menu sheet
           },
         ),
-        body: BlocBuilder<CatalogBloc, CatalogState>(
-          builder: (context, state) {
-            final slivers = <Widget>[];
-            if (!state.showTypeTiles) {
-              final navTitle = state.stack.isNotEmpty
-                  ? state.stack.last.displayName
-                  : l10n.allCategories;
-              slivers.add(
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: CatalogNavBarDelegate(
-                    title: navTitle,
-                    showBack: state.canGoBack,
-                    onBack: state.canGoBack
-                        ? () {
-                            context
-                                .read<CatalogBloc>()
-                                .add(const CatalogBackPressed());
-                          }
-                        : null,
+        body: Container(
+          color: AppColors.background,
+          height: MediaQuery.of(context).size.height,
+
+          child: BlocBuilder<CatalogBloc, CatalogState>(
+            builder: (context, state) {
+              final slivers = <Widget>[];
+              if (!state.showTypeTiles) {
+                final entryCategoryName = _entryCategoryDisplayName(
+                  state,
+                  l10n,
+                );
+                final pathParts = [entryCategoryName];
+                final trailingImagePath = _entryCategoryImagePath(state);
+                final catalogBloc = context.read<CatalogBloc>();
+                slivers.add(
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: CatalogNavBarDelegate(
+                      pathParts: pathParts,
+                      trailingImagePath: trailingImagePath,
+                      onSegmentTap: (index) {
+                        catalogBloc.add(CatalogPathSegmentTapped(index));
+                      },
+                      showBack: state.canGoBack,
+                      onBack: state.canGoBack
+                          ? () {
+                              catalogBloc.add(const CatalogBackPressed());
+                            }
+                          : null,
+                    ),
                   ),
-                ),
-              );
-              slivers.add(
-                SliverToBoxAdapter(
-                  child: Divider(
-                    height: 1,
-                    color: AppColors.cardBorderColor,
+                );
+                slivers.add(
+                  SliverToBoxAdapter(
+                    child: Divider(height: 1, color: AppColors.cardBorderColor),
                   ),
-                ),
-              );
-            }
-            slivers.addAll(_buildBodySlivers(context, state, l10n));
-            return CustomScrollView(slivers: slivers);
-          },
+                );
+              }
+              slivers.addAll(_buildBodySlivers(context, state, l10n));
+              return CustomScrollView(slivers: slivers);
+            },
+          ),
         ),
       ),
     );
@@ -98,9 +136,40 @@ class CatalogPage extends StatelessWidget {
     ];
   }
 
-  void _onCategoryTap(BuildContext context, CategoryEntity category) {
-    context.read<CatalogBloc>().add(CatalogCategorySelected(category));
+  /// Pathda ko‘rsatiladigan nom: kategoriyadan kirilgan bo‘lsa o‘sha kategoriya, yo‘qsa tur nomi.
+  String _entryCategoryDisplayName(CatalogState state, AppLocalizations l10n) {
+    if (state.stack.isNotEmpty) {
+      return state.stack.last.displayName;
+    }
+    switch (state.categoryType) {
+      case 'Product':
+        return l10n.categoryGoods;
+      case 'Home':
+        return l10n.categoryConstruction;
+      case 'Auto':
+        return l10n.categoryAutoMoto;
+      case 'Service':
+        return l10n.categoryServices;
+      default:
+        return l10n.allCategories;
+    }
   }
+
+  /// Trailda ko‘rsatiladigan rasm: kategoriya rasmi yoki tur asseti.
+  String? _entryCategoryImagePath(CatalogState state) {
+    if (state.stack.isNotEmpty) {
+      final img = state.stack.last.image;
+      if (img != null && img.isNotEmpty) return img;
+    }
+    return _typeAssets[state.categoryType];
+  }
+
+  static const _typeAssets = {
+    'Product': 'assets/images/backet.png',
+    'Home': 'assets/images/apartment.png',
+    'Auto': 'assets/images/car.png',
+    'Service': 'assets/images/service.png',
+  };
 
   Widget _buildTypeTilesSliver(
     BuildContext context,
@@ -115,28 +184,37 @@ class CatalogPage extends StatelessWidget {
       (l10n.categoryServices, 'Service'),
     ];
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final e = types[index];
-          return ListTile(
-            title: Text(
-              e.$1,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final e = types[index];
+        final assetPath = _typeAssets[e.$2];
+        return ListTile(
+          leading: assetPath != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
+                  child: AppImage(
+                    path: assetPath,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
                   ),
+                )
+              : null,
+          title: Text(
+            e.$1,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
-            trailing: const Icon(
-              Icons.chevron_right,
-              color: AppColors.textSecondary,
-            ),
-            onTap: () {
-              bloc.add(CatalogLoadRequested(categoryType: e.$2));
-            },
-          );
-        },
-        childCount: types.length,
-      ),
+          ),
+          trailing: const Icon(
+            Icons.chevron_right,
+            color: AppColors.textSecondary,
+          ),
+          onTap: () {
+            bloc.add(CatalogLoadRequested(categoryType: e.$2));
+          },
+        );
+      }, childCount: types.length),
     );
   }
 
@@ -169,10 +247,8 @@ class CatalogPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     context.read<CatalogBloc>().add(
-                          CatalogLoadRequested(
-                            categoryType: state.categoryType,
-                          ),
-                        );
+                      CatalogLoadRequested(categoryType: state.categoryType),
+                    );
                   },
                   child: Text(l10n.actionRetry),
                 ),
@@ -205,30 +281,129 @@ class CatalogPage extends StatelessWidget {
     CatalogState state,
     AppLocalizations l10n,
   ) {
-    final list = state.currentList;
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final category = list[index];
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CatalogCategoryTile(
-                category: category,
-                onTap: () => _onCategoryTap(context, category),
-              ),
-              if (index < list.length - 1)
-                Divider(
-                  height: 1,
-                  indent: AppDimens.paddingMedium,
-                  endIndent: AppDimens.paddingMedium,
-                  color: AppColors.cardBorderColor,
-                ),
-            ],
-          );
-        },
-        childCount: list.length,
-      ),
+    final items = _buildExpandableCategoryItems(
+      context,
+      state.rootCategories,
+      0,
+      null,
+      l10n,
     );
+    return SliverList(delegate: SliverChildListDelegate(items));
+  }
+
+  /// Builds a flat list of tiles and dividers from categories tree; expanded nodes show children below (indented).
+  /// [parentId]: bu ro'yxatning otasi (root uchun null); bir xil otadagi bolalardan faqat bittasi ochiq bo'ladi.
+  List<Widget> _buildExpandableCategoryItems(
+    BuildContext context,
+    List<CategoryEntity> categories,
+    int indentLevel,
+    int? parentId,
+    AppLocalizations l10n,
+  ) {
+    final list = <Widget>[];
+    for (var i = 0; i < categories.length; i++) {
+      final category = categories[i];
+      final isExpanded = _expandedByParentId[parentId] == category.id;
+      list.add(
+        CatalogCategoryTile(
+          category: category,
+          indentLevel: indentLevel,
+          isExpanded: isExpanded,
+          onTap: () {
+            if (category.hasChildren) {
+              setState(() {
+                if (isExpanded) {
+                  _expandedByParentId[parentId] = null;
+                } else {
+                  _expandedByParentId[parentId] = category.id;
+                }
+              });
+            } else {
+              context.push(
+                '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}',
+              );
+            }
+          },
+        ),
+      );
+      if (isExpanded && category.hasChildren) {
+        final childIndent = indentLevel + 1;
+        final horizontalPadding = AppDimens.paddingMedium + (childIndent * 16.0);
+        list.add(
+          Material(
+            color: AppColors.white,
+            child: InkWell(
+              onTap: () {
+                final subcategories = category.children
+                    .map((c) => {
+                          'id': c.id,
+                          'name': c.displayName,
+                          'image': c.image,
+                        })
+                    .toList();
+                context.push(
+                  '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}',
+                  extra: subcategories,
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: horizontalPadding,
+                  right: AppDimens.paddingMedium,
+                  top: AppDimens.paddingSmall2,
+                  bottom: AppDimens.paddingSmall2,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.seeAll,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: AppColors.textPrimary,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        list.add(
+          Divider(
+            height: 1,
+            indent: horizontalPadding,
+            endIndent: AppDimens.paddingMedium,
+            color: AppColors.cardBorderColor,
+          ),
+        );
+        list.addAll(
+          _buildExpandableCategoryItems(
+            context,
+            category.children,
+            childIndent,
+            category.id,
+            l10n,
+          ),
+        );
+      }
+      if (i < categories.length - 1 || (isExpanded && category.hasChildren)) {
+        list.add(
+          Divider(
+            height: 1,
+            indent: AppDimens.paddingMedium + (indentLevel * 16.0),
+            endIndent: AppDimens.paddingMedium,
+            color: AppColors.cardBorderColor,
+          ),
+        );
+      }
+    }
+    return list;
   }
 }
