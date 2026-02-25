@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
@@ -22,15 +24,18 @@ class UnauthProfileContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final dividerColor = context.borderColor;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(
           text: l10n.profileAuthBenefitsTitle,
-
           fontWeight: 700,
           fontSize: 16,
-          color: AppColors.black500,
+          color: textColor,
         ),
         const SizedBox(height: 20),
         _BenefitRow(
@@ -53,12 +58,12 @@ class UnauthProfileContent extends StatelessWidget {
           text: l10n.profileBenefitAdsFavorites,
         ),
         const SizedBox(height: AppDimens.paddingLarge),
-        const Divider(color: AppColors.black100),
+        Divider(color: dividerColor),
         const SizedBox(height: AppDimens.paddingLarge),
         ContainerW(
           width: double.infinity,
           onTap: () => _showPhoneBottomSheet(context),
-          color: AppColors.blue500,
+          color: AppColors.primary,
           radius: 12,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -72,31 +77,23 @@ class UnauthProfileContent extends StatelessWidget {
             ),
           ),
         ),
-
-        // SizedBox(
-        //   width: double.infinity,
-        //   child: ElevatedButton(
-        //     style: ElevatedButton.styleFrom(
-        //       backgroundColor: AppColors.primary,
-        //       foregroundColor: Colors.white,
-        //       padding: const EdgeInsets.symmetric(
-        //         vertical: AppDimens.paddingMedium,
-        //       ),
-        //       shape: RoundedRectangleBorder(
-        //         borderRadius: BorderRadius.circular(12),
-        //       ),
-        //     ),
-        //     onPressed: () => _showPhoneBottomSheet(context),
-        //     child: const Text('Войти или создать профиль'),
-        //   ),
-        // ),
         const SizedBox(height: AppDimens.paddingLarge),
         AppText(
           text: l10n.profileAuthDescription,
           fontSize: 12,
           fontWeight: 400,
-          color: AppColors.black300,
+          color: textSecondary,
           maxLines: 3,
+        ),
+        const SizedBox(height: AppDimens.paddingMedium),
+        GestureDetector(
+          onTap: () => context.push('/profile/settings'),
+          child: AppText(
+            text: l10n.profileMenuSettings,
+            fontSize: 14,
+            fontWeight: 600,
+            color: AppColors.primary,
+          ),
         ),
       ],
     );
@@ -147,6 +144,11 @@ class _BenefitRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconBg = context.isDark
+        ? AppColors.primary.withValues(alpha: 0.25)
+        : AppColors.blue50;
+    final textColor = context.textPrimary;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -154,7 +156,7 @@ class _BenefitRow extends StatelessWidget {
           width: 38.w,
           height: 38.h,
           decoration: BoxDecoration(
-            color: AppColors.blue50,
+            color: iconBg,
             borderRadius: BorderRadius.circular(8),
           ),
           child: AppImage(
@@ -170,7 +172,7 @@ class _BenefitRow extends StatelessWidget {
             text: text,
             fontSize: 12,
             fontWeight: 500,
-            color: AppColors.black400,
+            color: textColor,
           ),
         ),
       ],

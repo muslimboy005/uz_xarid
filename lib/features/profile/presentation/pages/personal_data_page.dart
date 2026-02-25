@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -169,12 +170,18 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
 
+        final bodyBg = context.bodyBackground;
+        final cardColor = context.cardSurface;
+        final textColor = context.textPrimary;
+        final fieldFill = context.surfaceContainer;
+        final fieldBorder = context.borderColor;
+
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (q) {}, onMenuTap: () {}),
           backgroundColor: AppColors.primary,
           body: SafeArea(
             child: Container(
-              color: AppColors.background,
+              color: bodyBg,
               child: Column(
                 children: [
                   ProfileBreadcrumb(
@@ -198,13 +205,14 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 GestureDetector(
                                   onTap: () => context.pop(),
                                   child: ContainerW(
-                                    color: AppColors.white,
+                                    color: cardColor,
                                     radius: 8,
-                                    borderColor: AppColors.black100,
+                                    borderColor: context.borderColor,
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: AppImage(
                                         path: AppAssets.backDropleft,
+                                        color: textColor,
                                       ),
                                     ),
                                   ),
@@ -214,7 +222,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                   text: 'Личные данные',
                                   fontSize: 20,
                                   fontWeight: 700,
-                                  color: AppColors.black500,
+                                  color: textColor,
                                 ),
                               ],
                             ),
@@ -232,6 +240,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 hintText: 'Введите имя',
                                 keyboardType: TextInputType.name,
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                               const SizedBox(height: 12),
                               _label('Фамилия'),
@@ -241,6 +251,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 hintText: 'Введите фамилию',
                                 keyboardType: TextInputType.name,
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                               const SizedBox(height: 12),
                               _label('Пол'),
@@ -265,6 +277,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [UzbekPhoneInputFormatter()],
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                               const SizedBox(height: 12),
                               _label('Электронная почта'),
@@ -274,6 +288,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 hintText: 'Введите E-mail',
                                 keyboardType: TextInputType.emailAddress,
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                             ],
                           ),
@@ -288,6 +304,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _cityController,
                                 hintText: 'Введите город',
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                               const SizedBox(height: 12),
                               _label('Улица'),
@@ -296,6 +314,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _streetController,
                                 hintText: 'Введите улицу',
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                               const SizedBox(height: 12),
                               _label('Дом / Квартира'),
@@ -304,6 +324,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _houseController,
                                 hintText: 'Дом / Квартира',
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                               const SizedBox(height: 12),
                               _label('Район'),
@@ -312,6 +334,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _districtController,
                                 hintText: 'Введите район',
                                 enabled: !isLoading,
+                                fillColor: fieldFill,
+                                borderNoFocusColor: fieldBorder,
                               ),
                             ],
                           ),
@@ -346,6 +370,10 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           imageProvider = NetworkImage(url);
         }
 
+        final textColor = context.textPrimary;
+        final avatarBg = context.isDark
+            ? AppColors.primary.withValues(alpha: 0.25)
+            : AppColors.blue50;
         return Row(
           children: [
             GestureDetector(
@@ -354,17 +382,15 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor: AppColors.blue50,
+                    backgroundColor: avatarBg,
                     backgroundImage: imageProvider,
                     onBackgroundImageError: imageProvider != null
-                        ? (exception, stackTrace) {
-                            // Xatoliklarni jim qabul qilamiz, debugger qotib qolmasligi uchun
-                          }
+                        ? (exception, stackTrace) {}
                         : null,
                     child: imageProvider == null
-                        ? const Icon(
+                        ? Icon(
                             Icons.person,
-                            color: AppColors.blue500,
+                            color: AppColors.primary,
                             size: 36,
                           )
                         : null,
@@ -376,9 +402,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                       width: 22,
                       height: 22,
                       decoration: BoxDecoration(
-                        color: AppColors.blue500,
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.white, width: 2),
+                        border: Border.all(color: context.cardSurface, width: 2),
                       ),
                       child: const Icon(
                         Icons.edit,
@@ -399,7 +425,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                     text: 'Фото профиля',
                     fontSize: 14,
                     fontWeight: 600,
-                    color: AppColors.black500,
+                    color: textColor,
                   ),
                   const SizedBox(height: 4),
                   GestureDetector(
@@ -408,7 +434,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                       text: 'Выбрать из галереи',
                       fontSize: 13,
                       fontWeight: 400,
-                      color: AppColors.blue500,
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -446,6 +472,10 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
   Widget _genderDropdown(bool disabled) {
     final genderLabels = _localizedGenderLabels(context);
+    final surfaceContainer = context.surfaceContainer;
+    final borderColor = context.borderColor;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
 
     return ValueListenableBuilder<String?>(
       valueListenable: _selectedGender,
@@ -454,9 +484,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           height: 48,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppColors.black50,
+            color: surfaceContainer,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.black100),
+            border: Border.all(color: borderColor),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -465,12 +495,12 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 text: _genderHint(context),
                 fontSize: 14,
                 fontWeight: 400,
-                color: AppColors.black300,
+                color: textSecondary,
               ),
               isExpanded: true,
-              icon: const Icon(
+              icon: Icon(
                 Icons.keyboard_arrow_down,
-                color: AppColors.black300,
+                color: textSecondary,
               ),
               items: disabled
                   ? null
@@ -482,7 +512,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                               text: e.value,
                               fontSize: 14,
                               fontWeight: 400,
-                              color: AppColors.black500,
+                              color: textColor,
                             ),
                           ),
                         )
@@ -496,6 +526,11 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Widget _dateField(bool disabled) {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final surfaceContainer = context.surfaceContainer;
+    final borderColor = context.borderColor;
+
     return ValueListenableBuilder<DateTime?>(
       valueListenable: _selectedDate,
       builder: (context, date, _) {
@@ -505,9 +540,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: AppColors.black50,
+              color: surfaceContainer,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.black100),
+              border: Border.all(color: borderColor),
             ),
             child: Row(
               children: [
@@ -516,15 +551,13 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                     text: date != null ? _formatDate(date) : 'ДД.ММ.ГГГГ',
                     fontSize: 14,
                     fontWeight: 400,
-                    color: date != null
-                        ? AppColors.black500
-                        : AppColors.black300,
+                    color: date != null ? textColor : textSecondary,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.calendar_today_outlined,
                   size: 18,
-                  color: AppColors.black300,
+                  color: textSecondary,
                 ),
               ],
             ),
@@ -536,7 +569,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
   Widget _sectionHeader(String title) {
     return ContainerW(
-      color: AppColors.white,
+      color: context.cardSurface,
       width: double.infinity,
       radius: 16,
       child: Padding(
@@ -545,7 +578,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           text: title,
           fontSize: 18,
           fontWeight: 700,
-          color: AppColors.black500,
+          color: context.textPrimary,
         ),
       ),
     );
@@ -554,7 +587,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   Widget _card({required List<Widget> children}) {
     return ContainerW(
       width: double.infinity,
-      color: AppColors.white,
+      color: context.cardSurface,
       radius: 16,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -571,13 +604,15 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       text: text,
       fontSize: 13,
       fontWeight: 500,
-      color: AppColors.black400,
+      color: context.textSecondary,
     );
   }
 
   Widget _bottomButtons(BuildContext context, bool isLoading) {
+    final textColor = context.textPrimary;
+    final borderColor = context.borderColor;
     return Container(
-      color: AppColors.white,
+      color: context.cardSurface,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
@@ -585,8 +620,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
             child: OutlinedButton(
               onPressed: isLoading ? null : () => context.pop(),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.black500,
-                side: const BorderSide(color: AppColors.black100),
+                foregroundColor: textColor,
+                side: BorderSide(color: borderColor),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -600,7 +635,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
             child: ElevatedButton(
               onPressed: isLoading ? null : _onSave,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue500,
+                backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

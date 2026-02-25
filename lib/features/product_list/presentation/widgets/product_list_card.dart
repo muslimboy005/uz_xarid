@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 class ProductListCard extends StatelessWidget {
@@ -29,9 +30,9 @@ class ProductListCard extends StatelessWidget {
       onTap: () => context.push('/ad/${item.slug}'),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -52,7 +53,7 @@ class ProductListCard extends StatelessWidget {
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: context.textPrimary,
                           height: 1.2,
                         ),
                       ),

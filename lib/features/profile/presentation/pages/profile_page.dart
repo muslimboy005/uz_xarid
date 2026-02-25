@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
@@ -23,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final bodyBg = context.bodyBackground;
+    final containerBg = context.surfaceContainer;
     return BlocProvider(
       create: (context) => getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
       child: Scaffold(
@@ -30,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
         body: Container(
           height: MediaQuery.of(context).size.height,
-          color: AppColors.black50,
+          color: bodyBg,
           child: SafeArea(
             top: false,
             child: Padding(
@@ -56,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               profile != null &&
                               profile.data.user != null))
                         Container(
-                          color: AppColors.black50,
+                          color: containerBg,
                           child: AuthorizedProfileContent(
                             user: state.profileModel!.data.user!,
                           ),
@@ -66,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (state.status == ProfileStatus.loading &&
                           profile == null)
                         Container(
-                          color: AppColors.black50,
+                          color: containerBg,
                           child: const Center(
                             child: CircularProgressIndicator(),
                           ),

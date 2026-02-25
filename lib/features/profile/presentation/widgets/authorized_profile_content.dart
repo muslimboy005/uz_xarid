@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -21,6 +22,9 @@ class AuthorizedProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final cardColor = context.cardSurface;
 
     return SingleChildScrollView(
       child: Column(
@@ -34,22 +38,22 @@ class AuthorizedProfileContent extends StatelessWidget {
                   text: l10n.navHome,
                   fontSize: 12,
                   fontWeight: 400,
-                  color: AppColors.black300,
+                  color: textSecondary,
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Icon(
                   Icons.chevron_right,
                   size: 14,
-                  color: AppColors.black300,
+                  color: textSecondary,
                 ),
               ),
               AppText(
                 text: l10n.profileTitle,
                 fontSize: 12,
                 fontWeight: 600,
-                color: AppColors.blue500,
+                color: AppColors.primary,
               ),
             ],
           ),
@@ -60,7 +64,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                 text: l10n.profileTitle,
                 fontSize: 24,
                 fontWeight: 700,
-                color: AppColors.black500,
+                color: textColor,
               ),
               const SizedBox(width: 12),
               ContainerW(
@@ -88,7 +92,7 @@ class AuthorizedProfileContent extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.paddingLarge),
           ContainerW(
-            color: AppColors.white,
+            color: cardColor,
             radius: 16,
             child: Padding(
               padding: EdgeInsets.all(12),
@@ -96,7 +100,9 @@ class AuthorizedProfileContent extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: AppColors.blue50,
+                    backgroundColor: context.isDark
+                        ? AppColors.primary.withValues(alpha: 0.25)
+                        : AppColors.blue50,
                     backgroundImage: user.avatar.isNotEmpty
                         ? NetworkImage(() {
                             String url = user.avatar.replaceFirst(
@@ -129,14 +135,14 @@ class AuthorizedProfileContent extends StatelessWidget {
                         text: "${user.firstName} ${user.lastName}",
                         fontSize: 16,
                         fontWeight: 600,
-                        color: AppColors.black500,
+                        color: textColor,
                       ),
                       const SizedBox(height: 4),
                       AppText(
                         text: user.phone,
                         fontSize: 12,
                         fontWeight: 400,
-                        color: AppColors.black300,
+                        color: textSecondary,
                       ),
                     ],
                   ),
@@ -171,7 +177,7 @@ class AuthorizedProfileContent extends StatelessWidget {
           ),
           SizedBox(height: 22),
           ContainerW(
-            color: AppColors.white,
+            color: cardColor,
             radius: 16,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -267,7 +273,7 @@ class AuthorizedProfileContent extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.paddingMedium),
           ContainerW(
-            color: AppColors.white,
+            color: cardColor,
             radius: 16,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -292,6 +298,11 @@ class AuthorizedProfileContent extends StatelessWidget {
                     icon: AppAssets.accessTimeFilled,
                     title: l10n.profileMenuViewHistory,
                     onTap: () => context.push('/profile/view-history'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.settingsPhone,
+                    title: l10n.profileMenuSettings,
+                    onTap: () => context.push('/profile/settings'),
                   ),
                   SizedBox(height: 4),
                   Divider(),
@@ -375,20 +386,20 @@ class _ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = context.textPrimary;
     return GestureDetector(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         child: Row(
           children: [
-            AppImage(path: icon, size: 24, color: AppColors.black500),
+            AppImage(path: icon, size: 24, color: textColor),
             const SizedBox(width: 8),
-
             AppText(
               text: title,
               fontSize: 14,
               fontWeight: 700,
-              color: AppColors.black500,
+              color: textColor,
             ),
           ],
         ),

@@ -84,6 +84,7 @@
   "profileMenuPayment": "Payments and tariffs",
   "profileMenuSupport": "Support",
   "profileMenuViewHistory": "View history",
+  "profileMenuSettings": "Settings",
   "profileBecomeBusinessTitle": "Become a business\nuser",
   "profileLogoutDialogTitle": "Log out of account?",
   "profileLogoutDialogMessage": "Are you sure you want to log out?",
@@ -214,5 +215,10 @@
   "savedFilterCityTashkent": "Tashkent",
   "savedFilterBusinessOnlyValue": "Business-only ads",
   "savedFilterCurrencyValue": "USD",
-  "savedFilterSortMostRelevant": "Most relevant"
+  "savedFilterSortMostRelevant": "Most relevant",
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark"
 }

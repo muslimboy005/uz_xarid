@@ -84,6 +84,7 @@
   "profileMenuPayment": "To'lov va tariflar",
   "profileMenuSupport": "Qo'llab-quvvatlash",
   "profileMenuViewHistory": "Ko'rish tarixi",
+  "profileMenuSettings": "Sozlamalar",
   "profileBecomeBusinessTitle": "Biznes foydalanuvchi\nbo‘ling",
   "profileLogoutDialogTitle": "Akkauntdan chiqasizmi?",
   "profileLogoutDialogMessage": "Chiqishni tasdiqlaysizmi?",
@@ -214,5 +215,10 @@
   "savedFilterCityTashkent": "Toshkent",
   "savedFilterBusinessOnlyValue": "Faqat biznes e'lonlari",
   "savedFilterCurrencyValue": "AQSh dollari",
-  "savedFilterSortMostRelevant": "Eng muhimlari"
+  "savedFilterSortMostRelevant": "Eng muhimlari",
+  "settingsTitle": "Sozlamalar",
+  "settingsLanguage": "Til",
+  "settingsTheme": "Mavzu",
+  "settingsThemeLight": "Yorug'",
+  "settingsThemeDark": "Qorong'u"
 }

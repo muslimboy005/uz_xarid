@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -68,9 +69,11 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
       },
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
+        final cardColor = context.cardSurface;
+        final textColor = context.textPrimary;
+        final textSecondary = context.textSecondary;
+        final borderColor = context.borderColor;
 
-        // Calculate height: Screen Height - Top Padding - AppBar Height (112)
-        // UzXaridAppBar height is 112.
         return Container(
           height:
               MediaQuery.of(context).size.height -
@@ -84,7 +87,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 AppDimens.paddingMedium,
           ),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: cardColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -96,7 +99,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: AppColors.black400,
+                    color: textSecondary,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -104,16 +107,17 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(width: 24), // Spacer for centering
+                  const SizedBox(width: 24),
                   AppText(
                     text: l10n.loginSheetTitle,
                     fontSize: 16,
                     fontWeight: 700,
-                    color: AppColors.black500,
+                    color: textColor,
                   ),
                   AppImage(
                     path: AppAssets.close,
                     size: 24,
+                    color: textColor,
                     onTap: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -124,7 +128,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 textAlign: TextAlign.center,
                 fontSize: 14,
                 fontWeight: 400,
-                color: AppColors.black300,
+                color: textSecondary,
                 maxLines: 2,
               ),
               const SizedBox(height: 20),
@@ -134,7 +138,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   text: l10n.loginPhoneLabel,
                   fontSize: 14,
                   fontWeight: 700,
-                  color: AppColors.black500,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 8),
@@ -142,13 +146,20 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 controller: _phoneController,
                 keyboardType: TextInputType.number,
                 enabled: !isLoading,
+                style: TextStyle(color: textColor),
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   UzbekPhoneInputFormatter(),
                 ],
                 decoration: InputDecoration(
                   hintText: l10n.loginPhoneHint,
-                  border: const OutlineInputBorder(),
+                  hintStyle: TextStyle(color: textSecondary),
+                  fillColor: context.surfaceContainer,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,
@@ -217,22 +228,18 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 child: Text.rich(
                   TextSpan(
                     text: l10n.loginPolicyPrefix,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: textSecondary),
                     children: [
                       TextSpan(
                         text: l10n.loginPolicyLink,
                         style: TextStyle(
-                          color: Colors.blue.shade700,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
-                        // recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
                       TextSpan(
                         text: l10n.loginPolicySuffix,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
+                        style: TextStyle(fontSize: 12, color: textSecondary),
                       ),
                     ],
                   ),
