@@ -22,94 +22,105 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    final cardColor = context.cardSurface;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: context.bodyBackground,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProfileBreadcrumb(
-              labels: [l10n.navHome, l10n.profileTitle, l10n.notificationsTitle],
-              onTaps: [
-                () => context.go('/home'),
-                () => context.go('/profile'),
-                null,
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: ContainerW(
-                      color: AppColors.white,
-                      radius: 8,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Icon(Icons.arrow_back_ios_new, size: 16),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppText(
-                      text: l10n.notificationsTitle,
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: AppColors.black500,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: ContainerW(
-                      color: AppColors.white,
-                      radius: 8,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.done_all_rounded,
-                          size: 20,
-                          color: AppColors.black300,
-                        ),
-                      ),
-                    ),
-                  ),
+      backgroundColor: AppColors.primary,
+      body: Container(
+        color: context.bodyBackground,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProfileBreadcrumb(
+                labels: [l10n.navHome, l10n.profileTitle, l10n.notificationsTitle],
+                onTaps: [
+                  () => context.go('/home'),
+                  () => context.go('/profile'),
+                  null,
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Padding(
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ContainerW(
-                  color: AppColors.white,
-                  radius: 16,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: _TabBar(
-                          tabs: [l10n.notificationsContractsTab, l10n.notificationsSystemTab],
-                          selectedIndex: _selectedTab,
-                          onTap: (i) => setState(() => _selectedTab = i),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: ContainerW(
+                        color: cardColor,
+                        radius: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            size: 16,
+                            color: textColor,
+                          ),
                         ),
                       ),
-                      Expanded(
-                        child: _EmptyState(
-                          icon: Icons.notifications_rounded,
-                          title: l10n.notificationsEmptyTitle,
-                          subtitle: l10n.notificationsEmptySubtitle,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppText(
+                        text: l10n.notificationsTitle,
+                        fontSize: 20,
+                        fontWeight: 700,
+                        color: textColor,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {},
+                      child: ContainerW(
+                        color: cardColor,
+                        radius: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.done_all_rounded,
+                            size: 20,
+                            color: textSecondary,
+                          ),
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ContainerW(
+                    color: cardColor,
+                    radius: 16,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: _TabBar(
+                            tabs: [l10n.notificationsContractsTab, l10n.notificationsSystemTab],
+                            selectedIndex: _selectedTab,
+                            onTap: (i) => setState(() => _selectedTab = i),
+                          ),
+                        ),
+                        Expanded(
+                          child: _EmptyState(
+                            icon: Icons.notifications_rounded,
+                            title: l10n.notificationsEmptyTitle,
+                            subtitle: l10n.notificationsEmptySubtitle,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -129,9 +140,14 @@ class _TabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceContainer = context.surfaceContainer;
+    final cardSurface = context.cardSurface;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.black50,
+        color: surfaceContainer,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.all(4),
@@ -145,7 +161,7 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.white : Colors.transparent,
+                  color: selected ? cardSurface : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [
@@ -162,7 +178,7 @@ class _TabBar extends StatelessWidget {
                     text: tabs[i],
                     fontSize: 13,
                     fontWeight: selected ? 600 : 400,
-                    color: selected ? AppColors.black500 : AppColors.black300,
+                    color: selected ? textColor : textSecondary,
                   ),
                 ),
               ),
@@ -183,6 +199,9 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -191,7 +210,7 @@ class _EmptyState extends StatelessWidget {
             width: 68,
             height: 68,
             decoration: BoxDecoration(
-              color: AppColors.blue500,
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Icon(icon, color: AppColors.white, size: 34),
@@ -201,7 +220,7 @@ class _EmptyState extends StatelessWidget {
             text: title,
             fontSize: 16,
             fontWeight: 700,
-            color: AppColors.black500,
+            color: textColor,
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 8),
@@ -209,7 +228,7 @@ class _EmptyState extends StatelessWidget {
               text: subtitle!,
               fontSize: 13,
               fontWeight: 400,
-              color: AppColors.black300,
+              color: textSecondary,
               textAlign: TextAlign.center,
             ),
           ],
