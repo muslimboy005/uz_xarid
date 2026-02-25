@@ -42,7 +42,7 @@ class BusinessEntity extends Equatable {
   });
 
   Map<String, dynamic> toMap() {
-    String? _validUrlOrNull(String url) {
+    String? validUrlOrNull(String url) {
       if (url.isEmpty) return null;
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         return 'https://$url';
@@ -59,27 +59,26 @@ class BusinessEntity extends Equatable {
       'address_road': addressRoad,
       'address_home': addressHome,
       'address_orientation': addressOrientation,
-      'address_lat': addressLat ?? 41.2995, // Default Tashkent coordinates
+      'address_lat': addressLat ?? 41.2995,
       'address_long': addressLong ?? 69.2401,
     };
 
-    final inst = _validUrlOrNull(instagram);
+    final inst = validUrlOrNull(instagram);
     if (inst != null) map['instagram'] = inst;
 
-    final fb = _validUrlOrNull(facebook);
+    final fb = validUrlOrNull(facebook);
     if (fb != null) map['facebook'] = fb;
 
-    final tg = _validUrlOrNull(telegram);
+    final tg = validUrlOrNull(telegram);
     if (tg != null) map['telegram'] = tg;
 
-    final yt = _validUrlOrNull(youtube);
+    final yt = validUrlOrNull(youtube);
     if (yt != null) map['youtube'] = yt;
 
-    // Convert contacts to the required nested format
     if (contacts.isNotEmpty) {
       final contactsMap = <Map<String, dynamic>>[];
       for (int i = 0; i < contacts.length; i++) {
-        contactsMap.add({'additionalProp${i + 1}': contacts[i]});
+        contactsMap.add({'phone': contacts[i]});
       }
       map['contacts'] = contactsMap;
     }

@@ -16,7 +16,7 @@ class ProfileBreadcrumb extends StatelessWidget {
     final textSecondary = context.textSecondary;
     final activeColor = AppColors.primary;
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 4),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
       child: Row(
         children: [
           for (int i = 0; i < labels.length; i++) ...[
