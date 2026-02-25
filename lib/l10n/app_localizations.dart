@@ -136,6 +136,18 @@ abstract class AppLocalizations {
   /// **'Products catalog will appear here.'**
   String get catalogBody;
 
+  /// No description provided for @productsNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Products not found'**
+  String get productsNotFoundTitle;
+
+  /// No description provided for @productsNotFoundSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find products according to your query.\nPlease try again.'**
+  String get productsNotFoundSubtitle;
+
   /// No description provided for @allCategories.
   ///
   /// In en, this message translates to:
@@ -201,6 +213,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search...'**
   String get searchHint;
+
+  /// No description provided for @searchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTitle;
+
+  /// No description provided for @searchFindByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Find by category'**
+  String get searchFindByCategory;
+
+  /// No description provided for @searchFrequentlySearched.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently searched'**
+  String get searchFrequentlySearched;
 
   /// No description provided for @homeHeadline.
   ///
@@ -274,6 +304,102 @@ abstract class AppLocalizations {
   /// **'View'**
   String get view;
 
+  /// No description provided for @adAuthorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad author'**
+  String get adAuthorTitle;
+
+  /// No description provided for @adAuthorOtherAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ads by the author'**
+  String get adAuthorOtherAds;
+
+  /// No description provided for @adAuthorOnPlatformSince.
+  ///
+  /// In en, this message translates to:
+  /// **'On the platform since {date}'**
+  String adAuthorOnPlatformSince(String date);
+
+  /// No description provided for @tabFullInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Full info'**
+  String get tabFullInfo;
+
+  /// No description provided for @tabReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get tabReviews;
+
+  /// No description provided for @reviewsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews'**
+  String get reviewsEmptyTitle;
+
+  /// No description provided for @reviewsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews are not yet available'**
+  String get reviewsEmptySubtitle;
+
+  /// No description provided for @reviewsWriteReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a review'**
+  String get reviewsWriteReview;
+
+  /// No description provided for @productDetailErrorDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get productDetailErrorDefault;
+
+  /// No description provided for @productDetailColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color:'**
+  String get productDetailColorLabel;
+
+  /// No description provided for @productDetailSizeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Size:'**
+  String get productDetailSizeLabel;
+
+  /// No description provided for @productDetailCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get productDetailCall;
+
+  /// No description provided for @productDetailTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram'**
+  String get productDetailTelegram;
+
+  /// No description provided for @productDetailPlaceOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order'**
+  String get productDetailPlaceOrder;
+
+  /// No description provided for @productDetailFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get productDetailFeatures;
+
+  /// No description provided for @productDetailSimilarProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar products'**
+  String get productDetailSimilarProducts;
+
   /// No description provided for @giftHeadline.
   ///
   /// In en, this message translates to:
@@ -291,6 +417,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get servicesSeeAll;
+
+  /// No description provided for @productListFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get productListFilters;
+
+  /// No description provided for @sortPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get sortPopular;
+
+  /// No description provided for @sortCheaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheaper'**
+  String get sortCheaper;
+
+  /// No description provided for @sortExpensive.
+  ///
+  /// In en, this message translates to:
+  /// **'More expensive'**
+  String get sortExpensive;
+
+  /// No description provided for @sortHighRating.
+  ///
+  /// In en, this message translates to:
+  /// **'High rating'**
+  String get sortHighRating;
 
   /// No description provided for @servicesEmptyTitle.
   ///

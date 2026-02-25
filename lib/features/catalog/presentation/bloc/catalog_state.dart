@@ -55,5 +55,6 @@ class CatalogState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, categoryType, rootCategories, stack, error, showTypeTiles];
+  List<Object?> get props =>
+      [status, categoryType, rootCategories, stack, error, showTypeTiles];
 }

@@ -10,7 +10,8 @@ CategoryDto _$CategoryDtoFromJson(Map<String, dynamic> json) => CategoryDto(
   id: (json['id'] as num).toInt(),
   name: json['name'] as String,
   image: json['image'] as String?,
-  children: (json['children'] as List<dynamic>?)
+  children:
+      (json['children'] as List<dynamic>?)
           ?.map((e) => CategoryDto.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],

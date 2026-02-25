@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
 
-/// Pinned navigation bar for catalog: "Barcha turkumlar > [truck icon]".
-/// Used below AppBar, inside body as a sliver.
+/// Pinned navigation bar for catalog: path bo‘laklari har biri bosiladigan.
 class CatalogNavBar extends StatelessWidget {
   const CatalogNavBar({
     super.key,
-    required this.title,
+    required this.pathParts,
+    this.onSegmentTap,
     this.onBack,
     this.showBack = false,
+    this.trailingImagePath,
   });
 
-  final String title;
+  final List<String> pathParts;
+  final void Function(int index)? onSegmentTap;
   final VoidCallback? onBack;
   final bool showBack;
+  /// Category (yoki tur) rasmi – bo‘lsa, yuk mashina ikonkasi o‘rnida ko‘rsatiladi.
+  final String? trailingImagePath;
 
   static const double height = 52;
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+        );
     return Container(
       height: height,
       color: AppColors.white,
@@ -41,14 +50,44 @@ class CatalogNavBar extends StatelessWidget {
               ),
             ),
           Expanded(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < pathParts.length; i++) ...[
+                    if (i > 0)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          '>',
+                          style: textStyle?.copyWith(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    InkWell(
+                      onTap: onSegmentTap != null
+                          ? () => onSegmentTap!(i)
+                          : null,
+                      borderRadius: BorderRadius.circular(6),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 6,
+                        ),
+                        child: Text(
+                          pathParts[i],
+                          style: textStyle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
           const Icon(
@@ -57,11 +96,22 @@ class CatalogNavBar extends StatelessWidget {
             size: 20,
           ),
           const SizedBox(width: 8),
-          Icon(
-            Icons.local_shipping_outlined,
-            color: AppColors.textSecondary,
-            size: 22,
-          ),
+          if (trailingImagePath != null && trailingImagePath!.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: AppImage(
+                path: trailingImagePath!,
+                width: 22,
+                height: 22,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            Icon(
+              Icons.local_shipping_outlined,
+              color: AppColors.textSecondary,
+              size: 22,
+            ),
         ],
       ),
     );
@@ -71,14 +121,18 @@ class CatalogNavBar extends StatelessWidget {
 /// [SliverPersistentHeaderDelegate] for [CatalogNavBar] so it stays pinned.
 class CatalogNavBarDelegate extends SliverPersistentHeaderDelegate {
   CatalogNavBarDelegate({
-    required this.title,
+    required this.pathParts,
+    this.onSegmentTap,
     this.onBack,
     this.showBack = false,
+    this.trailingImagePath,
   });
 
-  final String title;
+  final List<String> pathParts;
+  final void Function(int index)? onSegmentTap;
   final VoidCallback? onBack;
   final bool showBack;
+  final String? trailingImagePath;
 
   @override
   Widget build(
@@ -87,9 +141,11 @@ class CatalogNavBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return CatalogNavBar(
-      title: title,
+      pathParts: pathParts,
+      onSegmentTap: onSegmentTap,
       onBack: onBack,
       showBack: showBack,
+      trailingImagePath: trailingImagePath,
     );
   }
 
@@ -101,7 +157,8 @@ class CatalogNavBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant CatalogNavBarDelegate oldDelegate) {
-    return oldDelegate.title != title ||
-        oldDelegate.showBack != showBack;
+    return oldDelegate.pathParts != pathParts ||
+        oldDelegate.showBack != showBack ||
+        oldDelegate.trailingImagePath != trailingImagePath;
   }
 }

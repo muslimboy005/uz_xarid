@@ -28,6 +28,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogBody => 'Products catalog will appear here.';
 
   @override
+  String get productsNotFoundTitle => 'Products not found';
+
+  @override
+  String get productsNotFoundSubtitle =>
+      'We could not find products according to your query.\nPlease try again.';
+
+  @override
   String get allCategories => 'All categories';
 
   @override
@@ -59,6 +66,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchHint => 'Search...';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchFindByCategory => 'Find by category';
+
+  @override
+  String get searchFrequentlySearched => 'Frequently searched';
 
   @override
   String get homeHeadline => 'Find. Buy. Sell.';
@@ -97,6 +113,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get view => 'View';
 
   @override
+  String get adAuthorTitle => 'Ad author';
+
+  @override
+  String get adAuthorOtherAds => 'Other ads by the author';
+
+  @override
+  String adAuthorOnPlatformSince(String date) {
+    return 'On the platform since $date';
+  }
+
+  @override
+  String get tabFullInfo => 'Full info';
+
+  @override
+  String get tabReviews => 'Reviews';
+
+  @override
+  String get reviewsEmptyTitle => 'No reviews';
+
+  @override
+  String get reviewsEmptySubtitle => 'Reviews are not yet available';
+
+  @override
+  String get reviewsWriteReview => 'Write a review';
+
+  @override
+  String get productDetailErrorDefault => 'Error';
+
+  @override
+  String get productDetailColorLabel => 'Color:';
+
+  @override
+  String get productDetailSizeLabel => 'Size:';
+
+  @override
+  String get productDetailCall => 'Call';
+
+  @override
+  String get productDetailTelegram => 'Telegram';
+
+  @override
+  String get productDetailPlaceOrder => 'Place order';
+
+  @override
+  String get productDetailFeatures => 'Features';
+
+  @override
+  String get productDetailSimilarProducts => 'Similar products';
+
+  @override
   String get giftHeadline => 'Perfect gifts for everyone';
 
   @override
@@ -104,6 +170,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get servicesSeeAll => 'All';
+
+  @override
+  String get productListFilters => 'Filters';
+
+  @override
+  String get sortPopular => 'Popular';
+
+  @override
+  String get sortCheaper => 'Cheaper';
+
+  @override
+  String get sortExpensive => 'More expensive';
+
+  @override
+  String get sortHighRating => 'High rating';
 
   @override
   String get servicesEmptyTitle => 'No services found';
