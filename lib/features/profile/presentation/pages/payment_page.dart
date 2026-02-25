@@ -5,7 +5,6 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
@@ -19,8 +18,181 @@ class PaymentPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: context.bodyBackground,
-      body: SafeArea(
+      backgroundColor: AppColors.primary,
+      body: Container(
+        color: AppColors.background,
+        child: SafeArea(
+          child: Column(
+            children: [
+              ProfileBreadcrumb(
+                labels: [l10n.navHome, l10n.profileTitle, l10n.paymentTitle],
+                onTaps: [
+                  () => context.go('/home'),
+                  () => context.go('/profile'),
+                  null,
+                ],
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(AppDimens.paddingMedium),
+                  children: [
+                    Row(
+                      children: [
+                        ContainerW(
+                          onTap: () => context.pop(),
+                          radius: 10,
+                          color: AppColors.white,
+                          border: Border.all(color: AppColors.black100),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: AppImage(path: AppAssets.backDropleft),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        AppText(
+                          text: 'Оплата и тарифы',
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: AppColors.black500,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    ContainerW(
+                      color: AppColors.white,
+                      radius: 12,
+                      border: Border.all(color: AppColors.black100),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            _buildTariffCard(
+                              title: 'Базовый аккаунт',
+                              price: '0.00',
+                              unit: "so'm, Oylik",
+                              isCurrentPlan: true,
+                              features: [
+                                _FeatureItem(
+                                  'Размещение до 5 объявлений',
+                                  true,
+                                ),
+                                _FeatureItem('Просмотр статистики', true),
+                                _FeatureItem(
+                                  'Добавление ссылок на соцсети',
+                                  true,
+                                ),
+                                _FeatureItem('Базовая поддержка', true),
+                                _FeatureItem('Без автопродления', false),
+                                _FeatureItem(
+                                  'Без рекламы и продвижения',
+                                  false,
+                                ),
+                                _FeatureItem('Без приоритета в поиске', false),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _buildTariffCard(
+                              title: 'Бизнес-аккаунт',
+                              price: '300 000',
+                              unit: "so'm, Oylik",
+                              isCurrentPlan:
+                                  true, // As per second card in design
+                              features: [
+                                _FeatureItem('Всё из базового плана', true),
+                                _FeatureItem(
+                                  'Без ограничений по объявлениям',
+                                  true,
+                                ),
+                                _FeatureItem('Автопродление объявлений', true),
+                                _FeatureItem('Реклама и продвижение', true),
+                                _FeatureItem(
+                                  'Приоритетное размещение в поиске',
+                                  true,
+                                ),
+                                _FeatureItem('Поддержка 24/7', true),
+                                _FeatureItem('Персональный менеджер', true),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+                    ContainerW(
+                      color: AppColors.white,
+                      radius: 12,
+                      border: Border.all(color: AppColors.black100),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                AppText(
+                                  text: 'История',
+                                  fontSize: 20,
+                                  fontWeight: 700,
+                                  color: AppColors.black500,
+                                ),
+                                ContainerW(
+                                  color: AppColors.black50,
+                                  radius: 8,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.insert_drive_file,
+                                          color: AppColors.black400,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        AppText(
+                                          text: 'Export file',
+                                          fontSize: 14,
+                                          fontWeight: 500,
+                                          color: AppColors.black500,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _buildHistoryTable(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTariffCard({
+    required String title,
+    required String price,
+    required String unit,
+    required bool isCurrentPlan,
+    required List<_FeatureItem> features,
+  }) {
+    return ContainerW(
+      color: AppColors.white,
+      radius: 16,
+      border: Border.all(color: AppColors.black100),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
