@@ -15,27 +15,30 @@ class MyAdsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: context.bodyBackground,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProfileBreadcrumb(
-              labels: [l10n.navHome, l10n.profileTitle, l10n.profileMenuMyAds],
-              onTaps: [
-                () => context.go('/home'),
-                () => context.go('/profile'),
-                null,
-              ],
-            ),
-            Expanded(
-              child: Center(
-                child: Text(
-                  l10n.comingSoonSection(l10n.profileMenuMyAds),
+      backgroundColor: AppColors.primary,
+      body: Container(
+        color: context.bodyBackground,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProfileBreadcrumb(
+                labels: [l10n.navHome, l10n.profileTitle, l10n.profileMenuMyAds],
+                onTaps: [
+                  () => context.go('/home'),
+                  () => context.go('/profile'),
+                  null,
+                ],
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    l10n.comingSoonSection(l10n.profileMenuMyAds),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
