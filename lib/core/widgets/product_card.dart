@@ -84,10 +84,7 @@ class ProductCard extends StatelessWidget {
                 SizedBox(
                   height: 136,
                   width: double.infinity,
-                  child: AppImage(
-                    path: mainImage ?? '',
-                    fit: BoxFit.cover,
-                  ),
+                  child: AppImage(path: mainImage ?? '', fit: BoxFit.cover),
                 ),
                 Positioned(
                   right: 12,
@@ -112,24 +109,21 @@ class ProductCard extends StatelessWidget {
                   final contentHeight = constraints.maxHeight;
                   final spacing = contentHeight < 80 ? 4.0 : 8.0;
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.star,
-                              color: AppColors.orange,
-                              size: 16,
-                            ),
+                            Icon(Icons.star, color: AppColors.orange, size: 16),
                             const SizedBox(width: 4),
                             Text(
                               rating.toStringAsFixed(1),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: context.textPrimary),
                             ),
                             const SizedBox(width: 8),
@@ -141,9 +135,7 @@ class ProductCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               '$reviewCount ${l10n.reviewsLabel}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: context.textSecondary),
                             ),
                           ],
@@ -154,7 +146,8 @@ class ProductCard extends StatelessWidget {
                             title,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w700,
                                   height: 1.25,
                                   color: context.textPrimary,
@@ -167,7 +160,8 @@ class ProductCard extends StatelessWidget {
                             '$oldPrice $_displayCurrency',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
                                   color: context.textSecondary,
                                   decoration: TextDecoration.lineThrough,
                                 ),
@@ -179,7 +173,8 @@ class ProductCard extends StatelessWidget {
                               : '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.orange,
                               ),

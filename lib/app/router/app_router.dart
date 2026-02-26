@@ -11,6 +11,8 @@ import 'package:uz_xarid/features/home/presentation/pages/home_page.dart';
 import 'package:uz_xarid/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.dart';
 import 'package:uz_xarid/features/product_list/presentation/pages/product_list_page.dart';
+import 'package:uz_xarid/features/profile/data/model/address_model.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/address/address_event.dart';
 import 'package:uz_xarid/features/search/presentation/pages/search_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:uz_xarid/features/product_detail/presentation/pages/product_detail_page.dart';
@@ -27,7 +29,10 @@ import 'package:uz_xarid/features/profile/presentation/pages/profile_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/support_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/view_history_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/add_address_page.dart';
+import 'package:uz_xarid/features/profile/presentation/pages/add_address_map_page.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -231,12 +236,38 @@ class AppRouter {
               GoRoute(
                 path: 'my-addresses',
                 name: 'profile-my-addresses',
-                builder: (context, state) => const MyAddressesPage(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) =>
+                      getIt<AddressBloc>()..add(LoadAddressesEvent()),
+                  child: const MyAddressesPage(),
+                ),
               ),
               GoRoute(
                 path: 'add-address',
                 name: 'profile-add-address',
-                builder: (context, state) => const AddAddressPage(),
+                builder: (context, state) => const AddAddressMapPage(),
+              ),
+              GoRoute(
+                path: 'add-address-form',
+                name: 'profile-add-address-form',
+                builder: (context, state) {
+                  final extra = state.extra;
+                  LatLng? coordinates;
+                  AddressModel? addressModel;
+                  if (extra is LatLng) {
+                    coordinates = extra;
+                  } else if (extra is AddressModel) {
+                    addressModel = extra;
+                  }
+
+                  return BlocProvider(
+                    create: (_) => getIt<AddressBloc>(),
+                    child: AddAddressPage(
+                      coordinates: coordinates,
+                      address: addressModel,
+                    ),
+                  );
+                },
               ),
               GoRoute(
                 path: 'payment',

@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>YMKMapKitApiKey</key>
+    <string>f1446954-e2bd-4242-882e-288e9b66e35c</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Joylashuvingizni ko'rsatish uchun ruxsat berilsin</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

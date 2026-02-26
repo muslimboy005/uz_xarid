@@ -20,17 +20,14 @@ class ProductListRepositoryImpl implements ProductListRepository {
       final dtos = categoryId != null
           ? await _remoteDatasource.getByCategory(categoryId: categoryId)
           : listSource == 'services'
-              ? await _remoteDatasource.getServices(pageSize: pageSize)
-              : listSource == 'gifts'
-                  ? await _remoteDatasource.getGifts(pageSize: pageSize)
-                  : await _remoteDatasource.getRecommendations(
-                      pageSize: pageSize,
-                    );
+          ? await _remoteDatasource.getServices(pageSize: pageSize)
+          : listSource == 'gifts'
+          ? await _remoteDatasource.getGifts(pageSize: pageSize)
+          : await _remoteDatasource.getRecommendations(pageSize: pageSize);
       final list = dtos.map((dto) => dto.toEntity()).toList();
       return Right(list);
     } on DioException catch (e) {
-      final message =
-          e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
+      final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
       return Left(ServerFailure(message: message));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

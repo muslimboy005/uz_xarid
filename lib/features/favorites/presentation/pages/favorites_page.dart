@@ -29,10 +29,7 @@ class FavoritesPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppDimens.paddingMedium),
           child: Center(
-            child: Text(
-              l10n.favoritesBody,
-              style: TextStyle(color: textColor),
-            ),
+            child: Text(l10n.favoritesBody, style: TextStyle(color: textColor)),
           ),
         ),
       ),

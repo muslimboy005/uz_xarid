@@ -5,10 +5,7 @@ import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// Mahsulotlar topilmasa ko‘rsatiladigan blok: ko‘k kvadrat + kub ikonkasi, sarlavha va izoh.
 class ProductsNotFoundPlaceholder extends StatelessWidget {
-  const ProductsNotFoundPlaceholder({
-    super.key,
-    required this.l10n,
-  });
+  const ProductsNotFoundPlaceholder({super.key, required this.l10n});
 
   final AppLocalizations l10n;
 
@@ -37,18 +34,18 @@ class ProductsNotFoundPlaceholder extends StatelessWidget {
             Text(
               l10n.productsNotFoundTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: context.textPrimary,
-                  ),
+                fontWeight: FontWeight.w700,
+                color: context.textPrimary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               l10n.productsNotFoundSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: context.textSecondary,
-                    height: 1.4,
-                  ),
+                color: context.textSecondary,
+                height: 1.4,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

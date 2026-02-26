@@ -18,4 +18,3 @@ class AppDimens {
   static const double fontLarge = 18;
   static const double fontXL = 22;
 }
-

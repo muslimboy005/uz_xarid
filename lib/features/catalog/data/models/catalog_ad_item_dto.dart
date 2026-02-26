@@ -36,10 +36,7 @@ class CatalogAdItemDto {
 
 /// Paginated javob: /ad/?ad_type=...&category=...&listing_type=...
 class CatalogAdListResponseDto {
-  const CatalogAdListResponseDto({
-    required this.status,
-    required this.data,
-  });
+  const CatalogAdListResponseDto({required this.status, required this.data});
 
   final bool status;
   final CatalogAdListDataDto data;

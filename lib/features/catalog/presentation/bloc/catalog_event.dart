@@ -14,6 +14,7 @@ class CatalogLoadRequested extends CatalogEvent {
   });
 
   final String categoryType;
+
   /// Agar berilsa, yuklanganidan keyin shu id li turkum ochiladi (stack ga qo‘yiladi).
   final int? openCategoryId;
 
@@ -43,4 +44,3 @@ class CatalogPathSegmentTapped extends CatalogEvent {
   @override
   List<Object?> get props => [segmentIndex];
 }
-

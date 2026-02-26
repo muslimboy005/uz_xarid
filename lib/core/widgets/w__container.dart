@@ -67,7 +67,6 @@ import 'app_text.dart';
 //   }
 // }
 
-
 class ContainerW extends StatelessWidget {
   const ContainerW({
     this.textColor,
@@ -127,25 +126,25 @@ class ContainerW extends StatelessWidget {
         decoration: BoxDecoration(
           color: color, // Tema rangini ishlatish
           borderRadius: borderRadius ?? BorderRadius.circular(radius!),
-          border: border ?? Border.all(color: borderColor ?? Colors.transparent),
+          border:
+              border ?? Border.all(color: borderColor ?? Colors.transparent),
           boxShadow: boxShadow, // Tema soyasini ishlatish
           gradient: gradient,
         ),
-        child: child ?? Center(
-          child: AppText(
-            text: text!,
-            fontSize: 15,
-            fontWeight: 500,
-            color: textColor, // Tema matn rangi
-          ),
-        ),
+        child:
+            child ??
+            Center(
+              child: AppText(
+                text: text!,
+                fontSize: 15,
+                fontWeight: 500,
+                color: textColor, // Tema matn rangi
+              ),
+            ),
       ),
     );
   }
 }
-
-
-
 
 ///old version no theme
 // class ContainerW extends StatelessWidget {

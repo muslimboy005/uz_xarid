@@ -203,9 +203,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                       style: Theme.of(context).textTheme.bodyMedium,
                       children: [
                         TextSpan(
-                          text: l10n.otpSentToNumber(
-                            formatPhone(widget.phone),
-                          ),
+                          text: l10n.otpSentToNumber(formatPhone(widget.phone)),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -279,9 +277,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                       : () {
                           if (_otpController.text.length != 6) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.otpInputError),
-                              ),
+                              SnackBar(content: Text(l10n.otpInputError)),
                             );
                             return;
                           }
@@ -341,9 +337,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                             child: Text(
                               resendEnabled
                                   ? l10n.otpResend
-                                  : l10n.otpResendCountdown(
-                                      seconds.toString(),
-                                    ),
+                                  : l10n.otpResendCountdown(seconds.toString()),
                               style: TextStyle(
                                 color: (isLoading || !resendEnabled)
                                     ? textSecondary

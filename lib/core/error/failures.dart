@@ -11,4 +11,3 @@ class ServerFailure extends Failure {
 class CacheFailure extends Failure {
   const CacheFailure({super.message});
 }
-

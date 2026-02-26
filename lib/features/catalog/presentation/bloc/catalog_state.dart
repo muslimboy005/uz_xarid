@@ -15,9 +15,11 @@ class CatalogState extends Equatable {
   final CatalogStatus status;
   final String categoryType;
   final List<CategoryEntity> rootCategories;
+
   /// Stack of selected categories for drill-down (breadcrumb path).
   final List<CategoryEntity> stack;
   final String? error;
+
   /// When true, show only 4 type tiles (Tovar va savdo, etc.). When false, show subcategories for selected type.
   final bool showTypeTiles;
 
@@ -55,6 +57,12 @@ class CatalogState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [status, categoryType, rootCategories, stack, error, showTypeTiles];
+  List<Object?> get props => [
+    status,
+    categoryType,
+    rootCategories,
+    stack,
+    error,
+    showTypeTiles,
+  ];
 }

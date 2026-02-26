@@ -6,7 +6,6 @@ class AppColors {
   static const Color primary = Color(0xFF0077FF);
   static const Color secondary = Color(0xFFFFC107);
 
-
   static const Color surface = Colors.white;
 
   static const Color textPrimary = Color(0xFF1A1A1A);
@@ -49,4 +48,3 @@ class AppColors {
   //static const Color textSecondary = Color(0xFF757575);
   //static const Color textSecondary = Color(0xFF757575);
 }
-

@@ -4,11 +4,7 @@ import 'package:uz_xarid/core/widgets/shimmer_box.dart';
 
 /// Banner uchun shimmer (balandlik bilan).
 class ShimmerBanner extends StatelessWidget {
-  const ShimmerBanner({
-    super.key,
-    this.height = 240,
-    this.borderRadius = 20,
-  });
+  const ShimmerBanner({super.key, this.height = 240, this.borderRadius = 20});
 
   final double height;
   final double borderRadius;
@@ -116,10 +112,7 @@ class ShimmerProductCardSmall extends StatelessWidget {
 
 /// Griddagi mahsulot karti (2 ustun layout).
 class ShimmerGridProductCard extends StatelessWidget {
-  const ShimmerGridProductCard({
-    super.key,
-    this.borderRadius = 16,
-  });
+  const ShimmerGridProductCard({super.key, this.borderRadius = 16});
 
   final double borderRadius;
 
@@ -139,10 +132,7 @@ class ShimmerGridProductCard extends StatelessWidget {
 
 /// Services / grid 2 ustun uchun bitta cell.
 class ShimmerServiceCard extends StatelessWidget {
-  const ShimmerServiceCard({
-    super.key,
-    this.borderRadius = 16,
-  });
+  const ShimmerServiceCard({super.key, this.borderRadius = 16});
 
   final double borderRadius;
 
@@ -162,11 +152,7 @@ class ShimmerServiceCard extends StatelessWidget {
 
 /// Catalog list tile (bir qator).
 class ShimmerListTile extends StatelessWidget {
-  const ShimmerListTile({
-    super.key,
-    this.height = 56,
-    this.borderRadius = 12,
-  });
+  const ShimmerListTile({super.key, this.height = 56, this.borderRadius = 12});
 
   final double height;
   final double borderRadius;
@@ -188,30 +174,21 @@ class ShimmerListTile extends StatelessWidget {
 
 /// Product detail: rasim bloki.
 class ShimmerDetailImage extends StatelessWidget {
-  const ShimmerDetailImage({
-    super.key,
-    this.height = 300,
-  });
+  const ShimmerDetailImage({super.key, this.height = 300});
 
   final double height;
 
   @override
   Widget build(BuildContext context) {
     return ShimmerBox(
-      child: Container(
-        height: height,
-        color: AppColors.white,
-      ),
+      child: Container(height: height, color: AppColors.white),
     );
   }
 }
 
 /// Product detail: sarlavha / matn bloki.
 class ShimmerDetailBlock extends StatelessWidget {
-  const ShimmerDetailBlock({
-    super.key,
-    this.height = 80,
-  });
+  const ShimmerDetailBlock({super.key, this.height = 80});
 
   final double height;
 

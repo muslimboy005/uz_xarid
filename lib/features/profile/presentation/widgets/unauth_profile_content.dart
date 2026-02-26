@@ -43,15 +43,9 @@ class UnauthProfileContent extends StatelessWidget {
           text: l10n.profileBenefitOfferServices,
         ),
         const SizedBox(height: 12),
-        _BenefitRow(
-          icon: AppAssets.call,
-          text: l10n.profileBenefitUseServices,
-        ),
+        _BenefitRow(icon: AppAssets.call, text: l10n.profileBenefitUseServices),
         const SizedBox(height: 12),
-        _BenefitRow(
-          icon: AppAssets.fire,
-          text: l10n.profileBenefitExclusive,
-        ),
+        _BenefitRow(icon: AppAssets.fire, text: l10n.profileBenefitExclusive),
         const SizedBox(height: 12),
         _BenefitRow(
           icon: AppAssets.chat,

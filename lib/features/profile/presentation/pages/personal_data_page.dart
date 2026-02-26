@@ -388,11 +388,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                         ? (exception, stackTrace) {}
                         : null,
                     child: imageProvider == null
-                        ? Icon(
-                            Icons.person,
-                            color: AppColors.primary,
-                            size: 36,
-                          )
+                        ? Icon(Icons.person, color: AppColors.primary, size: 36)
                         : null,
                   ),
                   Positioned(
@@ -404,7 +400,10 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: context.cardSurface, width: 2),
+                        border: Border.all(
+                          color: context.cardSurface,
+                          width: 2,
+                        ),
                       ),
                       child: const Icon(
                         Icons.edit,
@@ -498,10 +497,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 color: textSecondary,
               ),
               isExpanded: true,
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: textSecondary,
-              ),
+              icon: Icon(Icons.keyboard_arrow_down, color: textSecondary),
               items: disabled
                   ? null
                   : genderLabels.entries

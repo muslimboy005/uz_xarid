@@ -33,6 +33,10 @@ dependencies:
   dotted_border: ^3.1.0
   talker_dio_logger: ^5.1.14
   shared_preferences: ^2.3.3
+  latlong2: ^0.9.1
+  url_launcher: ^6.3.2
+  yandex_mapkit: ^4.2.1
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

@@ -17,22 +17,52 @@ String? _formatAuthorDate(String? raw, String localeCode) {
   final date = DateTime.tryParse(raw);
   if (date == null) return raw;
   const uzMonths = [
-    'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn',
-    'Iyl', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek',
+    'Yan',
+    'Fev',
+    'Mar',
+    'Apr',
+    'May',
+    'Iyn',
+    'Iyl',
+    'Avg',
+    'Sen',
+    'Okt',
+    'Noy',
+    'Dek',
   ];
   const ruMonths = [
-    'янв', 'фев', 'мар', 'апр', 'май', 'июн',
-    'июл', 'авг', 'сен', 'окт', 'ноя', 'дек',
+    'янв',
+    'фев',
+    'мар',
+    'апр',
+    'май',
+    'июн',
+    'июл',
+    'авг',
+    'сен',
+    'окт',
+    'ноя',
+    'дек',
   ];
   const enMonths = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   final months = localeCode == 'uz'
       ? uzMonths
       : localeCode == 'ru'
-          ? ruMonths
-          : enMonths;
+      ? ruMonths
+      : enMonths;
   final month = months[date.month - 1];
   return '${date.day} $month ${date.year}';
 }
@@ -235,11 +265,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         height: 300,
         color: cardColor,
         child: Center(
-          child: Icon(
-            Icons.image_not_supported,
-            size: 64,
-            color: mutedColor,
-          ),
+          child: Icon(Icons.image_not_supported, size: 64, color: mutedColor),
         ),
       );
     }
@@ -260,11 +286,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 errorWidget: (_, __, ___) => Center(
-                  child: Icon(
-                    Icons.broken_image,
-                    size: 48,
-                    color: mutedColor,
-                  ),
+                  child: Icon(Icons.broken_image, size: 48, color: mutedColor),
                 ),
               ),
             ),
@@ -362,7 +384,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               const SizedBox(width: 3),
               Text(
                 '${ad.reviewCount ?? 0} ${AppLocalizations.of(context)!.reviewsLabel}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textSecondary),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: textSecondary),
               ),
               const Spacer(),
               if (ad.viewsCount != null) ...[
@@ -370,7 +394,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 const SizedBox(width: 3),
                 Text(
                   '${ad.viewsCount}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textSecondary),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: textSecondary),
                 ),
               ],
             ],
@@ -388,7 +414,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             const SizedBox(height: 4),
             Text(
               ad.categoryName!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textSecondary),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: textSecondary),
             ),
           ],
         ],
@@ -493,7 +521,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                           borderRadius: BorderRadius.circular(10),
                           border: available
                               ? Border.all(
-                                  color: selected ? AppColors.primary : borderColor,
+                                  color: selected
+                                      ? AppColors.primary
+                                      : borderColor,
                                   width: 1.5,
                                 )
                               : null,
@@ -501,18 +531,19 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         alignment: Alignment.center,
                         child: Text(
                           s.name,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: !available
-                                ? textSecondary
-                                : selected
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: !available
+                                    ? textSecondary
+                                    : selected
                                     ? AppColors.white
                                     : textColor,
-                            decoration: available
-                                ? null
-                                : TextDecoration.lineThrough,
-                            decorationColor: textSecondary,
-                          ),
+                                decoration: available
+                                    ? null
+                                    : TextDecoration.lineThrough,
+                                decorationColor: textSecondary,
+                              ),
                         ),
                       ),
                     ),
@@ -587,7 +618,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.send, size: 18),
-                  label: Text(AppLocalizations.of(context)!.productDetailTelegram),
+                  label: Text(
+                    AppLocalizations.of(context)!.productDetailTelegram,
+                  ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: const BorderSide(color: AppColors.primary),
@@ -692,7 +725,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                           color: textColor,
                         ),
                       ),
-                      if (ad.userDateJoined != null && ad.userDateJoined!.isNotEmpty) ...[
+                      if (ad.userDateJoined != null &&
+                          ad.userDateJoined!.isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Row(
                           children: [
@@ -705,14 +739,19 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                             Expanded(
                               child: Builder(
                                 builder: (context) {
-                                  final localeCode = Localizations.localeOf(context).languageCode;
-                                  final formatted = _formatAuthorDate(ad.userDateJoined, localeCode);
-                                  if (formatted == null) return const SizedBox.shrink();
+                                  final localeCode = Localizations.localeOf(
+                                    context,
+                                  ).languageCode;
+                                  final formatted = _formatAuthorDate(
+                                    ad.userDateJoined,
+                                    localeCode,
+                                  );
+                                  if (formatted == null)
+                                    return const SizedBox.shrink();
                                   return Text(
                                     l10n.adAuthorOnPlatformSince(formatted),
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: textSecondary,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: textSecondary),
                                   );
                                 },
                               ),
@@ -742,9 +781,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
                 child: Text(
                   l10n.adAuthorOtherAds,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -802,10 +841,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           if (ad.description != null && ad.description!.trim().isNotEmpty) ...[
             Text(
               ad.description!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: textColor,
-                height: 1.5,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: textColor, height: 1.5),
             ),
           ],
           if (ad.options.isNotEmpty) ...[
@@ -833,9 +871,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       flex: 2,
                       child: Text(
                         o.name,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: textSecondary,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: textSecondary),
                       ),
                     ),
                     Expanded(
@@ -901,9 +939,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             const SizedBox(height: 8),
             Text(
               l10n.reviewsEmptySubtitle,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: textSecondary,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -924,9 +962,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
                 child: Text(
                   l10n.reviewsWriteReview,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -995,11 +1033,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 }
 
 class _CircleArrow extends StatelessWidget {
-  const _CircleArrow({
-    required this.icon,
-    required this.context,
-    this.onTap,
-  });
+  const _CircleArrow({required this.icon, required this.context, this.onTap});
 
   final IconData icon;
   final BuildContext context;
@@ -1111,10 +1145,11 @@ class _SimilarCard extends StatelessWidget {
                           const SizedBox(width: 3),
                           Text(
                             item.rating!.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
                           ),
                           if (item.reviewCount != null) ...[
                             const SizedBox(width: 4),

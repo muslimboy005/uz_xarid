@@ -3,6 +3,7 @@ import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failure.dart';
 import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
+import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
@@ -25,6 +26,19 @@ abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> deleteBusiness(String id);
   Future<Either<Failure, ProfileModel>> updateBusinessImage(String id);
   Future<Either<Failure, ProfileModel>> getBusinessById(String id);
+
+  Future<Either<Failure, AddressResponseModel>> getAddresses(
+    int page,
+    int pageSize,
+  );
+  Future<Either<Failure, AddressModel>> createAddress(
+    Map<String, dynamic> data,
+  );
+  Future<Either<Failure, AddressModel>> updateAddress(
+    int id,
+    Map<String, dynamic> data,
+  );
+  Future<Either<Failure, void>> deleteAddress(int id);
 
   factory ProfileRepository(ProfileApi profileDataSource, Dio dio) =>
       ProfileRepositoryImpl(profileDataSource: profileDataSource, dio: dio);

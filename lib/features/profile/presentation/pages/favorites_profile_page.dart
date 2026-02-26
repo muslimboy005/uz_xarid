@@ -19,35 +19,33 @@ class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
   int _selectedTab = 0;
 
   List<_FilterItem> _savedFilters(AppLocalizations l10n) => [
-        _FilterItem(
-          title: 'iPhone 14 Pro 256GB',
-          date: l10n.savedFilterDateSample,
-          fields: {
-            l10n.savedFilterCategoryLabel: l10n.savedFilterCategoryHomeGarden,
-            l10n.savedFilterRegionLabel: l10n.savedFilterRegionTashkent,
-            l10n.savedFilterCityLabel: l10n.savedFilterCityTashkent,
-            l10n.savedFilterBusinessOnlyLabel:
-                l10n.savedFilterBusinessOnlyValue,
-            l10n.savedFilterCurrencyLabel: l10n.savedFilterCurrencyValue,
-            l10n.savedFilterSortByLabel: l10n.savedFilterSortMostRelevant,
-          },
-          statusText: l10n.savedFilterStatusEmpty,
-        ),
-        _FilterItem(
-          title: 'iPhone 14 Pro 256GB',
-          date: l10n.savedFilterDateSample,
-          fields: {
-            l10n.savedFilterCategoryLabel: l10n.savedFilterCategoryHomeGarden,
-            l10n.savedFilterRegionLabel: l10n.savedFilterRegionTashkent,
-            l10n.savedFilterCityLabel: l10n.savedFilterCityTashkent,
-            l10n.savedFilterBusinessOnlyLabel:
-                l10n.savedFilterBusinessOnlyValue,
-            l10n.savedFilterCurrencyLabel: l10n.savedFilterCurrencyValue,
-            l10n.savedFilterSortByLabel: l10n.savedFilterSortMostRelevant,
-          },
-          statusText: l10n.savedFilterStatusEmpty,
-        ),
-      ];
+    _FilterItem(
+      title: 'iPhone 14 Pro 256GB',
+      date: l10n.savedFilterDateSample,
+      fields: {
+        l10n.savedFilterCategoryLabel: l10n.savedFilterCategoryHomeGarden,
+        l10n.savedFilterRegionLabel: l10n.savedFilterRegionTashkent,
+        l10n.savedFilterCityLabel: l10n.savedFilterCityTashkent,
+        l10n.savedFilterBusinessOnlyLabel: l10n.savedFilterBusinessOnlyValue,
+        l10n.savedFilterCurrencyLabel: l10n.savedFilterCurrencyValue,
+        l10n.savedFilterSortByLabel: l10n.savedFilterSortMostRelevant,
+      },
+      statusText: l10n.savedFilterStatusEmpty,
+    ),
+    _FilterItem(
+      title: 'iPhone 14 Pro 256GB',
+      date: l10n.savedFilterDateSample,
+      fields: {
+        l10n.savedFilterCategoryLabel: l10n.savedFilterCategoryHomeGarden,
+        l10n.savedFilterRegionLabel: l10n.savedFilterRegionTashkent,
+        l10n.savedFilterCityLabel: l10n.savedFilterCityTashkent,
+        l10n.savedFilterBusinessOnlyLabel: l10n.savedFilterBusinessOnlyValue,
+        l10n.savedFilterCurrencyLabel: l10n.savedFilterCurrencyValue,
+        l10n.savedFilterSortByLabel: l10n.savedFilterSortMostRelevant,
+      },
+      statusText: l10n.savedFilterStatusEmpty,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +60,11 @@ class _FavoritesProfilePageState extends State<FavoritesProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProfileBreadcrumb(
-              labels: [l10n.navHome, l10n.profileTitle, l10n.favoritesProfileTitle],
+              labels: [
+                l10n.navHome,
+                l10n.profileTitle,
+                l10n.favoritesProfileTitle,
+              ],
               onTaps: [
                 () => context.go('/home'),
                 () => context.go('/profile'),

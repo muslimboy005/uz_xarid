@@ -17,12 +17,8 @@ class UzXaridApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => LocaleCubit()..load(),
-        ),
-        BlocProvider(
-          create: (_) => ThemeCubit()..load(),
-        ),
+        BlocProvider(create: (_) => LocaleCubit()..load()),
+        BlocProvider(create: (_) => ThemeCubit()..load()),
       ],
       child: const _AppView(),
     );

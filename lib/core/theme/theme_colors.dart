@@ -9,8 +9,7 @@ extension ThemeColors on BuildContext {
   Color get bodyBackground =>
       isDark ? AppColors.darkBackground : AppColors.background;
 
-  Color get surfaceContainer =>
-      isDark ? AppColors.darkCard : AppColors.black50;
+  Color get surfaceContainer => isDark ? AppColors.darkCard : AppColors.black50;
 
   Color get cardSurface => isDark ? AppColors.darkCard : AppColors.white;
 

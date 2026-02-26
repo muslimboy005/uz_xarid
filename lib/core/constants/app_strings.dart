@@ -7,4 +7,3 @@ class AppStrings {
   static const String homeTitle = 'Uz Xarid';
   static const String homeSubtitle = 'Mahsulotlarni qulay va tez toping';
 }
-

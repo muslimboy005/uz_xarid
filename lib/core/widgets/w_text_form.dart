@@ -256,8 +256,8 @@ class _WTextFieldState extends State<WTextField> {
     final borderColor = widget.hasError
         ? AppColors.red
         : isFocused
-            ? (widget.borderColor ?? focusBorderColor)
-            : widget.borderNoFocusColor ?? context.borderColor;
+        ? (widget.borderColor ?? focusBorderColor)
+        : widget.borderNoFocusColor ?? context.borderColor;
 
     final effectiveFillColor = widget.fillColor ?? context.surfaceContainer;
 
@@ -286,7 +286,8 @@ class _WTextFieldState extends State<WTextField> {
           maxLength: widget.maxLength,
           cursorColor: widget.cursorColor ?? focusBorderColor,
           textAlign: widget.textAlign,
-          style: widget.textStyle ??
+          style:
+              widget.textStyle ??
               TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -311,7 +312,8 @@ class _WTextFieldState extends State<WTextField> {
 
             hintText: widget.hintText,
 
-            hintStyle: widget.hintStyle ??
+            hintStyle:
+                widget.hintStyle ??
                 TextStyle(
                   color: hintColor,
                   fontSize: 14,

@@ -53,8 +53,18 @@ Future<void> registerUseCases(GetIt getIt) async {
     ..registerLazySingleton<ProfileUpdateBusinessUsecase>(
       () => ProfileUpdateBusinessUsecase(getIt<ProfileRepository>()),
     )
-    ..registerLazySingleton<GetCategoriesParams>(
-      () => GetCategoriesParams(),
+    ..registerLazySingleton<GetCategoriesParams>(() => GetCategoriesParams())
+    ..registerLazySingleton<ProfileGetAddressesUsecase>(
+      () => ProfileGetAddressesUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<ProfileCreateAddressUsecase>(
+      () => ProfileCreateAddressUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<ProfileUpdateAddressUsecase>(
+      () => ProfileUpdateAddressUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<ProfileDeleteAddressUsecase>(
+      () => ProfileDeleteAddressUsecase(getIt<ProfileRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }

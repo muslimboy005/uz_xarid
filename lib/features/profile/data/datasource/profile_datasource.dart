@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 import 'package:uz_xarid/core/constants/api_urls.dart';
+import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 part 'profile_datasource.g.dart';
 
@@ -50,4 +51,22 @@ abstract class ProfileApi {
 
   @GET(ApiUrls.businessId)
   Future<ProfileModel> getBusinessById(@Path('id') String id);
+
+  @GET(ApiUrls.address)
+  Future<AddressResponseModel> getAddresses(
+    @Query('page') int page,
+    @Query('page_size') int pageSize,
+  );
+
+  @POST(ApiUrls.address)
+  Future<AddressModel> createAddress(@Body() Map<String, dynamic> body);
+
+  @PATCH('${ApiUrls.address}{id}/')
+  Future<AddressModel> updateAddress(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @DELETE('${ApiUrls.address}{id}/')
+  Future<void> deleteAddress(@Path('id') int id);
 }

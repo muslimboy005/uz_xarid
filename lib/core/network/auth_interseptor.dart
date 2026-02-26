@@ -91,6 +91,7 @@ class AuthInterceptor extends Interceptor {
       final refreshToken = await secureStorageService.getRefreshToken();
 
       if (refreshToken == null || refreshToken.isEmpty) {
+        _isRefreshing = false;
         await secureStorageService.clearAll();
         _rejectAll(err);
         return handler.next(err);
@@ -104,6 +105,7 @@ class AuthInterceptor extends Interceptor {
       final newAccess = response.data['access'] as String?;
 
       if (newAccess == null || newAccess.isEmpty) {
+        _isRefreshing = false;
         await secureStorageService.clearAll();
         _rejectAll(err);
         return handler.next(err);

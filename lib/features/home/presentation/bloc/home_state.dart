@@ -18,6 +18,7 @@ class HomeState extends Equatable {
   final int selectedIndex;
   final HomeStatus status;
   final List<HomeCategory> categories;
+
   /// Turkum id → uning bolalari (product list subcategory strip uchun).
   final Map<int, List<HomeCategory>> categoryIdToChildren;
   final List<HomeBanner> banners;

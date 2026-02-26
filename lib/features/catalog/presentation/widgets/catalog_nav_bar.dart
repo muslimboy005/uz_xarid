@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -19,6 +18,7 @@ class CatalogNavBar extends StatelessWidget {
   final void Function(int index)? onSegmentTap;
   final VoidCallback? onBack;
   final bool showBack;
+
   /// Category (yoki tur) rasmi – bo‘lsa, yuk mashina ikonkasi o‘rnida ko‘rsatiladi.
   final String? trailingImagePath;
 
@@ -29,9 +29,9 @@ class CatalogNavBar extends StatelessWidget {
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
     final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: textColor,
-        );
+      fontWeight: FontWeight.w700,
+      color: textColor,
+    );
     return Container(
       height: height,
       color: context.cardSurface,
@@ -46,10 +46,7 @@ class CatalogNavBar extends StatelessWidget {
                 onPressed: onBack,
                 color: textColor,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                  minWidth: 32,
-                  minHeight: 32,
-                ),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
             ),
           Expanded(
@@ -93,11 +90,7 @@ class CatalogNavBar extends StatelessWidget {
               ),
             ),
           ),
-          Icon(
-            Icons.chevron_right,
-            color: textSecondary,
-            size: 20,
-          ),
+          Icon(Icons.chevron_right, color: textSecondary, size: 20),
           const SizedBox(width: 8),
           if (trailingImagePath != null && trailingImagePath!.isNotEmpty)
             ClipRRect(
@@ -110,11 +103,7 @@ class CatalogNavBar extends StatelessWidget {
               ),
             )
           else
-            Icon(
-              Icons.local_shipping_outlined,
-              color: textSecondary,
-              size: 22,
-            ),
+            Icon(Icons.local_shipping_outlined, color: textSecondary, size: 22),
         ],
       ),
     );

@@ -36,9 +36,7 @@ class GlobalImageWidget extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-        ),
+        decoration: BoxDecoration(borderRadius: borderRadius),
         child: ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
           child: _buildImage(),
@@ -77,7 +75,7 @@ class GlobalImageWidget extends StatelessWidget {
           // color: color,
           placeholder: (context, url) => placeholder ?? _defaultPlaceholder(),
           errorWidget: (context, url, error) =>
-          errorWidget ?? _defaultErrorWidget(),
+              errorWidget ?? _defaultErrorWidget(),
         );
 
       default:
@@ -88,7 +86,7 @@ class GlobalImageWidget extends StatelessWidget {
           fit: fit,
           color: color,
           errorBuilder: (context, error, stackTrace) =>
-          errorWidget ?? _defaultErrorWidget(),
+              errorWidget ?? _defaultErrorWidget(),
         );
     }
   }
@@ -126,9 +124,7 @@ class GlobalImageWidget extends StatelessWidget {
       width: width,
       height: height,
       color: Colors.grey[300],
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -137,48 +133,45 @@ class GlobalImageWidget extends StatelessWidget {
       width: width,
       height: height,
       color: Colors.grey[300],
-      child: const Icon(
-        Icons.error,
-        color: Colors.red,
-      ),
+      child: const Icon(Icons.error, color: Colors.red),
     );
   }
 }
 
-  class AppImage extends StatelessWidget {
-    const AppImage({
-      super.key,
-      required this.path,
-      this.size,
-      this.width,
-      this.height,
-      this.color, // Agar berilmasa, tema ikonka rangini oladi
-      this.onTap,
-      this.fit = BoxFit.cover,
-      this.borderRadius,
-    });
+class AppImage extends StatelessWidget {
+  const AppImage({
+    super.key,
+    required this.path,
+    this.size,
+    this.width,
+    this.height,
+    this.color, // Agar berilmasa, tema ikonka rangini oladi
+    this.onTap,
+    this.fit = BoxFit.cover,
+    this.borderRadius,
+  });
 
-    final String path;
-    final double? size;
-    final double? width, height;
-    final Color? color;
-    final VoidCallback? onTap;
-    final BoxFit fit;
-    final BorderRadius? borderRadius;
+  final String path;
+  final double? size;
+  final double? width, height;
+  final Color? color;
+  final VoidCallback? onTap;
+  final BoxFit fit;
+  final BorderRadius? borderRadius;
 
-    @override
-    Widget build(BuildContext context) {
-      // Agar color berilmasa, tema ikonka rangini olish
-      // final imageColor = color ?? Theme.of(context).iconTheme.color;
+  @override
+  Widget build(BuildContext context) {
+    // Agar color berilmasa, tema ikonka rangini olish
+    // final imageColor = color ?? Theme.of(context).iconTheme.color;
 
-      return GlobalImageWidget(
-        imagePath: path,
-        width: width ?? size,
-        height: height ?? size,
-        color: color, // //Tema ikonka rangi
-        callback: onTap,
-        fit: fit,
-        borderRadius: borderRadius,
-      );
-    }
+    return GlobalImageWidget(
+      imagePath: path,
+      width: width ?? size,
+      height: height ?? size,
+      color: color, // //Tema ikonka rangi
+      callback: onTap,
+      fit: fit,
+      borderRadius: borderRadius,
+    );
   }
+}

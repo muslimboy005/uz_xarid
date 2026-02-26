@@ -10,7 +10,7 @@ part 'catalog_state.dart';
 
 class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   CatalogBloc(this._getCategories, GetCategoriesParams getCategoriesParams)
-      : super(const CatalogState()) {
+    : super(const CatalogState()) {
     on<CatalogLoadRequested>(_onLoadRequested);
     on<CatalogCategorySelected>(_onCategorySelected);
     on<CatalogBackPressed>(_onBackPressed);
@@ -23,13 +23,15 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
     CatalogLoadRequested event,
     Emitter<CatalogState> emit,
   ) async {
-    emit(state.copyWith(
-      status: CatalogStatus.loading,
-      categoryType: event.categoryType,
-      error: null,
-      stack: [],
-      showTypeTiles: false,
-    ));
+    emit(
+      state.copyWith(
+        status: CatalogStatus.loading,
+        categoryType: event.categoryType,
+        error: null,
+        stack: [],
+        showTypeTiles: false,
+      ),
+    );
 
     final result = await _getCategories(
       GetCategoriesParams(categoryType: event.categoryType),
@@ -41,16 +43,20 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
       if (event.openCategoryId != null) {
         stack = _findPathToCategory(roots, event.openCategoryId!);
       }
-      emit(state.copyWith(
-        status: CatalogStatus.success,
-        rootCategories: roots,
-        stack: stack ?? [],
-      ));
+      emit(
+        state.copyWith(
+          status: CatalogStatus.success,
+          rootCategories: roots,
+          stack: stack ?? [],
+        ),
+      );
     } else if (result is Left<Failure, List<CategoryEntity>>) {
-      emit(state.copyWith(
-        status: CatalogStatus.failure,
-        error: result.left.message ?? 'Xatolik',
-      ));
+      emit(
+        state.copyWith(
+          status: CatalogStatus.failure,
+          error: result.left.message ?? 'Xatolik',
+        ),
+      );
     }
   }
 

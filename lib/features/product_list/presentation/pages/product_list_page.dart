@@ -63,7 +63,9 @@ class _ProductListPageState extends State<ProductListPage> {
   Future<void> _loadSubcategoriesIfNeeded() async {
     if (widget.subcategories.isNotEmpty ||
         widget.categoryId == null ||
-        widget.categoryId! <= 0) return;
+        widget.categoryId! <= 0) {
+      return;
+    }
     final result = await getIt<GetSubcategoriesByCategoryId>()(
       GetSubcategoriesByCategoryIdParams(
         categoryId: widget.categoryId!,
@@ -77,7 +79,9 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   List<SubcategoryItem> get _effectiveSubcategories =>
-      widget.subcategories.isNotEmpty ? widget.subcategories : _loadedSubcategories;
+      widget.subcategories.isNotEmpty
+      ? widget.subcategories
+      : _loadedSubcategories;
 
   Future<void> _load() async {
     setState(() {
@@ -278,7 +282,8 @@ class _ProductListPageState extends State<ProductListPage> {
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final sub = list[index];
-          final query = 'categoryId=${sub.id}&title=${Uri.encodeComponent(sub.name)}&categoryType=${Uri.encodeComponent(widget.categoryType)}';
+          final query =
+              'categoryId=${sub.id}&title=${Uri.encodeComponent(sub.name)}&categoryType=${Uri.encodeComponent(widget.categoryType)}';
           return _SubcategoryCard(
             item: sub,
             onTap: () => context.push('/products?$query'),

@@ -189,11 +189,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                           if (digits.length != 12 ||
                               !digits.startsWith('998')) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  l10n.loginPhoneError,
-                                ),
-                              ),
+                              SnackBar(content: Text(l10n.loginPhoneError)),
                             );
                             return;
                           }
@@ -212,15 +208,15 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                               Colors.white,
                             ),
                           ),
-                    )
-                    : Text(
-                        l10n.loginGetCode,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        )
+                      : Text(
+                          l10n.loginGetCode,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-              ),
+                ),
               ),
               SizedBox(height: 20),
               Padding(

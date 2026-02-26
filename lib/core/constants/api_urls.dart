@@ -22,4 +22,6 @@ class ApiUrls {
   static const String ad = 'ad/';
   static const String color = 'color/';
   static const String size = 'size/';
+
+  static const String address = 'address/';
 }
