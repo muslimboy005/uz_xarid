@@ -6,7 +6,6 @@ import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -31,14 +30,6 @@ class PaymentPage extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              ProfileBreadcrumb(
-                labels: [l10n.navHome, l10n.profileTitle, l10n.paymentTitle],
-                onTaps: [
-                  () => context.go('/home'),
-                  () => context.go('/profile'),
-                  null,
-                ],
-              ),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(AppDimens.paddingMedium),

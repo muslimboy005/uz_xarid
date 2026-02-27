@@ -10,7 +10,6 @@ import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/core/widgets/w_text_form.dart';
@@ -184,14 +183,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
               color: bodyBg,
               child: Column(
                 children: [
-                  ProfileBreadcrumb(
-                    labels: const ['Главная', 'Профиль', 'Личные данные'],
-                    onTaps: [
-                      () => context.go('/home'),
-                      () => context.go('/profile'),
-                      null,
-                    ],
-                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(16),

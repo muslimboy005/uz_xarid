@@ -5,7 +5,7 @@ class AuthInterceptor extends Interceptor {
   final SecureStorageService secureStorageService;
 
   static const _publicEndpoints = ['auth/send-code', 'auth/confirm'];
-  static const _refreshEndpoint = 'auth/token/refresh/';
+  static const _refreshEndpoint = 'internal/auth/token/refresh/';
 
   bool _isRefreshing = false;
   final _pendingRequests =

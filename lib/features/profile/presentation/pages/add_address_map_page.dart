@@ -7,9 +7,11 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 
 class AddAddressMapPage extends StatefulWidget {
-  const AddAddressMapPage({super.key});
+  final AddressModel? address;
+  const AddAddressMapPage({super.key, this.address});
 
   @override
   State<AddAddressMapPage> createState() => _AddAddressMapPageState();
@@ -17,15 +19,21 @@ class AddAddressMapPage extends StatefulWidget {
 
 class _AddAddressMapPageState extends State<AddAddressMapPage> {
   late YandexMapController _mapController;
-  final ValueNotifier<Point> _centerPosition = ValueNotifier<Point>(
-    const Point(latitude: 41.311081, longitude: 69.240562),
-  );
+  late final ValueNotifier<Point> _centerPosition;
 
   final ValueNotifier<bool> _isMapReady = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
+    _centerPosition = ValueNotifier<Point>(
+      widget.address != null
+          ? Point(
+              latitude: widget.address!.latitude,
+              longitude: widget.address!.longitude,
+            )
+          : const Point(latitude: 41.311081, longitude: 69.240562),
+    );
     // Delay initialization to prevent page transition jank
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -287,14 +295,39 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                 ],
               ),
               child: ContainerW(
-                onTap: () {
-                  context.push(
-                    '/profile/add-address-form',
-                    extra: lt.LatLng(
-                      _centerPosition.value.latitude,
-                      _centerPosition.value.longitude,
-                    ),
+                onTap: () async {
+                  final latLng = lt.LatLng(
+                    _centerPosition.value.latitude,
+                    _centerPosition.value.longitude,
                   );
+                  if (widget.address != null) {
+                    final updatedAddress = AddressModel(
+                      id: widget.address!.id,
+                      name: widget.address!.name,
+                      address: widget.address!.address,
+                      apartment: widget.address!.apartment,
+                      entrance: widget.address!.entrance,
+                      floor: widget.address!.floor,
+                      comment: widget.address!.comment,
+                      longitude: _centerPosition.value.longitude,
+                      latitude: _centerPosition.value.latitude,
+                    );
+                    final result = await context.pushNamed(
+                      'profile-add-address-form',
+                      extra: updatedAddress,
+                    );
+                    if (result == true && context.mounted) {
+                      context.pop(true);
+                    }
+                  } else {
+                    final result = await context.pushNamed(
+                      'profile-add-address-form',
+                      extra: latLng,
+                    );
+                    if (result == true && context.mounted) {
+                      context.pop(true);
+                    }
+                  }
                 },
                 color: AppColors.primary,
                 width: double.infinity,

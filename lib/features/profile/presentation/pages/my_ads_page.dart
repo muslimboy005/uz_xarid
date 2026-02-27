@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
@@ -22,18 +21,6 @@ class MyAdsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileBreadcrumb(
-                labels: [
-                  l10n.navHome,
-                  l10n.profileTitle,
-                  l10n.profileMenuMyAds,
-                ],
-                onTaps: [
-                  () => context.go('/home'),
-                  () => context.go('/profile'),
-                  null,
-                ],
-              ),
               Expanded(
                 child: Center(
                   child: Text(l10n.comingSoonSection(l10n.profileMenuMyAds)),

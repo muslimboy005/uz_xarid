@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -29,14 +28,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProfileBreadcrumb(
-              labels: [l10n.navHome, l10n.profileTitle, l10n.myOrdersTitle],
-              onTaps: [
-                () => context.go('/home'),
-                () => context.go('/profile'),
-                null,
-              ],
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
