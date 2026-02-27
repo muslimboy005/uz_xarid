@@ -9,7 +9,6 @@ import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -44,18 +43,6 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileBreadcrumb(
-                labels: [
-                  l10n.navHome,
-                  l10n.profileTitle,
-                  l10n.myAddressesTitle,
-                ],
-                onTaps: [
-                  () => context.go('/home'),
-                  () => context.go('/profile'),
-                  null,
-                ],
-              ),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -131,7 +118,16 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                         children: [
                           ContainerW(
                             width: double.infinity,
-                            onTap: () => context.push('/profile/add-address'),
+                            onTap: () async {
+                              final result = await context.push(
+                                '/profile/add-address',
+                              );
+                              if (result == true && context.mounted) {
+                                context.read<AddressBloc>().add(
+                                  LoadAddressesEvent(),
+                                );
+                              }
+                            },
                             color: AppColors.primary,
                             radius: 8,
                             child: Padding(
@@ -299,11 +295,20 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                               child: ContainerW(
                                                 color: AppColors.primary,
                                                 radius: 8,
-                                                onTap: () {
-                                                  context.pushNamed(
-                                                    'profile-add-address-form',
-                                                    extra: address,
-                                                  );
+                                                onTap: () async {
+                                                  final result = await context
+                                                      .pushNamed(
+                                                        'profile-add-address',
+                                                        extra: address,
+                                                      );
+                                                  if (result == true &&
+                                                      context.mounted) {
+                                                    context
+                                                        .read<AddressBloc>()
+                                                        .add(
+                                                          LoadAddressesEvent(),
+                                                        );
+                                                  }
                                                 },
                                                 child: Padding(
                                                   padding:
@@ -398,7 +403,12 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
           ),
           const SizedBox(height: 24),
           ContainerW(
-            onTap: () => context.push('/profile/add-address'),
+            onTap: () async {
+              final result = await context.push('/profile/add-address');
+              if (result == true && context.mounted) {
+                context.read<AddressBloc>().add(LoadAddressesEvent());
+              }
+            },
             color: AppColors.primary,
             radius: 8,
             child: Padding(

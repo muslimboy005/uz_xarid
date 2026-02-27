@@ -360,7 +360,12 @@ class AppRouter {
               GoRoute(
                 path: 'add-address',
                 name: 'profile-add-address',
-                builder: (context, state) => const AddAddressMapPage(),
+                builder: (context, state) {
+                  final extra = state.extra;
+                  return AddAddressMapPage(
+                    address: extra is AddressModel ? extra : null,
+                  );
+                },
               ),
               GoRoute(
                 path: 'add-address-form',

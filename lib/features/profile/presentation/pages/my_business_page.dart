@@ -7,7 +7,6 @@ import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/profile_breadcrumb.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/core/widgets/w_text_form.dart';
@@ -105,14 +104,6 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
             child: SafeArea(
               child: Column(
                 children: [
-                  ProfileBreadcrumb(
-                    labels: const ['Главная', 'Профиль', 'Мой бизнес'],
-                    onTaps: [
-                      () => context.go('/home'),
-                      () => context.go('/profile'),
-                      null,
-                    ],
-                  ),
                   SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
