@@ -623,4 +623,34 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get settingsThemeDark => 'Qorong\'u';
+
+  @override
+  String get orderTitle => 'Buyurtma';
+
+  @override
+  String get orderSendToAllAds => 'Barcha bunday e\'lionlarga so\'rov yuborish';
+
+  @override
+  String get orderDelivery => 'Yetkazib berish';
+
+  @override
+  String get orderAddressNotSelected => 'Manzil tanlanmagan';
+
+  @override
+  String get orderSelectDeliveryAddress => 'Yetkazib berish manzilini tanlang';
+
+  @override
+  String get orderSelectAddress => 'Manzilni tanlash';
+
+  @override
+  String get orderComment => 'Izoh';
+
+  @override
+  String get orderCommentHint => 'Izohingizni kiriting.';
+
+  @override
+  String get orderSubmit => 'Yuborish';
+
+  @override
+  String get orderQuantityDona => 'dona';
 }

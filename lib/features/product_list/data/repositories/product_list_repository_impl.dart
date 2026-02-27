@@ -12,20 +12,28 @@ class ProductListRepositoryImpl implements ProductListRepository {
 
   @override
   Future<Either<Failure, List<ProductListItemEntity>>> getProducts({
+    String? searchQuery,
     int? categoryId,
     String listSource = 'recommendations',
     int pageSize = 100,
+    String adType = 'Sell',
   }) async {
     try {
-      final dtos = categoryId != null
-          ? await _remoteDatasource.getByCategory(categoryId: categoryId)
-          : listSource == 'services'
-              ? await _remoteDatasource.getServices(pageSize: pageSize)
-              : listSource == 'gifts'
-                  ? await _remoteDatasource.getGifts(pageSize: pageSize)
-                  : await _remoteDatasource.getRecommendations(
-                      pageSize: pageSize,
-                    );
+      final dtos = searchQuery != null && searchQuery.trim().isNotEmpty
+          ? await _remoteDatasource.getSearchResults(
+              query: searchQuery.trim(),
+              pageSize: pageSize,
+            )
+          : categoryId != null
+              ? await _remoteDatasource.getByCategory(categoryId: categoryId)
+              : listSource == 'services'
+                  ? await _remoteDatasource.getServices(pageSize: pageSize)
+                  : listSource == 'gifts'
+                      ? await _remoteDatasource.getGifts(pageSize: pageSize)
+                      : await _remoteDatasource.getRecommendations(
+                          pageSize: pageSize,
+                          adType: adType,
+                        );
       final list = dtos.map((dto) => dto.toEntity()).toList();
       return Right(list);
     } on DioException catch (e) {

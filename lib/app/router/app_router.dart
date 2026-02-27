@@ -13,6 +13,9 @@ import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.
 import 'package:uz_xarid/features/product_list/presentation/pages/product_list_page.dart';
 import 'package:uz_xarid/features/search/presentation/pages/search_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/pages/favorites_page.dart';
+import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uz_xarid/features/product_detail/presentation/pages/order_page.dart';
 import 'package:uz_xarid/features/product_detail/presentation/pages/product_detail_page.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/favorites_profile_page.dart';
@@ -28,6 +31,7 @@ import 'package:uz_xarid/features/profile/presentation/pages/support_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/view_history_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/add_address_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart';
+import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -49,8 +53,25 @@ class AppRouter {
         name: 'product-detail',
         builder: (context, state) {
           final slug = state.pathParameters['slug'] ?? '';
-          return ProductDetailPage(slug: slug);
+          final favoritesBloc = context.read<FavoritesBloc>();
+          return BlocProvider<FavoritesBloc>.value(
+            value: favoritesBloc,
+            child: ProductDetailPage(slug: slug),
+          );
         },
+        routes: [
+          GoRoute(
+            path: 'order',
+            name: 'order',
+            builder: (context, state) {
+              final ad = state.extra as AdDetailEntity?;
+              if (ad == null) {
+                return const SizedBox.shrink();
+              }
+              return OrderPage(ad: ad);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/search',
@@ -61,13 +82,15 @@ class AppRouter {
         path: '/products',
         name: 'products',
         builder: (context, state) {
-          final title = state.uri.queryParameters['title'] ?? '';
-          final idStr = state.uri.queryParameters['categoryId'];
+          final queryParams = state.uri.queryParameters;
+          final searchQuery = queryParams['search'];
+          final title = searchQuery != null && searchQuery.isNotEmpty
+              ? 'Qidiruv: ${Uri.decodeComponent(searchQuery)}'
+              : (queryParams['title'] ?? '');
+          final idStr = queryParams['categoryId'];
           final categoryId = int.tryParse(idStr ?? '');
-          final listSource =
-              state.uri.queryParameters['source'] ?? 'recommendations';
-          final categoryType =
-              state.uri.queryParameters['categoryType'] ?? 'Product';
+          final listSource = queryParams['source'] ?? 'recommendations';
+          final categoryType = queryParams['categoryType'] ?? 'Product';
           List<SubcategoryItem> subcategories = const [];
           final extra = state.extra;
           if (extra is List && extra.isNotEmpty) {
@@ -88,9 +111,10 @@ class AppRouter {
             } catch (_) {}
           }
           return ProductListPage(
-            title: title.isNotEmpty
-                ? Uri.decodeComponent(title)
-                : 'Mahsulotlar',
+            title: title.isNotEmpty ? title : 'Mahsulotlar',
+            searchQuery: searchQuery != null && searchQuery.isNotEmpty
+                ? Uri.decodeComponent(searchQuery)
+                : null,
             categoryId: (categoryId != null && categoryId > 0)
                 ? categoryId
                 : null,
@@ -106,31 +130,116 @@ class AppRouter {
           final String location = state.uri.path;
           final int currentIndex = _getIndexFromLocation(location);
           final l10n = AppLocalizations.of(context)!;
+          final theme = Theme.of(context);
+          final isDark = theme.brightness == Brightness.dark;
+          final barColor = isDark ? AppColors.darkSurface : AppColors.surface;
+          final selectedColor = AppColors.primary;
+          final unselectedColor = isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.textSecondary;
+
+          final bool isAddListing = location.startsWith('/add-listing');
+          final Widget body = isAddListing
+              ? BlocProvider(
+                  create: (_) {
+                    final bloc = getIt<ProfileBloc>();
+                    getIt<SecureStorageService>().hasToken().then((hasToken) {
+                      if (hasToken) bloc.add(const ProfileLoadEvent());
+                    });
+                    return bloc;
+                  },
+                  child: child,
+                )
+              : child;
 
           return Scaffold(
-            body: child,
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: currentIndex,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: AppColors.primary,
-              unselectedItemColor: AppColors.textSecondary,
-              onTap: (index) => _onItemTapped(context, index),
-              items: [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.home_outlined),
-                  label: l10n.navHome,
+            body: body,
+            bottomNavigationBar: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.bottomCenter,
+              children: [
+                Container(
+                  height: 62,
+                  decoration: BoxDecoration(
+                    color: barColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _NavItem(
+                          icon: Icons.home_outlined,
+                          label: l10n.navHome,
+                          isSelected: currentIndex == 0,
+                          selectedColor: selectedColor,
+                          unselectedColor: unselectedColor,
+                          onTap: () => _onItemTapped(context, 0),
+                        ),
+                      ),
+                      Expanded(
+                        child: _NavItem(
+                          icon: Icons.menu,
+                          label: l10n.navCatalog,
+                          isSelected: currentIndex == 1,
+                          selectedColor: selectedColor,
+                          unselectedColor: unselectedColor,
+                          onTap: () => _onItemTapped(context, 1),
+                        ),
+                      ),
+                      const Expanded(child: SizedBox.shrink()),
+                      Expanded(
+                        child: _NavItem(
+                          icon: Icons.favorite_border,
+                          label: l10n.navFavorites,
+                          isSelected: currentIndex == 2,
+                          selectedColor: selectedColor,
+                          unselectedColor: unselectedColor,
+                          onTap: () => _onItemTapped(context, 2),
+                        ),
+                      ),
+                      Expanded(
+                        child: _NavItem(
+                          icon: Icons.person_outline,
+                          label: l10n.navProfile,
+                          isSelected: currentIndex == 3,
+                          selectedColor: selectedColor,
+                          unselectedColor: unselectedColor,
+                          onTap: () => _onItemTapped(context, 3),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.menu),
-                  label: l10n.navCatalog,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.favorite_border),
-                  label: l10n.navFavorites,
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person_outline),
-                  label: l10n.navProfile,
+                Positioned(
+                  bottom: 31,
+                  child: Material(
+                    elevation: 6,
+                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      onTap: () => context.go('/add-listing'),
+                      customBorder: const CircleBorder(),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -163,6 +272,12 @@ class AppRouter {
             name: 'favorites',
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: FavoritesPage()),
+          ),
+          GoRoute(
+            path: '/add-listing',
+            name: 'add-listing',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: AddListingPage()),
           ),
           GoRoute(
             path: '/profile',
@@ -274,6 +389,9 @@ class AppRouter {
   );
 
   static int _getIndexFromLocation(String location) {
+    if (location.startsWith('/add-listing')) {
+      return -1;
+    }
     if (location.startsWith('/catalog')) {
       return 1;
     }
@@ -301,5 +419,62 @@ class AppRouter {
         context.go('/profile');
         break;
     }
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.selectedColor,
+    required this.unselectedColor,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final Color selectedColor;
+  final Color unselectedColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isSelected ? selectedColor : unselectedColor;
+    return InkWell(
+      onTap: onTap,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 24, color: color),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: color,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

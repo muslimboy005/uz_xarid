@@ -220,5 +220,15 @@
   "settingsLanguage": "Til",
   "settingsTheme": "Mavzu",
   "settingsThemeLight": "Yorug'",
-  "settingsThemeDark": "Qorong'u"
+  "settingsThemeDark": "Qorong'u",
+  "orderTitle": "Buyurtma",
+  "orderSendToAllAds": "Barcha bunday e'lionlarga so'rov yuborish",
+  "orderDelivery": "Yetkazib berish",
+  "orderAddressNotSelected": "Manzil tanlanmagan",
+  "orderSelectDeliveryAddress": "Yetkazib berish manzilini tanlang",
+  "orderSelectAddress": "Manzilni tanlash",
+  "orderComment": "Izoh",
+  "orderCommentHint": "Izohingizni kiriting.",
+  "orderSubmit": "Yuborish",
+  "orderQuantityDona": "dona"
 }

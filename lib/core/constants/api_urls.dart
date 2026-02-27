@@ -20,6 +20,11 @@ class ApiUrls {
   static const String services = 'ad/services/';
 
   static const String ad = 'ad/';
+  static const String adsSearch = 'ads/search/';
   static const String color = 'color/';
   static const String size = 'size/';
+
+  /// Backend path: user-like (favorites)
+  static const String favoritesToggle = 'user-like/toggle/';
+  static const String favoritesList = 'user-like/';
 }
