@@ -20,6 +20,8 @@ class ProductCard extends StatelessWidget {
     this.reviewCount = 0,
     this.width,
     this.height,
+    this.isLiked = false,
+    this.onLikeTap,
   });
 
   final String slug;
@@ -32,6 +34,8 @@ class ProductCard extends StatelessWidget {
   final int reviewCount;
   final double? width;
   final double? height;
+  final bool isLiked;
+  final VoidCallback? onLikeTap;
 
   static String _formatPrice(String? value) {
     if (value == null || value.isEmpty) return '';
@@ -82,79 +86,119 @@ class ProductCard extends StatelessWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: 136,
+                  height: 110,
                   width: double.infinity,
-                  child: AppImage(path: mainImage ?? '', fit: BoxFit.cover),
-                ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.white,
-                    size: 22,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 6,
-                      ),
-                    ],
+                  child: AppImage(
+                    path: mainImage ?? '',
+                    fit: BoxFit.cover,
                   ),
                 ),
+                if (onLikeTap != null)
+                  Positioned(
+                    right: 12,
+                    top: 12,
+                    child: GestureDetector(
+                      onTap: () {
+                        onLikeTap!();
+                      },
+                      child: Icon(
+                        isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: isLiked ? AppColors.red : Colors.white,
+                        size: 22,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  Positioned(
+                    right: 12,
+                    top: 12,
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Colors.white,
+                      size: 22,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final contentHeight = constraints.maxHeight;
-                  final spacing = contentHeight < 80 ? 4.0 : 8.0;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
                         Row(
                           children: [
-                            Icon(Icons.star, color: AppColors.orange, size: 16),
-                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.star,
+                              color: AppColors.orange,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 2),
                             Text(
                               rating.toStringAsFixed(1),
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: context.textPrimary),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                        color: context.textPrimary,
+                                        fontSize: 11,
+                                      ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             Icon(
                               Icons.chat_bubble_outline,
-                              size: 14,
+                              size: 12,
                               color: context.textSecondary,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 2),
                             Text(
                               '$reviewCount ${l10n.reviewsLabel}',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: context.textSecondary),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                        color: context.textSecondary,
+                                        fontSize: 11,
+                                      ),
                             ),
                           ],
                         ),
-                        SizedBox(height: spacing),
-                        Expanded(
-                          child: Text(
-                            title,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.25,
-                                  color: context.textPrimary,
+                        const SizedBox(height: 4),
+                        Flexible(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return SizedBox(
+                                width: constraints.maxWidth,
+                                child: Text(
+                                  title,
+                                  maxLines: 4,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.22,
+                                        fontSize: 13,
+                                        color: context.textPrimary,
+                                      ),
                                 ),
+                              );
+                            },
                           ),
                         ),
-                        SizedBox(height: spacing),
+                        const SizedBox(height: 4),
                         if (oldPrice.isNotEmpty)
                           Text(
                             '$oldPrice $_displayCurrency',
@@ -179,17 +223,15 @@ class ProductCard extends StatelessWidget {
                                 color: AppColors.orange,
                               ),
                         ),
-                      ],
-                    ),
-                  );
-                },
+                  ],
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: SizedBox(
                 width: double.infinity,
-                height: 42,
+                height: 40,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue600,

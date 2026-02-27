@@ -3,9 +3,15 @@ import 'package:uz_xarid/features/catalog/data/models/catalog_ad_item_dto.dart';
 import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
 import 'package:uz_xarid/features/home/data/models/recommendation_dto.dart';
 import 'package:uz_xarid/features/product_list/data/models/product_list_item_dto.dart';
+import 'package:uz_xarid/features/search/data/datasources/search_api.dart';
 
-/// Mahsulotlar ro'yxati: tavsiyalar, xizmatlar yoki turkum bo'yicha ad API.
+/// Mahsulotlar ro'yxati: tavsiyalar, xizmatlar, qidiruv yoki turkum bo'yicha ad API.
 abstract class ProductListRemoteDatasource {
+  Future<List<ProductListItemDto>> getSearchResults({
+    required String query,
+    int pageSize = 200,
+  });
+
   Future<List<ProductListItemDto>> getRecommendations({
     int pageSize = 100,
     String adType = 'Sell',
@@ -26,10 +32,21 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   ProductListRemoteDatasourceImpl({
     required this.homeApi,
     required this.catalogApi,
+    required this.searchApi,
   });
 
   final HomeApi homeApi;
   final CatalogApi catalogApi;
+  final SearchApi searchApi;
+
+  @override
+  Future<List<ProductListItemDto>> getSearchResults({
+    required String query,
+    int pageSize = 200,
+  }) async {
+    final response = await searchApi.search(query: query, pageSize: pageSize);
+    return response.data.results.map(_fromCatalogAdItemDto).toList();
+  }
 
   @override
   Future<List<ProductListItemDto>> getRecommendations({

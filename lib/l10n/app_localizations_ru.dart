@@ -620,4 +620,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsThemeDark => 'Тёмная';
+
+  @override
+  String get orderTitle => 'Заказ';
+
+  @override
+  String get orderSendToAllAds => 'Отправить запрос по всем таким объявлениям';
+
+  @override
+  String get orderDelivery => 'Доставка';
+
+  @override
+  String get orderAddressNotSelected => 'Адрес не выбран';
+
+  @override
+  String get orderSelectDeliveryAddress => 'Выберите адрес доставки';
+
+  @override
+  String get orderSelectAddress => 'Выбрать адрес';
+
+  @override
+  String get orderComment => 'Комментарий';
+
+  @override
+  String get orderCommentHint => 'Введите ваш комментарий.';
+
+  @override
+  String get orderSubmit => 'Отправить';
+
+  @override
+  String get orderQuantityDona => 'шт';
 }

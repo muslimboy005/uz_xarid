@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/dio/dio_client.dart';
+import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/products_not_found_placeholder.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
@@ -93,8 +93,7 @@ class HomePage extends StatelessWidget {
 
     return BlocProvider(
       create: (_) {
-        final dioClient = DioClient();
-        final repo = HomeRepositoryImpl(homeApi: HomeApi(dioClient.dio));
+        final repo = HomeRepositoryImpl(homeApi: getIt<HomeApi>());
         final useCase = GetHome(repo);
         return HomeBloc(useCase)..add(const HomeRequested());
       },

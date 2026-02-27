@@ -1293,6 +1293,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get settingsThemeDark;
+
+  /// No description provided for @orderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get orderTitle;
+
+  /// No description provided for @orderSendToAllAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request to all such ads'**
+  String get orderSendToAllAds;
+
+  /// No description provided for @orderDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get orderDelivery;
+
+  /// No description provided for @orderAddressNotSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Address not selected'**
+  String get orderAddressNotSelected;
+
+  /// No description provided for @orderSelectDeliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Select delivery address'**
+  String get orderSelectDeliveryAddress;
+
+  /// No description provided for @orderSelectAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Select address'**
+  String get orderSelectAddress;
+
+  /// No description provided for @orderComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get orderComment;
+
+  /// No description provided for @orderCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your note.'**
+  String get orderCommentHint;
+
+  /// No description provided for @orderSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get orderSubmit;
+
+  /// No description provided for @orderQuantityDona.
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get orderQuantityDona;
 }
 
 class _AppLocalizationsDelegate

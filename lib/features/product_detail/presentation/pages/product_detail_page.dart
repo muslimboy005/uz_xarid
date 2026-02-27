@@ -9,6 +9,8 @@ import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
+import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// API dan kelgan sanani "26 Dek 2025" formatida qaytaradi (tilga qarab).
@@ -83,31 +85,76 @@ class ProductDetailPage extends StatelessWidget {
         bloc.add(ProductDetailLoadRequested(slug));
         return bloc;
       },
-      child: Scaffold(
-        backgroundColor: bgColor,
-        appBar: AppBar(
-          backgroundColor: cardColor,
-          surfaceTintColor: cardColor,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-            onPressed: () => context.pop(),
-            color: iconColor,
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.favorite_border),
-              color: iconColor,
-              onPressed: () {},
+      child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
+        buildWhen: (prev, curr) => prev.ad != curr.ad,
+        builder: (context, detailState) {
+          final ad = detailState.ad;
+          return Scaffold(
+            backgroundColor: bgColor,
+            appBar: AppBar(
+              backgroundColor: cardColor,
+              surfaceTintColor: cardColor,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                onPressed: () => context.pop(),
+                color: iconColor,
+              ),
+              actions: [
+                BlocBuilder<FavoritesBloc, FavoritesState>(
+                  buildWhen: (prev, curr) =>
+                      ad != null &&
+                      prev.isLiked(ad.slug) != curr.isLiked(ad.slug),
+                  builder: (context, likeState) {
+                    final isLiked = ad != null &&
+                        (likeState.isLiked(ad.slug) || ad.isLikes == true);
+                    return IconButton(
+                      icon: Icon(
+                        isLiked ? Icons.favorite : Icons.favorite_border,
+                      ),
+                      color: isLiked ? AppColors.red : iconColor,
+                      onPressed: ad == null
+                          ? null
+                          : () {
+                              context.read<FavoritesBloc>().add(
+                                    FavoritesToggleRequested(
+                                      adSlug: ad.slug,
+                                      adForLocal: FavoriteItemEntity(
+                                        slug: ad.slug,
+                                        title: ad.title,
+                                        mainImage: ad.mainImage,
+                                        price: ad.price,
+                                        finalPrice: ad.finalPrice,
+                                        currency: ad.currency ?? 'uzs',
+                                        rating: ad.rating ?? 0,
+                                        reviewCount: ad.reviewCount ?? 0,
+                                        isLiked: true,
+                                      ),
+                                    ),
+                                  );
+                            },
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.share_outlined),
+                  color: iconColor,
+                  onPressed: () {},
+                ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.share_outlined),
-              color: iconColor,
-              onPressed: () {},
-            ),
-          ],
-        ),
-        body: BlocBuilder<ProductDetailBloc, ProductDetailState>(
+            body: _buildDetailBody(context, detailState),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDetailBody(
+    BuildContext context,
+    ProductDetailState detailState,
+  ) {
+    return BlocBuilder<ProductDetailBloc, ProductDetailState>(
           builder: (context, state) {
             if (state.status == ProductDetailStatus.loading) {
               return SingleChildScrollView(
@@ -157,9 +204,7 @@ class ProductDetailPage extends StatelessWidget {
             if (ad == null) return const SizedBox.shrink();
             return _ProductDetailBody(ad: ad);
           },
-        ),
-      ),
-    );
+        );
   }
 }
 
@@ -637,7 +682,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => context.push('/ad/${ad.slug}/order', extra: ad),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.orange,
                 foregroundColor: AppColors.white,

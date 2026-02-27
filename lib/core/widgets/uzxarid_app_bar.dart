@@ -298,6 +298,7 @@ class _SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final fillColor = isDark ? AppColors.darkCard : Colors.white;
+    final iconColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
     final child = Container(
       decoration: BoxDecoration(
         color: fillColor,
@@ -331,6 +332,7 @@ class _SearchField extends StatelessWidget {
               'assets/svg/search.svg',
               width: 20,
               height: 20,
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
           ),
           prefixIconConstraints: const BoxConstraints(
@@ -343,6 +345,7 @@ class _SearchField extends StatelessWidget {
               'assets/svg/access_time_filled.svg',
               width: 20,
               height: 20,
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
           ),
           suffixIconConstraints: const BoxConstraints(
