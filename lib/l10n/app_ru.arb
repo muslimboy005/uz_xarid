@@ -220,5 +220,15 @@
   "settingsLanguage": "Язык",
   "settingsTheme": "Тема",
   "settingsThemeLight": "Светлая",
-  "settingsThemeDark": "Тёмная"
+  "settingsThemeDark": "Тёмная",
+  "orderTitle": "Заказ",
+  "orderSendToAllAds": "Отправить запрос по всем таким объявлениям",
+  "orderDelivery": "Доставка",
+  "orderAddressNotSelected": "Адрес не выбран",
+  "orderSelectDeliveryAddress": "Выберите адрес доставки",
+  "orderSelectAddress": "Выбрать адрес",
+  "orderComment": "Комментарий",
+  "orderCommentHint": "Введите ваш комментарий.",
+  "orderSubmit": "Отправить",
+  "orderQuantityDona": "шт"
 }

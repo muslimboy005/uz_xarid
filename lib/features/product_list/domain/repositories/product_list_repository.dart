@@ -3,10 +3,13 @@ import 'package:uz_xarid/core/error/failures.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 abstract class ProductListRepository {
-  /// [categoryId] berilsa – shu turkum bo'yicha; null bo'lsa [listSource] bo'yicha (recommendations | services | gifts).
+  /// [searchQuery] berilsa – qidiruv API (ads/search); [categoryId] – turkum; null bo'lsa [listSource] bo'yicha.
+  /// [adType] – tavsiyalar uchun 'Sell' yoki 'Buy'.
   Future<Either<Failure, List<ProductListItemEntity>>> getProducts({
+    String? searchQuery,
     int? categoryId,
     String listSource = 'recommendations',
     int pageSize = 100,
+    String adType = 'Sell',
   });
 }

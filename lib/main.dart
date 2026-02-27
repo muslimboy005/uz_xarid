@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uz_xarid/app/app.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupDependencies();
+  await setupDependencies();
   runApp(const UzXaridApp());
 }

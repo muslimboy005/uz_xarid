@@ -619,4 +619,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsThemeDark => 'Dark';
+
+  @override
+  String get orderTitle => 'Order';
+
+  @override
+  String get orderSendToAllAds => 'Send request to all such ads';
+
+  @override
+  String get orderDelivery => 'Delivery';
+
+  @override
+  String get orderAddressNotSelected => 'Address not selected';
+
+  @override
+  String get orderSelectDeliveryAddress => 'Select delivery address';
+
+  @override
+  String get orderSelectAddress => 'Select address';
+
+  @override
+  String get orderComment => 'Comment';
+
+  @override
+  String get orderCommentHint => 'Enter your note.';
+
+  @override
+  String get orderSubmit => 'Submit';
+
+  @override
+  String get orderQuantityDona => 'pcs';
 }

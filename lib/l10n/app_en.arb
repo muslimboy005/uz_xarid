@@ -220,5 +220,15 @@
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
   "settingsThemeLight": "Light",
-  "settingsThemeDark": "Dark"
+  "settingsThemeDark": "Dark",
+  "orderTitle": "Order",
+  "orderSendToAllAds": "Send request to all such ads",
+  "orderDelivery": "Delivery",
+  "orderAddressNotSelected": "Address not selected",
+  "orderSelectDeliveryAddress": "Select delivery address",
+  "orderSelectAddress": "Select address",
+  "orderComment": "Comment",
+  "orderCommentHint": "Enter your note.",
+  "orderSubmit": "Submit",
+  "orderQuantityDona": "pcs"
 }

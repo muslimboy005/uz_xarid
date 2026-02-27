@@ -5,9 +5,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:uz_xarid/app/router/app_router.dart';
+import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/localization/locale_cubit.dart';
 import 'package:uz_xarid/core/theme/app_theme.dart';
 import 'package:uz_xarid/core/theme/theme_cubit.dart';
+import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class UzXaridApp extends StatelessWidget {
@@ -22,6 +24,10 @@ class UzXaridApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => ThemeCubit()..load(),
+        ),
+        BlocProvider(
+          create: (_) =>
+              getIt<FavoritesBloc>()..add(const FavoritesLoadListRequested()),
         ),
       ],
       child: const _AppView(),
