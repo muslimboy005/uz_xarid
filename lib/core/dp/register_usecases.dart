@@ -65,7 +65,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     ..registerLazySingleton<ProfileUpdateBusinessUsecase>(
       () => ProfileUpdateBusinessUsecase(getIt<ProfileRepository>()),
     )
-    ..registerLazySingleton<GetCategoriesParams>(() => GetCategoriesParams())
+    ..registerLazySingleton<GetCategoriesParams>(
+      () => GetCategoriesParams(),
+    )
     ..registerLazySingleton<GetFavoritesList>(
       () => GetFavoritesList(getIt<FavoritesRepository>()),
     )
