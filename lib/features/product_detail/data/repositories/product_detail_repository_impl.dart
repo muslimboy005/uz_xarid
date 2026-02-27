@@ -25,16 +25,19 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
       }
 
       final d = detailResponse.data;
-      final similarList = similarResponse.data.results
-              ?.map((e) => AdSimilarEntity(
-                    slug: e.slug,
-                    title: e.title,
-                    mainImage: e.mainImage,
-                    finalPrice: e.finalPrice,
-                    currency: e.currency,
-                    rating: e.rating,
-                    reviewCount: e.reviewCount,
-                  ))
+      final similarList =
+          similarResponse.data.results
+              ?.map(
+                (e) => AdSimilarEntity(
+                  slug: e.slug,
+                  title: e.title,
+                  mainImage: e.mainImage,
+                  finalPrice: e.finalPrice,
+                  currency: e.currency,
+                  rating: e.rating,
+                  reviewCount: e.reviewCount,
+                ),
+              )
               .toList() ??
           [];
 
@@ -67,11 +70,9 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
           ...(d.images ?? []).map((e) => e.image),
         ],
         colors: (d.colors ?? [])
-            .map((e) => AdColorEntity(
-                  id: e.id,
-                  name: e.name,
-                  colorHex: e.color,
-                ))
+            .map(
+              (e) => AdColorEntity(id: e.id, name: e.name, colorHex: e.color),
+            )
             .toList(),
         sizes: (d.sizes ?? []).map((e) {
           final available = (d.variants ?? []).any(
@@ -87,8 +88,7 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
       );
       return Right(entity);
     } on DioException catch (e) {
-      final message =
-          e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
+      final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
       return Left(ServerFailure(message: message));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

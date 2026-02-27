@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/widgets/authorized_profile_content.dart';
@@ -26,58 +25,53 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final bodyBg = context.bodyBackground;
     final containerBg = context.surfaceContainer;
-    return BlocProvider(
-      create: (context) => getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
-      child: Scaffold(
-        backgroundColor: AppColors.primary,
-        appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          color: bodyBg,
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimens.paddingMedium),
-              child: BlocBuilder<ProfileBloc, ProfileState>(
-                builder: (context, state) {
-                  final profile = state.profileModel;
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        color: bodyBg,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(AppDimens.paddingMedium),
+            child: BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, state) {
+                final profile = state.profileModel;
 
-                  final bool isAuthorized =
-                      profile != null &&
-                      profile.status &&
-                      profile.data.user != null &&
-                      !profile.data.askName &&
-                      profile.data.user!.firstName.isNotEmpty;
+                final bool isAuthorized =
+                    profile != null &&
+                    profile.status &&
+                    profile.data.user != null &&
+                    !profile.data.askName &&
+                    profile.data.user!.firstName.isNotEmpty;
 
-                  return Stack(
-                    children: [
-                      const UnauthProfileContent(),
+                return Stack(
+                  children: [
+                    const UnauthProfileContent(),
 
-                      // loading paytida ham eski data bo'lsa ko'rsatamiz (flash oldini olish)
-                      if (isAuthorized ||
-                          (state.status == ProfileStatus.loading &&
-                              profile != null &&
-                              profile.data.user != null))
-                        Container(
-                          color: containerBg,
-                          child: AuthorizedProfileContent(
-                            user: state.profileModel!.data.user!,
-                          ),
+                    // loading paytida ham eski data bo'lsa ko'rsatamiz (flash oldini olish)
+                    if (isAuthorized ||
+                        (state.status == ProfileStatus.loading &&
+                            profile != null &&
+                            profile.data.user != null))
+                      Container(
+                        color: containerBg,
+                        child: AuthorizedProfileContent(
+                          user: state.profileModel!.data.user!,
                         ),
+                      ),
 
-                      // Faqat birinchi yuklanishda (data yo'q) spinner ko'rsatamiz
-                      if (state.status == ProfileStatus.loading &&
-                          profile == null)
-                        Container(
-                          color: containerBg,
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
+                    // Faqat birinchi yuklanishda (data yo'q) spinner ko'rsatamiz
+                    if (state.status == ProfileStatus.loading &&
+                        profile == null)
+                      Container(
+                        color: containerBg,
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
+                );
+              },
             ),
           ),
         ),

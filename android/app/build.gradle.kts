@@ -42,3 +42,10 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation("com.yandex.android:maps.mobile:4.4.0-full")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+

@@ -252,11 +252,7 @@ class AdColorDto {
   final String name;
   final String color;
 
-  const AdColorDto({
-    required this.id,
-    required this.name,
-    required this.color,
-  });
+  const AdColorDto({required this.id, required this.name, required this.color});
 
   factory AdColorDto.fromJson(Map<String, dynamic> json) =>
       _$AdColorDtoFromJson(json);

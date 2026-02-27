@@ -26,9 +26,7 @@ abstract class HomeApi {
   );
 
   @GET(ApiUrls.gifts)
-  Future<RecommendationResponseDto> getGifts(
-    @Query('page_size') int pageSize,
-  );
+  Future<RecommendationResponseDto> getGifts(@Query('page_size') int pageSize);
 
   @GET(ApiUrls.services)
   Future<RecommendationResponseDto> getServices(

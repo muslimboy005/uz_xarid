@@ -16,10 +16,7 @@ class AppTheme {
         background: AppColors.background,
       ),
       scaffoldBackgroundColor: AppColors.background,
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        centerTitle: true,
-      ),
+      appBarTheme: const AppBarTheme(elevation: 0, centerTitle: true),
       textTheme: const TextTheme(
         bodyMedium: TextStyle(
           fontSize: AppDimens.fontMedium,
@@ -29,7 +26,7 @@ class AppTheme {
       inputDecorationTheme: const InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(
-            Radius.circular(AppDimens.radiusMedium),//jjgj
+            Radius.circular(AppDimens.radiusMedium), //jjgj
           ),
         ),
       ),
@@ -100,4 +97,3 @@ class AppTheme {
     );
   }
 }
-

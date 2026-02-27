@@ -3,11 +3,7 @@ class HomeCategory {
   final String name;
   final String? image;
 
-  const HomeCategory({
-    required this.id,
-    required this.name,
-    this.image,
-  });
+  const HomeCategory({required this.id, required this.name, this.image});
 }
 
 class HomeBanner {
@@ -58,6 +54,7 @@ class HomeRecommendation {
 
 class HomeEntity {
   final List<HomeCategory> categories;
+
   /// Har bir turkum id si uchun uning bolalari (children) – product list da strip uchun.
   final Map<int, List<HomeCategory>> categoryIdToChildren;
   final List<HomeBanner> banners;

@@ -12,8 +12,12 @@ class HomeSubCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.darkCard : AppColors.white;
-    final borderColor = isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+    final borderColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.cardBorderColor;
+    final textColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Container(

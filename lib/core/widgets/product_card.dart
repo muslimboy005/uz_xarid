@@ -204,7 +204,8 @@ class ProductCard extends StatelessWidget {
                             '$oldPrice $_displayCurrency',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
                                   color: context.textSecondary,
                                   decoration: TextDecoration.lineThrough,
                                 ),
@@ -216,7 +217,8 @@ class ProductCard extends StatelessWidget {
                               : '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.orange,
                               ),

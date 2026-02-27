@@ -22,15 +22,16 @@ class ProductDetailBloc extends Bloc<ProductDetailEvent, ProductDetailState> {
     emit(state.copyWith(status: ProductDetailStatus.loading, error: null));
     final result = await _getAdDetail(GetAdDetailParams(slug: event.slug));
     if (result is Right<Failure, AdDetailEntity>) {
-      emit(state.copyWith(
-        status: ProductDetailStatus.success,
-        ad: result.right,
-      ));
+      emit(
+        state.copyWith(status: ProductDetailStatus.success, ad: result.right),
+      );
     } else if (result is Left<Failure, AdDetailEntity>) {
-      emit(state.copyWith(
-        status: ProductDetailStatus.failure,
-        error: result.left.message ?? 'Xatolik',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductDetailStatus.failure,
+          error: result.left.message ?? 'Xatolik',
+        ),
+      );
     }
   }
 }

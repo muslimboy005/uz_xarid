@@ -3,6 +3,7 @@ import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failure.dart';
 import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
+import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
@@ -216,6 +217,62 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final result = await _profileDataSource.getBusinessById(id);
       return Right(result);
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AddressResponseModel>> getAddresses(
+    int page,
+    int pageSize,
+  ) async {
+    try {
+      final result = await _profileDataSource.getAddresses(page, pageSize);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AddressModel>> createAddress(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final result = await _profileDataSource.createAddress(data);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AddressModel>> updateAddress(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final result = await _profileDataSource.updateAddress(id, data);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAddress(int id) async {
+    try {
+      await _profileDataSource.deleteAddress(id);
+      return Right(null);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
     }

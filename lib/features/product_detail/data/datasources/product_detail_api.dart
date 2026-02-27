@@ -16,12 +16,8 @@ abstract class ProductDetailApi {
   Future<AdSimilarResponseDto> getSimilar(@Path('slug') String slug);
 
   @GET(ApiUrls.color)
-  Future<ColorListResponseDto> getColors(
-    @Query('page_size') int pageSize,
-  );
+  Future<ColorListResponseDto> getColors(@Query('page_size') int pageSize);
 
   @GET(ApiUrls.size)
-  Future<SizeListResponseDto> getSizes(
-    @Query('page_size') int pageSize,
-  );
+  Future<SizeListResponseDto> getSizes(@Query('page_size') int pageSize);
 }

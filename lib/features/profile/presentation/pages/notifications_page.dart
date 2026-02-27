@@ -36,7 +36,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ProfileBreadcrumb(
-                labels: [l10n.navHome, l10n.profileTitle, l10n.notificationsTitle],
+                labels: [
+                  l10n.navHome,
+                  l10n.profileTitle,
+                  l10n.notificationsTitle,
+                ],
                 onTaps: [
                   () => context.go('/home'),
                   () => context.go('/profile'),
@@ -101,7 +105,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         Padding(
                           padding: const EdgeInsets.all(8),
                           child: _TabBar(
-                            tabs: [l10n.notificationsContractsTab, l10n.notificationsSystemTab],
+                            tabs: [
+                              l10n.notificationsContractsTab,
+                              l10n.notificationsSystemTab,
+                            ],
                             selectedIndex: _selectedTab,
                             onTap: (i) => setState(() => _selectedTab = i),
                           ),
@@ -216,12 +223,7 @@ class _EmptyState extends StatelessWidget {
             child: Icon(icon, color: AppColors.white, size: 34),
           ),
           const SizedBox(height: 20),
-          AppText(
-            text: title,
-            fontSize: 16,
-            fontWeight: 700,
-            color: textColor,
-          ),
+          AppText(text: title, fontSize: 16, fontWeight: 700, color: textColor),
           if (subtitle != null) ...[
             const SizedBox(height: 8),
             AppText(

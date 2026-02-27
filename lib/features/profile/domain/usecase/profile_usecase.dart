@@ -1,9 +1,11 @@
 import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failure.dart';
 import 'package:uz_xarid/core/usecases/usecase.dart';
+import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/data/model/otp_model.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
+import 'package:uz_xarid/features/profile/domain/entity/page.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 
@@ -135,5 +137,50 @@ class ProfileGetBusinessByIdUsecase
   @override
   Future<Either<Failure, ProfileModel>> call(String id) {
     return profileRepository.getBusinessById(id);
+  }
+}
+
+class ProfileGetAddressesUsecase
+    extends UseCase<Either<Failure, AddressResponseModel>, PageEntity> {
+  final ProfileRepository profileRepository;
+  ProfileGetAddressesUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, AddressResponseModel>> call(PageEntity param) {
+    return profileRepository.getAddresses(param.page, param.pageSize);
+  }
+}
+
+class ProfileCreateAddressUsecase
+    extends UseCase<Either<Failure, AddressModel>, Map<String, dynamic>> {
+  final ProfileRepository profileRepository;
+  ProfileCreateAddressUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, AddressModel>> call(Map<String, dynamic> data) {
+    return profileRepository.createAddress(data);
+  }
+}
+
+class AddressUpdateParams {
+  final int id;
+  final Map<String, dynamic> data;
+  AddressUpdateParams({required this.id, required this.data});
+}
+
+class ProfileUpdateAddressUsecase
+    extends UseCase<Either<Failure, AddressModel>, AddressUpdateParams> {
+  final ProfileRepository profileRepository;
+  ProfileUpdateAddressUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, AddressModel>> call(AddressUpdateParams params) {
+    return profileRepository.updateAddress(params.id, params.data);
+  }
+}
+
+class ProfileDeleteAddressUsecase extends UseCase<Either<Failure, void>, int> {
+  final ProfileRepository profileRepository;
+  ProfileDeleteAddressUsecase(this.profileRepository);
+  @override
+  Future<Either<Failure, void>> call(int id) {
+    return profileRepository.deleteAddress(id);
   }
 }

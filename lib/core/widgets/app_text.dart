@@ -38,25 +38,27 @@ class AppText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fw = AppFonts.getFontWeight(fontWeight);
-    
+
     // Agar color berilmagan bo'lsa, tema rangini olish
     // final textColor = color ?? Theme.of(context).textTheme.bodyLarge?.color ?? Theme.of(context).colorScheme.onSurface;
 
     return InkWell(
       onTap: onTap,
-      child: Text(    
+      child: Text(
         // context.tr(text),
         text,
-        style: style ?? TextStyle(
-          height: height,
-          fontSize: fontSize?.sp,
-          fontWeight: fw,
-          color: color, // Tema rangini ishlatish
-          fontFamily: AppFonts.getFontFamily(fontWeight),
-          letterSpacing: letterSpacing,
-          decoration: decoration ?? TextDecoration.none,
-          decorationColor: decorationColor ?? color,
-        ),
+        style:
+            style ??
+            TextStyle(
+              height: height,
+              fontSize: fontSize?.sp,
+              fontWeight: fw,
+              color: color, // Tema rangini ishlatish
+              fontFamily: AppFonts.getFontFamily(fontWeight),
+              letterSpacing: letterSpacing,
+              decoration: decoration ?? TextDecoration.none,
+              decorationColor: decorationColor ?? color,
+            ),
         maxLines: maxLines ?? 1,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.ellipsis,

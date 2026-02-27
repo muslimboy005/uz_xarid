@@ -10,4 +10,3 @@ class ApiEndpoints {
   // Products
   static const String products = '$baseUrl/products';
 }
-

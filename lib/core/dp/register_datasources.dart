@@ -22,9 +22,7 @@ Future<void> registerDataSources(GetIt getIt) async {
     ..registerLazySingleton<CatalogApi>(
       () => CatalogApi(getIt<DioClient>().dio),
     )
-    ..registerLazySingleton<HomeApi>(
-      () => HomeApi(getIt<DioClient>().dio),
-    )
+    ..registerLazySingleton<HomeApi>(() => HomeApi(getIt<DioClient>().dio))
     ..registerLazySingleton<ProductDetailApi>(
       () => ProductDetailApi(getIt<DioClient>().dio),
     )

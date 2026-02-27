@@ -156,7 +156,9 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     fillColor: surfaceContainer,
                     filled: true,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppDimens.radiusMedium,
+                      ),
                       borderSide: BorderSide(color: borderColor),
                     ),
                   ),
@@ -179,7 +181,9 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     fillColor: surfaceContainer,
                     filled: true,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppDimens.radiusMedium,
+                      ),
                       borderSide: BorderSide(color: borderColor),
                     ),
                   ),
@@ -194,11 +198,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                           if (_firstNameController.text.trim().isEmpty ||
                               _lastNameController.text.trim().isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  l10n.nameRequiredError,
-                                ),
-                              ),
+                              SnackBar(content: Text(l10n.nameRequiredError)),
                             );
                             return;
                           }

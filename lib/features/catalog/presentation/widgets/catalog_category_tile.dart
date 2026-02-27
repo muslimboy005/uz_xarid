@@ -16,8 +16,10 @@ class CatalogCategoryTile extends StatelessWidget {
 
   final CategoryEntity category;
   final VoidCallback onTap;
+
   /// When true, shows chevron down (expanded); otherwise chevron right (collapsed).
   final bool isExpanded;
+
   /// Indent level for nested subcategories (e.g. 1 = one level in).
   final int indentLevel;
 

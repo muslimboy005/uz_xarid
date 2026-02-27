@@ -51,4 +51,3 @@ String formatPhone(String phone) {
   final last4 = digits.substring(digits.length - 4);
   return '(**$last4)';
 }
-

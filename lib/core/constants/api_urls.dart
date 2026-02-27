@@ -27,4 +27,5 @@ class ApiUrls {
   /// Backend path: user-like (favorites)
   static const String favoritesToggle = 'user-like/toggle/';
   static const String favoritesList = 'user-like/';
+  static const String address = 'address/';
 }

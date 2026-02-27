@@ -210,10 +210,7 @@ class _CatalogPageState extends State<CatalogPage> {
               color: context.textPrimary,
             ),
           ),
-          trailing: Icon(
-            Icons.chevron_right,
-            color: context.textSecondary,
-          ),
+          trailing: Icon(Icons.chevron_right, color: context.textSecondary),
           onTap: () {
             bloc.add(CatalogLoadRequested(categoryType: e.$2));
           },
@@ -342,18 +339,21 @@ class _CatalogPageState extends State<CatalogPage> {
       );
       if (isExpanded && category.hasChildren) {
         final childIndent = indentLevel + 1;
-        final horizontalPadding = AppDimens.paddingMedium + (childIndent * 16.0);
+        final horizontalPadding =
+            AppDimens.paddingMedium + (childIndent * 16.0);
         list.add(
           Material(
             color: context.cardSurface,
             child: InkWell(
               onTap: () {
                 final subcategories = category.children
-                    .map((c) => {
-                          'id': c.id,
-                          'name': c.displayName,
-                          'image': c.image,
-                        })
+                    .map(
+                      (c) => {
+                        'id': c.id,
+                        'name': c.displayName,
+                        'image': c.image,
+                      },
+                    )
                     .toList();
                 context.push(
                   '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}&categoryType=${Uri.encodeComponent(state.categoryType)}',
@@ -372,10 +372,11 @@ class _CatalogPageState extends State<CatalogPage> {
                     Expanded(
                       child: Text(
                         l10n.seeAll,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.textPrimary,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: context.textPrimary,
+                            ),
                       ),
                     ),
                     Icon(

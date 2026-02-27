@@ -1,4 +1,3 @@
-
 abstract class Failure {
   final String message;
   final int? statusCode;
@@ -24,26 +23,56 @@ abstract class Failure {
 class ServerFailure extends Failure {
   const ServerFailure(super.message, {super.statusCode});
 
-  factory ServerFailure.fromStatusCode(int statusCode, {String? customMessage}) {
+  factory ServerFailure.fromStatusCode(
+    int statusCode, {
+    String? customMessage,
+  }) {
     switch (statusCode) {
       case 400:
-        return ServerFailure(customMessage ?? "Noto'g'ri so'rov", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Noto'g'ri so'rov",
+          statusCode: statusCode,
+        );
       case 401:
-        return ServerFailure(customMessage ?? "Avtorizatsiya xatoligi", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Avtorizatsiya xatoligi",
+          statusCode: statusCode,
+        );
       case 403:
-        return ServerFailure(customMessage ?? "Ruxsat berilmagan", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Ruxsat berilmagan",
+          statusCode: statusCode,
+        );
       case 404:
-        return ServerFailure(customMessage ?? "Ma'lumot topilmadi", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Ma'lumot topilmadi",
+          statusCode: statusCode,
+        );
       case 422:
-        return ServerFailure(customMessage ?? "Ma'lumotlar noto'g'ri", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Ma'lumotlar noto'g'ri",
+          statusCode: statusCode,
+        );
       case 500:
-        return ServerFailure(customMessage ?? "Server ichki xatoligi", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Server ichki xatoligi",
+          statusCode: statusCode,
+        );
       case 502:
-        return ServerFailure(customMessage ?? "Bad Gateway", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Bad Gateway",
+          statusCode: statusCode,
+        );
       case 503:
-        return ServerFailure(customMessage ?? "Xizmat vaqtincha mavjud emas", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Xizmat vaqtincha mavjud emas",
+          statusCode: statusCode,
+        );
       default:
-        return ServerFailure(customMessage ?? "Server xatoligi ($statusCode)", statusCode: statusCode);
+        return ServerFailure(
+          customMessage ?? "Server xatoligi ($statusCode)",
+          statusCode: statusCode,
+        );
     }
   }
 }

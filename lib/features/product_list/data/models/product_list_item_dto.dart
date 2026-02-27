@@ -23,13 +23,13 @@ class ProductListItemDto {
   final int reviewCount;
 
   ProductListItemEntity toEntity() => ProductListItemEntity(
-        slug: slug,
-        title: title,
-        mainImage: mainImage,
-        price: price,
-        finalPrice: finalPrice,
-        currency: currency,
-        rating: rating,
-        reviewCount: reviewCount,
-      );
+    slug: slug,
+    title: title,
+    mainImage: mainImage,
+    price: price,
+    finalPrice: finalPrice,
+    currency: currency,
+    rating: rating,
+    reviewCount: reviewCount,
+  );
 }

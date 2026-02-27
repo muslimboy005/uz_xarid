@@ -5,7 +5,11 @@ import 'package:uz_xarid/features/catalog/domain/entities/catalog_ad_item_entity
 import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
 
 class GetAdsByCategory
-    extends UseCase<Either<Failure, List<CatalogAdItemEntity>>, GetAdsByCategoryParams> {
+    extends
+        UseCase<
+          Either<Failure, List<CatalogAdItemEntity>>,
+          GetAdsByCategoryParams
+        > {
   GetAdsByCategory(this._repository);
 
   final CatalogRepository _repository;

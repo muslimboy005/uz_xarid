@@ -21,7 +21,9 @@ Widget _servicesEmpty(BuildContext context, AppLocalizations l10n) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final bgColor = isDark ? AppColors.darkCard : AppColors.black50;
   final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-  final textSecondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+  final textSecondary = isDark
+      ? AppColors.darkTextSecondary
+      : AppColors.textSecondary;
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.symmetric(vertical: 32),
@@ -45,7 +47,9 @@ Widget _servicesEmpty(BuildContext context, AppLocalizations l10n) {
         Text(
           l10n.servicesEmptySubtitle,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textSecondary),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: textSecondary),
         ),
       ],
     ),
@@ -61,7 +65,9 @@ class HomePage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
     final containerBg = isDark ? AppColors.darkCard : AppColors.black50;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+    final textColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
     final categories = [
       HomeCategory(
         title: l10n.categoryGoods,
@@ -647,7 +653,11 @@ class HomePage extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              Icon(Icons.arrow_forward_ios, size: 16, color: textColor),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: textColor,
+                              ),
                             ],
                           ),
                         ),

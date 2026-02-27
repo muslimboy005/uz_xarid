@@ -23,7 +23,11 @@ class MyAdsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ProfileBreadcrumb(
-                labels: [l10n.navHome, l10n.profileTitle, l10n.profileMenuMyAds],
+                labels: [
+                  l10n.navHome,
+                  l10n.profileTitle,
+                  l10n.profileMenuMyAds,
+                ],
                 onTaps: [
                   () => context.go('/home'),
                   () => context.go('/profile'),
@@ -32,9 +36,7 @@ class MyAdsPage extends StatelessWidget {
               ),
               Expanded(
                 child: Center(
-                  child: Text(
-                    l10n.comingSoonSection(l10n.profileMenuMyAds),
-                  ),
+                  child: Text(l10n.comingSoonSection(l10n.profileMenuMyAds)),
                 ),
               ),
             ],

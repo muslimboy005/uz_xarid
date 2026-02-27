@@ -37,8 +37,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
       final list = dtos.map((dto) => dto.toEntity()).toList();
       return Right(list);
     } on DioException catch (e) {
-      final message =
-          e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
+      final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
       return Left(ServerFailure(message: message));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

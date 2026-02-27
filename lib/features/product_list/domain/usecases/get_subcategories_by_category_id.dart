@@ -23,7 +23,9 @@ class GetSubcategoriesByCategoryId {
     final category = _findCategoryById(roots, params.categoryId);
     if (category == null) return Right([]);
     final list = category.children
-        .map((c) => SubcategoryItem(id: c.id, name: c.displayName, image: c.image))
+        .map(
+          (c) => SubcategoryItem(id: c.id, name: c.displayName, image: c.image),
+        )
         .toList();
     return Right(list);
   }

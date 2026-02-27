@@ -190,12 +190,7 @@ class _EmptyState extends StatelessWidget {
             child: Icon(icon, color: AppColors.white, size: 34),
           ),
           const SizedBox(height: 20),
-          AppText(
-            text: title,
-            fontSize: 16,
-            fontWeight: 700,
-            color: textColor,
-          ),
+          AppText(text: title, fontSize: 16, fontWeight: 700, color: textColor),
           if (subtitle != null) ...[
             const SizedBox(height: 8),
             AppText(

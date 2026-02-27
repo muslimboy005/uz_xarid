@@ -180,6 +180,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _LanguageSelector extends StatelessWidget {
   const _LanguageSelector({required this.currentLocale});
 

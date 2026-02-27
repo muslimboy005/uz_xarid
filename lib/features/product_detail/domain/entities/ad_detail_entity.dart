@@ -58,31 +58,31 @@ class AdDetailEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        slug,
-        title,
-        categoryName,
-        price,
-        finalPrice,
-        mainImage,
-        currency,
-        description,
-        rating,
-        reviewCount,
-        likesCount,
-        isLikes,
-        viewsCount,
-        callCount,
-        userName,
-        userAvatar,
-        userPhone,
-        userDateJoined,
-        totalAds,
-        options,
-        images,
-        colors,
-        sizes,
-        similar,
-      ];
+    slug,
+    title,
+    categoryName,
+    price,
+    finalPrice,
+    mainImage,
+    currency,
+    description,
+    rating,
+    reviewCount,
+    likesCount,
+    isLikes,
+    viewsCount,
+    callCount,
+    userName,
+    userAvatar,
+    userPhone,
+    userDateJoined,
+    totalAds,
+    options,
+    images,
+    colors,
+    sizes,
+    similar,
+  ];
 }
 
 class AdOptionEntity extends Equatable {
@@ -145,6 +145,13 @@ class AdSimilarEntity extends Equatable {
   final int? reviewCount;
 
   @override
-  List<Object?> get props =>
-      [slug, title, mainImage, finalPrice, currency, rating, reviewCount];
+  List<Object?> get props => [
+    slug,
+    title,
+    mainImage,
+    finalPrice,
+    currency,
+    rating,
+    reviewCount,
+  ];
 }

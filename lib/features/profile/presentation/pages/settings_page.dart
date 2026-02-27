@@ -78,7 +78,9 @@ class SettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: AppDimens.paddingLarge),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.paddingMedium,
+              ),
               child: ContainerW(
                 color: isDark ? AppColors.darkCard : AppColors.white,
                 radius: 16,
@@ -92,7 +94,9 @@ class SettingsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       ..._supportedLocales.map((locale) {
-                        final currentLocale = context.watch<LocaleCubit>().state;
+                        final currentLocale = context
+                            .watch<LocaleCubit>()
+                            .state;
                         final isSelected =
                             currentLocale.languageCode == locale.languageCode;
                         return _LanguageTile(
@@ -111,7 +115,9 @@ class SettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: AppDimens.paddingMedium),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.paddingMedium,
+              ),
               child: ContainerW(
                 color: isDark ? AppColors.darkCard : AppColors.white,
                 radius: 16,
@@ -136,9 +142,9 @@ class SettingsPage extends StatelessWidget {
                                   isSelected: !isDarkMode,
                                   isDark: isDark,
                                   onTap: () {
-                                    context
-                                        .read<ThemeCubit>()
-                                        .setThemeMode(ThemeMode.light);
+                                    context.read<ThemeCubit>().setThemeMode(
+                                      ThemeMode.light,
+                                    );
                                   },
                                 ),
                               ),
@@ -150,9 +156,9 @@ class SettingsPage extends StatelessWidget {
                                   isSelected: isDarkMode,
                                   isDark: isDark,
                                   onTap: () {
-                                    context
-                                        .read<ThemeCubit>()
-                                        .setThemeMode(ThemeMode.dark);
+                                    context.read<ThemeCubit>().setThemeMode(
+                                      ThemeMode.dark,
+                                    );
                                   },
                                 ),
                               ),
@@ -173,10 +179,7 @@ class SettingsPage extends StatelessWidget {
 }
 
 class _SettingsSectionTitle extends StatelessWidget {
-  const _SettingsSectionTitle({
-    required this.title,
-    required this.isDark,
-  });
+  const _SettingsSectionTitle({required this.title, required this.isDark});
 
   final String title;
   final bool isDark;
@@ -239,17 +242,11 @@ class _LanguageTile extends StatelessWidget {
                 text: _languageName(locale.languageCode),
                 fontSize: 16,
                 fontWeight: isSelected ? 700 : 500,
-                color: isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.black500,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.black500,
               ),
               const Spacer(),
               if (isSelected)
-                Icon(
-                  Icons.check_circle,
-                  size: 22,
-                  color: AppColors.primary,
-                ),
+                Icon(Icons.check_circle, size: 22, color: AppColors.primary),
             ],
           ),
         ),
@@ -290,7 +287,11 @@ class _ThemeOptionTile extends StatelessWidget {
               Icon(
                 icon,
                 size: 28,
-                color: isSelected ? AppColors.primary : (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                color: isSelected
+                    ? AppColors.primary
+                    : (isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.textSecondary),
               ),
               const SizedBox(height: 8),
               AppText(
@@ -298,7 +299,9 @@ class _ThemeOptionTile extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: isSelected ? 700 : 500,
                 color: isDark
-                    ? (isSelected ? AppColors.primary : AppColors.darkTextPrimary)
+                    ? (isSelected
+                          ? AppColors.primary
+                          : AppColors.darkTextPrimary)
                     : (isSelected ? AppColors.primary : AppColors.black500),
               ),
             ],

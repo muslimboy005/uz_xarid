@@ -1,12 +1,8 @@
-
 class OtpModel {
   final String phone;
   final String? otp;
 
-  OtpModel({
-    required this.phone,
-    this.otp,
-  });
+  OtpModel({required this.phone, this.otp});
 
   factory OtpModel.fromJson(Map<String, dynamic> json) {
     return OtpModel(

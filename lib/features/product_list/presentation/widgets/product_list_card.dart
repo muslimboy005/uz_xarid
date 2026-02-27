@@ -50,8 +50,7 @@ class ProductListCard extends StatelessWidget {
                         item.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: context.textPrimary,
                           height: 1.2,
@@ -62,8 +61,7 @@ class ProductListCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '${_formatPrice(item.finalPrice)} $currency',
-                        style:
-                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: AppColors.orange,
                         ),
@@ -80,8 +78,7 @@ class ProductListCard extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    final hasImage =
-        item.mainImage != null && item.mainImage!.isNotEmpty;
+    final hasImage = item.mainImage != null && item.mainImage!.isNotEmpty;
     return SizedBox(
       height: 120,
       width: double.infinity,
@@ -97,7 +94,7 @@ class ProductListCard extends StatelessWidget {
   }
 
   Widget _placeholderImage() => Container(
-        color: AppColors.black100,
-        child: const Center(child: Icon(Icons.image)),
-      );
+    color: AppColors.black100,
+    child: const Center(child: Icon(Icons.image)),
+  );
 }

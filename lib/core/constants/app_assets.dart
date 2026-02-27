@@ -77,4 +77,4 @@ class AppAssets {
   // PNG (agar kerak bo'lsa)
   static const String logo = '${_png}logo.png';
   static const String businessImage = '${_png}business_image.png';
-} 
+}

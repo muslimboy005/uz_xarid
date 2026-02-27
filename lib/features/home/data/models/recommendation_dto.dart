@@ -38,14 +38,14 @@ class RecommendationDto {
   }
 
   HomeRecommendation toHomeRecommendation() => HomeRecommendation(
-        slug: slug,
-        title: title,
-        mainImage: mainImage,
-        price: price,
-        finalPrice: finalPrice,
-        currency: currency,
-        rating: rating,
-        reviewCount: reviewCount,
-        isTop: isTop,
-      );
+    slug: slug,
+    title: title,
+    mainImage: mainImage,
+    price: price,
+    finalPrice: finalPrice,
+    currency: currency,
+    rating: rating,
+    reviewCount: reviewCount,
+    isTop: isTop,
+  );
 }
