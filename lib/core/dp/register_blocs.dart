@@ -5,7 +5,6 @@ import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
 import 'package:uz_xarid/features/add_listing/presentation/bloc/add_listing_bloc.dart';
 import 'package:uz_xarid/features/catalog/domain/usecases/get_categories.dart';
 import 'package:uz_xarid/features/catalog/presentation/bloc/catalog_bloc.dart';
-import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
 import 'package:uz_xarid/features/product_detail/domain/usecases/get_ad_detail.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
 import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
@@ -13,6 +12,7 @@ import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/toggle_favorite.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 
 Future<void> registerBlocs(GetIt getIt) async {
   getIt
@@ -20,37 +20,34 @@ Future<void> registerBlocs(GetIt getIt) async {
       () => AddListingBloc(getIt<GetColors>(), getIt<GetSizes>()),
     )
     ..registerFactory<ProductDetailBloc>(
-    () => ProductDetailBloc(getIt<GetAdDetail>()),
-  )
-  
-    ..registerLazySingleton<GetFavoritesList>(
-      () => GetFavoritesList(getIt<FavoritesRepository>()),
+      () => ProductDetailBloc(getIt<GetAdDetail>()),
     )
-    ..registerLazySingleton<ToggleFavorite>(
-      () => ToggleFavorite(getIt<FavoritesRepository>()),
+    ..registerFactory<ProfileBloc>(
+      () => ProfileBloc(
+        getIt<ProfileConfirmOtpUsecase>(),
+        getIt<ProfileSendOtpUsecase>(),
+        getIt<ProfileSignSubmitUsecase>(),
+        getIt<ProfileGetUsecase>(),
+        getIt<ProfileResendOtpUsecase>(),
+        getIt<ProfileUpdateUsecase>(),
+        getIt<ProfileCreateBusinessUsecase>(),
+        getIt<ProfileUpdateBusinessUsecase>(),
+      ),
     )
-  ..registerFactory<ProfileBloc>(
-    () => ProfileBloc(
-      getIt<ProfileConfirmOtpUsecase>(),
-      getIt<ProfileSendOtpUsecase>(),
-      getIt<ProfileSignSubmitUsecase>(),
-      getIt<ProfileGetUsecase>(),
-      getIt<ProfileResendOtpUsecase>(),
-      getIt<ProfileUpdateUsecase>(),
-      getIt<ProfileCreateBusinessUsecase>(),
-      getIt<ProfileUpdateBusinessUsecase>(),
-      
-    ),
-  )
-  ..registerFactory<CatalogBloc>(
-    () => CatalogBloc(
-      getIt<GetCategories>(),
-      getIt<GetCategoriesParams>(),
-    ),
-  )
-  ..registerFactory<FavoritesBloc>(
-    () => FavoritesBloc(getIt<GetFavoritesList>(), getIt<ToggleFavorite>()),
-  );
+    ..registerFactory<CatalogBloc>(
+      () => CatalogBloc(getIt<GetCategories>(), getIt<GetCategoriesParams>()),
+    )
+    ..registerFactory<FavoritesBloc>(
+      () => FavoritesBloc(getIt<GetFavoritesList>(), getIt<ToggleFavorite>()),
+    )
+    ..registerFactory<AddressBloc>(
+      () => AddressBloc(
+        getAddressesUsecase: getIt<ProfileGetAddressesUsecase>(),
+        createAddressUsecase: getIt<ProfileCreateAddressUsecase>(),
+        updateAddressUsecase: getIt<ProfileUpdateAddressUsecase>(),
+        deleteAddressUsecase: getIt<ProfileDeleteAddressUsecase>(),
+      ),
+    );
 
   log("Register BLOC Complate For GetIT");
 }
