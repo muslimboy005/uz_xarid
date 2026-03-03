@@ -19,75 +19,82 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
+    // final bodyBg = context.bodyBackground;
+    // final cardColor = context.cardSurface;
+    // final textColor = context.textPrimary;
+    // final textSecondary = context.textSecondary;
+    // final borderColor = context.borderColor;
+    // final surfaceContainer = context.surfaceContainer;
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: context.bodyBackground,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: ContainerW(
-                      color: context.cardSurface,
-                      radius: 8,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.arrow_back_ios_new,
-                          size: 16,
-                          color: context.textPrimary,
+      backgroundColor: AppColors.primary,
+      body: Container(
+        color: isDark ? AppColors.darkBackground : AppColors.black50,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: ContainerW(
+                        color: context.cardSurface,
+                        radius: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            size: 16,
+                            color: context.textPrimary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  AppText(
-                    text: l10n.myOrdersTitle,
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: context.textPrimary,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ContainerW(
-                  color: context.cardSurface,
-                  radius: 16,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: _TabBar(
-                          tabs: [l10n.myOrdersTab, l10n.myRequestsTab],
-                          selectedIndex: _selectedTab,
-                          onTap: (i) => setState(() => _selectedTab = i),
+                    const SizedBox(width: 12),
+                    AppText(
+                      text: l10n.myOrdersTitle,
+                      fontSize: 22,
+                      fontWeight: 700,
+                      color: context.textPrimary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ContainerW(
+                    color: context.cardSurface,
+                    radius: 16,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: _TabBar(
+                            tabs: [l10n.myOrdersTab, l10n.myRequestsTab],
+                            selectedIndex: _selectedTab,
+                            onTap: (i) => setState(() => _selectedTab = i),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: _EmptyState(
-                          icon: Icons.shopping_cart_rounded,
-                          title: l10n.myOrdersEmptyTitle,
-                          subtitle: l10n.myOrdersEmptySubtitle,
+                        Expanded(
+                          child: _EmptyState(
+                            icon: Icons.shopping_cart_rounded,
+                            title: l10n.myOrdersEmptyTitle,
+                            subtitle: l10n.myOrdersEmptySubtitle,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 16),
+              ],
             ),
-            const SizedBox(height: 16),
-          ],
+          ),
         ),
       ),
     );
@@ -127,12 +134,12 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? cardColor : Colors.transparent,
+                  color: selected ? AppColors.black500 : cardColor,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),
@@ -143,7 +150,7 @@ class _TabBar extends StatelessWidget {
                   child: AppText(
                     text: tabs[i],
                     fontSize: 13,
-                    fontWeight: selected ? 600 : 400,
+                    fontWeight: selected ? 700 : 500,
                     color: selected ? textColor : textSecondary,
                   ),
                 ),

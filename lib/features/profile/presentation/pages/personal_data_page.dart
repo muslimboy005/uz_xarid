@@ -121,9 +121,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     final lastName = _lastNameController.text.trim();
 
     if (firstName.isEmpty || lastName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ism va familiyani kiriting')),
-      );
       return;
     }
 
@@ -146,6 +143,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.mounted) return const SizedBox.shrink();
+    final borderColor = context.borderColor;
+    final surfaceContainer = context.surfaceContainer;
     return BlocConsumer<ProfileBloc, ProfileState>(
       listenWhen: (prev, curr) =>
           curr.status == ProfileStatus.updateSuccess ||
@@ -168,19 +168,17 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       },
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
-
-        final bodyBg = context.bodyBackground;
+        final isDark = context.isDark;
+        // final bodyBg = context.bodyBackground;
         final cardColor = context.cardSurface;
         final textColor = context.textPrimary;
-        final fieldFill = context.surfaceContainer;
-        final fieldBorder = context.borderColor;
 
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (q) {}, onMenuTap: () {}),
           backgroundColor: AppColors.primary,
           body: SafeArea(
             child: Container(
-              color: bodyBg,
+              color: isDark ? AppColors.darkBackground : AppColors.primary,
               child: Column(
                 children: [
                   Expanded(
@@ -198,7 +196,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                   child: ContainerW(
                                     color: cardColor,
                                     radius: 8,
-                                    borderColor: context.borderColor,
+                                    // borderColor: context.borderColor,
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: AppImage(
@@ -231,8 +229,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 hintText: 'Введите имя',
                                 keyboardType: TextInputType.name,
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
                               _label('Фамилия'),
@@ -242,8 +240,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 hintText: 'Введите фамилию',
                                 keyboardType: TextInputType.name,
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
                               _label('Пол'),
@@ -268,8 +266,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [UzbekPhoneInputFormatter()],
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
                               _label('Электронная почта'),
@@ -279,8 +277,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 hintText: 'Введите E-mail',
                                 keyboardType: TextInputType.emailAddress,
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                             ],
                           ),
@@ -295,8 +293,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _cityController,
                                 hintText: 'Введите город',
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
                               _label('Улица'),
@@ -305,8 +303,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _streetController,
                                 hintText: 'Введите улицу',
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
                               _label('Дом / Квартира'),
@@ -315,8 +313,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _houseController,
                                 hintText: 'Дом / Квартира',
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
                               _label('Район'),
@@ -325,8 +323,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 controller: _districtController,
                                 hintText: 'Введите район',
                                 enabled: !isLoading,
-                                fillColor: fieldFill,
-                                borderNoFocusColor: fieldBorder,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
                               ),
                             ],
                           ),
@@ -396,11 +394,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                           width: 2,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.edit,
-                        size: 12,
-                        color: AppColors.white,
-                      ),
+                      child: Icon(Icons.edit, size: 12, color: AppColors.white),
                     ),
                   ),
                 ],
@@ -622,7 +616,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
             child: ElevatedButton(
               onPressed: isLoading ? null : _onSave,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: context.isDark
+                    ? AppColors.darkBackground
+                    : AppColors.primary,
                 foregroundColor: AppColors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

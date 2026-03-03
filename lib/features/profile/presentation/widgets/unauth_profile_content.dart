@@ -22,6 +22,7 @@ class UnauthProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.mounted) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context)!;
 
     final textColor = context.textPrimary;

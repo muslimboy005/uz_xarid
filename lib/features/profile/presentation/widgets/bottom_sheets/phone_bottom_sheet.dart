@@ -5,7 +5,6 @@ import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -58,13 +57,6 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
         if (state.status == ProfileStatus.success) {
           Navigator.of(context).pop();
           widget.onCodeSent(_phoneController.text);
-        } else if (state.status == ProfileStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(getFriendlyErrorMessage(state.errorMessage)),
-              backgroundColor: Colors.red,
-            ),
-          );
         }
       },
       builder: (context, state) {
@@ -188,9 +180,6 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
 
                           if (digits.length != 12 ||
                               !digits.startsWith('998')) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.loginPhoneError)),
-                            );
                             return;
                           }
 

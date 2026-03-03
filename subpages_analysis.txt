@@ -1,0 +1,69 @@
+Analyzing 7 items...                                            
+
+warning • The value of the local variable 'isDark' isn't used • lib/features/profile/presentation/pages/favorites_profile_page.dart:51:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/favorites_profile_page.dart:52:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/favorites_profile_page.dart:55:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/favorites_profile_page.dart:56:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/favorites_profile_page.dart:57:11 • unused_local_variable
+   info • Unnecessary use of multiple underscores • lib/features/profile/presentation/pages/favorites_profile_page.dart:111:47 • unnecessary_underscores
+  error • Undefined name 'surfaceContainer' • lib/features/profile/presentation/pages/favorites_profile_page.dart:144:16 • undefined_identifier
+  error • Undefined name 'borderColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:146:35 • undefined_identifier
+  error • Undefined name 'textColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:217:20 • undefined_identifier
+  error • Undefined name 'textSecondary' • lib/features/profile/presentation/pages/favorites_profile_page.dart:225:22 • undefined_identifier
+  error • Undefined name 'cardColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:256:14 • undefined_identifier
+  error • Undefined name 'textSecondary' • lib/features/profile/presentation/pages/favorites_profile_page.dart:268:26 • undefined_identifier
+  error • Undefined name 'textSecondary' • lib/features/profile/presentation/pages/favorites_profile_page.dart:275:26 • undefined_identifier
+  error • Undefined name 'textColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:284:22 • undefined_identifier
+  error • Undefined name 'textSecondary' • lib/features/profile/presentation/pages/favorites_profile_page.dart:299:32 • undefined_identifier
+  error • Undefined name 'textColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:308:32 • undefined_identifier
+  error • Undefined name 'surfaceContainer' • lib/features/profile/presentation/pages/favorites_profile_page.dart:325:30 • undefined_identifier
+  error • Undefined name 'textColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:332:30 • undefined_identifier
+  error • Undefined name 'surfaceContainer' • lib/features/profile/presentation/pages/favorites_profile_page.dart:341:28 • undefined_identifier
+  error • Undefined name 'textColor' • lib/features/profile/presentation/pages/favorites_profile_page.dart:347:28 • undefined_identifier
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/my_ads_page.dart:14:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/my_ads_page.dart:15:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/my_ads_page.dart:16:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/my_ads_page.dart:17:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/my_ads_page.dart:18:11 • unused_local_variable
+warning • The value of the local variable 'isDark' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:22:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:23:11 • unused_local_variable
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:24:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:25:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:26:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:27:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/my_orders_page.dart:28:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/notifications_page.dart:27:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/notifications_page.dart:28:11 • unused_local_variable
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/notifications_page.dart:31:11 • unused_local_variable
+  error • The name 'cardColor' is already defined • lib/features/profile/presentation/pages/notifications_page.dart:31:11 • duplicate_definition
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/notifications_page.dart:32:11 • unused_local_variable
+  error • The name 'textColor' is already defined • lib/features/profile/presentation/pages/notifications_page.dart:32:11 • duplicate_definition
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/notifications_page.dart:33:11 • unused_local_variable
+  error • The name 'textSecondary' is already defined • lib/features/profile/presentation/pages/notifications_page.dart:33:11 • duplicate_definition
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/payment_page.dart:22:11 • unused_local_variable
+warning • The value of the local variable 'l10n' isn't used • lib/features/profile/presentation/pages/payment_page.dart:25:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/payment_page.dart:26:11 • unused_local_variable
+  error • The name 'bodyBg' is already defined • lib/features/profile/presentation/pages/payment_page.dart:26:11 • duplicate_definition
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/payment_page.dart:27:11 • unused_local_variable
+  error • The name 'cardColor' is already defined • lib/features/profile/presentation/pages/payment_page.dart:27:11 • duplicate_definition
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/payment_page.dart:28:11 • unused_local_variable
+  error • The name 'textColor' is already defined • lib/features/profile/presentation/pages/payment_page.dart:28:11 • duplicate_definition
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/payment_page.dart:29:11 • unused_local_variable
+  error • The name 'borderColor' is already defined • lib/features/profile/presentation/pages/payment_page.dart:29:11 • duplicate_definition
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/payment_page.dart:30:11 • unused_local_variable
+  error • The name 'surfaceContainer' is already defined • lib/features/profile/presentation/pages/payment_page.dart:30:11 • duplicate_definition
+warning • The value of the local variable 'isDark' isn't used • lib/features/profile/presentation/pages/support_page.dart:11:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/support_page.dart:12:11 • unused_local_variable
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/support_page.dart:13:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/support_page.dart:14:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/support_page.dart:15:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/support_page.dart:16:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/support_page.dart:17:11 • unused_local_variable
+warning • The value of the local variable 'isDark' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:11:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:12:11 • unused_local_variable
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:13:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:14:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:15:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:16:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/view_history_page.dart:17:11 • unused_local_variable
+

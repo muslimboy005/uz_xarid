@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
@@ -82,16 +85,15 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
 
   @override
   Widget build(BuildContext context) {
+    final containerBg = context.surfaceContainer;
+    final cardColor = context.cardSurface;
+    final textPrimary = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+    final isDark = context.isDark;
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) {
-        if (state.status == ProfileStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Xatolik')),
-          );
-        } else if (state.status == ProfileStatus.createBusinessSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Biznes muvaffaqiyatli saqlandi!')),
-          );
+        if (state.status == ProfileStatus.createBusinessSuccess) {
           context.pop();
         }
       },
@@ -100,7 +102,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
           appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
           backgroundColor: AppColors.primary,
           body: Container(
-            decoration: BoxDecoration(color: AppColors.black50),
+            color: isDark ? AppColors.darkBackground : AppColors.black50,
             child: SafeArea(
               child: Column(
                 children: [
@@ -112,12 +114,15 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                         GestureDetector(
                           onTap: () => context.pop(),
                           child: ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 8,
-                            borderColor: AppColors.black100,
+                            // borderColor: borderColor,
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: AppImage(path: AppAssets.backDropleft),
+                              child: AppImage(
+                                path: AppAssets.backDropleft,
+                                color: textPrimary,
+                              ),
                             ),
                           ),
                         ),
@@ -126,7 +131,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           text: 'Мой бизнес',
                           fontSize: 20,
                           fontWeight: 700,
-                          color: AppColors.black500,
+                          color: textPrimary,
                         ),
                       ],
                     ),
@@ -139,7 +144,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             width: double.infinity,
                             child: Padding(
@@ -151,13 +156,13 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 text: 'Информация о компании',
                                 fontSize: 16,
                                 fontWeight: 600,
-                                color: AppColors.black500,
+                                color: textPrimary,
                               ),
                             ),
                           ),
                           const SizedBox(height: 12),
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -167,8 +172,8 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   Row(
                                     children: [
                                       ContainerW(
-                                        color: AppColors.blue500.withOpacity(
-                                          0.1,
+                                        color: AppColors.blue500.withValues(
+                                          alpha: 0.1,
                                         ),
                                         radius: 32,
                                         child: _avatarFile != null
@@ -196,9 +201,9 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       GestureDetector(
                                         onTap: () => _pickImage(true),
                                         child: ContainerW(
-                                          color: AppColors.white,
+                                          color: cardColor,
                                           radius: 8,
-                                          borderColor: AppColors.black100,
+                                          borderColor: borderColor,
                                           child: Padding(
                                             padding: const EdgeInsets.all(12.0),
                                             child: Row(
@@ -206,7 +211,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                               children: [
                                                 AppImage(
                                                   path: AppAssets.edit,
-                                                  color: AppColors.black500,
+                                                  color: textPrimary,
                                                   size: 20,
                                                 ),
                                                 const SizedBox(width: 6),
@@ -214,7 +219,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                                   text: 'Изменить аватар',
                                                   fontSize: 14,
                                                   fontWeight: 500,
-                                                  color: AppColors.black500,
+                                                  color: textPrimary,
                                                 ),
                                               ],
                                             ),
@@ -242,7 +247,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     onTap: () => _pickImage(false),
                                     child: DottedBorder(
                                       options: RoundedRectDottedBorderOptions(
-                                        color: AppColors.black200,
+                                        color: borderColor,
                                         strokeWidth: 1.5,
                                         dashPattern: const [8, 4],
                                         radius: const Radius.circular(12),
@@ -268,14 +273,14 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                                   Icon(
                                                     Icons.add,
                                                     size: 48,
-                                                    color: Colors.grey.shade600,
+                                                    color: textSecondary,
                                                   ),
                                                   const SizedBox(height: 8),
                                                   AppText(
                                                     text: 'Загрузить обложку',
                                                     fontSize: 14,
                                                     fontWeight: 500,
-                                                    color: AppColors.black300,
+                                                    color: textSecondary,
                                                   ),
                                                 ],
                                               ),
@@ -289,7 +294,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           const SizedBox(height: 12),
 
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -303,7 +308,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       text: 'Контактные данные',
                                       fontSize: 15,
                                       fontWeight: 600,
-                                      color: AppColors.black500,
+                                      color: textPrimary,
                                     ),
                                   ),
                                   if (_phoneControllers.length < 4)
@@ -316,13 +321,13 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                         });
                                       },
                                       child: ContainerW(
-                                        color: AppColors.black50,
+                                        color: containerBg,
                                         radius: 8,
                                         child: Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: Icon(
                                             Icons.add,
-                                            color: AppColors.black500,
+                                            color: textPrimary,
                                             size: 20,
                                           ),
                                         ),
@@ -334,7 +339,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           ),
                           const SizedBox(height: 8),
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -352,9 +357,12 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       ),
                                       child: WTextField(
                                         title: 'Телефон ${index + 1}',
-                                        hintText: 'Введите номер',
+                                        hintText: '+998 ** *** ** **',
                                         controller: _phoneControllers[index],
                                         keyboardType: TextInputType.phone,
+                                        inputFormatters: [
+                                          UzbekPhoneInputFormatter(),
+                                        ],
                                         suffixIconWidget: index > 0
                                             ? GestureDetector(
                                                 onTap: () {
@@ -383,7 +391,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           const SizedBox(height: 12),
 
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             width: double.infinity,
                             child: Padding(
@@ -395,13 +403,13 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 text: 'Рабочее время',
                                 fontSize: 16,
                                 fontWeight: 600,
-                                color: AppColors.black500,
+                                color: textPrimary,
                               ),
                             ),
                           ),
                           const SizedBox(height: 12),
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -412,7 +420,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     text: 'Рабочие дни и время',
                                     fontSize: 13,
                                     fontWeight: 500,
-                                    color: AppColors.black500,
+                                    color: textPrimary,
                                   ),
                                   const SizedBox(height: 6),
                                   _DropdownField(
@@ -431,7 +439,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     text: 'Перерыв (обед)',
                                     fontSize: 13,
                                     fontWeight: 500,
-                                    color: AppColors.black500,
+                                    color: textPrimary,
                                   ),
                                   const SizedBox(height: 6),
                                   _DropdownField(
@@ -452,7 +460,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           const SizedBox(height: 12),
 
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             width: double.infinity,
                             child: Padding(
@@ -464,13 +472,13 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 text: 'Адрес',
                                 fontSize: 16,
                                 fontWeight: 600,
-                                color: AppColors.black500,
+                                color: textPrimary,
                               ),
                             ),
                           ),
                           const SizedBox(height: 12),
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -515,7 +523,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                           ),
                           const SizedBox(height: 12),
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             width: double.infinity,
                             child: Padding(
@@ -527,13 +535,13 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 text: 'Социальные сети',
                                 fontSize: 16,
                                 fontWeight: 600,
-                                color: AppColors.black500,
+                                color: textPrimary,
                               ),
                             ),
                           ),
                           const SizedBox(height: 12),
                           ContainerW(
-                            color: AppColors.white,
+                            color: cardColor,
                             radius: 12,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -543,10 +551,10 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     title: 'Instagram',
                                     hintText: 'Введите ссылку на Instagram',
                                     controller: _instagramController,
-                                    prefixIcon: const Icon(
+                                    prefixIcon: Icon(
                                       Icons.camera_alt_outlined,
                                       size: 18,
-                                      color: AppColors.black300,
+                                      color: textSecondary,
                                     ),
                                   ),
                                   const SizedBox(height: 12),
@@ -554,10 +562,10 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     title: 'Facebook',
                                     hintText: 'Введите ссылку на Facebook',
                                     controller: _facebookController,
-                                    prefixIcon: const Icon(
+                                    prefixIcon: Icon(
                                       Icons.facebook_rounded,
                                       size: 18,
-                                      color: AppColors.black300,
+                                      color: textSecondary,
                                     ),
                                   ),
                                   const SizedBox(height: 12),
@@ -565,10 +573,10 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     title: 'Telegram',
                                     hintText: 'Введите ссылку на Telegram',
                                     controller: _telegramController,
-                                    prefixIcon: const Icon(
+                                    prefixIcon: Icon(
                                       Icons.send_rounded,
                                       size: 18,
-                                      color: AppColors.black300,
+                                      color: textSecondary,
                                     ),
                                   ),
                                   const SizedBox(height: 12),
@@ -576,10 +584,10 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     title: 'YouTube',
                                     hintText: 'Введите ссылку на YouTube',
                                     controller: _youtubeController,
-                                    prefixIcon: const Icon(
+                                    prefixIcon: Icon(
                                       Icons.play_circle_outline_rounded,
                                       size: 18,
-                                      color: AppColors.black300,
+                                      color: textSecondary,
                                     ),
                                   ),
                                 ],
@@ -597,18 +605,16 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   child: Container(
                                     height: 50,
                                     decoration: BoxDecoration(
-                                      color: AppColors.white,
+                                      color: cardColor,
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: AppColors.black100,
-                                      ),
+                                      border: Border.all(color: borderColor),
                                     ),
                                     child: Center(
                                       child: AppText(
                                         text: 'Отмена',
                                         fontSize: 15,
                                         fontWeight: 600,
-                                        color: AppColors.black500,
+                                        color: textPrimary,
                                       ),
                                     ),
                                   ),
@@ -702,12 +708,15 @@ class _DropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final containerBg = context.surfaceContainer;
+    final borderColor = context.borderColor;
+    final textSecondary = context.textSecondary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.black50,
+        color: containerBg,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.black100),
+        border: Border.all(color: borderColor),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -715,12 +724,9 @@ class _DropdownField extends StatelessWidget {
           isExpanded: true,
           hint: Text(
             hint,
-            style: const TextStyle(fontSize: 14, color: AppColors.black300),
+            style: TextStyle(fontSize: 14, color: textSecondary),
           ),
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: AppColors.black300,
-          ),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: textSecondary),
           items: items
               .map((e) => DropdownMenuItem(value: e, child: Text(e)))
               .toList(),

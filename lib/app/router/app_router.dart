@@ -73,7 +73,10 @@ class AppRouter {
               if (ad == null) {
                 return const SizedBox.shrink();
               }
-              return OrderPage(ad: ad);
+              return BlocProvider(
+                create: (_) => getIt<AddressBloc>()..add(LoadAddressesEvent()),
+                child: OrderPage(ad: ad),
+              );
             },
           ),
         ],
@@ -82,6 +85,38 @@ class AppRouter {
         path: '/search',
         name: 'search',
         builder: (context, state) => const SearchPage(),
+      ),
+      GoRoute(
+        path: '/add-address',
+        name: 'profile-add-address',
+        builder: (context, state) {
+          final extra = state.extra;
+          return AddAddressMapPage(
+            address: extra is AddressModel ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/add-address-form',
+        name: 'profile-add-address-form',
+        builder: (context, state) {
+          final extra = state.extra;
+          LatLng? coordinates;
+          AddressModel? addressModel;
+          if (extra is LatLng) {
+            coordinates = extra;
+          } else if (extra is AddressModel) {
+            addressModel = extra;
+          }
+
+          return BlocProvider(
+            create: (_) => getIt<AddressBloc>(),
+            child: AddAddressPage(
+              coordinates: coordinates,
+              address: addressModel,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: '/products',
@@ -338,11 +373,11 @@ class AppRouter {
                 name: 'profile-my-orders',
                 builder: (context, state) => const MyOrdersPage(),
               ),
-              GoRoute(
-                path: 'favorites',
-                name: 'profile-favorites',
-                builder: (context, state) => const FavoritesProfilePage(),
-              ),
+              // GoRoute(
+              //   path: 'favorites',
+              //   name: 'profile-favorites',
+              //   builder: (context, state) => const FavoritesProfilePage(),
+              // ),
               GoRoute(
                 path: 'notifications',
                 name: 'profile-notifications',
@@ -357,38 +392,7 @@ class AppRouter {
                   child: const MyAddressesPage(),
                 ),
               ),
-              GoRoute(
-                path: 'add-address',
-                name: 'profile-add-address',
-                builder: (context, state) {
-                  final extra = state.extra;
-                  return AddAddressMapPage(
-                    address: extra is AddressModel ? extra : null,
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'add-address-form',
-                name: 'profile-add-address-form',
-                builder: (context, state) {
-                  final extra = state.extra;
-                  LatLng? coordinates;
-                  AddressModel? addressModel;
-                  if (extra is LatLng) {
-                    coordinates = extra;
-                  } else if (extra is AddressModel) {
-                    addressModel = extra;
-                  }
 
-                  return BlocProvider(
-                    create: (_) => getIt<AddressBloc>(),
-                    child: AddAddressPage(
-                      coordinates: coordinates,
-                      address: addressModel,
-                    ),
-                  );
-                },
-              ),
               GoRoute(
                 path: 'payment',
                 name: 'profile-payment',

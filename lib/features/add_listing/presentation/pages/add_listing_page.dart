@@ -69,9 +69,9 @@ class _AddListingPageState extends State<AddListingPage> {
   static const int _maxColors = 10;
   static const int _maxSizes = 10;
 
-  List<_ParamRowData> _paramRows = [_ParamRowData()];
-  List<_ColorRowData> _colorRows = [_ColorRowData()];
-  List<_SizeRowData> _sizeRows = [_SizeRowData()];
+  final List<_ParamRowData> _paramRows = [_ParamRowData()];
+  final List<_ColorRowData> _colorRows = [_ColorRowData()];
+  final List<_SizeRowData> _sizeRows = [_SizeRowData()];
 
   @override
   void initState() {
