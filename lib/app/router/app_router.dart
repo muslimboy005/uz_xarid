@@ -37,6 +37,8 @@ import 'package:uz_xarid/features/profile/presentation/pages/add_address_map_pag
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart';
 import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
+import 'package:uz_xarid/features/author/presentation/pages/author_page.dart';
+import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -80,6 +82,18 @@ class AppRouter {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: '/author/:id',
+        name: 'author-profile',
+        builder: (context, state) {
+          final idStr = state.pathParameters['id'] ?? '0';
+          final userId = int.tryParse(idStr) ?? 0;
+          return BlocProvider(
+            create: (_) => getIt<AuthorBloc>(),
+            child: AuthorPage(userId: userId),
+          );
+        },
       ),
       GoRoute(
         path: '/search',

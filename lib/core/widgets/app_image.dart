@@ -149,6 +149,7 @@ class AppImage extends StatelessWidget {
     this.onTap,
     this.fit = BoxFit.cover,
     this.borderRadius,
+    this.errorWidget,
   });
 
   final String path;
@@ -158,6 +159,7 @@ class AppImage extends StatelessWidget {
   final VoidCallback? onTap;
   final BoxFit fit;
   final BorderRadius? borderRadius;
+  final Widget? errorWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +174,7 @@ class AppImage extends StatelessWidget {
       callback: onTap,
       fit: fit,
       borderRadius: borderRadius,
+      errorWidget: errorWidget,
     );
   }
 }

@@ -18,6 +18,7 @@ class AdDetailEntity extends Equatable {
     this.isLikes,
     this.viewsCount,
     this.callCount,
+    this.userId,
     this.userName,
     this.userAvatar,
     this.userPhone,
@@ -45,6 +46,7 @@ class AdDetailEntity extends Equatable {
   final bool? isLikes;
   final int? viewsCount;
   final int? callCount;
+  final int? userId;
   final String? userName;
   final String? userAvatar;
   final String? userPhone;
@@ -72,6 +74,7 @@ class AdDetailEntity extends Equatable {
     isLikes,
     viewsCount,
     callCount,
+    userId,
     userName,
     userAvatar,
     userPhone,
@@ -130,6 +133,7 @@ class AdSimilarEntity extends Equatable {
     required this.slug,
     required this.title,
     this.mainImage,
+    this.price,
     this.finalPrice,
     this.currency,
     this.rating,
@@ -139,6 +143,7 @@ class AdSimilarEntity extends Equatable {
   final String slug;
   final String title;
   final String? mainImage;
+  final String? price;
   final String? finalPrice;
   final String? currency;
   final double? rating;
@@ -149,6 +154,7 @@ class AdSimilarEntity extends Equatable {
     slug,
     title,
     mainImage,
+    price,
     finalPrice,
     currency,
     rating,

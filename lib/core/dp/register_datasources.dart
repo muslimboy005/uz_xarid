@@ -12,6 +12,7 @@ import 'package:uz_xarid/features/add_listing/data/datasources/listing_api.dart'
 import 'package:uz_xarid/features/search/data/datasources/search_api.dart';
 import 'package:uz_xarid/features/favorites/data/datasources/favorites_api.dart';
 import 'package:uz_xarid/features/favorites/data/datasources/favorites_local_datasource.dart';
+import 'package:uz_xarid/features/author/data/datasources/author_api.dart';
 
 Future<void> registerDataSources(GetIt getIt) async {
   getIt
@@ -26,9 +27,7 @@ Future<void> registerDataSources(GetIt getIt) async {
     ..registerLazySingleton<ProductDetailApi>(
       () => ProductDetailApi(getIt<DioClient>().dio),
     )
-    ..registerLazySingleton<SearchApi>(
-      () => SearchApi(getIt<DioClient>().dio),
-    )
+    ..registerLazySingleton<SearchApi>(() => SearchApi(getIt<DioClient>().dio))
     ..registerLazySingleton<ProductListRemoteDatasource>(
       () => ProductListRemoteDatasourceImpl(
         homeApi: getIt<HomeApi>(),
@@ -44,6 +43,7 @@ Future<void> registerDataSources(GetIt getIt) async {
     )
     ..registerLazySingleton<FavoritesLocalDatasource>(
       () => FavoritesLocalDatasourceImpl(prefs: getIt<SharedPreferences>()),
-    );
+    )
+    ..registerLazySingleton<AuthorApi>(() => AuthorApi(getIt<DioClient>().dio));
   log("Register Datasource Complate For GetIT");
 }
