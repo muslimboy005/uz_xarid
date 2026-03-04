@@ -9,7 +9,6 @@ import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/w_text_form.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_event.dart';
@@ -97,7 +96,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    // final isDark = context.isDark;
     final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
@@ -110,17 +109,17 @@ class _AddAddressPageState extends State<AddAddressPage> {
       body: Container(
         color: bodyBg,
         child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(AppDimens.paddingMedium),
-                child: Row(
+          child: Padding(
+            padding: const EdgeInsets.all(AppDimens.paddingMedium),
+            child: Column(
+              children: [
+                Row(
                   children: [
                     ContainerW(
                       onTap: () => context.pop(),
                       radius: 10,
                       color: cardColor,
-                      border: Border.all(color: borderColor),
+                      // border: Border.all(color: borderColor),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: AppImage(
@@ -129,247 +128,244 @@ class _AddAddressPageState extends State<AddAddressPage> {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 16),
+                    AppText(
+                      text: 'Qayerga yetkazamiz?',
+                      fontSize: 24,
+                      fontWeight: 700,
+                      color: textColor,
+                    ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ContainerW(
-                          color: AppColors.white,
-                          radius: 16,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AppText(
-                                  text: 'Qayerga yetkazamiz?',
-                                  fontSize: 24,
-                                  fontWeight: 700,
-                                  color: textColor,
-                                ),
-                                const SizedBox(height: 8),
-                                AppText(
-                                  text: 'Xaritadan manzilni kiriting',
-                                  fontSize: 14,
-                                  fontWeight: 400,
-                                  color: textSecondary,
-                                ),
-                                const SizedBox(height: 24),
-                                ContainerW(
-                                  color: cardColor,
-                                  radius: 12,
-                                  border: Border.all(color: borderColor),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      children: [
-                                        ContainerW(
-                                          color: AppColors.primary,
-                                          radius: 20,
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Icon(
-                                              Icons.location_on,
-                                              color: AppColors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              AppText(
-                                                text: widget.coordinates != null
-                                                    ? '${widget.coordinates!.latitude.toStringAsFixed(4)}, ${widget.coordinates!.longitude.toStringAsFixed(4)}'
-                                                    : 'Адрес на карте',
-                                                fontSize: 16,
-                                                fontWeight: 600,
-                                                color: textColor,
-                                              ),
-                                              const SizedBox(height: 4),
-                                              AppText(
-                                                text: 'Tanlangan manzil',
-                                                fontSize: 14,
-                                                fontWeight: 400,
-                                                color: textSecondary,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.chevron_right,
-                                          color: textColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ContainerW(
-                          color: AppColors.white,
-                          radius: 16,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Form(
-                              key: _formKey,
+                SizedBox(height: 16),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ContainerW(
+                            color: cardColor,
+                            radius: 16,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  WTextField(
-                                    controller: _nameController,
-                                    title: 'Название адреса',
-                                    hintText: 'Дом, Работа, и т.д.',
-                                    fillColor: context.surfaceContainer,
-                                    borderNoFocusColor: context.borderColor,
-                                    validator: (value) =>
-                                        value == null || value.trim().isEmpty
-                                        ? 'Maydonni to\'ldiring'
-                                        : null,
+                                  AppText(
+                                    text: 'Xaritadan manzilni kiriting',
+                                    fontSize: 14,
+                                    fontWeight: 400,
+                                    color: textSecondary,
                                   ),
-                                  const SizedBox(height: 16),
-                                  WTextField(
-                                    controller: _cityController,
-                                    title: 'Город',
-                                    hintText: 'Введите город',
-                                    fillColor: context.surfaceContainer,
-                                    borderNoFocusColor: context.borderColor,
-                                    validator: (value) =>
-                                        value == null || value.trim().isEmpty
-                                        ? 'Maydonni to\'ldiring'
-                                        : null,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: WTextField(
-                                          controller: _streetController,
-                                          title: 'Улица',
-                                          hintText: 'Введите улицу',
-                                          fillColor: context.surfaceContainer,
-                                          borderNoFocusColor:
-                                              context.borderColor,
-                                          validator: (value) =>
-                                              value == null ||
-                                                  value.trim().isEmpty
-                                              ? 'Maydonni to\'ldiring'
-                                              : null,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: WTextField(
-                                          controller: _houseController,
-                                          title: 'Дом',
-                                          hintText: 'Дом',
-                                          fillColor: context.surfaceContainer,
-                                          borderNoFocusColor:
-                                              context.borderColor,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: WTextField(
-                                          controller: _apartmentController,
-                                          title: 'Квартира',
-                                          hintText: 'Кв',
-                                          fillColor: context.surfaceContainer,
-                                          borderNoFocusColor:
-                                              context.borderColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  WTextField(
-                                    controller: _landmarkController,
-                                    title: 'Ориентир',
-                                    hintText: 'Укажите ближайший ориентир',
-                                    fillColor: context.surfaceContainer,
-                                    borderNoFocusColor: context.borderColor,
-                                  ),
-                                  const SizedBox(height: 48),
-                                  BlocConsumer<AddressBloc, AddressState>(
-                                    listener: (context, state) {
-                                      if (state.status ==
-                                              AddressStatus.createSuccess ||
-                                          state.status ==
-                                              AddressStatus.updateSuccess) {
-                                        context.pop(true); // Return success
-                                      } else if (state.status ==
-                                          AddressStatus.createFailure) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              state.errorMessage ?? 'Xatolik',
+                                  const SizedBox(height: 24),
+                                  ContainerW(
+                                    color: cardColor,
+                                    radius: 12,
+                                    border: Border.all(color: borderColor),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Row(
+                                        children: [
+                                          ContainerW(
+                                            color: AppColors.primary,
+                                            radius: 20,
+                                            child: const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Icon(
+                                                Icons.location_on,
+                                                color: AppColors.white,
+                                                size: 20,
+                                              ),
                                             ),
                                           ),
-                                        );
-                                      }
-                                    },
-                                    builder: (context, state) {
-                                      return ContainerW(
-                                        onTap:
-                                            state.status ==
-                                                AddressStatus.loading
-                                            ? null
-                                            : _submit,
-                                        color: AppColors.primary,
-                                        radius: 12,
-                                        width: double.infinity,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                AppText(
+                                                  text:
+                                                      widget.coordinates != null
+                                                      ? '${widget.coordinates!.latitude.toStringAsFixed(4)}, ${widget.coordinates!.longitude.toStringAsFixed(4)}'
+                                                      : 'Адрес на карте',
+                                                  fontSize: 16,
+                                                  fontWeight: 600,
+                                                  color: textColor,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                AppText(
+                                                  text: 'Tanlangan manzil',
+                                                  fontSize: 14,
+                                                  fontWeight: 400,
+                                                  color: textSecondary,
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                          child: Center(
-                                            child:
-                                                state.status ==
-                                                    AddressStatus.loading
-                                                ? const SizedBox(
-                                                    height: 20,
-                                                    width: 20,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                          color:
-                                                              AppColors.white,
-                                                          strokeWidth: 2,
-                                                        ),
-                                                  )
-                                                : AppText(
-                                                    text: 'Сохранить',
-                                                    fontSize: 16,
-                                                    fontWeight: 600,
-                                                    color: AppColors.white,
-                                                  ),
+                                          Icon(
+                                            Icons.chevron_right,
+                                            color: textColor,
                                           ),
-                                        ),
-                                      );
-                                    },
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(height: 16),
+                          ContainerW(
+                            color: cardColor,
+                            radius: 16,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    WTextField(
+                                      controller: _nameController,
+                                      title: 'Название адреса',
+                                      hintText: 'Дом, Работа, и т.д.',
+                                      fillColor: context.surfaceContainer,
+                                      borderNoFocusColor: context.borderColor,
+                                      validator: (value) =>
+                                          value == null || value.trim().isEmpty
+                                          ? 'Maydonni to\'ldiring'
+                                          : null,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    WTextField(
+                                      controller: _cityController,
+                                      title: 'Город',
+                                      hintText: 'Введите город',
+                                      fillColor: context.surfaceContainer,
+                                      borderNoFocusColor: context.borderColor,
+                                      validator: (value) =>
+                                          value == null || value.trim().isEmpty
+                                          ? 'Maydonni to\'ldiring'
+                                          : null,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: WTextField(
+                                            controller: _streetController,
+                                            title: 'Улица',
+                                            hintText: 'Введите улицу',
+                                            fillColor: context.surfaceContainer,
+                                            borderNoFocusColor:
+                                                context.borderColor,
+                                            validator: (value) =>
+                                                value == null ||
+                                                    value.trim().isEmpty
+                                                ? 'Maydonni to\'ldiring'
+                                                : null,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: WTextField(
+                                            controller: _houseController,
+                                            title: 'Дом',
+                                            hintText: 'Дом',
+                                            fillColor: context.surfaceContainer,
+                                            borderNoFocusColor:
+                                                context.borderColor,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: WTextField(
+                                            controller: _apartmentController,
+                                            title: 'Квартира',
+                                            hintText: 'Кв',
+                                            fillColor: context.surfaceContainer,
+                                            borderNoFocusColor:
+                                                context.borderColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    WTextField(
+                                      controller: _landmarkController,
+                                      title: 'Ориентир',
+                                      hintText: 'Укажите ближайший ориентир',
+                                      fillColor: context.surfaceContainer,
+                                      borderNoFocusColor: context.borderColor,
+                                    ),
+                                    const SizedBox(height: 48),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: bodyBg,
+        child: ContainerW(
+          // height: 82,
+          width: double.infinity,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+          color: cardColor,
+          child: BlocConsumer<AddressBloc, AddressState>(
+            listener: (context, state) {
+              if (state.status == AddressStatus.createSuccess ||
+                  state.status == AddressStatus.updateSuccess) {
+                context.pop(true); // Return success
+              }
+            },
+            builder: (context, state) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  color: bodyBg,
+                  child: ContainerW(
+                    height: 50,
+                    onTap: state.status == AddressStatus.loading
+                        ? null
+                        : _submit,
+                    color: AppColors.primary,
+                    radius: 12,
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: state.status == AddressStatus.loading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : AppText(
+                                text: 'Сохранить',
+                                fontSize: 16,
+                                fontWeight: 600,
+                                color: AppColors.white,
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),

@@ -19,6 +19,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
+    // final bodyBg = context.bodyBackground;
+    // final borderColor = context.borderColor;
+    // final surfaceContainer = context.surfaceContainer;
     final l10n = AppLocalizations.of(context)!;
 
     final cardColor = context.cardSurface;
@@ -29,11 +33,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: context.bodyBackground,
+        color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -155,12 +160,12 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? cardSurface : Colors.transparent,
+                  color: selected ? AppColors.black500 : cardSurface,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),
@@ -171,7 +176,7 @@ class _TabBar extends StatelessWidget {
                   child: AppText(
                     text: tabs[i],
                     fontSize: 13,
-                    fontWeight: selected ? 600 : 400,
+                    fontWeight: selected ? 700 : 500,
                     color: selected ? textColor : textSecondary,
                   ),
                 ),

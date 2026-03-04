@@ -8,15 +8,16 @@ import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class PaymentPage extends StatelessWidget {
   const PaymentPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final bodyBg = context.bodyBackground;
+    final isDark = context.isDark;
+    // final textSecondary = context.textSecondary;
+    // final l10n = AppLocalizations.of(context)!;
+    // final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
     final borderColor = context.borderColor;
@@ -26,7 +27,7 @@ class PaymentPage extends StatelessWidget {
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: bodyBg,
+        color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
           child: Column(
             children: [
@@ -40,7 +41,6 @@ class PaymentPage extends StatelessWidget {
                           onTap: () => context.pop(),
                           radius: 10,
                           color: cardColor,
-                          border: Border.all(color: borderColor),
                           child: Padding(
                             padding: const EdgeInsets.all(10),
                             child: AppImage(

@@ -1,0 +1,37 @@
+Analyzing 4 items...                                            
+
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/personal_data_page.dart:148:11 • unused_local_variable
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/personal_data_page.dart:149:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/personal_data_page.dart:150:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/personal_data_page.dart:151:11 • unused_local_variable
+warning • The value of the local variable 'fieldFill' isn't used • lib/features/profile/presentation/pages/personal_data_page.dart:180:15 • unused_local_variable
+warning • The value of the local variable 'fieldBorder' isn't used • lib/features/profile/presentation/pages/personal_data_page.dart:181:15 • unused_local_variable
+  error • Undefined name 'isDark' • lib/features/profile/presentation/pages/personal_data_page.dart:370:26 • undefined_identifier
+  error • Undefined name 'isDark' • lib/features/profile/presentation/pages/personal_data_page.dart:630:34 • undefined_identifier
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/pages/profile_page.dart:29:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/pages/profile_page.dart:30:11 • unused_local_variable
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/pages/profile_page.dart:31:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/pages/profile_page.dart:32:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/pages/profile_page.dart:33:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/pages/profile_page.dart:34:11 • unused_local_variable
+  error • The name 'bodyBg' is already defined • lib/features/profile/presentation/pages/profile_page.dart:34:11 • duplicate_definition
+warning • The value of the local variable 'isDark' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:26:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:27:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:31:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:32:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:34:11 • unused_local_variable
+  error • The name 'textColor' is already defined • lib/features/profile/presentation/widgets/authorized_profile_content.dart:34:11 • duplicate_definition
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:35:11 • unused_local_variable
+  error • The name 'textSecondary' is already defined • lib/features/profile/presentation/widgets/authorized_profile_content.dart:35:11 • duplicate_definition
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/widgets/authorized_profile_content.dart:36:11 • unused_local_variable
+  error • The name 'cardColor' is already defined • lib/features/profile/presentation/widgets/authorized_profile_content.dart:36:11 • duplicate_definition
+warning • The value of the local variable 'isDark' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:26:11 • unused_local_variable
+warning • The value of the local variable 'bodyBg' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:27:11 • unused_local_variable
+warning • The value of the local variable 'cardColor' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:28:11 • unused_local_variable
+warning • The value of the local variable 'borderColor' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:31:11 • unused_local_variable
+warning • The value of the local variable 'surfaceContainer' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:32:11 • unused_local_variable
+warning • The value of the local variable 'textColor' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:35:11 • unused_local_variable
+  error • The name 'textColor' is already defined • lib/features/profile/presentation/widgets/unauth_profile_content.dart:35:11 • duplicate_definition
+warning • The value of the local variable 'textSecondary' isn't used • lib/features/profile/presentation/widgets/unauth_profile_content.dart:36:11 • unused_local_variable
+  error • The name 'textSecondary' is already defined • lib/features/profile/presentation/widgets/unauth_profile_content.dart:36:11 • duplicate_definition
+

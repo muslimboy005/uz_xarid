@@ -11,7 +11,6 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class MyAddressesPage extends StatefulWidget {
   const MyAddressesPage({super.key});
@@ -28,8 +27,8 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final bodyBg = context.bodyBackground;
+    final isDark = context.isDark;
+    // final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
@@ -38,7 +37,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: bodyBg,
+        color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,12 +52,15 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     GestureDetector(
                       onTap: () => context.pop(),
                       child: ContainerW(
-                        color: AppColors.white,
+                        color: cardColor,
                         radius: 8,
-                        borderColor: AppColors.black100,
+                        // borderColor: AppColors.black100,
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: AppImage(path: AppAssets.backDropleft),
+                          child: AppImage(
+                            path: AppAssets.backDropleft,
+                            color: textColor,
+                          ),
                         ),
                       ),
                     ),
@@ -67,7 +69,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                       text: 'Мои адреса',
                       fontSize: 20,
                       fontWeight: 700,
-                      color: AppColors.black500,
+                      color: textColor,
                     ),
                   ],
                 ),
@@ -119,9 +121,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                           ContainerW(
                             width: double.infinity,
                             onTap: () async {
-                              final result = await context.push(
-                                '/profile/add-address',
-                              );
+                              final result = await context.push('/add-address');
                               if (result == true && context.mounted) {
                                 context.read<AddressBloc>().add(
                                   LoadAddressesEvent(),
@@ -163,7 +163,9 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                     index == 0; // Mock selection logic
                                 return ContainerW(
                                   color: isSelected
-                                      ? AppColors.primary.withOpacity(0.04)
+                                      ? AppColors.primary.withValues(
+                                          alpha: 0.04,
+                                        )
                                       : cardColor,
                                   radius: 12,
                                   border: Border.all(
@@ -404,7 +406,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
           const SizedBox(height: 24),
           ContainerW(
             onTap: () async {
-              final result = await context.push('/profile/add-address');
+              final result = await context.push('/add-address');
               if (result == true && context.mounted) {
                 context.read<AddressBloc>().add(LoadAddressesEvent());
               }
