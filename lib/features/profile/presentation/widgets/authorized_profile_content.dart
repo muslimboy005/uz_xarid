@@ -22,6 +22,7 @@ class AuthorizedProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.mounted) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context)!;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
@@ -31,34 +32,7 @@ class AuthorizedProfileContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => context.go('/home'),
-                child: AppText(
-                  text: l10n.navHome,
-                  fontSize: 12,
-                  fontWeight: 400,
-                  color: textSecondary,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Icon(
-                  Icons.chevron_right,
-                  size: 14,
-                  color: textSecondary,
-                ),
-              ),
-              AppText(
-                text: l10n.profileTitle,
-                fontSize: 12,
-                fontWeight: 600,
-                color: AppColors.primary,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimens.paddingMedium),
+          // const SizedBox(height: AppDimens.paddingMedium),
           Row(
             children: [
               AppText(
@@ -116,12 +90,9 @@ class AuthorizedProfileContent extends StatelessWidget {
                             return url;
                           }())
                         : null,
-                    onBackgroundImageError: (exception, stackTrace) {
-                      // Xatoliklarni (masalan, 404 default.png uchun) ushlab qolamiz
-                      // bu IDE debugger'ni to'xtatib qolishini oldini oladi.
-                    },
+                    onBackgroundImageError: (exception, stackTrace) {},
                     child: user.avatar.isEmpty
-                        ? const Icon(
+                        ? Icon(
                             Icons.person,
                             color: AppColors.blue500,
                             size: 24,
@@ -151,31 +122,7 @@ class AuthorizedProfileContent extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 22),
-          ContainerW(
-            color: AppColors.red,
-            radius: 8,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  AppImage(path: AppAssets.information),
-                  SizedBox(width: 6),
-                  AppText(
-                    text: l10n.profileVerifyAccount,
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: AppColors.white,
-                  ),
-                  Spacer(),
-                  AppImage(
-                    path: AppAssets.backDropright,
-                    color: AppColors.white,
-                  ),
-                ],
-              ),
-            ),
-          ),
+
           SizedBox(height: 22),
           ContainerW(
             color: cardColor,
@@ -206,11 +153,11 @@ class AuthorizedProfileContent extends StatelessWidget {
                     title: l10n.profileMenuMyOrders,
                     onTap: () => context.push('/profile/my-orders'),
                   ),
-                  _ProfileMenuItem(
-                    icon: AppAssets.favorite1,
-                    title: l10n.profileMenuFavorites,
-                    onTap: () => context.push('/profile/favorites'),
-                  ),
+                  // _ProfileMenuItem(
+                  //   icon: AppAssets.favorite1,
+                  //   title: l10n.profileMenuFavorites,
+                  //   onTap: () => context.push('/profile/favorites'),
+                  // ),
                   _ProfileMenuItem(
                     icon: AppAssets.notifications,
                     title: l10n.profileMenuNotifications,

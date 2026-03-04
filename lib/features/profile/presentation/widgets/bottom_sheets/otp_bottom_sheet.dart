@@ -8,7 +8,6 @@ import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:pinput/pinput.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
-import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -128,13 +127,6 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
               widget.onAskName();
             }
           });
-        } else if (state.status == ProfileStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(getFriendlyErrorMessage(state.errorMessage)),
-              backgroundColor: Colors.red,
-            ),
-          );
         }
       },
       builder: (context, state) {
@@ -276,9 +268,6 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                       ? null
                       : () {
                           if (_otpController.text.length != 6) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.otpInputError)),
-                            );
                             return;
                           }
 

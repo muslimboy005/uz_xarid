@@ -7,7 +7,6 @@ import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/core/utils/error_handler.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -64,13 +63,6 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
               profileBloc.add(const ProfileLoadEvent());
             });
           }
-        } else if (state.status == ProfileStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(getFriendlyErrorMessage(state.errorMessage)),
-              backgroundColor: Colors.red,
-            ),
-          );
         }
       },
       builder: (context, state) {
@@ -197,9 +189,6 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                       : () {
                           if (_firstNameController.text.trim().isEmpty ||
                               _lastNameController.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.nameRequiredError)),
-                            );
                             return;
                           }
 

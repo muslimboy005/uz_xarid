@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -9,6 +8,13 @@ class SupportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final isDark = context.isDark;
+    // final bodyBg = context.bodyBackground;
+    // final cardColor = context.cardSurface;
+    // final textColor = context.textPrimary;
+    // final textSecondary = context.textSecondary;
+    // final borderColor = context.borderColor;
+    // final surfaceContainer = context.surfaceContainer;
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(

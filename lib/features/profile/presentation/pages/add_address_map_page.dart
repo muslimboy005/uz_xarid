@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:latlong2/latlong.dart' as lt;
 import 'package:go_router/go_router.dart';
@@ -116,6 +118,8 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final cardColor = context.cardSurface;
+    final textColor = context.textPrimary;
     return Scaffold(
       backgroundColor: context.bodyBackground,
       body: Stack(
@@ -181,11 +185,11 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.white,
+                      color: cardColor,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.black500.withOpacity(0.2),
+                          color: textColor.withOpacity(0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -215,7 +219,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
 
           // Controls at the bottom (Back and GPS)
           Positioned(
-            bottom: 100, // Above the save button panel
+            bottom: 150, // Above the save button panel
             left: 16,
             right: 16,
             child: Row(
@@ -226,20 +230,19 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.white,
+                      color: cardColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.black500.withOpacity(0.1),
+                          color: textColor.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 24,
-                      color: AppColors.black500,
+                    child: AppImage(
+                      path: AppAssets.backDropleft,
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -248,21 +251,17 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.white,
+                      color: cardColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.black500.withOpacity(0.1),
+                          color: textColor.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.near_me_outlined,
-                      size: 24,
-                      color: AppColors.black500,
-                    ),
+                    child: AppImage(path: AppAssets.location, color: textColor),
                   ),
                 ),
               ],

@@ -27,142 +27,146 @@ class SettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (_) {}, onMenuTap: () {}),
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.black50,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: ContainerW(
-                      color: isDark ? AppColors.darkCard : AppColors.white,
-                      radius: 8,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.arrow_back_ios_new,
-                          size: 16,
-                          color: isDark
-                              ? AppColors.darkTextPrimary
-                              : AppColors.black500,
+      backgroundColor: AppColors.primary,
+      body: Container(
+        color: isDark ? AppColors.darkBackground : AppColors.black50,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: ContainerW(
+                        color: isDark ? AppColors.darkCard : AppColors.white,
+                        radius: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            size: 16,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.black500,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppText(
-                      text: l10n.settingsTitle,
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.black500,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppText(
+                        text: l10n.settingsTitle,
+                        fontSize: 20,
+                        fontWeight: 700,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.black500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppDimens.paddingLarge),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.paddingMedium,
+                ),
+                child: ContainerW(
+                  color: isDark ? AppColors.darkCard : AppColors.white,
+                  radius: 16,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        _SettingsSectionTitle(
+                          title: l10n.settingsLanguage,
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 8),
+                        ..._supportedLocales.map((locale) {
+                          final currentLocale = context
+                              .watch<LocaleCubit>()
+                              .state;
+                          final isSelected =
+                              currentLocale.languageCode == locale.languageCode;
+                          return _LanguageTile(
+                            locale: locale,
+                            isSelected: isSelected,
+                            isDark: isDark,
+                            onTap: () {
+                              context.read<LocaleCubit>().change(locale);
+                            },
+                          );
+                        }),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: AppDimens.paddingLarge),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.paddingMedium,
-              ),
-              child: ContainerW(
-                color: isDark ? AppColors.darkCard : AppColors.white,
-                radius: 16,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      _SettingsSectionTitle(
-                        title: l10n.settingsLanguage,
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 8),
-                      ..._supportedLocales.map((locale) {
-                        final currentLocale = context
-                            .watch<LocaleCubit>()
-                            .state;
-                        final isSelected =
-                            currentLocale.languageCode == locale.languageCode;
-                        return _LanguageTile(
-                          locale: locale,
-                          isSelected: isSelected,
+              const SizedBox(height: AppDimens.paddingMedium),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.paddingMedium,
+                ),
+                child: ContainerW(
+                  color: isDark ? AppColors.darkCard : AppColors.white,
+                  radius: 16,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        _SettingsSectionTitle(
+                          title: l10n.settingsTheme,
                           isDark: isDark,
-                          onTap: () {
-                            context.read<LocaleCubit>().change(locale);
+                        ),
+                        const SizedBox(height: 8),
+                        BlocBuilder<ThemeCubit, ThemeMode>(
+                          builder: (context, themeMode) {
+                            final isDarkMode = themeMode == ThemeMode.dark;
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: _ThemeOptionTile(
+                                    label: l10n.settingsThemeLight,
+                                    icon: Icons.light_mode_outlined,
+                                    isSelected: !isDarkMode,
+                                    isDark: isDark,
+                                    onTap: () {
+                                      context.read<ThemeCubit>().setThemeMode(
+                                        ThemeMode.light,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: _ThemeOptionTile(
+                                    label: l10n.settingsThemeDark,
+                                    icon: Icons.dark_mode_outlined,
+                                    isSelected: isDarkMode,
+                                    isDark: isDark,
+                                    onTap: () {
+                                      context.read<ThemeCubit>().setThemeMode(
+                                        ThemeMode.dark,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
                           },
-                        );
-                      }),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: AppDimens.paddingMedium),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.paddingMedium,
-              ),
-              child: ContainerW(
-                color: isDark ? AppColors.darkCard : AppColors.white,
-                radius: 16,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      _SettingsSectionTitle(
-                        title: l10n.settingsTheme,
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 8),
-                      BlocBuilder<ThemeCubit, ThemeMode>(
-                        builder: (context, themeMode) {
-                          final isDarkMode = themeMode == ThemeMode.dark;
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: _ThemeOptionTile(
-                                  label: l10n.settingsThemeLight,
-                                  icon: Icons.light_mode_outlined,
-                                  isSelected: !isDarkMode,
-                                  isDark: isDark,
-                                  onTap: () {
-                                    context.read<ThemeCubit>().setThemeMode(
-                                      ThemeMode.light,
-                                    );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: _ThemeOptionTile(
-                                  label: l10n.settingsThemeDark,
-                                  icon: Icons.dark_mode_outlined,
-                                  isSelected: isDarkMode,
-                                  isDark: isDark,
-                                  onTap: () {
-                                    context.read<ThemeCubit>().setThemeMode(
-                                      ThemeMode.dark,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

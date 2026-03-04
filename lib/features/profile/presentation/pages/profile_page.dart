@@ -23,6 +23,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.mounted) return const SizedBox.shrink();
+    final isDark = context.isDark;
     final bodyBg = context.bodyBackground;
     final containerBg = context.surfaceContainer;
     return Scaffold(
@@ -30,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       body: Container(
         height: MediaQuery.of(context).size.height,
-        color: bodyBg,
+        color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
           top: false,
           child: Padding(
@@ -56,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             profile != null &&
                             profile.data.user != null))
                       Container(
-                        color: containerBg,
+                        color: bodyBg,
                         child: AuthorizedProfileContent(
                           user: state.profileModel!.data.user!,
                         ),
