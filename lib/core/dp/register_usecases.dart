@@ -11,6 +11,8 @@ import 'package:uz_xarid/features/product_detail/domain/repositories/product_det
 import 'package:uz_xarid/features/product_detail/domain/usecases/get_ad_detail.dart';
 import 'package:uz_xarid/features/product_list/domain/repositories/product_list_repository.dart';
 import 'package:uz_xarid/features/product_list/domain/usecases/get_product_list.dart';
+import 'package:uz_xarid/features/product_detail/domain/usecases/get_product_feedbacks.dart';
+import 'package:uz_xarid/features/product_detail/domain/usecases/leave_product_feedback.dart';
 import 'package:uz_xarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
@@ -34,6 +36,12 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<GetAdDetail>(
       () => GetAdDetail(getIt<ProductDetailRepository>()),
+    )
+    ..registerLazySingleton<GetProductFeedbacks>(
+      () => GetProductFeedbacks(getIt<ProductDetailRepository>()),
+    )
+    ..registerLazySingleton<LeaveProductFeedback>(
+      () => LeaveProductFeedback(getIt<ProductDetailRepository>()),
     )
     ..registerLazySingleton<GetProductList>(
       () => GetProductList(getIt<ProductListRepository>()),

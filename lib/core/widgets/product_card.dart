@@ -12,6 +12,7 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.slug,
     required this.title,
+    this.description,
     this.mainImage,
     this.price,
     this.finalPrice,
@@ -26,6 +27,7 @@ class ProductCard extends StatelessWidget {
 
   final String slug;
   final String title;
+  final String? description;
   final String? mainImage;
   final String? price;
   final String? finalPrice;
@@ -91,6 +93,12 @@ class ProductCard extends StatelessWidget {
                   child: AppImage(
                     path: mainImage ?? '',
                     fit: BoxFit.cover,
+                    errorWidget: Container(
+                      color: context.surfaceContainer,
+                      child: Center(
+                        child: Icon(Icons.image, color: context.textSecondary),
+                      ),
+                    ),
                   ),
                 ),
                 if (onLikeTap != null)
@@ -134,95 +142,93 @@ class ProductCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: AppColors.orange,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              rating.toStringAsFixed(1),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                        color: context.textPrimary,
-                                        fontSize: 11,
-                                      ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 12,
-                              color: context.textSecondary,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '$reviewCount ${l10n.reviewsLabel}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                        color: context.textSecondary,
-                                        fontSize: 11,
-                                      ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Flexible(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              return SizedBox(
-                                width: constraints.maxWidth,
-                                child: Text(
-                                  title,
-                                  maxLines: 4,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.22,
-                                        fontSize: 13,
-                                        color: context.textPrimary,
-                                      ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        if (oldPrice.isNotEmpty)
-                          Text(
-                            '$oldPrice $_displayCurrency',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: context.textSecondary,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                          ),
-                        const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: AppColors.orange, size: 14),
+                        const SizedBox(width: 2),
                         Text(
-                          currentPrice.isNotEmpty
-                              ? '$currentPrice $_displayCurrency'
-                              : '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleLarge
+                          rating.toStringAsFixed(1),
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.orange,
+                                color: context.textPrimary,
+                                fontSize: 11,
                               ),
                         ),
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 12,
+                          color: context.textSecondary,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '$reviewCount ${l10n.reviewsLabel}',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: context.textSecondary,
+                                fontSize: 11,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.22,
+                        fontSize: 13,
+                        color: context.textPrimary,
+                      ),
+                    ),
+                    if (description != null && description!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        description!,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.textSecondary,
+                          fontSize: 11,
+                          height: 1.2,
+                        ),
+                      ),
+                    ],
+                    const Spacer(),
+                    const SizedBox(height: 4),
+                    if (oldPrice.isNotEmpty)
+                      Text(
+                        '$oldPrice $_displayCurrency',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: context.textSecondary,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    const SizedBox(height: 2),
+                    Text(
+                      currentPrice.isNotEmpty
+                          ? '$currentPrice $_displayCurrency'
+                          : '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.orange,
+                      ),
+                    ),
                   ],
                 ),
               ),

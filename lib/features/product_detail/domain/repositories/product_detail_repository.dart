@@ -4,4 +4,11 @@ import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entit
 
 abstract class ProductDetailRepository {
   Future<Either<Failure, AdDetailEntity>> getAdDetail(String slug);
+
+  Future<Either<Failure, dynamic>> getFeedbacks(String slug);
+
+  Future<Either<Failure, dynamic>> leaveFeedback(
+    String slug,
+    Map<String, dynamic> data,
+  );
 }

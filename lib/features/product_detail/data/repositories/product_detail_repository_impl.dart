@@ -16,6 +16,7 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
     try {
       final detailFuture = api.getAdDetail(slug);
       final similarFuture = api.getSimilar(slug);
+
       final results = await Future.wait([detailFuture, similarFuture]);
       final detailResponse = results[0] as AdDetailResponseDto;
       final similarResponse = results[1] as AdSimilarResponseDto;
@@ -32,6 +33,7 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
                   slug: e.slug,
                   title: e.title,
                   mainImage: e.mainImage,
+                  price: e.price,
                   finalPrice: e.finalPrice,
                   currency: e.currency,
                   rating: e.rating,
@@ -103,5 +105,34 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
       return [first, last].where((s) => s.isNotEmpty).join(' ');
     }
     return user.username;
+  }
+
+  @override
+  Future<Either<Failure, dynamic>> getFeedbacks(String slug) async {
+    try {
+      final response = await api.getFeedbacks(slug);
+      return Right(response);
+    } on DioException catch (e) {
+      final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
+      return Left(ServerFailure(message: message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, dynamic>> leaveFeedback(
+    String slug,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await api.leaveFeedback(slug, data);
+      return Right(response);
+    } on DioException catch (e) {
+      final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
+      return Left(ServerFailure(message: message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
   }
 }

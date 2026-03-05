@@ -20,4 +20,13 @@ abstract class ProductDetailApi {
 
   @GET(ApiUrls.size)
   Future<SizeListResponseDto> getSizes(@Query('page_size') int pageSize);
+
+  @GET('ad/{slug}/feedback/')
+  Future<dynamic> getFeedbacks(@Path('slug') String slug);
+
+  @POST('ad/{slug}/feedback/')
+  Future<dynamic> leaveFeedback(
+    @Path('slug') String slug,
+    @Body() Map<String, dynamic> body,
+  );
 }
