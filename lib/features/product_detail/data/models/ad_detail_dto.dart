@@ -53,7 +53,9 @@ class AdDetailDataDto {
   final int? totalCommentsAuthor;
   @JsonKey(name: 'average_rating_author')
   final double? averageRatingAuthor;
+
   final String? description;
+
   @JsonKey(name: 'dimension_unit')
   final String? dimensionUnit;
   @JsonKey(name: 'weight_unit')

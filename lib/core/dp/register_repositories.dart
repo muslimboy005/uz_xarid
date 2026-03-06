@@ -22,6 +22,9 @@ import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dar
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uz_xarid/features/favorites/data/repositories/favorites_repository_impl.dart';
 import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
+import 'package:uz_xarid/features/author/data/datasources/author_api.dart';
+import 'package:uz_xarid/features/author/data/repositories/author_repository_impl.dart';
+import 'package:uz_xarid/features/author/domain/repositories/author_repository.dart';
 
 Future<void> registerRepositories(GetIt getIt) async {
   getIt
@@ -49,6 +52,9 @@ Future<void> registerRepositories(GetIt getIt) async {
         localDatasource: getIt<FavoritesLocalDatasource>(),
         secureStorage: getIt<SecureStorageService>(),
       ),
+    )
+    ..registerLazySingleton<AuthorRepository>(
+      () => AuthorRepositoryImpl(remoteDataSource: getIt<AuthorApi>()),
     );
   log("Register Repositories Complate For GetIT");
 }

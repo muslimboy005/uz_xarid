@@ -7,7 +7,7 @@ extension ThemeColors on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 
   Color get bodyBackground =>
-      isDark ? AppColors.darkBackground : AppColors.background;
+      isDark ? AppColors.darkBackground : AppColors.black50;
 
   Color get surfaceContainer => isDark ? AppColors.darkCard : AppColors.black50;
 
@@ -15,6 +15,8 @@ extension ThemeColors on BuildContext {
 
   Color get textPrimary =>
       isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+
+  Color get textWhite => isDark ? AppColors.darkTextPrimary : AppColors.white;
 
   Color get textSecondary =>
       isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;

@@ -6,6 +6,7 @@ class AuthorEntity extends Equatable {
     required this.id,
     required this.firstName,
     required this.lastName,
+
     this.phone,
     this.avatar,
     this.dateJoined,
@@ -20,6 +21,7 @@ class AuthorEntity extends Equatable {
   final int id;
   final String firstName;
   final String lastName;
+
   final String? phone;
   final String? avatar;
   final String? dateJoined;
@@ -41,6 +43,7 @@ class AuthorEntity extends Equatable {
     id,
     firstName,
     lastName,
+
     phone,
     avatar,
     dateJoined,

@@ -168,8 +168,8 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       },
       builder: (context, state) {
         final isLoading = state.status == ProfileStatus.loading;
-        final isDark = context.isDark;
-        // final bodyBg = context.bodyBackground;
+        // final isDark = context.isDark;
+        final bodyBg = context.bodyBackground;
         final cardColor = context.cardSurface;
         final textColor = context.textPrimary;
 
@@ -178,7 +178,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           backgroundColor: AppColors.primary,
           body: SafeArea(
             child: Container(
-              color: isDark ? AppColors.darkBackground : AppColors.primary,
+              color: bodyBg,
               child: Column(
                 children: [
                   Expanded(

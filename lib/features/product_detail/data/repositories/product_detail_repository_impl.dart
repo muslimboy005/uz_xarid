@@ -59,6 +59,7 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
         isLikes: d.isLikes,
         viewsCount: d.viewsCount ?? 0,
         callCount: d.callCount ?? 0,
+        userId: d.user?.id,
         userName: _userDisplayName(d.user),
         userAvatar: d.user?.avatar,
         userPhone: d.user?.phone,

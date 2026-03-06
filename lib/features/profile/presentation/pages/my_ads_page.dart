@@ -9,8 +9,8 @@ class MyAdsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-    // final bodyBg = context.bodyBackground;
+    // final isDark = context.isDark;
+    final bodyBg = context.bodyBackground;
     // final cardColor = context.cardSurface;
     // final textColor = context.textPrimary;
     // final textSecondary = context.textSecondary;
@@ -22,7 +22,7 @@ class MyAdsPage extends StatelessWidget {
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: isDark ? AppColors.darkBackground : AppColors.primary,
+        color: bodyBg,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
