@@ -41,6 +41,7 @@ class AuthorRepositoryImpl implements AuthorRepository {
           id: user.id,
           firstName: user.firstName ?? '',
           lastName: user.lastName ?? '',
+        
           phone: user.phone,
           avatar: user.avatar,
           dateJoined: user.dateJoined,

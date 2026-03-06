@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/products_not_found_placeholder.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
 import 'package:uz_xarid/features/home/data/repositories/home_repository_impl.dart';
 import 'package:uz_xarid/features/home/domain/usecases/get_home.dart';
@@ -338,21 +340,19 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),
-                  Container(
+                  ContainerW(
                     width: double.infinity,
-                    height: 420,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      color: containerBg,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppDimens.paddingMedium,
-                          ),
-                          child: Row(
+                    // height: 420,
+                    radius: 16,
+                    color: context.surfaceContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 20,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
@@ -388,228 +388,219 @@ class HomePage extends StatelessWidget {
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          height: 340,
-                          child: BlocBuilder<HomeBloc, HomeState>(
-                            builder: (context, state) {
-                              if (state.status == HomeStatus.failure &&
-                                  state.recommendations.isEmpty) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: Text(
-                                    state.error ?? l10n.dataLoadError,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: AppColors.red),
-                                  ),
-                                );
-                              }
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 340,
+                            child: BlocBuilder<HomeBloc, HomeState>(
+                              builder: (context, state) {
+                                if (state.status == HomeStatus.failure &&
+                                    state.recommendations.isEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      state.error ?? l10n.dataLoadError,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(color: AppColors.red),
+                                    ),
+                                  );
+                                }
 
-                              if (state.status == HomeStatus.loading &&
-                                  state.recommendations.isEmpty) {
+                                if (state.status == HomeStatus.loading &&
+                                    state.recommendations.isEmpty) {
+                                  return ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    itemBuilder: (_, __) =>
+                                        const ShimmerProductCard(width: 230),
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(width: 12),
+                                    itemCount: 3,
+                                  );
+                                }
+
+                                if (state.recommendations.isEmpty) {
+                                  return ProductsNotFoundPlaceholder(
+                                    l10n: l10n,
+                                  );
+                                }
+
                                 return ListView.separated(
                                   scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  itemBuilder: (_, __) =>
-                                      const ShimmerProductCard(width: 230),
+
+                                  itemCount: state.recommendations.length,
                                   separatorBuilder: (_, __) =>
                                       const SizedBox(width: 12),
-                                  itemCount: 3,
+                                  itemBuilder: (context, index) =>
+                                      RecommendationCard(
+                                        item: state.recommendations[index],
+                                      ),
                                 );
-                              }
-
-                              if (state.recommendations.isEmpty) {
-                                return ProductsNotFoundPlaceholder(l10n: l10n);
-                              }
-
-                              return ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                itemCount: state.recommendations.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(width: 12),
-                                itemBuilder: (context, index) =>
-                                    RecommendationCard(
-                                      item: state.recommendations[index],
-                                    ),
-                              );
-                            },
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),
                   // Gifts section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.paddingMedium,
+                  Container(
+                    width: double.infinity,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Container(
-                      width: double.infinity,
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 329,
-                            height: 500,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage(
-                                  'assets/images/rectangel.png',
-                                ),
-                                fit: BoxFit.cover,
-                              ),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 329,
+                          height: 500,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/rectangel.png'),
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 14,
-                              top: 14,
-                              bottom: 14,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 14,
+                            top: 14,
+                            bottom: 14,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.25),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  l10n.recommendationsTitle,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                width: 290,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
                                   child: Text(
-                                    l10n.recommendationsTitle,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    l10n.giftHeadline,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                SizedBox(
-                                  width: 290,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      l10n.giftHeadline,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w800,
-                                            color: Colors.white,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                SizedBox(
-                                  height: 330,
-                                  child: BlocBuilder<HomeBloc, HomeState>(
-                                    builder: (context, state) {
-                                      if (state.status == HomeStatus.failure &&
-                                          state.gifts.isEmpty) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                          ),
-                                          child: Text(
-                                            state.error ?? l10n.dataLoadError,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                  color: AppColors.red,
-                                                ),
-                                          ),
-                                        );
-                                      }
-                                      if (state.status == HomeStatus.loading &&
-                                          state.gifts.isEmpty) {
-                                        return ListView.separated(
-                                          scrollDirection: Axis.horizontal,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                          ),
-                                          itemBuilder: (_, __) =>
-                                              const ShimmerProductCardSmall(
-                                                width: 240,
-                                              ),
-                                          separatorBuilder: (_, __) =>
-                                              const SizedBox(width: 12),
-                                          itemCount: 2,
-                                        );
-                                      }
-                                      if (state.gifts.isEmpty) {
-                                        return const SizedBox.shrink();
-                                      }
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                height: 330,
+                                child: BlocBuilder<HomeBloc, HomeState>(
+                                  builder: (context, state) {
+                                    if (state.status == HomeStatus.failure &&
+                                        state.gifts.isEmpty) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        child: Text(
+                                          state.error ?? l10n.dataLoadError,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(color: AppColors.red),
+                                        ),
+                                      );
+                                    }
+                                    if (state.status == HomeStatus.loading &&
+                                        state.gifts.isEmpty) {
                                       return ListView.separated(
                                         scrollDirection: Axis.horizontal,
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
                                         ),
-                                        itemCount: state.gifts.length,
+                                        itemBuilder: (_, __) =>
+                                            const ShimmerProductCardSmall(
+                                              width: 240,
+                                            ),
                                         separatorBuilder: (_, __) =>
                                             const SizedBox(width: 12),
-                                        itemBuilder: (context, index) =>
-                                            RecommendationCard(
-                                              item: state.gifts[index],
-                                            ),
+                                        itemCount: 2,
                                       );
-                                    },
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () => context.push(
-                                    '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
-                                  ),
-                                  child: Container(
-                                    margin: const EdgeInsets.only(
-                                      top: 15,
-                                      right: 14,
-                                      left: 10,
-                                    ),
-                                    width: 240,
-                                    height: 45,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.blue600,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        l10n.view,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 15,
-                                              color: AppColors.white,
-                                            ),
+                                    }
+                                    if (state.gifts.isEmpty) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
                                       ),
+                                      itemCount: state.gifts.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(width: 12),
+                                      itemBuilder: (context, index) =>
+                                          RecommendationCard(
+                                            item: state.gifts[index],
+                                          ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () => context.push(
+                                  '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                    top: 15,
+                                    right: 14,
+                                    left: 10,
+                                  ),
+                                  width: 240,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.blue600,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      l10n.view,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15,
+                                            color: AppColors.white,
+                                          ),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),

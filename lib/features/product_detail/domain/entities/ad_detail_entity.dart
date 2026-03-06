@@ -33,13 +33,13 @@ class AdDetailEntity extends Equatable {
 
   final String slug;
   final String title;
+  final String? description;
   final String? categoryName;
   final String? price;
   final String? finalPrice;
   final String? discount;
   final String? mainImage;
   final String? currency;
-  final String? description;
   final double? rating;
   final int? reviewCount;
   final int? likesCount;

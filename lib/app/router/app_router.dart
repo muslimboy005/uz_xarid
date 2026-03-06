@@ -1,10 +1,7 @@
-// routes/app_router.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
-
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
@@ -21,7 +18,6 @@ import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entit
 import 'package:uz_xarid/features/product_detail/presentation/pages/order_page.dart';
 import 'package:uz_xarid/features/product_detail/presentation/pages/product_detail_page.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:uz_xarid/features/profile/presentation/pages/favorites_profile_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/my_addresses_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/my_ads_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/my_business_page.dart';

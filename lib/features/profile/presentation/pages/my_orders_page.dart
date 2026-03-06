@@ -19,7 +19,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
+    // final isDark = context.isDark;
     // final bodyBg = context.bodyBackground;
     // final cardColor = context.cardSurface;
     // final textColor = context.textPrimary;
@@ -27,12 +27,12 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     // final borderColor = context.borderColor;
     // final surfaceContainer = context.surfaceContainer;
     final l10n = AppLocalizations.of(context)!;
-
+    final bodyBg = context.bodyBackground;
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: AppColors.primary,
       body: Container(
-        color: isDark ? AppColors.darkBackground : AppColors.black50,
+        color: bodyBg,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -114,13 +114,15 @@ class _TabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surfaceContainer = context.surfaceContainer;
-    final cardColor = context.cardSurface;
+    final isDark = context.isDark;
+    // final surfaceContainer = context.surfaceContainer;
+    // final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
+    final bodyBg = context.bodyBackground;
     return Container(
       decoration: BoxDecoration(
-        color: surfaceContainer,
+        color: bodyBg,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.all(4),
@@ -134,7 +136,13 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.black500 : cardColor,
+                  color: selected
+                      ? isDark
+                            ? AppColors.darkCard
+                            : AppColors.white
+                      : isDark
+                      ? AppColors.darkBackground
+                      : AppColors.black50,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [

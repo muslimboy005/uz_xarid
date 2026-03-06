@@ -85,6 +85,7 @@ class ProductDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final bgColor = context.bodyBackground;
     final cardColor = context.cardSurface;
+    // final surfaceContainer = context.surfaceContainer;
     final iconColor = context.textPrimary;
     return MultiBlocProvider(
       providers: [
@@ -383,7 +384,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         // Main Image Card
         AspectRatio(
           aspectRatio: 1.0,
-          child: Container(
+          child: ContainerW(
             color: cardColor,
             child: Stack(
               children: [
@@ -392,13 +393,14 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     controller: _imagePageController,
                     itemCount: images.length,
                     onPageChanged: (i) => _currentImage.value = i,
-                    itemBuilder: (_, i) => CachedNetworkImage(
-                      imageUrl: images[i],
+                    itemBuilder: (_, i) => AppImage(
+                      path: images[i],
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      errorWidget: (_, __, ___) => Center(
+                      borderRadius: BorderRadius.circular(8),
+                      // placeholder: (_, __) => const Center(
+                      //   child: CircularProgressIndicator(strokeWidth: 2),
+                      // ),
+                      errorWidget: Center(
                         child: Icon(
                           Icons.broken_image,
                           size: 48,
@@ -713,7 +715,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             ContainerW(
               onTap: () {},
               radius: 12,
-              color: context.cardSurface,
+              color: context.surfaceContainer,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                 child: Row(
@@ -734,7 +736,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             Spacer(),
             ContainerW(
               onTap: () {},
-              color: context.cardSurface,
+              color: context.surfaceContainer,
               radius: 12,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -765,7 +767,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         ContainerW(
           width: double.infinity,
           onTap: () => context.push('/ad/${ad.slug}/order', extra: ad),
-          color: AppColors.blue600,
+          color: AppColors.blue500,
           radius: 12,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -774,7 +776,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 text: AppLocalizations.of(context)!.productDetailPlaceOrder,
                 fontWeight: 500,
                 fontSize: 16,
-                color: context.textPrimary,
+                color: context.textWhite,
               ),
             ),
           ),
@@ -791,6 +793,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     return ContainerW(
       color: context.cardSurface,
       radius: 12,
+      borderColor: context.borderColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -895,25 +898,23 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               ],
             ),
             const SizedBox(height: 16),
-            GestureDetector(
+            ContainerW(
               onTap: () {
                 if (ad.userId != null) {
                   context.push('/author/${ad.userId}');
                 }
               },
-              child: ContainerW(
-                width: double.infinity,
-                color: AppColors.blue600,
-                radius: 12,
-                child: Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Center(
-                    child: AppText(
-                      text: l10n.adAuthorOtherAds,
-                      fontWeight: 500,
-                      fontSize: 16,
-                      color: context.textPrimary,
-                    ),
+              width: double.infinity,
+              color: AppColors.blue500,
+              radius: 12,
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Center(
+                  child: AppText(
+                    text: l10n.adAuthorOtherAds,
+                    fontWeight: 500,
+                    fontSize: 16,
+                    color: context.textWhite,
                   ),
                 ),
               ),
@@ -926,8 +927,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   Widget _buildTabSection() {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
+    return ContainerW(
       color: context.cardSurface,
+      borderColor: context.borderColor,
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -949,7 +952,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 labelColor: AppColors.white,
                 unselectedLabelColor: context.textPrimary,
                 indicator: BoxDecoration(
-                  color: AppColors.primary,
+                  color: AppColors.blue500,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 padding: const EdgeInsets.all(4),
@@ -1534,6 +1537,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildSimilarSection() {
+    final l10n = AppLocalizations.of(context)!;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
     return Column(
@@ -1554,7 +1558,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.push(
+                  '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
