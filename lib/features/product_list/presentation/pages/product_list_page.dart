@@ -34,6 +34,7 @@ class ProductListPage extends StatefulWidget {
   });
 
   final String title;
+
   /// Qidiruv so'rovi – berilsa ads/search orqali yuklanadi.
   final String? searchQuery;
   final int? categoryId;
@@ -100,8 +101,7 @@ class _ProductListPageState extends State<ProductListPage> {
         searchQuery: widget.searchQuery,
         categoryId: widget.categoryId,
         listSource: widget.listSource,
-      )
-
+      ),
     );
 
     if (!mounted) return;
@@ -201,7 +201,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 0.48,
+                childAspectRatio: 0.60,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => _buildCard(context, _items[index]),
@@ -330,11 +330,13 @@ class _ProductListPageState extends State<ProductListPage> {
 
   Widget _buildCard(BuildContext context, ProductListItemEntity item) {
     return BlocBuilder<FavoritesBloc, FavoritesState>(
-      buildWhen: (prev, curr) => prev.isLiked(item.slug) != curr.isLiked(item.slug),
+      buildWhen: (prev, curr) =>
+          prev.isLiked(item.slug) != curr.isLiked(item.slug),
       builder: (context, likeState) {
         return ProductCard(
           slug: item.slug,
           title: item.title,
+          height: 250,
           mainImage: item.mainImage,
           price: item.price,
           finalPrice: item.finalPrice,
@@ -344,21 +346,21 @@ class _ProductListPageState extends State<ProductListPage> {
           isLiked: likeState.isLiked(item.slug),
           onLikeTap: () {
             context.read<FavoritesBloc>().add(
-                  FavoritesToggleRequested(
-                    adSlug: item.slug,
-                    adForLocal: FavoriteItemEntity(
-                      slug: item.slug,
-                      title: item.title,
-                      mainImage: item.mainImage,
-                      price: item.price,
-                      finalPrice: item.finalPrice,
-                      currency: item.currency,
-                      rating: item.rating,
-                      reviewCount: item.reviewCount,
-                      isLiked: true,
-                    ),
-                  ),
-                );
+              FavoritesToggleRequested(
+                adSlug: item.slug,
+                adForLocal: FavoriteItemEntity(
+                  slug: item.slug,
+                  title: item.title,
+                  mainImage: item.mainImage,
+                  price: item.price,
+                  finalPrice: item.finalPrice,
+                  currency: item.currency,
+                  rating: item.rating,
+                  reviewCount: item.reviewCount,
+                  isLiked: true,
+                ),
+              ),
+            );
           },
         );
       },
