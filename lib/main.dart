@@ -12,3 +12,6 @@ Future<void> main() async {
   await setupDependencies();
   runApp(const UzXaridApp());
 }
+
+
+/// home page va barcha cardlarda 

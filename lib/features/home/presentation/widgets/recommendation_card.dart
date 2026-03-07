@@ -27,25 +27,25 @@ class RecommendationCard extends StatelessWidget {
           rating: item.rating,
           reviewCount: item.reviewCount,
           width: 240,
-          height: 340,
+          height: 250,
           isLiked: likeState.isLiked(item.slug),
           onLikeTap: () {
             context.read<FavoritesBloc>().add(
-                  FavoritesToggleRequested(
-                    adSlug: item.slug,
-                    adForLocal: FavoriteItemEntity(
-                      slug: item.slug,
-                      title: item.title,
-                      mainImage: item.mainImage,
-                      price: item.price,
-                      finalPrice: item.finalPrice,
-                      currency: item.currency,
-                      rating: item.rating,
-                      reviewCount: item.reviewCount,
-                      isLiked: true,
-                    ),
-                  ),
-                );
+              FavoritesToggleRequested(
+                adSlug: item.slug,
+                adForLocal: FavoriteItemEntity(
+                  slug: item.slug,
+                  title: item.title,
+                  mainImage: item.mainImage,
+                  price: item.price,
+                  finalPrice: item.finalPrice,
+                  currency: item.currency,
+                  rating: item.rating,
+                  reviewCount: item.reviewCount,
+                  isLiked: true,
+                ),
+              ),
+            );
           },
         );
       },

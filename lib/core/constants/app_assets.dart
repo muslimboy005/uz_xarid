@@ -74,6 +74,7 @@ class AppAssets {
   static const String eyeOn = '${_svg}visibility.svg';
   static const String workBlue = '${_svg}work_blue.svg';
   static const String location = '${_svg}location.svg';
+  static const String heart = '${_svg}heart.svg';
 
   // PNG (agar kerak bo'lsa)
   static const String logo = '${_png}logo.png';

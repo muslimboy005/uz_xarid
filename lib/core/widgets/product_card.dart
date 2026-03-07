@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
+import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// Rasmdagi mahsulot kartasi: rasm, yulduz/sharh, sarlavha, narxlar, "Ko'rish".
@@ -60,6 +62,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
     final l10n = AppLocalizations.of(context)!;
     final currentPrice = _formatPrice(finalPrice ?? price);
     final oldPrice = finalPrice != null ? _formatPrice(price) : '';
@@ -70,9 +73,9 @@ class ProductCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: context.cardSurface,
+          color: context.bodyBackground,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: context.borderColor),
+          // border: Border.all(color: context.borderColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.06),
@@ -88,15 +91,19 @@ class ProductCard extends StatelessWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: 110,
+                  height: 150,
                   width: double.infinity,
                   child: AppImage(
                     path: mainImage ?? '',
                     fit: BoxFit.cover,
                     errorWidget: Container(
-                      color: context.surfaceContainer,
+                      color: isDark ? AppColors.darkSurface : AppColors.black50,
                       child: Center(
-                        child: Icon(Icons.image, color: context.textSecondary),
+                        child: Icon(
+                          Icons.image,
+                          color: context.textSecondary,
+                          size: 40,
+                        ),
                       ),
                     ),
                   ),
@@ -109,16 +116,16 @@ class ProductCard extends StatelessWidget {
                       onTap: () {
                         onLikeTap!();
                       },
-                      child: Icon(
-                        isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: isLiked ? AppColors.red : Colors.white,
+                      child: AppImage(
+                        path: AppAssets.heartOutline,
+                        color: isLiked ? AppColors.red : AppColors.black200,
                         size: 22,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.25),
-                            blurRadius: 6,
-                          ),
-                        ],
+                        // shadows: [
+                        //   Shadow(
+                        //     color: Colors.black.withOpacity(0.25),
+                        //     blurRadius: 6,
+                        //   ),
+                        // ],
                       ),
                     ),
                   )
@@ -140,99 +147,74 @@ class ProductCard extends StatelessWidget {
                   ),
               ],
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: AppColors.orange, size: 14),
-                        const SizedBox(width: 2),
-                        Text(
-                          rating.toStringAsFixed(1),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: context.textPrimary,
-                                fontSize: 11,
-                              ),
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 12,
-                          color: context.textSecondary,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          '$reviewCount ${l10n.reviewsLabel}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: context.textSecondary,
-                                fontSize: 11,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      title,
-                      maxLines: 2,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        height: 1.22,
-                        fontSize: 13,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Row(
+                    children: [
+                      AppImage(path: AppAssets.star),
+                      const SizedBox(width: 4),
+                      AppText(
+                        text: rating.toStringAsFixed(1),
+
                         color: context.textPrimary,
+                        fontSize: 12,
+                        fontWeight: 500,
                       ),
-                    ),
-                    if (description != null && description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        description!,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: context.textSecondary,
-                          fontSize: 11,
-                          height: 1.2,
-                        ),
+                      const SizedBox(width: 17),
+                      AppImage(path: AppAssets.chat),
+                      const SizedBox(width: 4),
+                      AppText(
+                        text: '$reviewCount ${l10n.reviewsLabel}',
+                        color: context.textPrimary,
+                        fontSize: 12,
+                        fontWeight: 500,
                       ),
                     ],
-                    const Spacer(),
-                    const SizedBox(height: 4),
-                    if (oldPrice.isNotEmpty)
-                      Text(
-                        '$oldPrice $_displayCurrency',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: context.textSecondary,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                    const SizedBox(height: 2),
-                    Text(
-                      currentPrice.isNotEmpty
-                          ? '$currentPrice $_displayCurrency'
-                          : '',
+                  ),
+                  const SizedBox(height: 12),
+                  AppText(
+                    text: title,
+                    maxLines: 2,
+
+                    overflow: TextOverflow.ellipsis,
+
+                    fontWeight: 600,
+                    height: 1.22,
+                    fontSize: 14,
+                    color: context.textPrimary,
+                  ),
+                
+                  const SizedBox(height: 12),
+                  if (oldPrice.isNotEmpty)
+                    AppText(
+                      text: '$oldPrice $_displayCurrency',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.orange,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.textSecondary,
+                        decoration: TextDecoration.lineThrough,
                       ),
                     ),
-                  ],
-                ),
+                  const SizedBox(height: 2),
+                  Text(
+                    currentPrice.isNotEmpty
+                        ? '$currentPrice $_displayCurrency'
+                        : '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.orange,
+                    ),
+                  ),
+                ],
               ),
             ),
+            Spacer(),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: SizedBox(
