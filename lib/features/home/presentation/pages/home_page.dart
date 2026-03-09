@@ -460,7 +460,7 @@ class HomePage extends StatelessWidget {
                       children: [
                         Container(
                           width: 329,
-                          height: 500,
+                          height: 530,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage('assets/images/rectangel.png'),

@@ -149,48 +149,49 @@ class ProductCard extends StatelessWidget {
                   ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Row(
-                    children: [
-                      AppImage(path: AppAssets.star),
-                      const SizedBox(width: 4),
-                      AppText(
-                        text: rating.toStringAsFixed(1),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        AppImage(path: AppAssets.star),
+                        const SizedBox(width: 4),
+                        AppText(
+                          text: rating.toStringAsFixed(1),
 
-                        color: context.textPrimary,
-                        fontSize: 12,
-                        fontWeight: 500,
-                      ),
-                      const SizedBox(width: 17),
-                      AppImage(path: AppAssets.chat),
-                      const SizedBox(width: 4),
-                      AppText(
-                        text: '$reviewCount ${l10n.reviewsLabel}',
-                        color: context.textPrimary,
-                        fontSize: 12,
-                        fontWeight: 500,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  AppText(
-                    text: title,
-                    maxLines: 2,
+                          color: context.textPrimary,
+                          fontSize: 12,
+                          fontWeight: 500,
+                        ),
+                        const SizedBox(width: 17),
+                        AppImage(path: AppAssets.chat),
+                        const SizedBox(width: 4),
+                        AppText(
+                          text: '$reviewCount ${l10n.reviewsLabel}',
+                          color: context.textPrimary,
+                          fontSize: 12,
+                          fontWeight: 500,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    AppText(
+                      text: title,
+                      maxLines: 2,
 
-                    overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
 
-                    fontWeight: 600,
-                    height: 1.22,
-                    fontSize: 14,
-                    color: context.textPrimary,
-                  ),
+                      fontWeight: 600,
+                      height: 1.22,
+                      fontSize: 14,
+                      color: context.textPrimary,
+                    ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                   if (oldPrice.isNotEmpty)
                     AppText(
                       text: '$oldPrice $_displayCurrency',
@@ -216,7 +217,7 @@ class ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-            Spacer(),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: SizedBox(
