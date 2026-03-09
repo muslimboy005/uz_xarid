@@ -280,7 +280,7 @@ class _AuthorPageState extends State<AuthorPage>
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 0.55,
+        childAspectRatio: 0.54,
       ),
       itemCount: author.ads.length + (isFetchingMore ? 2 : 0),
       itemBuilder: (context, index) {
