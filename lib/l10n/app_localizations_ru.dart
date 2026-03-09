@@ -162,6 +162,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get productDetailSimilarProducts => 'Похожие товары';
 
   @override
+  String get productDetailDescription => 'Описание';
+
+  @override
+  String get productDetailWatchVideo => 'Смотреть видео';
+
+  @override
+  String productDetailInStock(String count) {
+    return 'В наличии: $count шт';
+  }
+
+  @override
+  String get productDetailShowAll => 'Смотреть все';
+
+  @override
+  String get productDetailHide => 'Скрыть';
+
+  @override
+  String productDetailReviewsCount(String count) {
+    return '$count отзывов';
+  }
+
+  @override
+  String get authorTabAds => 'Объявления';
+
+  @override
+  String get authorTabAbout => 'О нас';
+
+  @override
+  String get authorTabContacts => 'Контакты';
+
+  @override
+  String get authorAdsEmpty => 'Объявления не найдены';
+
+  @override
+  String get authorAboutEmpty => 'Информация о нас отсутствует';
+
+  @override
+  String get authorContactsTitle => 'Контакты';
+
+  @override
+  String get authorContactPhone => 'Контакт';
+
+  @override
+  String get authorContactWorkTime => 'Рабочее время';
+
+  @override
+  String get authorContactWorkTimeContent =>
+      'Пн–Пт 9:00–18:00. Обед: 13:00–14:00';
+
+  @override
+  String get authorContactAddress => 'Адрес';
+
+  @override
+  String get authorContactAddressDefault =>
+      'Республика Узбекистан, город Ташкент';
+
+  @override
+  String get authorActionCall => 'Позвонить';
+
+  @override
+  String get authorActionOpenMaps => 'Открыть Google Maps';
+
+  @override
   String get giftHeadline => 'Идеальные подарки для всех';
 
   @override

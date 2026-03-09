@@ -162,6 +162,69 @@ class AppLocalizationsUz extends AppLocalizations {
   String get productDetailSimilarProducts => 'O\'xshash tovarlar';
 
   @override
+  String get productDetailDescription => 'Tavsif';
+
+  @override
+  String get productDetailWatchVideo => 'Video ko\'rish';
+
+  @override
+  String productDetailInStock(String count) {
+    return 'Omborda: $count ta';
+  }
+
+  @override
+  String get productDetailShowAll => 'Barchasini ko\'rish';
+
+  @override
+  String get productDetailHide => 'Yashirish';
+
+  @override
+  String productDetailReviewsCount(String count) {
+    return '$count sharh';
+  }
+
+  @override
+  String get authorTabAds => 'E\'lonlar';
+
+  @override
+  String get authorTabAbout => 'Biz haqimizda';
+
+  @override
+  String get authorTabContacts => 'Kontaktlar';
+
+  @override
+  String get authorAdsEmpty => 'E\'lonlar topilmadi';
+
+  @override
+  String get authorAboutEmpty => 'Biz haqimizda ma\'lumot yo\'q';
+
+  @override
+  String get authorContactsTitle => 'Kontaktlar';
+
+  @override
+  String get authorContactPhone => 'Kontakt';
+
+  @override
+  String get authorContactWorkTime => 'Ish vaqti';
+
+  @override
+  String get authorContactWorkTimeContent =>
+      'Du-Ju 9:00-18:00. Tushlik: 13:00-14:00';
+
+  @override
+  String get authorContactAddress => 'Manzil';
+
+  @override
+  String get authorContactAddressDefault =>
+      'O\'zbekiston Respublikasi, Toshkent';
+
+  @override
+  String get authorActionCall => 'Qo\'ng\'iroq qilish';
+
+  @override
+  String get authorActionOpenMaps => 'Google Maps ochish';
+
+  @override
   String get giftHeadline => 'Barchaga ideal sovg\'alar';
 
   @override

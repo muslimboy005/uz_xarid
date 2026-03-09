@@ -400,6 +400,120 @@ abstract class AppLocalizations {
   /// **'Similar products'**
   String get productDetailSimilarProducts;
 
+  /// No description provided for @productDetailDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get productDetailDescription;
+
+  /// No description provided for @productDetailWatchVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch video'**
+  String get productDetailWatchVideo;
+
+  /// No description provided for @productDetailInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock: {count} pcs'**
+  String productDetailInStock(String count);
+
+  /// No description provided for @productDetailShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get productDetailShowAll;
+
+  /// No description provided for @productDetailHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get productDetailHide;
+
+  /// No description provided for @productDetailReviewsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} reviews'**
+  String productDetailReviewsCount(String count);
+
+  /// No description provided for @authorTabAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads'**
+  String get authorTabAds;
+
+  /// No description provided for @authorTabAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About us'**
+  String get authorTabAbout;
+
+  /// No description provided for @authorTabContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get authorTabContacts;
+
+  /// No description provided for @authorAdsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads found'**
+  String get authorAdsEmpty;
+
+  /// No description provided for @authorAboutEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No information about us'**
+  String get authorAboutEmpty;
+
+  /// No description provided for @authorContactsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get authorContactsTitle;
+
+  /// No description provided for @authorContactPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get authorContactPhone;
+
+  /// No description provided for @authorContactWorkTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Working hours'**
+  String get authorContactWorkTime;
+
+  /// No description provided for @authorContactWorkTimeContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon–Fri 9:00–18:00. Lunch: 13:00–14:00'**
+  String get authorContactWorkTimeContent;
+
+  /// No description provided for @authorContactAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get authorContactAddress;
+
+  /// No description provided for @authorContactAddressDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Republic of Uzbekistan, Tashkent'**
+  String get authorContactAddressDefault;
+
+  /// No description provided for @authorActionCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get authorActionCall;
+
+  /// No description provided for @authorActionOpenMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google Maps'**
+  String get authorActionOpenMaps;
+
   /// No description provided for @giftHeadline.
   ///
   /// In en, this message translates to:

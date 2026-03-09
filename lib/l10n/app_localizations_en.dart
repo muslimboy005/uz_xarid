@@ -163,6 +163,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productDetailSimilarProducts => 'Similar products';
 
   @override
+  String get productDetailDescription => 'Description';
+
+  @override
+  String get productDetailWatchVideo => 'Watch video';
+
+  @override
+  String productDetailInStock(String count) {
+    return 'In stock: $count pcs';
+  }
+
+  @override
+  String get productDetailShowAll => 'Show all';
+
+  @override
+  String get productDetailHide => 'Hide';
+
+  @override
+  String productDetailReviewsCount(String count) {
+    return '$count reviews';
+  }
+
+  @override
+  String get authorTabAds => 'Ads';
+
+  @override
+  String get authorTabAbout => 'About us';
+
+  @override
+  String get authorTabContacts => 'Contacts';
+
+  @override
+  String get authorAdsEmpty => 'No ads found';
+
+  @override
+  String get authorAboutEmpty => 'No information about us';
+
+  @override
+  String get authorContactsTitle => 'Contacts';
+
+  @override
+  String get authorContactPhone => 'Contact';
+
+  @override
+  String get authorContactWorkTime => 'Working hours';
+
+  @override
+  String get authorContactWorkTimeContent =>
+      'Mon–Fri 9:00–18:00. Lunch: 13:00–14:00';
+
+  @override
+  String get authorContactAddress => 'Address';
+
+  @override
+  String get authorContactAddressDefault => 'Republic of Uzbekistan, Tashkent';
+
+  @override
+  String get authorActionCall => 'Call';
+
+  @override
+  String get authorActionOpenMaps => 'Open Google Maps';
+
+  @override
   String get giftHeadline => 'Perfect gifts for everyone';
 
   @override

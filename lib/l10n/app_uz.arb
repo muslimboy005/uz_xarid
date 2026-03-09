@@ -57,6 +57,35 @@
   "productDetailPlaceOrder": "Buyurtma berish",
   "productDetailFeatures": "Xususiyatlar",
   "productDetailSimilarProducts": "O'xshash tovarlar",
+  "productDetailDescription": "Tavsif",
+  "productDetailWatchVideo": "Video ko'rish",
+  "productDetailInStock": "Omborda: {count} ta",
+  "@productDetailInStock": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "productDetailShowAll": "Barchasini ko'rish",
+  "productDetailHide": "Yashirish",
+  "productDetailReviewsCount": "{count} sharh",
+  "@productDetailReviewsCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "authorTabAds": "E'lonlar",
+  "authorTabAbout": "Biz haqimizda",
+  "authorTabContacts": "Kontaktlar",
+  "authorAdsEmpty": "E'lonlar topilmadi",
+  "authorAboutEmpty": "Biz haqimizda ma'lumot yo'q",
+  "authorContactsTitle": "Kontaktlar",
+  "authorContactPhone": "Kontakt",
+  "authorContactWorkTime": "Ish vaqti",
+  "authorContactWorkTimeContent": "Du-Ju 9:00-18:00. Tushlik: 13:00-14:00",
+  "authorContactAddress": "Manzil",
+  "authorContactAddressDefault": "O'zbekiston Respublikasi, Toshkent",
+  "authorActionCall": "Qo'ng'iroq qilish",
+  "authorActionOpenMaps": "Google Maps ochish",
   "giftHeadline": "Barchaga ideal sovg'alar",
   "servicesTitle": "Yaqin atrofdagi xizmatlar",
   "servicesSeeAll": "Barchasi",

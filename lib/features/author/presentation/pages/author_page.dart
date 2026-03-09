@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -9,6 +10,7 @@ import 'package:uz_xarid/features/author/domain/entities/author_entity.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_event.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_state.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class AuthorPage extends StatefulWidget {
   final int userId;
@@ -95,10 +97,16 @@ class _AuthorPageState extends State<AuthorPage>
                           borderRadius: BorderRadius.circular(10),
                           color: AppColors.blue600,
                         ),
-                        tabs: const [
-                          Tab(text: "E'lonlar"),
-                          Tab(text: 'Biz haqimizda'),
-                          Tab(text: 'Kontaktlar'),
+                        tabs: [
+                          Tab(text: AppLocalizations.of(context)!.authorTabAds),
+                          Tab(
+                            text: AppLocalizations.of(context)!.authorTabAbout,
+                          ),
+                          Tab(
+                            text: AppLocalizations.of(
+                              context,
+                            )!.authorTabContacts,
+                          ),
                         ],
                       ),
                       Theme.of(context).scaffoldBackgroundColor,
@@ -110,7 +118,9 @@ class _AuthorPageState extends State<AuthorPage>
                 controller: _tabController,
                 children: [
                   _buildAdsGrid(context, author, state.isFetchingMore),
-                  const Center(child: Text("Biz haqimizda ma'lumot yo'q")),
+                  Center(
+                    child: Text(AppLocalizations.of(context)!.authorAboutEmpty),
+                  ),
                   _buildContacts(context, author),
                 ],
               ),
@@ -174,7 +184,7 @@ class _AuthorPageState extends State<AuthorPage>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${author.totalCommentsAuthor} отзывов',
+                          '${author.totalCommentsAuthor} ${AppLocalizations.of(context)!.reviewsLabel}',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: context.textSecondary),
                         ),
@@ -193,7 +203,7 @@ class _AuthorPageState extends State<AuthorPage>
               _buildIconButton(context, Icons.camera_alt_outlined), // Inst
               _buildIconButton(context, Icons.facebook),
               _buildIconButton(context, Icons.telegram),
-              _buildCallButton(context),
+              _buildCallButton(context, author),
             ],
           ),
         ],
@@ -213,16 +223,40 @@ class _AuthorPageState extends State<AuthorPage>
     );
   }
 
-  Widget _buildCallButton(BuildContext context) {
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: AppColors.blue600,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Center(
-        child: Icon(Icons.phone, color: Colors.white, size: 24),
+  Future<void> _launchPhone(String phone) async {
+    final uri = Uri(scheme: 'tel', path: phone);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  Future<void> _launchMaps(String address) async {
+    final encoded = Uri.encodeComponent(address);
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$encoded',
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _buildCallButton(BuildContext context, AuthorEntity author) {
+    return GestureDetector(
+      onTap: () {
+        if (author.phone != null && author.phone!.isNotEmpty) {
+          _launchPhone(author.phone!);
+        }
+      },
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppColors.blue600,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Icon(Icons.phone, color: Colors.white, size: 24),
+        ),
       ),
     );
   }
@@ -235,7 +269,7 @@ class _AuthorPageState extends State<AuthorPage>
     if (author.ads.isEmpty) {
       return Center(
         child: Text(
-          "E'lonlar topilmadi",
+          AppLocalizations.of(context)!.authorAdsEmpty,
           style: TextStyle(color: context.textSecondary),
         ),
       );
@@ -246,7 +280,7 @@ class _AuthorPageState extends State<AuthorPage>
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 0.65,
+        childAspectRatio: 0.55,
       ),
       itemCount: author.ads.length + (isFetchingMore ? 2 : 0),
       itemBuilder: (context, index) {
@@ -272,33 +306,42 @@ class _AuthorPageState extends State<AuthorPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          "Kontaktlar",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        Text(
+          AppLocalizations.of(context)!.authorContactsTitle,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         _buildInfoCard(
           context,
           icon: Icons.phone,
-          title: "Kontaktlar",
-          content: author.phone ?? "Raqam ko'rsatilmagan",
-          actionText: "Позвонить",
+          title: AppLocalizations.of(context)!.authorContactPhone,
+          content: author.phone ?? AppLocalizations.of(context)!.authorAdsEmpty,
+          actionText: AppLocalizations.of(context)!.authorActionCall,
+          onTap: author.phone != null && author.phone!.isNotEmpty
+              ? () => _launchPhone(author.phone!)
+              : null,
         ),
         const SizedBox(height: 12),
         _buildInfoCard(
           context,
           icon: Icons.access_time_filled,
-          title: "Ish vaqti",
-          content: "Понедельник-Пятница с 9:00-18:00.\nОбед: 13:00-14:00",
-          actionText: "Позвонить",
+          title: AppLocalizations.of(context)!.authorContactWorkTime,
+          content: AppLocalizations.of(context)!.authorContactWorkTimeContent,
+          actionText: AppLocalizations.of(context)!.authorActionCall,
+          onTap: author.phone != null && author.phone!.isNotEmpty
+              ? () => _launchPhone(author.phone!)
+              : null,
         ),
         const SizedBox(height: 12),
         _buildInfoCard(
           context,
           icon: Icons.location_on,
-          title: "Manzil",
-          content: "Республика Узбекистан, город Ташкент...",
-          actionText: "Открыть Google Maps",
+          title: AppLocalizations.of(context)!.authorContactAddress,
+          content: AppLocalizations.of(context)!.authorContactAddressDefault,
+          actionText: AppLocalizations.of(context)!.authorActionOpenMaps,
+          onTap: () => _launchMaps(
+            AppLocalizations.of(context)!.authorContactAddressDefault,
+          ),
         ),
       ],
     );
@@ -310,6 +353,7 @@ class _AuthorPageState extends State<AuthorPage>
     required String title,
     required String content,
     required String actionText,
+    VoidCallback? onTap,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -339,22 +383,29 @@ class _AuthorPageState extends State<AuthorPage>
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Text(
-                actionText,
-                style: const TextStyle(
-                  color: AppColors.orange,
-                  fontWeight: FontWeight.w500,
+          GestureDetector(
+            onTap: onTap,
+            child: Row(
+              children: [
+                Text(
+                  actionText,
+                  style: TextStyle(
+                    color: onTap != null
+                        ? AppColors.orange
+                        : context.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.arrow_forward_rounded,
-                color: AppColors.orange,
-                size: 16,
-              ),
-            ],
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: onTap != null
+                      ? AppColors.orange
+                      : context.textSecondary,
+                  size: 16,
+                ),
+              ],
+            ),
           ),
         ],
       ),

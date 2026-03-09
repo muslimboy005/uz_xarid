@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
@@ -174,7 +175,14 @@ class ProductDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    final state = context.read<ProductDetailBloc>().state;
+                    if (state.status == ProductDetailStatus.success &&
+                        state.ad != null) {
+                      final slug = state.ad!.slug;
+                      Share.shareUri(Uri.parse('https://uzxarid.uz/ad/$slug'));
+                    }
+                  },
                   child: Container(
                     width: 40,
                     height: 40,
@@ -421,8 +429,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       color: AppColors.white,
                       size: 20,
                     ),
-                    label: const Text(
-                      'Смотреть видео',
+                    label: Text(
+                      AppLocalizations.of(context)!.productDetailWatchVideo,
                       style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
@@ -535,7 +543,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         ),
         const SizedBox(height: 8),
         Text(
-          'В наличии: 6 шт',
+          AppLocalizations.of(context)!.productDetailInStock(''),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(color: textSecondary),
@@ -712,57 +720,74 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
       children: [
         Row(
           children: [
-            ContainerW(
-              onTap: () {},
-              radius: 12,
-              color: context.surfaceContainer,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                child: Row(
-                  children: [
-                    AppImage(path: AppAssets.call, color: context.textPrimary),
-                    SizedBox(width: 10),
-                    AppText(
-                      text: AppLocalizations.of(context)!.productDetailCall,
-                      fontWeight: 500,
-                      fontSize: 16,
-                      color: context.textPrimary,
-                    ),
-                  ],
+            Expanded(
+              child: ContainerW(
+                onTap: () {},
+                radius: 12,
+                color: context.surfaceContainer,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppImage(
+                        path: AppAssets.call,
+                        color: context.textPrimary,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: AppText(
+                          text: AppLocalizations.of(context)!.productDetailCall,
+                          fontWeight: 500,
+                          fontSize: 16,
+                          color: context.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            // SizedBox(width: 14),
-            Spacer(),
-            ContainerW(
-              onTap: () {},
-              color: context.surfaceContainer,
-              radius: 12,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    AppImage(
-                      path: AppAssets.telegram,
-                      color: context.textPrimary,
-                    ),
-                    SizedBox(width: 10),
-                    AppText(
-                      text: AppLocalizations.of(context)!.productDetailTelegram,
-
-                      fontWeight: 500,
-                      fontSize: 16,
-                      color: context.textPrimary,
-                    ),
-                  ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: ContainerW(
+                onTap: () {},
+                color: context.surfaceContainer,
+                radius: 12,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppImage(
+                        path: AppAssets.telegram,
+                        color: context.textPrimary,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: AppText(
+                          text: AppLocalizations.of(
+                            context,
+                          )!.productDetailTelegram,
+                          fontWeight: 500,
+                          fontSize: 16,
+                          color: context.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
+
         const SizedBox(height: 12),
         ContainerW(
           width: double.infinity,
@@ -993,7 +1018,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         children: [
           if (ad.description != null && ad.description!.trim().isNotEmpty) ...[
             Text(
-              'Описание',
+              AppLocalizations.of(context)!.productDetailDescription,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: textColor,
@@ -1024,7 +1049,13 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       child: Row(
                         children: [
                           Text(
-                            isDescExpanded ? 'Скрыть' : 'Смотреть все',
+                            isDescExpanded
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.productDetailHide
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.productDetailShowAll,
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w500,
@@ -1110,7 +1141,13 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         child: Row(
                           children: [
                             Text(
-                              isFeaturesExpanded ? 'Скрыть' : 'Смотреть все',
+                              isFeaturesExpanded
+                                  ? AppLocalizations.of(
+                                      context,
+                                    )!.productDetailHide
+                                  : AppLocalizations.of(
+                                      context,
+                                    )!.productDetailShowAll,
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w500,
@@ -1732,7 +1769,11 @@ class _SimilarCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${item.reviewCount} отзывов',
+                              AppLocalizations.of(
+                                context,
+                              )!.productDetailReviewsCount(
+                                '${item.reviewCount}',
+                              ),
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: textSecondary),
                             ),
