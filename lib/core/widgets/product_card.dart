@@ -93,7 +93,7 @@ class ProductCard extends StatelessWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: 150,
+                  height: 132,
                   width: double.infinity,
                   child: AppImage(
                     path: mainImage ?? '',
@@ -151,7 +151,10 @@ class ProductCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -162,7 +165,6 @@ class ProductCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         AppText(
                           text: rating.toStringAsFixed(1),
-
                           color: context.textPrimary,
                           fontSize: 12,
                           fontWeight: 500,
@@ -178,48 +180,46 @@ class ProductCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    AppText(
-                      text: title,
-                      maxLines: 2,
-
-                      overflow: TextOverflow.ellipsis,
-
-                      fontWeight: 600,
-                      height: 1.22,
-                      fontSize: 14,
-                      color: context.textPrimary,
-                    ),
-
-                    const SizedBox(height: 10),
-                  if (oldPrice.isNotEmpty)
-                    AppText(
-                      text: '$oldPrice $_displayCurrency',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: context.textSecondary,
-                        decoration: TextDecoration.lineThrough,
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: AppText(
+                        text: title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: 600,
+                        height: 1.22,
+                        fontSize: 14,
+                        color: context.textPrimary,
                       ),
                     ),
-                  const SizedBox(height: 2),
-                  Text(
-                    currentPrice.isNotEmpty
-                        ? '$currentPrice $_displayCurrency'
-                        : '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.orange,
+                    if (oldPrice.isNotEmpty)
+                      AppText(
+                        text: '$oldPrice $_displayCurrency',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: context.textSecondary,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    if (oldPrice.isNotEmpty) const SizedBox(height: 2),
+                    Text(
+                      currentPrice.isNotEmpty
+                          ? '$currentPrice $_displayCurrency'
+                          : '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.orange,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
               child: SizedBox(
                 width: double.infinity,
                 height: 40,
