@@ -57,6 +57,35 @@
   "productDetailPlaceOrder": "Place order",
   "productDetailFeatures": "Features",
   "productDetailSimilarProducts": "Similar products",
+  "productDetailDescription": "Description",
+  "productDetailWatchVideo": "Watch video",
+  "productDetailInStock": "In stock: {count} pcs",
+  "@productDetailInStock": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "productDetailShowAll": "Show all",
+  "productDetailHide": "Hide",
+  "productDetailReviewsCount": "{count} reviews",
+  "@productDetailReviewsCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "authorTabAds": "Ads",
+  "authorTabAbout": "About us",
+  "authorTabContacts": "Contacts",
+  "authorAdsEmpty": "No ads found",
+  "authorAboutEmpty": "No information about us",
+  "authorContactsTitle": "Contacts",
+  "authorContactPhone": "Contact",
+  "authorContactWorkTime": "Working hours",
+  "authorContactWorkTimeContent": "Mon–Fri 9:00–18:00. Lunch: 13:00–14:00",
+  "authorContactAddress": "Address",
+  "authorContactAddressDefault": "Republic of Uzbekistan, Tashkent",
+  "authorActionCall": "Call",
+  "authorActionOpenMaps": "Open Google Maps",
   "giftHeadline": "Perfect gifts for everyone",
   "servicesTitle": "Services nearby",
   "servicesSeeAll": "All",

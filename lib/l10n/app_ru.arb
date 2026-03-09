@@ -57,6 +57,35 @@
   "productDetailPlaceOrder": "Оформить заказ",
   "productDetailFeatures": "Характеристики",
   "productDetailSimilarProducts": "Похожие товары",
+  "productDetailDescription": "Описание",
+  "productDetailWatchVideo": "Смотреть видео",
+  "productDetailInStock": "В наличии: {count} шт",
+  "@productDetailInStock": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "productDetailShowAll": "Смотреть все",
+  "productDetailHide": "Скрыть",
+  "productDetailReviewsCount": "{count} отзывов",
+  "@productDetailReviewsCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "authorTabAds": "Объявления",
+  "authorTabAbout": "О нас",
+  "authorTabContacts": "Контакты",
+  "authorAdsEmpty": "Объявления не найдены",
+  "authorAboutEmpty": "Информация о нас отсутствует",
+  "authorContactsTitle": "Контакты",
+  "authorContactPhone": "Контакт",
+  "authorContactWorkTime": "Рабочее время",
+  "authorContactWorkTimeContent": "Пн–Пт 9:00–18:00. Обед: 13:00–14:00",
+  "authorContactAddress": "Адрес",
+  "authorContactAddressDefault": "Республика Узбекистан, город Ташкент",
+  "authorActionCall": "Позвонить",
+  "authorActionOpenMaps": "Открыть Google Maps",
   "giftHeadline": "Идеальные подарки для всех",
   "servicesTitle": "Сервис рядом",
   "servicesSeeAll": "Все",

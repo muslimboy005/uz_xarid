@@ -14,6 +14,7 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.slug,
     required this.title,
+    this.color,
     this.description,
     this.mainImage,
     this.price,
@@ -29,6 +30,7 @@ class ProductCard extends StatelessWidget {
 
   final String slug;
   final String title;
+  final Color? color;
   final String? description;
   final String? mainImage;
   final String? price;
@@ -73,7 +75,7 @@ class ProductCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: context.bodyBackground,
+          color: color ?? context.bodyBackground,
           borderRadius: BorderRadius.circular(18),
           // border: Border.all(color: context.borderColor),
           boxShadow: [
@@ -187,7 +189,7 @@ class ProductCard extends StatelessWidget {
                     fontSize: 14,
                     color: context.textPrimary,
                   ),
-                
+
                   const SizedBox(height: 12),
                   if (oldPrice.isNotEmpty)
                     AppText(

@@ -201,7 +201,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 0.60,
+                childAspectRatio: 0.55,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => _buildCard(context, _items[index]),
@@ -336,6 +336,7 @@ class _ProductListPageState extends State<ProductListPage> {
         return ProductCard(
           slug: item.slug,
           title: item.title,
+          color: context.cardSurface,
           height: 250,
           mainImage: item.mainImage,
           price: item.price,

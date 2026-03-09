@@ -513,7 +513,7 @@ class HomePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               SizedBox(
-                                height: 330,
+                                height: 360,
                                 child: BlocBuilder<HomeBloc, HomeState>(
                                   builder: (context, state) {
                                     if (state.status == HomeStatus.failure &&
