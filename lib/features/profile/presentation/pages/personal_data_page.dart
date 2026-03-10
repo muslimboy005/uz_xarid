@@ -175,7 +175,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (q) {}, onMenuTap: () {}),
-          backgroundColor: AppColors.primary,
+          
           body: SafeArea(
             child: Container(
               color: bodyBg,

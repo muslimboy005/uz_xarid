@@ -505,7 +505,7 @@ class _OrderPageState extends State<OrderPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              
               foregroundColor: AppColors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -744,7 +744,7 @@ class _OrderPageState extends State<OrderPage> {
                   context.pop();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  
                   foregroundColor: AppColors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(

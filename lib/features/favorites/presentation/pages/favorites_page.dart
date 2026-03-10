@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/product_card.dart';
@@ -20,7 +19,7 @@ class FavoritesPage extends StatelessWidget {
     final textColor = context.textSecondary;
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      
       appBar: UzXaridAppBar(
         onSearchChanged: (query) {
           // TODO: implement favorites search or filter

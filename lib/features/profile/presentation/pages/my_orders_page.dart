@@ -30,7 +30,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     final bodyBg = context.bodyBackground;
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: AppColors.primary,
+      
       body: Container(
         color: bodyBg,
         child: SafeArea(

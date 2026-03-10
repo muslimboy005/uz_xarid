@@ -36,6 +36,7 @@ import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart'
 import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
 import 'package:uz_xarid/features/author/presentation/pages/author_page.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
+import 'package:uz_xarid/features/home/presentation/pages/support_menu_page.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -52,6 +53,12 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/home',
     routes: [
+      GoRoute(
+        path: '/support-menu',
+        name: 'support-menu',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SupportMenuPage(),
+      ),
       GoRoute(
         path: '/ad/:slug',
         name: 'product-detail',
@@ -205,94 +212,107 @@ class AppRouter {
 
           return Scaffold(
             body: body,
-            bottomNavigationBar: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.bottomCenter,
-              children: [
-                Container(
-                  height: 62,
-                  decoration: BoxDecoration(
-                    color: barColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, -2),
+            bottomNavigationBar: Builder(
+              builder: (context) {
+                final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+                return Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Container(
+                      height: 62 + bottomPadding,
+                      decoration: BoxDecoration(
+                        color: barColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, -2),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _NavItem(
-                          icon: Icons.home_outlined,
-                          label: l10n.navHome,
-                          isSelected: currentIndex == 0,
-                          selectedColor: selectedColor,
-                          unselectedColor: unselectedColor,
-                          onTap: () => _onItemTapped(context, 0),
-                        ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 62,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _NavItem(
+                                    icon: Icons.home_outlined,
+                                    label: l10n.navHome,
+                                    isSelected: currentIndex == 0,
+                                    selectedColor: selectedColor,
+                                    unselectedColor: unselectedColor,
+                                    onTap: () => _onItemTapped(context, 0),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _NavItem(
+                                    icon: Icons.menu,
+                                    label: l10n.navCatalog,
+                                    isSelected: currentIndex == 1,
+                                    selectedColor: selectedColor,
+                                    unselectedColor: unselectedColor,
+                                    onTap: () => _onItemTapped(context, 1),
+                                  ),
+                                ),
+                                const Expanded(child: SizedBox.shrink()),
+                                Expanded(
+                                  child: _NavItem(
+                                    icon: Icons.favorite_border,
+                                    label: l10n.navFavorites,
+                                    isSelected: currentIndex == 2,
+                                    selectedColor: selectedColor,
+                                    unselectedColor: unselectedColor,
+                                    onTap: () => _onItemTapped(context, 2),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _NavItem(
+                                    icon: Icons.person_outline,
+                                    label: l10n.navProfile,
+                                    isSelected: currentIndex == 3,
+                                    selectedColor: selectedColor,
+                                    unselectedColor: unselectedColor,
+                                    onTap: () => _onItemTapped(context, 3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: bottomPadding),
+                        ],
                       ),
-                      Expanded(
-                        child: _NavItem(
-                          icon: Icons.menu,
-                          label: l10n.navCatalog,
-                          isSelected: currentIndex == 1,
-                          selectedColor: selectedColor,
-                          unselectedColor: unselectedColor,
-                          onTap: () => _onItemTapped(context, 1),
-                        ),
-                      ),
-                      const Expanded(child: SizedBox.shrink()),
-                      Expanded(
-                        child: _NavItem(
-                          icon: Icons.favorite_border,
-                          label: l10n.navFavorites,
-                          isSelected: currentIndex == 2,
-                          selectedColor: selectedColor,
-                          unselectedColor: unselectedColor,
-                          onTap: () => _onItemTapped(context, 2),
-                        ),
-                      ),
-                      Expanded(
-                        child: _NavItem(
-                          icon: Icons.person_outline,
-                          label: l10n.navProfile,
-                          isSelected: currentIndex == 3,
-                          selectedColor: selectedColor,
-                          unselectedColor: unselectedColor,
-                          onTap: () => _onItemTapped(context, 3),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 31,
-                  child: Material(
-                    elevation: 6,
-                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      onTap: () => context.go('/add-listing'),
-                      customBorder: const CircleBorder(),
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primary,
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: AppColors.white,
-                          size: 28,
+                    ),
+                    Positioned(
+                      bottom: 31 + bottomPadding,
+                      child: Material(
+                        elevation: 6,
+                        shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          onTap: () => context.go('/add-listing'),
+                          customBorder: const CircleBorder(),
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primary,
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: AppColors.white,
+                              size: 28,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           );
         },
