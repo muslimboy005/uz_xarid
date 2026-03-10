@@ -7,12 +7,28 @@ abstract class AddListingEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Ranglar ro'yxatini API dan yuklashni so'raydi.
 class AddListingLoadColorsRequested extends AddListingEvent {
   const AddListingLoadColorsRequested();
 }
 
-/// O'lchamlar ro'yxatini API dan yuklashni so'raydi.
 class AddListingLoadSizesRequested extends AddListingEvent {
   const AddListingLoadSizesRequested();
+}
+
+class AddListingLoadCategoriesRequested extends AddListingEvent {
+  const AddListingLoadCategoriesRequested({this.categoryType = 'Product'});
+
+  final String categoryType;
+
+  @override
+  List<Object?> get props => [categoryType];
+}
+
+class AddListingCreateAdRequested extends AddListingEvent {
+  const AddListingCreateAdRequested(this.params);
+
+  final CreateAdParams params;
+
+  @override
+  List<Object?> get props => [params];
 }

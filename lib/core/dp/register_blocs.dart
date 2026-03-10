@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:get_it/get_it.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_colors.dart';
+import 'package:uz_xarid/features/add_listing/domain/usecases/create_ad.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
 import 'package:uz_xarid/features/add_listing/presentation/bloc/add_listing_bloc.dart';
 import 'package:uz_xarid/features/author/domain/repositories/author_repository.dart';
@@ -17,12 +18,19 @@ import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/toggle_favorite.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
 
 Future<void> registerBlocs(GetIt getIt) async {
   getIt
     ..registerFactory<AddListingBloc>(
-      () => AddListingBloc(getIt<GetColors>(), getIt<GetSizes>()),
+      () => AddListingBloc(
+        getIt<GetColors>(),
+        getIt<GetSizes>(),
+        getIt<GetCategories>(),
+        getIt<CreateAd>(),
+      ),
     )
     ..registerFactory<ProductDetailBloc>(
       () => ProductDetailBloc(getIt<GetAdDetail>()),
@@ -61,7 +69,8 @@ Future<void> registerBlocs(GetIt getIt) async {
     )
     ..registerFactory<AuthorBloc>(
       () => AuthorBloc(repository: getIt<AuthorRepository>()),
-    );
+    )
+    ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>()));
 
   log("Register BLOC Complate For GetIT");
 }

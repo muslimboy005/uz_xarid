@@ -31,6 +31,7 @@ import 'package:uz_xarid/features/profile/presentation/pages/view_history_page.d
 import 'package:uz_xarid/features/profile/presentation/pages/add_address_page.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/add_address_map_page.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart';
 import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
 import 'package:uz_xarid/features/author/presentation/pages/author_page.dart';
@@ -376,7 +377,11 @@ class AppRouter {
               GoRoute(
                 path: 'my-ads',
                 name: 'profile-my-ads',
-                builder: (context, state) => const MyAdsPage(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => getIt<MyAdsBloc>()
+                    ..add(const MyAdsLoadRequested('active')),
+                  child: const MyAdsPage(),
+                ),
               ),
               GoRoute(
                 path: 'my-orders',
