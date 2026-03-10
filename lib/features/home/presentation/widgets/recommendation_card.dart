@@ -27,7 +27,7 @@ class RecommendationCard extends StatelessWidget {
           rating: item.rating,
           reviewCount: item.reviewCount,
           width: 240,
-          height: 300,
+          height: 285,
           isLiked: likeState.isLiked(item.slug),
           onLikeTap: () {
             context.read<FavoritesBloc>().add(

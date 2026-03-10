@@ -203,7 +203,7 @@ class _SearchPageState extends State<SearchPage> {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.58,
+              childAspectRatio: 0.54,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
@@ -272,7 +272,7 @@ class _SearchPageState extends State<SearchPage> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.58,
+        childAspectRatio: 0.54,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),

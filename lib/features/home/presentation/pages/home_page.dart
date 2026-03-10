@@ -386,7 +386,7 @@ class HomePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           SizedBox(
-                            height: 340,
+                            height: 290,
                             child: BlocBuilder<HomeBloc, HomeState>(
                               builder: (context, state) {
                                 if (state.status == HomeStatus.failure &&
@@ -456,7 +456,7 @@ class HomePage extends StatelessWidget {
                       children: [
                         Container(
                           width: 329,
-                          height: 500,
+                          height: 460,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage('assets/images/rectangel.png'),
@@ -509,7 +509,7 @@ class HomePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               SizedBox(
-                                height: 360,
+                                height: 290,
                                 child: BlocBuilder<HomeBloc, HomeState>(
                                   builder: (context, state) {
                                     if (state.status == HomeStatus.failure &&
