@@ -89,6 +89,8 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
 
   RangeValues _priceRange = const RangeValues(0, 10000000);
   static const double _maxSlider = 10000000;
+  // Prevents text-field onChanged from firing when slider updates the controllers
+  bool _updatingFromSlider = false;
 
   bool _categoryExpanded = true;
   bool _conditionExpanded = false;
@@ -131,12 +133,14 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
   void initState() {
     super.initState();
     _data = widget.initial;
-    if (_data.minPrice != null) {
-      _minCtrl.text = _data.minPrice!.toInt().toString();
-      _priceRange = RangeValues(_data.minPrice!, _data.maxPrice ?? _maxSlider);
-    }
-    if (_data.maxPrice != null) {
-      _maxCtrl.text = _data.maxPrice!.toInt().toString();
+    final min = _data.minPrice ?? 0;
+    final max = _data.maxPrice ?? _maxSlider;
+    _priceRange = RangeValues(min, max);
+
+    if (min > 0) _minCtrl.text = min.toInt().toString();
+    // Only populate maxCtrl if user explicitly set a max (not the full max)
+    if (_data.maxPrice != null && max < _maxSlider) {
+      _maxCtrl.text = max.toInt().toString();
     }
   }
 
@@ -157,9 +161,18 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
   }
 
   void _apply() => Navigator.of(context).pop(
-    _data.copyWith(
+    ProductFilterData(
+      // Prices: use null when slider is at its default edge (no filter)
       minPrice: _priceRange.start > 0 ? _priceRange.start : null,
       maxPrice: _priceRange.end < _maxSlider ? _priceRange.end : null,
+      // All other fields come from current _data state
+      hasDiscount: _data.hasDiscount,
+      hasServices: _data.hasServices,
+      selectedCategoryIndex: _data.selectedCategoryIndex,
+      selectedConditionIndex: _data.selectedConditionIndex,
+      selectedSellerTypeIndex: _data.selectedSellerTypeIndex,
+      selectedColorIndex: _data.selectedColorIndex,
+      selectedSizeIndex: _data.selectedSizeIndex,
     ),
   );
 
@@ -246,6 +259,7 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
                           borderColor: border,
                           textColor: textPrimary,
                           onChanged: (v) {
+                            if (_updatingFromSlider) return;
                             final val = double.tryParse(v) ?? 0;
                             setState(() {
                               _priceRange = RangeValues(
@@ -264,6 +278,7 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
                           borderColor: border,
                           textColor: textPrimary,
                           onChanged: (v) {
+                            if (_updatingFromSlider) return;
                             final val = double.tryParse(v) ?? _maxSlider;
                             setState(() {
                               _priceRange = RangeValues(
@@ -293,11 +308,21 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
                       min: 0,
                       max: _maxSlider,
                       onChanged: (v) {
+                        _updatingFromSlider = true;
                         setState(() {
                           _priceRange = v;
-                          _minCtrl.text = v.start.toInt().toString();
-                          _maxCtrl.text = v.end.toInt().toString();
+                          if (v.start > 0) {
+                            _minCtrl.text = v.start.toInt().toString();
+                          } else {
+                            _minCtrl.clear();
+                          }
+                          if (v.end < _maxSlider) {
+                            _maxCtrl.text = v.end.toInt().toString();
+                          } else {
+                            _maxCtrl.clear();
+                          }
                         });
+                        _updatingFromSlider = false;
                       },
                     ),
                   ),
@@ -547,7 +572,6 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
                 child: ElevatedButton(
                   onPressed: _apply,
                   style: ElevatedButton.styleFrom(
-                    
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

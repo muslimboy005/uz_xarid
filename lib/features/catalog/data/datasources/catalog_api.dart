@@ -15,6 +15,7 @@ class CatalogApi {
     String listingType = 'Product',
     int page = 1,
     int pageSize = 10,
+    Map<String, dynamic>? extraParams,
   }) async {
     final queryParams = <String, dynamic>{
       'ad_type': adType,
@@ -23,6 +24,9 @@ class CatalogApi {
       'page_size': pageSize,
     };
     if (categoryId != null) queryParams['category'] = categoryId;
+    if (extraParams != null) {
+      queryParams.addAll(extraParams);
+    }
     final response = await _dio.get<Map<String, dynamic>>(
       ApiUrls.ad,
       queryParameters: queryParams,
