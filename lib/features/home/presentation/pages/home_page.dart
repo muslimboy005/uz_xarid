@@ -14,7 +14,6 @@ import 'package:uz_xarid/features/home/domain/usecases/get_home.dart';
 import 'package:uz_xarid/features/home/presentation/bloc/home_bloc.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/home_banner_card.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/home_category_card.dart';
-import 'package:uz_xarid/features/home/presentation/widgets/home_subcategory_card.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/recommendation_card.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
@@ -66,7 +65,6 @@ class HomePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
-    final containerBg = isDark ? AppColors.darkCard : AppColors.black50;
     final textColor = isDark
         ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
@@ -115,181 +113,76 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: AppDimens.paddingLarge),
+                  const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDimens.paddingMedium,
                     ),
-
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        l10n.homeHeadline,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: textColor,
-                              height: 1.1,
-                            ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppDimens.paddingLarge),
-                  SizedBox(
-                    height: 90,
-                    child: BlocBuilder<HomeBloc, HomeState>(
-                      builder: (context, state) {
-                        return ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppDimens.paddingMedium,
-                          ),
-                          itemCount: categories.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            final category = categories[index];
-                            final isSelected = index == state.selectedIndex;
-                            return SizedBox(
-                              width: 160,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
                               child: HomeCategoryCard(
                                 category: HomeCategory(
-                                  title: category.title,
-                                  asset: category.asset,
-                                  isHighlighted: isSelected,
-                                  categoryType: category.categoryType,
-                                  onTap: () {
-                                    final bloc = context.read<HomeBloc>();
-                                    bloc.add(
-                                      HomeCategorySelected(
-                                        index,
-                                        category.categoryType,
-                                      ),
-                                    );
-                                  },
+                                  title: categories[0].title,
+                                  asset: categories[0].asset,
+                                  categoryType: categories[0].categoryType,
+                                  onTap: () => context.go(
+                                    '/catalog?type=${categories[0].categoryType}',
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  BlocBuilder<HomeBloc, HomeState>(
-                    builder: (context, state) {
-                      if (state.status == HomeStatus.failure) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Text(
-                            state.error ?? 'Xatolik yuz berdi',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AppColors.red),
-                          ),
-                        );
-                      }
-
-                      final isLoading =
-                          state.status == HomeStatus.loading &&
-                          state.categories.isEmpty;
-                      final items = state.categories;
-
-                      if (!isLoading && items.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-
-                      List<Widget> buildColumns(List<Widget> cards) {
-                        final columnCount = (cards.length / 2).ceil();
-                        return List.generate(columnCount, (index) {
-                          final first = cards[index * 2];
-                          final secondIndex = index * 2 + 1;
-                          final second = secondIndex < cards.length
-                              ? cards[secondIndex]
-                              : null;
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              first,
-                              const SizedBox(height: 6),
-                              ?second,
-                            ],
-                          );
-                        });
-                      }
-
-                      const cardWidth = 92.0;
-                      const cardHeight = 108.0;
-
-                      final loadingCards = List.generate(
-                        6,
-                        (_) => const ShimmerCategoryCard(
-                          width: cardWidth,
-                          height: cardHeight,
-                        ),
-                      );
-
-                      final dataCards = items
-                          .map(
-                            (c) => SizedBox(
-                              width: cardWidth,
-                              height: cardHeight,
-                              child: InkWell(
-                                onTap: () {
-                                  final children =
-                                      state.categoryIdToChildren[c.id] ?? [];
-                                  final subcategories = children
-                                      .map(
-                                        (sub) => {
-                                          'id': sub.id,
-                                          'name': sub.name,
-                                          'image': sub.image,
-                                        },
-                                      )
-                                      .toList();
-                                  const types = [
-                                    'Product',
-                                    'Home',
-                                    'Auto',
-                                    'Service',
-                                  ];
-                                  final ct = state.selectedIndex < types.length
-                                      ? types[state.selectedIndex]
-                                      : 'Product';
-                                  context.push(
-                                    '/products?categoryId=${c.id}&title=${Uri.encodeComponent(c.name)}&categoryType=${Uri.encodeComponent(ct)}',
-                                    extra: subcategories,
-                                  );
-                                },
-                                borderRadius: BorderRadius.circular(10),
-                                child: HomeSubCategoryCard(category: c),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: HomeCategoryCard(
+                                category: HomeCategory(
+                                  title: categories[1].title,
+                                  asset: categories[1].asset,
+                                  categoryType: categories[1].categoryType,
+                                  onTap: () => context.go(
+                                    '/catalog?type=${categories[1].categoryType}',
+                                  ),
+                                ),
                               ),
                             ),
-                          )
-                          .toList();
-
-                      final columns = buildColumns(
-                        isLoading ? loadingCards : dataCards,
-                      );
-
-                      return Container(
-                        width: double.infinity,
-                        height: cardHeight * 2 + 22,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: containerBg,
-                          borderRadius: BorderRadius.circular(14),
+                          ],
                         ),
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.only(left: 19),
-                          itemCount: columns.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 6),
-                          itemBuilder: (context, index) => columns[index],
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: HomeCategoryCard(
+                                category: HomeCategory(
+                                  title: categories[2].title,
+                                  asset: categories[2].asset,
+                                  categoryType: categories[2].categoryType,
+                                  onTap: () => context.go(
+                                    '/catalog?type=${categories[2].categoryType}',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: HomeCategoryCard(
+                                category: HomeCategory(
+                                  title: categories[3].title,
+                                  asset: categories[3].asset,
+                                  categoryType: categories[3].categoryType,
+                                  onTap: () => context.go(
+                                    '/catalog?type=${categories[3].categoryType}',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: AppDimens.paddingLarge),
+                  const SizedBox(height: AppDimens.paddingMedium),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDimens.paddingMedium,
@@ -311,8 +204,8 @@ class HomePage extends StatelessWidget {
                         if (state.status == HomeStatus.loading &&
                             state.banners.isEmpty) {
                           return const ShimmerBanner(
-                            height: 240,
-                            borderRadius: 20,
+                            height: 180,
+                            borderRadius: 16,
                           );
                         }
 
@@ -321,7 +214,7 @@ class HomePage extends StatelessWidget {
                         }
 
                         return SizedBox(
-                          height: 270,
+                          height: 200,
                           child: PageView.builder(
                             controller: PageController(viewportFraction: 1),
                             itemCount: state.banners.length,

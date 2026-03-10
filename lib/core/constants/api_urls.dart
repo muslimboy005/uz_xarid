@@ -28,4 +28,7 @@ class ApiUrls {
   static const String favoritesToggle = 'user-like/toggle/';
   static const String favoritesList = 'user-like/';
   static const String address = 'address/';
+
+  /// Foydalanuvchi e'lonlari: GET ad/me/?status=active|pending|unpaid|inactive|rejected
+  static const String myListings = 'ad/me/';
 }

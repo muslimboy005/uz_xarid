@@ -29,41 +29,39 @@ class HomeBannerCard extends StatelessWidget {
     final titleColor = _parseColor(banner.textColor, fallback: AppColors.white);
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        height: 240,
+        height: 180,
         color: bgColor,
         child: Stack(
           children: [
-            // Title visible on top
             Positioned(
-              left: 16,
-              right: 16,
-              top: 16,
+              left: 14,
+              right: 14,
+              top: 14,
               child: Text(
                 banner.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
-                  fontSize: 23,
+                  fontSize: 19,
                   height: 1.2,
                 ),
               ),
             ),
 
-            // Image anchored to bottom, clipped slightly
             Positioned.fill(
-              bottom: -45,
-              left: -70,
-              right: -50,
+              bottom: -30,
+              left: -50,
+              right: -30,
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Transform.translate(
-                  offset: const Offset(0, 14), // push down so bottom trims
+                  offset: const Offset(0, 10),
                   child: SizedBox(
-                    height: 260,
+                    height: 200,
                     width: double.infinity,
                     child:
                         (banner.mobileImage != null &&
@@ -77,18 +75,18 @@ class HomeBannerCard extends StatelessWidget {
 
             // CTA stacked over image near bottom
             Positioned(
-              left: 16,
-              right: 16,
-              bottom: 12,
+              left: 14,
+              right: 14,
+              bottom: 10,
               child: SizedBox(
-                height: 48,
+                height: 40,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue600,
                     foregroundColor: AppColors.white,
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 2,
                   ),
@@ -103,14 +101,14 @@ class HomeBannerCard extends StatelessWidget {
                         AppLocalizations.of(context)!.allProducts,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 18,
+                          fontSize: 15,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       const Icon(
                         Icons.arrow_forward_ios,
-                        size: 16,
+                        size: 14,
                         color: Colors.white,
                       ),
                     ],

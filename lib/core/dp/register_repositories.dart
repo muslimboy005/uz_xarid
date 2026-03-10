@@ -19,6 +19,8 @@ import 'package:uz_xarid/features/add_listing/data/datasources/listing_api.dart'
 import 'package:uz_xarid/features/add_listing/data/repositories/listing_repository_impl.dart';
 import 'package:uz_xarid/features/add_listing/domain/repositories/listing_repository.dart';
 import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dart';
+import 'package:uz_xarid/features/profile/data/repositories/my_listings_repository_impl.dart';
+import 'package:uz_xarid/features/profile/domain/repositories/my_listings_repository.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uz_xarid/features/favorites/data/repositories/favorites_repository_impl.dart';
 import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
@@ -29,7 +31,10 @@ import 'package:uz_xarid/features/author/domain/repositories/author_repository.d
 Future<void> registerRepositories(GetIt getIt) async {
   getIt
     ..registerLazySingleton<ListingRepository>(
-      () => ListingRepositoryImpl(api: getIt<ListingApi>()),
+      () => ListingRepositoryImpl(
+        api: getIt<ListingApi>(),
+        dio: getIt<DioClient>().dio,
+      ),
     )
     ..registerLazySingleton<CatalogRepository>(
       () => CatalogRepositoryImpl(
@@ -45,6 +50,9 @@ Future<void> registerRepositories(GetIt getIt) async {
     )
     ..registerLazySingleton(
       () => ProfileRepository(getIt<ProfileApi>(), getIt<DioClient>().dio),
+    )
+    ..registerLazySingleton<MyListingsRepository>(
+      () => MyListingsRepositoryImpl(dio: getIt<DioClient>().dio),
     )
     ..registerLazySingleton<FavoritesRepository>(
       () => FavoritesRepositoryImpl(

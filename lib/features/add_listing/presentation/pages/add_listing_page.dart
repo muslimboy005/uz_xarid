@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
@@ -8,6 +12,8 @@ import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_params.dart';
+import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/add_listing/presentation/bloc/add_listing_bloc.dart';
 import 'package:uz_xarid/features/add_listing/presentation/widgets/color_dropdown_field.dart';
@@ -51,9 +57,17 @@ class _AddListingPageState extends State<AddListingPage> {
   _ListingType _listingType = _ListingType.product;
   _NameLang _nameLang = _NameLang.uz;
   String _currency = 'UZS';
+
+  CategoryEntity? _selectedCategory;
+  CategoryEntity? _selectedSubcategory;
+  CategoryEntity? _selectedSubSubcategory;
   final _amountController = TextEditingController();
-  final _productNameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final _nameUzController = TextEditingController();
+  final _nameRuController = TextEditingController();
+  final _nameEnController = TextEditingController();
+  final _descUzController = TextEditingController();
+  final _descRuController = TextEditingController();
+  final _descEnController = TextEditingController();
   final _weightValueController = TextEditingController();
   final _lengthController = TextEditingController();
   final _widthController = TextEditingController();
@@ -72,6 +86,9 @@ class _AddListingPageState extends State<AddListingPage> {
   final List<_ColorRowData> _colorRows = [_ColorRowData()];
   final List<_SizeRowData> _sizeRows = [_SizeRowData()];
 
+  final List<String?> _imagePaths = [null, null, null, null];
+  static final _imagePicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -81,8 +98,12 @@ class _AddListingPageState extends State<AddListingPage> {
   @override
   void dispose() {
     _amountController.dispose();
-    _productNameController.dispose();
-    _descriptionController.dispose();
+    _nameUzController.dispose();
+    _nameRuController.dispose();
+    _nameEnController.dispose();
+    _descUzController.dispose();
+    _descRuController.dispose();
+    _descEnController.dispose();
     _weightValueController.dispose();
     _lengthController.dispose();
     _widthController.dispose();
@@ -151,41 +172,51 @@ class _AddListingPageState extends State<AddListingPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: bodyBg,
+      backgroundColor: AppColors.primary,
       appBar: UzXaridAppBar(onSearchChanged: (_) {}, onMenuTap: () {}),
       body: SafeArea(
-        child: BlocListener<ProfileBloc, ProfileState>(
-          listener: (context, state) {
-            if (state.status == ProfileStatus.success) _refreshAuth();
-          },
-          child: FutureBuilder<bool>(
-            future: _authFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final isLoggedIn = snapshot.data == true;
-              if (!isLoggedIn) {
-                return _buildLoginRequired(
-                  l10n,
-                  cardColor,
-                  textColor,
-                  textSecondary,
-                  borderColor,
-                );
-              }
-              return BlocProvider(
-                create: (_) => getIt<AddListingBloc>()
-                  ..add(const AddListingLoadColorsRequested())
-                  ..add(const AddListingLoadSizesRequested()),
-                child: _buildForm(
-                  cardColor,
-                  textColor,
-                  textSecondary,
-                  borderColor,
-                ),
-              );
+        child: Container(
+          color: bodyBg,
+          height: MediaQuery.of(context).size.height,
+          child: BlocListener<ProfileBloc, ProfileState>(
+            listener: (context, state) {
+              if (state.status == ProfileStatus.success) _refreshAuth();
             },
+            child: FutureBuilder<bool>(
+              future: _authFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final isLoggedIn = snapshot.data == true;
+                if (!isLoggedIn) {
+                  return _buildLoginRequired(
+                    l10n,
+                    cardColor,
+                    textColor,
+                    textSecondary,
+                    borderColor,
+                  );
+                }
+                return BlocProvider(
+                  create: (_) => getIt<AddListingBloc>()
+                    ..add(AddListingLoadCategoriesRequested(
+                      categoryType: _categoryTypeForListingType(_listingType),
+                    ))
+                    ..add(const AddListingLoadColorsRequested())
+                    ..add(const AddListingLoadSizesRequested()),
+                  child: Builder(
+                    builder: (formContext) => _buildForm(
+                      formContext,
+                      cardColor,
+                      textColor,
+                      textSecondary,
+                      borderColor,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -260,25 +291,66 @@ class _AddListingPageState extends State<AddListingPage> {
     );
   }
 
+  static String _categoryTypeForListingType(_ListingType type) {
+    return switch (type) {
+      _ListingType.product => 'Product',
+      _ListingType.service => 'Service',
+      _ListingType.car => 'Auto',
+      _ListingType.home => 'Home',
+    };
+  }
+
   // ─── FORM ───────────────────────────────────────────────────────
 
   Widget _buildForm(
+    BuildContext formContext,
     Color cardColor,
     Color textColor,
     Color textSecondary,
     Color borderColor,
   ) {
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTypeTabs(cardColor, textColor, borderColor),
+    return BlocListener<AddListingBloc, AddListingState>(
+      listenWhen: (prev, cur) =>
+          prev.createAdSlug != cur.createAdSlug ||
+          prev.createAdError != cur.createAdError,
+      listener: (context, state) {
+        if (state.createAdSlug != null && state.createAdSlug!.isNotEmpty) {
+          ScaffoldMessenger.of(formContext).showSnackBar(
+            SnackBar(
+              content: Text('E\'lon muvaffaqiyatli yaratildi'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          formContext.go('/profile/my-ads');
+          return;
+        }
+        if (state.createAdError != null) {
+          ScaffoldMessenger.of(formContext).showSnackBar(
+            SnackBar(
+              content: Text(state.createAdError!),
+              backgroundColor: AppColors.red,
+            ),
+          );
+        }
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTypeTabs(formContext, cardColor, textColor, borderColor),
                 const SizedBox(height: 16),
-                _buildCategorySummaCard(
+                _buildSummaCard(
+                  cardColor,
+                  textColor,
+                  textSecondary,
+                  borderColor,
+                ),
+                const SizedBox(height: 16),
+                _buildCategoryCard(
                   cardColor,
                   textColor,
                   textSecondary,
@@ -312,22 +384,109 @@ class _AddListingPageState extends State<AddListingPage> {
                   textSecondary,
                   borderColor,
                 ),
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: _primaryButton('E\'lon yaratish', onTap: () {}),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: BlocBuilder<AddListingBloc, AddListingState>(
+              buildWhen: (prev, cur) =>
+                  prev.createAdLoading != cur.createAdLoading,
+              builder: (context, state) {
+                return _primaryButton(
+                  state.createAdLoading ? 'Yuklanmoqda...' : 'E\'lon yaratish',
+                  onTap: state.createAdLoading
+                      ? () {}
+                      : () => _submitCreateAd(context),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  void _submitCreateAd(BuildContext formContext) {
+    final category = _selectedSubSubcategory ??
+        _selectedSubcategory ??
+        _selectedCategory;
+    if (category == null) {
+      ScaffoldMessenger.of(formContext).showSnackBar(
+        const SnackBar(
+          content: Text('Kategoriyani tanlang'),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
+    final titleUz = _nameUzController.text.trim();
+    if (titleUz.isEmpty) {
+      ScaffoldMessenger.of(formContext).showSnackBar(
+        const SnackBar(
+          content: Text('Mahsulot nomini kiriting'),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
+    final price = _amountController.text.trim();
+    if (price.isEmpty) {
+      ScaffoldMessenger.of(formContext).showSnackBar(
+        const SnackBar(
+          content: Text('Summani kiriting'),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
+    final mainImage = _imagePaths[0];
+    if (mainImage == null || mainImage.isEmpty) {
+      ScaffoldMessenger.of(formContext).showSnackBar(
+        const SnackBar(
+          content: Text('Asosiy rasmni yuklang'),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
+    final listingTypeStr = switch (_listingType) {
+      _ListingType.product => 'Product',
+      _ListingType.service => 'Service',
+      _ListingType.car => 'Auto',
+      _ListingType.home => 'Home',
+    };
+    final params = CreateAdParams(
+      title: titleUz,
+      titleEn: _nameEnController.text.trim(),
+      titleRu: _nameRuController.text.trim(),
+      description: _descUzController.text.trim(),
+      descriptionEn: _descEnController.text.trim(),
+      descriptionRu: _descRuController.text.trim(),
+      adType: 'Sell',
+      listingType: listingTypeStr,
+      categoryId: category.id,
+      price: price,
+      currency: _currency,
+      mainImagePath: _imagePaths[0],
+      additionalImagePaths:
+          _imagePaths.skip(1).whereType<String>().toList(),
+    );
+    formContext.read<AddListingBloc>().add(
+          AddListingCreateAdRequested(params),
+        );
   }
 
   // ─── LISTING TYPE TABS (segmented) ──────────────────────────────
 
-  Widget _buildTypeTabs(Color cardColor, Color textColor, Color borderColor) {
+  Widget _buildTypeTabs(
+    BuildContext formContext,
+    Color cardColor,
+    Color textColor,
+    Color borderColor,
+  ) {
     const types = [
       (_ListingType.product, 'Mahsulot'),
       (_ListingType.service, 'Xizmat'),
@@ -347,7 +506,19 @@ class _AddListingPageState extends State<AddListingPage> {
           final selected = _listingType == e.$1;
           return Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _listingType = e.$1),
+              onTap: () {
+                setState(() {
+                  _listingType = e.$1;
+                  _selectedCategory = null;
+                  _selectedSubcategory = null;
+                  _selectedSubSubcategory = null;
+                });
+                formContext.read<AddListingBloc>().add(
+                      AddListingLoadCategoriesRequested(
+                        categoryType: _categoryTypeForListingType(e.$1),
+                      ),
+                    );
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
@@ -370,9 +541,9 @@ class _AddListingPageState extends State<AddListingPage> {
     );
   }
 
-  // ─── KATEGORIYA + SUMMA CARD ────────────────────────────────────
+  // ─── SUMMA CARD ─────────────────────────────────────────────────
 
-  Widget _buildCategorySummaCard(
+  Widget _buildSummaCard(
     Color cardColor,
     Color textColor,
     Color textSecondary,
@@ -384,19 +555,6 @@ class _AddListingPageState extends State<AddListingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText(
-            text: 'Kategoriya',
-            fontSize: 16,
-            fontWeight: 600,
-            color: textColor,
-          ),
-          const SizedBox(height: 10),
-          _inputField(
-            hint: 'Kategoriyani tanlang',
-            readOnly: true,
-            onTap: () {},
-          ),
-          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -478,6 +636,267 @@ class _AddListingPageState extends State<AddListingPage> {
     );
   }
 
+  // ─── KATEGORIYA CARD ────────────────────────────────────────────
+
+  Widget _buildCategoryCard(
+    Color cardColor,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    return BlocBuilder<AddListingBloc, AddListingState>(
+      buildWhen: (prev, cur) =>
+          prev.categories != cur.categories ||
+          prev.categoriesLoading != cur.categoriesLoading,
+      builder: (context, state) {
+        final categories = state.categories ?? [];
+        final isLoading = state.categoriesLoading;
+
+        final subcategories = _selectedCategory?.children ?? [];
+        final subSubcategories = _selectedSubcategory?.children ?? [];
+
+        return _card(
+          cardColor: cardColor,
+          borderColor: borderColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  AppText(
+                    text: 'Kategoriya',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: textColor,
+                  ),
+                  const SizedBox(width: 4),
+                  AppText(
+                    text: '*',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: AppColors.red,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (isLoading)
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: context.surfaceContainer,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: borderColor),
+                  ),
+                  alignment: Alignment.center,
+                  child: const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              else
+                _categoryDropdown(
+                  hint: 'Kategoriyani tanlang',
+                  items: categories,
+                  selected: _selectedCategory,
+                  textColor: textColor,
+                  textSecondary: textSecondary,
+                  borderColor: borderColor,
+                  onSelected: (cat) {
+                    setState(() {
+                      _selectedCategory = cat;
+                      _selectedSubcategory = null;
+                      _selectedSubSubcategory = null;
+                    });
+                  },
+                ),
+              if (_selectedCategory != null && subcategories.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                _categoryDropdown(
+                  hint: 'Subkategoriyani tanlang',
+                  items: subcategories,
+                  selected: _selectedSubcategory,
+                  textColor: textColor,
+                  textSecondary: textSecondary,
+                  borderColor: borderColor,
+                  onSelected: (cat) {
+                    setState(() {
+                      _selectedSubcategory = cat;
+                      _selectedSubSubcategory = null;
+                    });
+                  },
+                ),
+              ],
+              if (_selectedSubcategory != null && subSubcategories.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                _categoryDropdown(
+                  hint: 'Turini tanlang',
+                  items: subSubcategories,
+                  selected: _selectedSubSubcategory,
+                  textColor: textColor,
+                  textSecondary: textSecondary,
+                  borderColor: borderColor,
+                  onSelected: (cat) {
+                    setState(() => _selectedSubSubcategory = cat);
+                  },
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _categoryDropdown({
+    required String hint,
+    required List<CategoryEntity> items,
+    required CategoryEntity? selected,
+    required Color textColor,
+    required Color textSecondary,
+    required Color borderColor,
+    required void Function(CategoryEntity) onSelected,
+  }) {
+    return GestureDetector(
+      onTap: () => _showCategorySheet(
+        hint: hint,
+        items: items,
+        selected: selected,
+        textColor: textColor,
+        textSecondary: textSecondary,
+        borderColor: borderColor,
+        onSelected: onSelected,
+      ),
+      child: Container(
+        height: _kInputHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: context.surfaceContainer,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected != null ? AppColors.primary : borderColor,
+            width: selected != null ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: AppText(
+                text: selected?.displayName ?? hint,
+                fontSize: 14,
+                fontWeight: selected != null ? 500 : 400,
+                color: selected != null ? textColor : textSecondary,
+              ),
+            ),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 20,
+              color: textSecondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCategorySheet({
+    required String hint,
+    required List<CategoryEntity> items,
+    required CategoryEntity? selected,
+    required Color textColor,
+    required Color textSecondary,
+    required Color borderColor,
+    required void Function(CategoryEntity) onSelected,
+  }) {
+    final pageContext = context;
+    showModalBottomSheet<void>(
+      context: pageContext,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (sheetContext, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: sheetContext.cardSurface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: borderColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: AppText(
+                      text: hint,
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.separated(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: items.length,
+                      separatorBuilder: (_, __) => Divider(
+                        height: 1,
+                        color: borderColor,
+                      ),
+                      itemBuilder: (_, i) {
+                        final item = items[i];
+                        final isSelected = selected?.id == item.id;
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          title: AppText(
+                            text: item.displayName,
+                            fontSize: 15,
+                            fontWeight: isSelected ? 600 : 400,
+                            color: isSelected ? AppColors.primary : textColor,
+                          ),
+                          trailing: isSelected
+                              ? const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: AppColors.primary,
+                                  size: 20,
+                                )
+                              : null,
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            onSelected(item);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   // ─── MAHSULOT NOMI CARD ─────────────────────────────────────────
 
   Widget _buildProductNameCard(
@@ -503,12 +922,20 @@ class _AddListingPageState extends State<AddListingPage> {
           const SizedBox(height: 12),
           _inputField(
             hint: 'Mahsulot nomi',
-            controller: _productNameController,
+            controller: switch (_nameLang) {
+              _NameLang.uz => _nameUzController,
+              _NameLang.ru => _nameRuController,
+              _NameLang.en => _nameEnController,
+            },
           ),
           const SizedBox(height: 12),
           _inputField(
             hint: 'Tavsif',
-            controller: _descriptionController,
+            controller: switch (_nameLang) {
+              _NameLang.uz => _descUzController,
+              _NameLang.ru => _descRuController,
+              _NameLang.en => _descEnController,
+            },
             maxLines: 4,
             minLines: 3,
           ),
@@ -569,6 +996,18 @@ class _AddListingPageState extends State<AddListingPage> {
 
   // ─── RASM YUKLASH CARD ──────────────────────────────────────────
 
+  Future<void> _pickImage(int index) async {
+    final file = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (file != null && mounted) {
+      setState(() {
+        _imagePaths[index] = file.path;
+      });
+    }
+  }
+
   Widget _buildImageUploadCard(
     Color cardColor,
     Color textColor,
@@ -590,45 +1029,54 @@ class _AddListingPageState extends State<AddListingPage> {
           const SizedBox(height: 16),
           Row(
             children: List.generate(4, (i) {
+              final path = _imagePaths[i];
               return Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: i < 3 ? 10 : 0),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap: () => _pickImage(i),
                       child: Container(
                         decoration: BoxDecoration(
                           color: context.surfaceContainer,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: borderColor),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.file_upload_outlined,
-                              size: 26,
-                              color: textSecondary,
-                            ),
-                            const SizedBox(height: 6),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 2,
+                        clipBehavior: Clip.antiAlias,
+                        child: path != null && path.isNotEmpty
+                            ? Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.file_upload_outlined,
+                                    size: 26,
+                                    color: textSecondary,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 2,
+                                    ),
+                                    child: Text(
+                                      labels[i],
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w400,
+                                        color: textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                labels[i],
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: textSecondary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   ),

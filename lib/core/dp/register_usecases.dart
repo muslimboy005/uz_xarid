@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:get_it/get_it.dart';
 import 'package:uz_xarid/features/add_listing/domain/repositories/listing_repository.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_colors.dart';
+import 'package:uz_xarid/features/add_listing/domain/usecases/create_ad.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
 import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
 import 'package:uz_xarid/features/catalog/domain/usecases/get_ads_by_category.dart';
@@ -14,7 +15,9 @@ import 'package:uz_xarid/features/product_list/domain/usecases/get_product_list.
 import 'package:uz_xarid/features/product_detail/domain/usecases/get_product_feedbacks.dart';
 import 'package:uz_xarid/features/product_detail/domain/usecases/leave_product_feedback.dart';
 import 'package:uz_xarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
+import 'package:uz_xarid/features/profile/domain/repositories/my_listings_repository.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
 import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
@@ -27,6 +30,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<GetSizes>(
       () => GetSizes(getIt<ListingRepository>()),
+    )
+    ..registerLazySingleton<CreateAd>(
+      () => CreateAd(getIt<ListingRepository>()),
     )
     ..registerLazySingleton<GetCategories>(
       () => GetCategories(getIt<CatalogRepository>()),
@@ -91,6 +97,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<ProfileDeleteAddressUsecase>(
       () => ProfileDeleteAddressUsecase(getIt<ProfileRepository>()),
+    )
+    ..registerLazySingleton<GetMyListings>(
+      () => GetMyListings(getIt<MyListingsRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }
