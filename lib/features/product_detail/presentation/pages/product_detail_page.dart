@@ -13,12 +13,17 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_bloc.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_event.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_state.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/name_bottom_sheet.dart';
+import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/otp_bottom_sheet.dart';
+import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/phone_bottom_sheet.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// API dan kelgan sanani "26 Dek 2025" formatida qaytaradi (tilga qarab).
@@ -103,6 +108,10 @@ class ProductDetailPage extends StatelessWidget {
             bloc.add(ProductFeedbackLoadRequested(slug: slug));
             return bloc;
           },
+        ),
+        BlocProvider(
+          create: (_) =>
+              getIt<ProfileBloc>(), // local injection for bottom sheets
         ),
       ],
       child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
@@ -437,7 +446,6 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -1247,7 +1255,6 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     child: ElevatedButton(
                       onPressed: () => _showLeaveFeedbackSheet(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -1395,7 +1402,47 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     );
   }
 
-  void _showLeaveFeedbackSheet(BuildContext parentContext) {
+  void _showLeaveFeedbackSheet(BuildContext parentContext) async {
+    // Check if user is authenticated via local storage
+    if (!parentContext.mounted) return;
+    final hasToken = await getIt<SecureStorageService>().hasToken();
+    if (!parentContext.mounted) return;
+
+    if (!hasToken) {
+      // User is not authenticated, show login flow
+      PhoneBottomSheet.show(
+        parentContext,
+        onCodeSent: (phone) {
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (parentContext.mounted) {
+              OtpBottomSheet.show(
+                parentContext,
+                phone,
+                onAskName: () {
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (parentContext.mounted) {
+                      NameBottomSheet.show(parentContext);
+                    }
+                  });
+                },
+                onOtpSuccess: () {
+                  if (parentContext.mounted) {
+                    parentContext.read<ProfileBloc>().add(
+                      const ProfileLoadEvent(),
+                    );
+                    parentContext.read<ProductFeedbackBloc>().add(
+                      ProductFeedbackLoadRequested(slug: ad.slug),
+                    );
+                  }
+                },
+              );
+            }
+          });
+        },
+      );
+      return;
+    }
+
     final l10n = AppLocalizations.of(parentContext)!;
     final controller = TextEditingController();
     int rating = 0;
@@ -1540,7 +1587,6 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                                   );
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
                             foregroundColor: AppColors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -1823,7 +1869,6 @@ class _SimilarCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => context.push('/ad/${item.slug}'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

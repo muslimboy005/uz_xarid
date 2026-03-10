@@ -54,7 +54,7 @@ class _CatalogPageState extends State<CatalogPage> {
         return bloc;
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
+        
         appBar: UzXaridAppBar(
           onSearchTap: () => context.push('/search'),
           onSearchChanged: (query) {

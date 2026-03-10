@@ -105,7 +105,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: AppColors.primary,
+      
       body: Container(
         color: bodyBg,
         child: SafeArea(

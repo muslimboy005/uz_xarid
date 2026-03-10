@@ -25,7 +25,7 @@ class PaymentPage extends StatelessWidget {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      backgroundColor: AppColors.primary,
+      
       body: Container(
         color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(

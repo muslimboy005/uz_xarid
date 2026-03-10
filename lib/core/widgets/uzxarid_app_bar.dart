@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/localization/locale_cubit.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
@@ -13,6 +14,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSearchChanged,
     this.onSearchTap,
     this.onMenuTap,
+    this.isMenuOpen = false,
   });
 
   /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
@@ -22,6 +24,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Qidirish maydonini bosganda ochiladigan sahifa (masalan, to'liq qidirish ekrani).
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
+  final bool isMenuOpen;
 
   static const double _height = 112;
 
@@ -45,6 +48,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
         onSearchChanged: onSearchChanged,
         onSearchTap: onSearchTap,
         onMenuTap: onMenuTap,
+        isMenuOpen: isMenuOpen,
       ),
     );
   }
@@ -64,12 +68,14 @@ class UzXaridSliverAppBar extends StatelessWidget {
     this.onSearchChanged,
     this.onSearchTap,
     this.onMenuTap,
+    this.isMenuOpen = false,
   });
 
   final Widget? leading;
   final ValueChanged<String>? onSearchChanged;
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
+  final bool isMenuOpen;
 
   static const double _height = 112;
 
@@ -93,6 +99,7 @@ class UzXaridSliverAppBar extends StatelessWidget {
         onSearchChanged: onSearchChanged,
         onSearchTap: onSearchTap,
         onMenuTap: onMenuTap,
+        isMenuOpen: isMenuOpen,
       ),
     );
   }
@@ -106,6 +113,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
     this.onSearchChanged,
     this.onSearchTap,
     this.onMenuTap,
+    this.isMenuOpen = false,
   });
 
   final Locale locale;
@@ -114,6 +122,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
   final ValueChanged<String>? onSearchChanged;
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
+  final bool isMenuOpen;
 
   static const double _height = 112;
 
@@ -121,60 +130,78 @@ class _UzXaridAppBarContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
-    return SafeArea(
-      bottom: false,
-      child: SizedBox(
-        height: _height,
-        child: Stack(
-          children: [
-            // Asosiy fon (dark/light rejimga mos)
-            Positioned.fill(top: 0, child: ColoredBox(color: bodyBg)),
-            // Ko'k header qismi – pastki burchaklari yumaloq
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 85,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(14),
-                    bottomRight: Radius.circular(14),
-                  ),
+    final appMode = context.watch<AppModeCubit>().state;
+    final headerColor = appMode.appBarColor;
+    final onHeader = appMode.onAppBarColor;
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    return Container(
+      color: bodyBg,
+      child: Stack(
+        children: [
+          // Ko'k/sariq header qismi – pastki burchaklari yumaloq, status barni ham qoplaydi
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 85 + topPadding,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              decoration: BoxDecoration(
+                color: headerColor,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(14),
+                  bottomRight: Radius.circular(14),
                 ),
               ),
             ),
-            // Leading (back) + logo + language + menu row (ko'k fonda)
-            Positioned(
-              left: 16,
-              right: 16,
-              top: 12,
-              child: Row(
+          ),
+          // Content (status bardan pastdan boshlanadi)
+          Positioned.fill(
+            top: topPadding,
+            child: SizedBox(
+              height: _height,
+              child: Stack(
                 children: [
-                  if (leading != null) ...[leading!, const SizedBox(width: 8)],
-                  Image.asset('assets/images/uzxarid.png', height: 42),
-
-                  const Spacer(),
-                  // _LanguageSelector(currentLocale: locale),
-                  // const SizedBox(width: 12),
-                  _MenuButton(onTap: onMenuTap),
+                  // Leading (back) + logo + language + menu row (ko'k fonda)
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    top: 12,
+                    child: Row(
+                      children: [
+                        if (leading != null) ...[
+                          leading!,
+                          const SizedBox(width: 8),
+                        ],
+                        Image.asset('assets/images/uzxarid.png', height: 42),
+                        const Spacer(),
+                        // _LanguageSelector(currentLocale: locale),
+                        // const SizedBox(width: 12),
+                        _MenuButton(
+                          onTap: onMenuTap,
+                          isOpen: isMenuOpen,
+                          iconColor: onHeader,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Search field floating so that half is on blue, half on white
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 0,
+                    child: _SearchField(
+                      hintText: hintText,
+                      onChanged: onSearchChanged,
+                      onTap: onSearchTap,
+                    ),
+                  ),
                 ],
               ),
             ),
-            // Search field floating so that half is on blue, half on white
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 0,
-              child: _SearchField(
-                hintText: hintText,
-                onChanged: onSearchChanged,
-                onTap: onSearchTap,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -265,23 +292,47 @@ class _LanguageSelector extends StatelessWidget {
 }
 
 class _MenuButton extends StatelessWidget {
-  const _MenuButton({this.onTap});
+  const _MenuButton({
+    this.onTap,
+    this.isOpen = false,
+    this.iconColor = AppColors.white,
+  });
 
   final VoidCallback? onTap;
+  final bool isOpen;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.12),
+          color: iconColor.withValues(alpha: isOpen ? 0.25 : 0.12),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Icon(Icons.menu, color: AppColors.white, size: 25),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) =>
+              ScaleTransition(scale: anim, child: child),
+          child: isOpen
+              ? Icon(
+                  Icons.close,
+                  color: iconColor,
+                  size: 22,
+                  key: const ValueKey('close'),
+                )
+              : Icon(
+                  Icons.menu,
+                  color: iconColor,
+                  size: 25,
+                  key: const ValueKey('menu'),
+                ),
+        ),
       ),
     );
   }
@@ -298,7 +349,9 @@ class _SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final fillColor = isDark ? AppColors.darkCard : Colors.white;
-    final iconColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final iconColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final child = Container(
       decoration: BoxDecoration(
         color: fillColor,
