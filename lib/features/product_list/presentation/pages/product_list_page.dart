@@ -19,6 +19,7 @@ import 'package:uz_xarid/features/product_list/domain/entities/product_list_item
 import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.dart';
 import 'package:uz_xarid/features/product_list/domain/usecases/get_product_list.dart';
 import 'package:uz_xarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
+import 'package:uz_xarid/features/product_list/presentation/widgets/product_filter_sheet.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// Barcha joylardan ochiladigan mahsulotlar ro'yxati (Barchasi, turkum bo'yicha).
@@ -58,6 +59,7 @@ class _ProductListPageState extends State<ProductListPage> {
   bool _loading = true;
   String? _error;
   int _selectedSortIndex = 0;
+  ProductFilterData? _activeFilter;
 
   @override
   void initState() {
@@ -121,7 +123,7 @@ class _ProductListPageState extends State<ProductListPage> {
     final l10n = AppLocalizations.of(context)!;
     final bodyBg = context.bodyBackground;
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      
       appBar: _buildAppBar(context),
       body: Container(
         color: bodyBg,
@@ -228,12 +230,41 @@ class _ProductListPageState extends State<ProductListPage> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.filter_list, size: 20),
-              label: Text(l10n.productListFilters),
+              onPressed: () async {
+                final result = await showProductFilterSheet(
+                  context,
+                  initial: _activeFilter,
+                );
+                if (result != null) {
+                  setState(() => _activeFilter = result);
+                }
+              },
+              icon: Icon(
+                Icons.filter_list,
+                size: 20,
+                color: _activeFilter != null
+                    ? AppColors.primary
+                    : context.textPrimary,
+              ),
+              label: Text(
+                l10n.productListFilters,
+                style: TextStyle(
+                  color: _activeFilter != null
+                      ? AppColors.primary
+                      : context.textPrimary,
+                  fontWeight: _activeFilter != null
+                      ? FontWeight.w700
+                      : FontWeight.w500,
+                ),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: context.textPrimary,
-                side: BorderSide(color: context.borderColor),
+                side: BorderSide(
+                  color: _activeFilter != null
+                      ? AppColors.primary
+                      : context.borderColor,
+                  width: _activeFilter != null ? 1.5 : 1.0,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

@@ -99,7 +99,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-          backgroundColor: AppColors.primary,
+          
           body: Container(
             color: isDark ? AppColors.darkBackground : AppColors.black50,
             child: SafeArea(

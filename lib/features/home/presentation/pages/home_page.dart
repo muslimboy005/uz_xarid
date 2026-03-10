@@ -100,15 +100,11 @@ class HomePage extends StatelessWidget {
         return HomeBloc(useCase)..add(const HomeRequested());
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
+        
         appBar: UzXaridAppBar(
           onSearchTap: () => context.push('/search'),
-          onSearchChanged: (query) {
-            // TODO: implement real search logic
-          },
-          onMenuTap: () {
-            // TODO: open drawer or menu sheet
-          },
+          onSearchChanged: (query) {},
+          onMenuTap: () => context.push('/support-menu'),
         ),
         body: Container(
           height: MediaQuery.of(context).size.height,
