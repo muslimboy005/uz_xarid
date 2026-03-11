@@ -17,14 +17,14 @@ class GetProductList
   @override
   Future<Either<Failure, List<ProductListItemEntity>>> call(
     GetProductListParams params,
-  ) =>
-      _repository.getProducts(
-        searchQuery: params.searchQuery,
-        categoryId: params.categoryId,
-        listSource: params.listSource,
-        pageSize: params.pageSize,
-        adType: params.adType,
-      );
+  ) => _repository.getProducts(
+    searchQuery: params.searchQuery,
+    categoryId: params.categoryId,
+    listSource: params.listSource,
+    pageSize: params.pageSize,
+    adType: params.adType,
+    filterParams: params.filterParams,
+  );
 }
 
 class GetProductListParams {
@@ -34,6 +34,7 @@ class GetProductListParams {
     this.listSource = 'recommendations',
     this.pageSize = 100,
     this.adType = 'Sell',
+    this.filterParams,
   });
 
   /// Qidiruv so'rovi – berilsa ads/search API chaqiladi.
@@ -43,6 +44,6 @@ class GetProductListParams {
   /// 'recommendations' | 'services' | 'gifts' – categoryId null bo'lganda qaysi ro'yxat.
   final String listSource;
   final int pageSize;
-  /// Tavsiyalar uchun: 'Sell' yoki 'Buy'.
   final String adType;
+  final Map<String, dynamic>? filterParams;
 }

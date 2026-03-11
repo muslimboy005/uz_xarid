@@ -11,13 +11,18 @@ class SearchApi {
   Future<SearchResponseDto> search({
     required String query,
     int pageSize = 200,
+    Map<String, dynamic>? extraParams,
   }) async {
+    final queryParams = <String, dynamic>{
+      'search': query.trim(),
+      'page_size': pageSize,
+    };
+    if (extraParams != null) {
+      queryParams.addAll(extraParams);
+    }
     final response = await _dio.get<Map<String, dynamic>>(
       ApiUrls.adsSearch,
-      queryParameters: {
-        'search': query.trim(),
-        'page_size': pageSize,
-      },
+      queryParameters: queryParams,
     );
     final data = response.data;
     if (data == null) {
@@ -33,10 +38,7 @@ class SearchApi {
 
 /// Javob: status, data.results, data.total_items, ...
 class SearchResponseDto {
-  const SearchResponseDto({
-    required this.status,
-    required this.data,
-  });
+  const SearchResponseDto({required this.status, required this.data});
 
   final bool status;
   final SearchDataDto data;

@@ -10,6 +10,7 @@ abstract class ProductListRemoteDatasource {
   Future<List<ProductListItemDto>> getSearchResults({
     required String query,
     int pageSize = 200,
+    Map<String, dynamic>? filterParams,
   });
 
   Future<List<ProductListItemDto>> getRecommendations({
@@ -22,9 +23,16 @@ abstract class ProductListRemoteDatasource {
   Future<List<ProductListItemDto>> getGifts({int pageSize = 100});
 
   Future<List<ProductListItemDto>> getByCategory({
-    required int categoryId,
+    int? categoryId,
     int page = 1,
     int pageSize = 10,
+    Map<String, dynamic>? filterParams,
+  });
+
+  Future<List<ProductListItemDto>> getFiltered({
+    Map<String, dynamic>? filterParams,
+    int pageSize = 100,
+    String? adType,
   });
 }
 
@@ -43,8 +51,13 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   Future<List<ProductListItemDto>> getSearchResults({
     required String query,
     int pageSize = 200,
+    Map<String, dynamic>? filterParams,
   }) async {
-    final response = await searchApi.search(query: query, pageSize: pageSize);
+    final response = await searchApi.search(
+      query: query,
+      pageSize: pageSize,
+      extraParams: filterParams,
+    );
     return response.data.results.map(_fromCatalogAdItemDto).toList();
   }
 
@@ -71,14 +84,33 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
 
   @override
   Future<List<ProductListItemDto>> getByCategory({
-    required int categoryId,
+    int? categoryId,
     int page = 1,
     int pageSize = 10,
+    Map<String, dynamic>? filterParams,
   }) async {
     final response = await catalogApi.getAds(
       categoryId: categoryId,
       page: page,
       pageSize: pageSize,
+      extraParams: filterParams,
+    );
+    return response.data.results.map(_fromCatalogAdItemDto).toList();
+  }
+
+  @override
+  Future<List<ProductListItemDto>> getFiltered({
+    Map<String, dynamic>? filterParams,
+    int pageSize = 100,
+    String? adType,
+  }) async {
+    final extra = <String, dynamic>{
+      if (filterParams != null) ...filterParams,
+      if (adType != null) 'ad_type': adType,
+    };
+    final response = await catalogApi.getAds(
+      pageSize: pageSize,
+      extraParams: extra.isEmpty ? null : extra,
     );
     return response.data.results.map(_fromCatalogAdItemDto).toList();
   }

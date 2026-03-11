@@ -15,6 +15,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSearchTap,
     this.onMenuTap,
     this.isMenuOpen = false,
+    this.actions,
   });
 
   /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
@@ -25,6 +26,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
   final bool isMenuOpen;
+  final List<Widget>? actions;
 
   static const double _height = 112;
 
@@ -49,6 +51,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
         onSearchTap: onSearchTap,
         onMenuTap: onMenuTap,
         isMenuOpen: isMenuOpen,
+        actions: actions,
       ),
     );
   }
@@ -69,6 +72,7 @@ class UzXaridSliverAppBar extends StatelessWidget {
     this.onSearchTap,
     this.onMenuTap,
     this.isMenuOpen = false,
+    this.actions,
   });
 
   final Widget? leading;
@@ -76,6 +80,7 @@ class UzXaridSliverAppBar extends StatelessWidget {
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
   final bool isMenuOpen;
+  final List<Widget>? actions;
 
   static const double _height = 112;
 
@@ -100,6 +105,7 @@ class UzXaridSliverAppBar extends StatelessWidget {
         onSearchTap: onSearchTap,
         onMenuTap: onMenuTap,
         isMenuOpen: isMenuOpen,
+        actions: actions,
       ),
     );
   }
@@ -114,6 +120,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
     this.onSearchTap,
     this.onMenuTap,
     this.isMenuOpen = false,
+    this.actions,
   });
 
   final Locale locale;
@@ -123,6 +130,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
   final bool isMenuOpen;
+  final List<Widget>? actions;
 
   static const double _height = 112;
 
@@ -178,6 +186,8 @@ class _UzXaridAppBarContent extends StatelessWidget {
                         const Spacer(),
                         // _LanguageSelector(currentLocale: locale),
                         // const SizedBox(width: 12),
+                        if (actions != null) ...actions!,
+                        const SizedBox(width: 8),
                         _MenuButton(
                           onTap: onMenuTap,
                           isOpen: isMenuOpen,

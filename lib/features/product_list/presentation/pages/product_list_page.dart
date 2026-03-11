@@ -5,6 +5,7 @@ import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/either/either.dart';
@@ -58,7 +59,10 @@ class _ProductListPageState extends State<ProductListPage> {
   List<SubcategoryItem> _loadedSubcategories = [];
   bool _loading = true;
   String? _error;
-  int _selectedSortIndex = 0;
+  // Top row: 'Mashhur' chip — independent from bottom row
+  bool _popularSelected = false;
+  // Bottom row: 1=Arzonroq, 2=Qimmatroq, 3=Yuqori reyting. null = none selected
+  int? _bottomSortIndex;
   ProductFilterData? _activeFilter;
 
   @override
@@ -98,11 +102,14 @@ class _ProductListPageState extends State<ProductListPage> {
       _error = null;
     });
 
+    final filterParams = _buildFilterParams();
+
     final result = await getIt<GetProductList>()(
       GetProductListParams(
         searchQuery: widget.searchQuery,
         categoryId: widget.categoryId,
         listSource: widget.listSource,
+        filterParams: filterParams,
       ),
     );
 
@@ -118,12 +125,77 @@ class _ProductListPageState extends State<ProductListPage> {
     });
   }
 
+  Map<String, dynamic> _buildFilterParams() {
+    final params = <String, dynamic>{};
+
+    // ── Sort ─────────────────────────────────────────────────────────────────
+    switch (_bottomSortIndex) {
+      case 1: // Arzonroq
+        params['ordering'] = 'price';
+        break;
+      case 2: // Qimmatroq
+        params['ordering'] = '-price';
+        break;
+      case 3: // Yuqori reyting
+        params['ordering'] = '-rating';
+        break;
+      default:
+        if (_popularSelected) params['ordering'] = '-view_count';
+    }
+
+    if (_activeFilter != null) {
+      final f = _activeFilter!;
+
+      // Price range
+      if (f.minPrice != null) params['price_min'] = f.minPrice;
+      if (f.maxPrice != null) params['price_max'] = f.maxPrice;
+
+      // Toggles
+      if (f.hasDiscount) params['has_discount'] = true;
+      if (f.hasServices) params['listing_type'] = 'Service';
+
+      // Seller type: Jismoniy shaxs=0 → is_physical=true; Biznes=1 → is_physical=false
+      if (f.selectedSellerTypeIndex != null) {
+        params['is_physical'] = f.selectedSellerTypeIndex == 0;
+      }
+
+      // Color: map index to color name string
+      const colorNames = [
+        'purple',
+        'red',
+        'pink',
+        'sandy',
+        'yellow',
+        'blue',
+        'lightblue',
+        'green',
+        'brown',
+        'black',
+        'black',
+        'gray',
+        'white',
+      ];
+      if (f.selectedColorIndex != null &&
+          f.selectedColorIndex! < colorNames.length) {
+        params['color'] = colorNames[f.selectedColorIndex!];
+      }
+
+      // Size: map index to size string
+      const sizeNames = ['2XS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+      if (f.selectedSizeIndex != null &&
+          f.selectedSizeIndex! < sizeNames.length) {
+        params['size'] = sizeNames[f.selectedSizeIndex!];
+      }
+    }
+
+    return params;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final bodyBg = context.bodyBackground;
     return Scaffold(
-      
       appBar: _buildAppBar(context),
       body: Container(
         color: bodyBg,
@@ -164,7 +236,29 @@ class _ProductListPageState extends State<ProductListPage> {
                     ),
                   ),
                 ),
+                // Always show 'Mashhur' at the top — it only selects/deselects itself
+                _buildPopularChip(l10n),
               ],
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children:
+                    [1, 2, 3] // Skip 0 (Mashhur is in top row)
+                        .map(
+                          (i) => Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: _buildBottomSortChip(l10n, i),
+                          ),
+                        )
+                        .toList(),
+              ),
             ),
           ),
         ),
@@ -172,8 +266,6 @@ class _ProductListPageState extends State<ProductListPage> {
           SliverToBoxAdapter(child: _buildSubcategoriesStrip()),
           const SliverToBoxAdapter(child: SizedBox(height: 12)),
         ],
-        SliverToBoxAdapter(child: _buildFilterAndSortRow(l10n)),
-        const SliverToBoxAdapter(child: SizedBox(height: 12)),
         if (_loading)
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -215,97 +307,64 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
-  Widget _buildFilterAndSortRow(AppLocalizations l10n) {
-    final sortLabels = [
+  Widget _buildBottomSortChip(AppLocalizations l10n, int index) {
+    final labels = [
       l10n.sortPopular,
       l10n.sortCheaper,
       l10n.sortExpensive,
       l10n.sortHighRating,
     ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                final result = await showProductFilterSheet(
-                  context,
-                  initial: _activeFilter,
-                );
-                if (result != null) {
-                  setState(() => _activeFilter = result);
-                }
-              },
-              icon: Icon(
-                Icons.filter_list,
-                size: 20,
-                color: _activeFilter != null
-                    ? AppColors.primary
-                    : context.textPrimary,
-              ),
-              label: Text(
-                l10n.productListFilters,
-                style: TextStyle(
-                  color: _activeFilter != null
-                      ? AppColors.primary
-                      : context.textPrimary,
-                  fontWeight: _activeFilter != null
-                      ? FontWeight.w700
-                      : FontWeight.w500,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: context.textPrimary,
-                side: BorderSide(
-                  color: _activeFilter != null
-                      ? AppColors.primary
-                      : context.borderColor,
-                  width: _activeFilter != null ? 1.5 : 1.0,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+    final label = labels[index];
+    final isSelected = _bottomSortIndex == index;
+
+    return Material(
+      color: isSelected ? AppColors.primary : context.cardSurface,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _bottomSortIndex = isSelected ? null : index;
+          });
+          _load();
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: isSelected ? AppColors.white : context.textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 40,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: sortLabels.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final selected = _selectedSortIndex == index;
-                return Material(
-                  color: selected ? AppColors.primary : context.cardSurface,
-                  borderRadius: BorderRadius.circular(20),
-                  child: InkWell(
-                    onTap: () => setState(() => _selectedSortIndex = index),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      alignment: Alignment.center,
-                      child: Text(
-                        sortLabels[index],
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: selected
-                              ? AppColors.white
-                              : context.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+        ),
+      ),
+    );
+  }
+
+  /// Always shows "Mashhur" in the top row — independent from bottom row
+  Widget _buildPopularChip(AppLocalizations l10n) {
+    return Material(
+      color: _popularSelected ? AppColors.primary : context.cardSurface,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () {
+          setState(() => _popularSelected = !_popularSelected);
+          _load();
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          alignment: Alignment.center,
+          child: Text(
+            l10n.sortPopular,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: _popularSelected ? AppColors.white : context.textPrimary,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -333,9 +392,52 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final appMode = context.watch<AppModeCubit>().state;
+    final onHeader = appMode.onAppBarColor;
     return UzXaridAppBar(
       onSearchTap: () => context.push('/search'),
       onMenuTap: () {},
+      actions: [
+        GestureDetector(
+          onTap: () async {
+            final result = await showProductFilterSheet(
+              context,
+              initial: _activeFilter,
+            );
+            if (result != null) {
+              setState(() => _activeFilter = result);
+              _load(); // Reload with new filters
+            }
+          },
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: onHeader.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(Icons.filter_list, color: onHeader),
+                if (_activeFilter != null)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

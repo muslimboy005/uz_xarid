@@ -11,5 +11,6 @@ abstract class ProductListRepository {
     String listSource = 'recommendations',
     int pageSize = 100,
     String adType = 'Sell',
+    Map<String, dynamic>? filterParams,
   });
 }
