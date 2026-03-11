@@ -4,20 +4,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uz_xarid/features/order/data/models/order_create_dto.dart';
+import 'package:uz_xarid/features/order/presentation/bloc/order_create/order_create_cubit.dart';
+import 'package:uz_xarid/features/order/presentation/bloc/order_create/order_create_state.dart';
 import 'package:uz_xarid/features/profile/data/model/address_model.dart';
+import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_event.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key, required this.ad});
 
-  final AdDetailEntity ad;
+  final AdDetailEntity? ad;
 
   @override
   State<OrderPage> createState() => _OrderPageState();
@@ -26,15 +31,11 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> {
   int _quantity = 1;
   bool _sendToAll = false;
-  final _nameCtrl = TextEditingController();
-  final _surnameCtrl = TextEditingController();
   final _commentCtrl = TextEditingController();
   AddressModel? _selectedAddress;
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _surnameCtrl.dispose();
     _commentCtrl.dispose();
     super.dispose();
   }
@@ -53,51 +54,82 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+    if (widget.ad == null) {
+      return const Scaffold(body: Center(child: Text('Mahsulot topilmadi')));
+    }
+    final ad = widget.ad!;
+    final AppLocalizations l = AppLocalizations.of(context)!;
+    final bool isDark = context.isDark;
     final bg = context.bodyBackground;
     final card = context.cardSurface;
     final txt = context.textPrimary;
     final txtSec = context.textSecondary;
     final border = context.borderColor;
-    final ad = widget.ad;
+
     final curr = (ad.currency ?? 'uzs') == 'uzs' ? "so'm" : ad.currency!;
     final price = _fmtPrice(ad.finalPrice ?? ad.price);
 
-    return Scaffold(
-      backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: card,
-        surfaceTintColor: card,
-        elevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => context.pop(),
-          color: txt,
-        ),
-        title: Text(
-          l.orderTitle,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: txt,
-          ),
-        ),
+    return BlocProvider(
+      create: (context) => getIt<OrderCreateCubit>(), // Fixed locator call
+      child: BlocConsumer<OrderCreateCubit, OrderCreateState>(
+        listener: (context, state) {
+          if (state is OrderCreateSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Muvaffaqiyatli!',
+                ), // l.actionSuccess might not exist
+                backgroundColor: AppColors.primary,
+              ),
+            );
+            context.go('/home');
+          } else if (state is OrderCreateFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is OrderCreateLoading;
+          return Scaffold(
+            backgroundColor: bg,
+            appBar: AppBar(
+              backgroundColor: card,
+              surfaceTintColor: card,
+              elevation: 0,
+              centerTitle: false,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                onPressed: () => context.pop(),
+                color: txt,
+              ),
+              title: Text(
+                l.orderSubmit,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: txt,
+                ),
+              ),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              child: Column(
+                children: [
+                  _productCard(ad, price, curr, l, card, txt, txtSec, border),
+                  const SizedBox(height: 16),
+                  _deliveryCard(l, card, txt, txtSec, border),
+                  const SizedBox(height: 16),
+                  _commentCard(l, card, txt, border),
+                ],
+              ),
+            ),
+            bottomNavigationBar: _bottomBar(l, card, txt, border, isLoading),
+          );
+        },
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        child: Column(
-          children: [
-            _productCard(ad, price, curr, l, card, txt, txtSec, border),
-            const SizedBox(height: 16),
-            _personalCard(l, card, txt, txtSec, border),
-            const SizedBox(height: 16),
-            _deliveryCard(l, card, txt, txtSec, border),
-            const SizedBox(height: 16),
-            _commentCard(l, card, txt, border),
-          ],
-        ),
-      ),
-      bottomNavigationBar: _bottomBar(l, card, txt, border),
     );
   }
 
@@ -130,7 +162,7 @@ class _OrderPageState extends State<OrderPage> {
                   borderRadius: BorderRadius.circular(8),
                   child: _img(img, txtSec),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,48 +170,29 @@ class _OrderPageState extends State<OrderPage> {
                       Text(
                         ad.title,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: txt,
-                          height: 1.3,
                         ),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (ad.description != null &&
-                          ad.description!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          ad.description!,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: txtSec, height: 1.3),
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                      const SizedBox(height: 8),
+                      Text(
+                        '$price $curr',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700, color: txt),
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '$price\n$curr',
-                      textAlign: TextAlign.end,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: txt,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _qtyRow(txt),
-                  ],
                 ),
               ],
             ),
           ),
-          Divider(height: 1, thickness: 0.5, color: border),
+          Divider(color: border, height: 1, thickness: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: _qtyRow(txt),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Row(
@@ -244,160 +257,50 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget _qtyRow(Color txt) {
-    final border = context.borderColor;
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          onTap: _quantity > 1 ? () => setState(() => _quantity--) : null,
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              border: Border.all(color: border, width: 1.5),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                '–',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: _quantity > 1 ? txt : context.textSecondary,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            '$_quantity ${AppLocalizations.of(context)!.orderQuantityDona}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: txt,
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () => setState(() => _quantity++),
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Center(
-              child: Icon(Icons.add, size: 18, color: AppColors.white),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _personalCard(
-    AppLocalizations l,
-    Color card,
-    Color txt,
-    Color txtSec,
-    Color border,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.profileMenuPersonalData,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: txt,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _labelField(
-                  l.firstNameLabel,
-                  l.firstNameHint,
-                  _nameCtrl,
-                  txt,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _labelField(
-                  l.lastNameLabel,
-                  l.lastNameHint,
-                  _surnameCtrl,
-                  txt,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _labelField(
-    String label,
-    String hint,
-    TextEditingController ctrl,
-    Color txt,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w500,
-            color: txt,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: ctrl,
+          'Miqdori:',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: txt),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: context.textSecondary),
-            filled: true,
-            fillColor: context.surfaceContainer,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
-                width: 1.5,
+        ),
+        Row(
+          children: [
+            _qtyBtn(Icons.remove, () {
+              if (_quantity > 1) {
+                setState(() => _quantity--);
+              }
+            }, txt),
+            const SizedBox(width: 12),
+            Text(
+              '$_quantity',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: txt,
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
-            ),
-            isDense: true,
-          ),
+            const SizedBox(width: 12),
+            _qtyBtn(Icons.add, () {
+              setState(() => _quantity++);
+            }, txt),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _qtyBtn(IconData icon, VoidCallback onTap, Color txt) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: context.surfaceContainer,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 20, color: txt),
+      ),
     );
   }
 
@@ -425,15 +328,15 @@ class _OrderPageState extends State<OrderPage> {
               color: txt,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           BlocBuilder<AddressBloc, AddressState>(
             builder: (context, state) {
               if (state.status == AddressStatus.loading &&
                   state.addresses.isEmpty) {
                 return const Center(
                   child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: CircularProgressIndicator(color: AppColors.primary),
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
                   ),
                 );
               }
@@ -505,7 +408,6 @@ class _OrderPageState extends State<OrderPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              
               foregroundColor: AppColors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -704,7 +606,13 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _bottomBar(AppLocalizations l, Color card, Color txt, Color border) {
+  Widget _bottomBar(
+    AppLocalizations l,
+    Color card,
+    Color txt,
+    Color border,
+    bool isLoading,
+  ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       decoration: BoxDecoration(
@@ -738,27 +646,61 @@ class _OrderPageState extends State<OrderPage> {
             const SizedBox(width: 12),
             Expanded(
               flex: 3,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: buyurtmani yuborish API
-                  context.pop();
+              child: BlocBuilder<OrderCreateCubit, OrderCreateState>(
+                builder: (context, state) {
+                  final profileState = context.watch<ProfileBloc>().state;
+                  final isProfileLoading = profileState.status == ProfileStatus.loading;
+                  final user = profileState.profileModel?.data.user;
+                  final hasProfileNames = user != null && user.firstName.isNotEmpty;
+
+                  return ElevatedButton(
+                    onPressed: isLoading || isProfileLoading || _selectedAddress == null || !hasProfileNames
+                        ? null
+                        : () {
+                            FocusScope.of(context).unfocus();
+                            final profile = context.read<ProfileBloc>().state.profileModel?.data.user;
+                            final req = OrderCreateDto(
+                              adSlug: widget.ad!.slug,
+                              quantity: _quantity,
+                              firstName: profile?.firstName ?? '',
+                              lastName: profile?.lastName ?? '',
+                              addressId: _selectedAddress!.id ?? 0,
+                              showSimilarProducts: _sendToAll,
+                              notes: _commentCtrl.text.trim(),
+                            );
+                            context.read<OrderCreateCubit>().createOrder(req);
+                          },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: AppColors.white,
+                      backgroundColor: AppColors.primary,
+                      disabledBackgroundColor: AppColors.primary.withValues(
+                        alpha: 0.5,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: AppColors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            l.orderSubmit,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.white,
+                                ),
+                          ),
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  
-                  foregroundColor: AppColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  l.orderSubmit,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.white,
-                  ),
-                ),
               ),
             ),
           ],

@@ -78,13 +78,16 @@ class _HomeApi implements HomeApi {
   @override
   Future<RecommendationResponseDto> getRecommendations(
     int pageSize,
-    String adType,
-  ) async {
+    String adType, {
+    String? sort,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'page_size': pageSize,
       r'ad_type': adType,
+      r'sort': sort,
     };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<RecommendationResponseDto>(

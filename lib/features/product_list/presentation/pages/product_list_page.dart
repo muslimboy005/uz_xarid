@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uz_xarid/core/constants/api_urls.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
@@ -59,10 +60,8 @@ class _ProductListPageState extends State<ProductListPage> {
   List<SubcategoryItem> _loadedSubcategories = [];
   bool _loading = true;
   String? _error;
-  // Top row: 'Mashhur' chip — independent from bottom row
-  bool _popularSelected = false;
-  // Bottom row: 1=Arzonroq, 2=Qimmatroq, 3=Yuqori reyting. null = none selected
-  int? _bottomSortIndex;
+  // Sort option: 0=Tanlangan(default), 1=Eng yangi, 2=Eng arzon, 3=Eng qimmat
+  int _sortOption = 0;
   ProductFilterData? _activeFilter;
 
   @override
@@ -96,6 +95,23 @@ class _ProductListPageState extends State<ProductListPage> {
       ? widget.subcategories
       : _loadedSubcategories;
 
+  /// Returns the active sort string for the recommendations API
+  /// (popular | cheap | expensive | high-ranking | null)
+  String? get _activeSortValue {
+    switch (_sortOption) {
+      case 1:
+        return ApiUrls.sortPopular; // 'popular'
+      case 2:
+        return ApiUrls.sortCheap; // 'cheap'
+      case 3:
+        return ApiUrls.sortExpensive; // 'expensive'
+      case 4:
+        return ApiUrls.sortHighRanking; // 'high-ranking'
+      default:
+        return null; // no sort
+    }
+  }
+
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -110,6 +126,7 @@ class _ProductListPageState extends State<ProductListPage> {
         categoryId: widget.categoryId,
         listSource: widget.listSource,
         filterParams: filterParams,
+        sort: _activeSortValue, // passed to getRecommendations
       ),
     );
 
@@ -128,20 +145,8 @@ class _ProductListPageState extends State<ProductListPage> {
   Map<String, dynamic> _buildFilterParams() {
     final params = <String, dynamic>{};
 
-    // ── Sort ─────────────────────────────────────────────────────────────────
-    switch (_bottomSortIndex) {
-      case 1: // Arzonroq
-        params['ordering'] = 'price';
-        break;
-      case 2: // Qimmatroq
-        params['ordering'] = '-price';
-        break;
-      case 3: // Yuqori reyting
-        params['ordering'] = '-rating';
-        break;
-      default:
-        if (_popularSelected) params['ordering'] = '-view_count';
-    }
+    // ── Sort: now handled directly via sort param in GetProductListParams,
+    // not via ordering in filterParams. Nothing to add here.
 
     if (_activeFilter != null) {
       final f = _activeFilter!;
@@ -236,32 +241,13 @@ class _ProductListPageState extends State<ProductListPage> {
                     ),
                   ),
                 ),
-                // Always show 'Mashhur' at the top — it only selects/deselects itself
-                _buildPopularChip(l10n),
+                // Sort popup button
+                _buildSortButton(context),
               ],
             ),
           ),
         ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children:
-                    [1, 2, 3] // Skip 0 (Mashhur is in top row)
-                        .map(
-                          (i) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: _buildBottomSortChip(l10n, i),
-                          ),
-                        )
-                        .toList(),
-              ),
-            ),
-          ),
-        ),
+
         if (hasSubcategories && !_loading) ...[
           SliverToBoxAdapter(child: _buildSubcategoriesStrip()),
           const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -307,63 +293,71 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
-  Widget _buildBottomSortChip(AppLocalizations l10n, int index) {
-    final labels = [
-      l10n.sortPopular,
-      l10n.sortCheaper,
-      l10n.sortExpensive,
-      l10n.sortHighRating,
-    ];
-    final label = labels[index];
-    final isSelected = _bottomSortIndex == index;
-
-    return Material(
-      color: isSelected ? AppColors.primary : context.cardSurface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _bottomSortIndex = isSelected ? null : index;
-          });
-          _load();
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: isSelected ? AppColors.white : context.textPrimary,
-            ),
+  /// Sort popup button shown in the title row
+  Widget _buildSortButton(BuildContext context) {
+    // 4 sort options; _sortOption 0 means none selected
+    const labels = ['Mashhur', 'Arzonroq', 'Qimmatroq', 'Yuqori reyting'];
+    final bool nonDefault = _sortOption != 0;
+    final displayLabel = _sortOption == 0
+        ? 'Saralash'
+        : labels[_sortOption - 1];
+    return PopupMenuButton<int>(
+      color: context.cardSurface,
+      onSelected: (value) {
+        // Tapping already-selected item deselects it
+        final next = (_sortOption == value) ? 0 : value;
+        setState(() => _sortOption = next);
+        _load();
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      offset: const Offset(0, 44),
+      itemBuilder: (_) => List.generate(
+        labels.length,
+        (i) => PopupMenuItem<int>(
+          value:
+              i +
+              1, // 1-indexed: 1=Mashhur, 2=Arzonroq, 3=Qimmatroq, 4=Yuqori reyting
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                labels[i],
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: context.textPrimary,
+                  fontWeight: _sortOption == i + 1
+                      ? FontWeight.w700
+                      : FontWeight.w400,
+                ),
+              ),
+              if (_sortOption == i + 1)
+                Icon(Icons.check_rounded, color: AppColors.primary, size: 18),
+            ],
           ),
         ),
       ),
-    );
-  }
-
-  /// Always shows "Mashhur" in the top row — independent from bottom row
-  Widget _buildPopularChip(AppLocalizations l10n) {
-    return Material(
-      color: _popularSelected ? AppColors.primary : context.cardSurface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: () {
-          setState(() => _popularSelected = !_popularSelected);
-          _load();
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          alignment: Alignment.center,
-          child: Text(
-            l10n.sortPopular,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: _popularSelected ? AppColors.white : context.textPrimary,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: nonDefault ? AppColors.primary : context.cardSurface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              displayLabel,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: nonDefault ? Colors.white : context.textPrimary,
+              ),
             ),
-          ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 16,
+              color: nonDefault ? Colors.white : context.textPrimary,
+            ),
+          ],
         ),
       ),
     );
@@ -405,8 +399,18 @@ class _ProductListPageState extends State<ProductListPage> {
               initial: _activeFilter,
             );
             if (result != null) {
-              setState(() => _activeFilter = result);
-              _load(); // Reload with new filters
+              // Check if result is effectively empty (Tozalash was pressed)
+              final isEmpty =
+                  result.minPrice == null &&
+                  result.maxPrice == null &&
+                  !result.hasDiscount &&
+                  !result.hasServices &&
+                  result.selectedConditionIndex == null &&
+                  result.selectedSellerTypeIndex == null &&
+                  result.selectedColorIndex == null &&
+                  result.selectedSizeIndex == null;
+              setState(() => _activeFilter = isEmpty ? null : result);
+              _load(); // Reload (with or without filters)
             }
           },
           child: Container(

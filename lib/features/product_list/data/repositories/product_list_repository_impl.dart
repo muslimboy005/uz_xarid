@@ -18,6 +18,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
     int pageSize = 100,
     String adType = 'Sell',
     Map<String, dynamic>? filterParams,
+    String? sort,
   }) async {
     try {
       final hasFilters = filterParams != null && filterParams.isNotEmpty;
@@ -48,6 +49,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
           : await _remoteDatasource.getRecommendations(
               pageSize: pageSize,
               adType: adType,
+              sort: sort, // 'popular' | 'cheap' | 'expensive' | 'high-ranking'
             );
       final list = dtos.map((dto) => dto.toEntity()).toList();
       return Right(list);
