@@ -19,7 +19,6 @@ import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/toggle_favorite.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
-import 'package:uz_xarid/features/home/presentation/bloc/home_bloc.dart';
 import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_bloc.dart';
 import 'package:uz_xarid/features/order/presentation/bloc/order_create/order_create_cubit.dart';
 import 'package:uz_xarid/features/profile/domain/usecases/delete_my_ad.dart';

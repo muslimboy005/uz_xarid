@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -27,70 +25,107 @@ class UnauthProfileContent extends StatelessWidget {
 
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
-    final dividerColor = context.borderColor;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText(
-          text: l10n.profileAuthBenefitsTitle,
-          fontWeight: 700,
-          fontSize: 16,
-          color: textColor,
-        ),
-        const SizedBox(height: 20),
-        _BenefitRow(
-          icon: AppAssets.work,
-          text: l10n.profileBenefitOfferServices,
-        ),
-        const SizedBox(height: 12),
-        _BenefitRow(icon: AppAssets.call, text: l10n.profileBenefitUseServices),
-        const SizedBox(height: 12),
-        _BenefitRow(icon: AppAssets.fire, text: l10n.profileBenefitExclusive),
-        const SizedBox(height: 12),
-        _BenefitRow(
-          icon: AppAssets.chat,
-          text: l10n.profileBenefitAdsFavorites,
-        ),
-        const SizedBox(height: AppDimens.paddingLarge),
-        Divider(color: dividerColor),
-        const SizedBox(height: AppDimens.paddingLarge),
-        ContainerW(
-          width: double.infinity,
-          onTap: () => _showPhoneBottomSheet(context),
-          color: AppColors.primary,
-          radius: 12,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Center(
-              child: AppText(
-                text: l10n.profileAuthCta,
-                fontSize: 12,
-                fontWeight: 500,
-                color: AppColors.white,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          AppText(
+            text: l10n.profileAuthBenefitsTitle,
+            fontWeight: 700,
+            fontSize: 16,
+            color: textColor,
+          ),
+          const SizedBox(height: 20),
+
+          // Benefits Grid
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.35,
+            children: [
+              _BenefitCard(
+                icon: AppAssets.work,
+                text: l10n.profileBenefitOfferServices,
+                color: Colors.blue,
+              ),
+              _BenefitCard(
+                icon: AppAssets.call,
+                text: l10n.profileBenefitUseServices,
+                color: Colors.green,
+              ),
+              _BenefitCard(
+                icon: AppAssets.fire,
+                text: l10n.profileBenefitExclusive,
+                color: Colors.orange,
+              ),
+              _BenefitCard(
+                icon: AppAssets.heartOutline,
+                text: l10n.profileBenefitAdsFavorites,
+                color: Colors.red,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          InkWell(
+            onTap: () => context.push('/profile/settings'),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.settings_outlined,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  AppText(
+                    text: l10n.profileMenuSettings,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: AppColors.primary,
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-        const SizedBox(height: AppDimens.paddingLarge),
-        AppText(
-          text: l10n.profileAuthDescription,
-          fontSize: 12,
-          fontWeight: 400,
-          color: textSecondary,
-          maxLines: 3,
-        ),
-        const SizedBox(height: AppDimens.paddingMedium),
-        GestureDetector(
-          onTap: () => context.push('/profile/settings'),
-          child: AppText(
-            text: l10n.profileMenuSettings,
-            fontSize: 14,
-            fontWeight: 600,
+          const SizedBox(height: 20),
+
+          // CTA Section
+          ContainerW(
+            width: double.infinity,
+            onTap: () => _showPhoneBottomSheet(context),
             color: AppColors.primary,
+            radius: 16,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              child: Center(
+                child: AppText(
+                  text: l10n.profileAuthCta,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -131,46 +166,50 @@ class UnauthProfileContent extends StatelessWidget {
   }
 }
 
-class _BenefitRow extends StatelessWidget {
-  const _BenefitRow({required this.icon, required this.text});
+class _BenefitCard extends StatelessWidget {
+  const _BenefitCard({
+    required this.icon,
+    required this.text,
+    required this.color,
+  });
 
   final String icon;
   final String text;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final iconBg = context.isDark
-        ? AppColors.primary.withValues(alpha: 0.25)
-        : AppColors.blue50;
-    final textColor = context.textPrimary;
+    final cardColor = context.surfaceContainer;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 38.w,
-          height: 38.h,
-          decoration: BoxDecoration(
-            color: iconBg,
-            borderRadius: BorderRadius.circular(8),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: AppImage(path: icon, color: color, size: 20),
           ),
-          child: AppImage(
-            path: icon,
-            color: AppColors.primary,
-            size: 30,
-            fit: BoxFit.none,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: AppText(
+          const SizedBox(height: 10),
+          AppText(
             text: text,
-            fontSize: 12,
-            fontWeight: 500,
-            color: textColor,
+            fontSize: 11,
+            fontWeight: 600,
+            maxLines: 3,
+            color: context.textPrimary,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

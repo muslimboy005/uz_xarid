@@ -629,7 +629,7 @@ class _SectionHeader extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            if (trailing != null) trailing!,
+            ?trailing,
             if (onToggle != null) ...[
               const SizedBox(width: 8),
               Icon(
