@@ -112,7 +112,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   }) async {
     final extra = <String, dynamic>{
       if (filterParams != null) ...filterParams,
-      if (adType != null) 'ad_type': adType,
+      'ad_type': ?adType,
     };
     final response = await catalogApi.getAds(
       pageSize: pageSize,

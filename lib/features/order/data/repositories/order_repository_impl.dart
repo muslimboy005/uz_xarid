@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/error/exceptions.dart';
 import 'package:uz_xarid/core/error/failures.dart';
 import 'package:uz_xarid/features/order/data/datasources/order_api.dart';
 import 'package:uz_xarid/features/order/data/models/order_create_dto.dart';
