@@ -24,6 +24,15 @@ class AddListingLoadCategoriesRequested extends AddListingEvent {
   List<Object?> get props => [categoryType];
 }
 
+class AddListingLoadAdForEditRequested extends AddListingEvent {
+  const AddListingLoadAdForEditRequested(this.slug);
+
+  final String slug;
+
+  @override
+  List<Object?> get props => [slug];
+}
+
 class AddListingCreateAdRequested extends AddListingEvent {
   const AddListingCreateAdRequested(this.params);
 
@@ -31,4 +40,14 @@ class AddListingCreateAdRequested extends AddListingEvent {
 
   @override
   List<Object?> get props => [params];
+}
+
+class AddListingUpdateAdRequested extends AddListingEvent {
+  const AddListingUpdateAdRequested({required this.slug, required this.params});
+
+  final String slug;
+  final CreateAdParams params;
+
+  @override
+  List<Object?> get props => [slug, params];
 }

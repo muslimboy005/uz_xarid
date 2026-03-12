@@ -6,12 +6,13 @@ import 'package:uz_xarid/core/constants/app_dimens.dart';
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData get light {
+  static ThemeData light({Color? primary}) {
+    final p = primary ?? AppColors.primary;
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        primary: AppColors.primary,
+        seedColor: p,
+        primary: p,
         secondary: AppColors.secondary,
         background: AppColors.background,
       ),
@@ -40,12 +41,13 @@ class AppTheme {
     );
   }
 
-  static ThemeData get dark {
+  static ThemeData dark({Color? primary}) {
+    final p = primary ?? AppColors.primary;
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: ColorScheme.dark(
-        primary: AppColors.primary,
+        primary: p,
         secondary: AppColors.secondary,
         surface: AppColors.darkSurface,
         onPrimary: Colors.white,
@@ -84,7 +86,7 @@ class AppTheme {
       dividerColor: AppColors.darkTextSecondary,
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: p,
         unselectedItemColor: AppColors.darkTextSecondary,
       ),
     ).copyWith(

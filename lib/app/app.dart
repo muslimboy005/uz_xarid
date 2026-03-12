@@ -42,24 +42,29 @@ class _AppView extends StatelessWidget {
       builder: (context, locale) {
         return BlocBuilder<ThemeCubit, ThemeMode>(
           builder: (context, themeMode) {
-            return ScreenUtilInit(
-              child: MaterialApp.router(
-                onGenerateTitle: (context) =>
-                    AppLocalizations.of(context)!.appName,
-                debugShowCheckedModeBanner: false,
-                theme: AppTheme.light,
-                darkTheme: AppTheme.dark,
-                themeMode: themeMode,
-                routerConfig: AppRouter.router,
-                locale: locale,
-                supportedLocales: AppLocalizations.supportedLocales,
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-              ),
+            return BlocBuilder<AppModeCubit, AppMode>(
+              builder: (context, appMode) {
+                final primary = appMode.primaryColor;
+                return ScreenUtilInit(
+                  child: MaterialApp.router(
+                    onGenerateTitle: (context) =>
+                        AppLocalizations.of(context)!.appName,
+                    debugShowCheckedModeBanner: false,
+                    theme: AppTheme.light(primary: primary),
+                    darkTheme: AppTheme.dark(primary: primary),
+                    themeMode: themeMode,
+                    routerConfig: AppRouter.router,
+                    locale: locale,
+                    supportedLocales: AppLocalizations.supportedLocales,
+                    localizationsDelegates: const [
+                      AppLocalizations.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                  ),
+                );
+              },
             );
           },
         );

@@ -9,4 +9,5 @@ abstract class ListingRepository {
   Future<Either<Failure, List<ColorEntity>>> getColors({int pageSize = 999});
   Future<Either<Failure, List<SizeEntity>>> getSizes({int pageSize = 999});
   Future<Either<Failure, CreateAdResult>> createAd(CreateAdParams params);
+  Future<Either<Failure, CreateAdResult>> updateAd(String slug, CreateAdParams params);
 }

@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_colors.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/create_ad.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
+import 'package:uz_xarid/features/add_listing/domain/usecases/update_ad.dart';
 import 'package:uz_xarid/features/add_listing/presentation/bloc/add_listing_bloc.dart';
 import 'package:uz_xarid/features/author/domain/repositories/author_repository.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
@@ -21,6 +22,7 @@ import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dar
 import 'package:uz_xarid/features/home/presentation/bloc/home_bloc.dart';
 import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_bloc.dart';
 import 'package:uz_xarid/features/order/presentation/bloc/order_create/order_create_cubit.dart';
+import 'package:uz_xarid/features/profile/domain/usecases/delete_my_ad.dart';
 import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
@@ -33,6 +35,8 @@ Future<void> registerBlocs(GetIt getIt) async {
         getIt<GetSizes>(),
         getIt<GetCategories>(),
         getIt<CreateAd>(),
+        getIt<UpdateAd>(),
+        getIt<GetAdDetail>(),
       ),
     )
     ..registerFactory<ProductDetailBloc>(
@@ -78,6 +82,7 @@ Future<void> registerBlocs(GetIt getIt) async {
     )
     ..registerFactory<MyOrdersBloc>(() => MyOrdersBloc(repository: getIt()))
     ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>()));
+    ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()));
 
   log("Register BLOC Complate For GetIT");
 }

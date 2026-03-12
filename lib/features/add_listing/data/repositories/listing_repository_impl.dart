@@ -127,4 +127,136 @@ class ListingRepositoryImpl implements ListingRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, CreateAdResult>> updateAd(
+    String slug,
+    CreateAdParams params,
+  ) async {
+    try {
+      final hasNewImages = (params.mainImagePath != null &&
+              params.mainImagePath!.isNotEmpty) ||
+          params.additionalImagePaths.isNotEmpty;
+
+      if (hasNewImages) {
+        final formData = FormData.fromMap({
+          'title': params.title,
+          'title_en': params.titleEn,
+          'title_ru': params.titleRu,
+          'description': params.description,
+          'description_en': params.descriptionEn,
+          'description_ru': params.descriptionRu,
+          'ad_type': params.adType,
+          'listing_type': params.listingType,
+          'category': params.categoryId,
+          'price': params.price,
+          'currency': params.currency.toLowerCase(),
+          if (params.weight != null && params.weight!.isNotEmpty) 'weight': params.weight,
+          if (params.width != null && params.width!.isNotEmpty) 'width': params.width,
+          if (params.length != null && params.length!.isNotEmpty) 'length': params.length,
+          if (params.height != null && params.height!.isNotEmpty) 'height': params.height,
+          if (params.dimensionUnit != null && params.dimensionUnit!.isNotEmpty)
+            'dimension_unit': params.dimensionUnit!.toLowerCase(),
+          if (params.weightUnit != null && params.weightUnit!.isNotEmpty)
+            'weight_unit': params.weightUnit!.toLowerCase(),
+        });
+
+        if (params.mainImagePath != null && params.mainImagePath!.isNotEmpty) {
+          formData.files.add(
+            MapEntry(
+              'main_image',
+              await MultipartFile.fromFile(
+                params.mainImagePath!,
+                filename: params.mainImagePath!.split('/').last,
+              ),
+            ),
+          );
+        }
+        for (final path in params.additionalImagePaths) {
+          if (path.isEmpty) continue;
+          formData.files.add(
+            MapEntry(
+              'images',
+              await MultipartFile.fromFile(
+                path,
+                filename: path.split('/').last,
+              ),
+            ),
+          );
+        }
+
+        final response = await dio.put(
+          '${ApiUrls.ad}$slug/',
+          data: formData,
+          options: Options(
+            contentType: 'multipart/form-data',
+            sendTimeout: const Duration(seconds: 60),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+        return _parseAdResponse(response, slug);
+      }
+
+      final body = <String, dynamic>{
+        'title': params.title,
+        'title_en': params.titleEn,
+        'title_ru': params.titleRu,
+        'description': params.description,
+        'description_en': params.descriptionEn,
+        'description_ru': params.descriptionRu,
+        'ad_type': params.adType,
+        'listing_type': params.listingType,
+        'category': params.categoryId,
+        'price': params.price,
+        'currency': params.currency.toLowerCase(),
+        if (params.existingMainImageUrl != null && params.existingMainImageUrl!.isNotEmpty)
+          'main_image': params.existingMainImageUrl,
+        if (params.existingImageUrls.isNotEmpty) 'images': params.existingImageUrls,
+        if (params.weight != null && params.weight!.isNotEmpty) 'weight': params.weight,
+        if (params.width != null && params.width!.isNotEmpty) 'width': params.width,
+        if (params.length != null && params.length!.isNotEmpty) 'length': params.length,
+        if (params.height != null && params.height!.isNotEmpty) 'height': params.height,
+        if (params.dimensionUnit != null && params.dimensionUnit!.isNotEmpty)
+          'dimension_unit': params.dimensionUnit!.toLowerCase(),
+        if (params.weightUnit != null && params.weightUnit!.isNotEmpty)
+          'weight_unit': params.weightUnit!.toLowerCase(),
+      };
+
+      final response = await dio.put(
+        '${ApiUrls.ad}$slug/',
+        data: body,
+        options: Options(
+          sendTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+      return _parseAdResponse(response, slug);
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map
+          ? (e.response?.data as Map)['message'] ?? (e.response?.data as Map)['detail']
+          : null;
+      return Left(ServerFailure(
+        message: msg?.toString() ?? e.message ?? 'Tarmoq xatosi',
+      ));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  Either<Failure, CreateAdResult> _parseAdResponse(
+    Response<dynamic> response,
+    String slug,
+  ) {
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      return Left(ServerFailure(message: 'Noto\'g\'ri javob'));
+    }
+    final status = data['status'] as bool? ?? false;
+    final resultData = data['data'];
+    if (!status || resultData is! Map<String, dynamic>) {
+      return Left(ServerFailure(message: 'E\'lon yangilanmadi'));
+    }
+    final resultSlug = resultData['slug'] as String? ?? slug;
+    return Right(CreateAdResult(slug: resultSlug));
+  }
 }

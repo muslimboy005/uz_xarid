@@ -1,4 +1,4 @@
-/// "Mening e'lonlarim" ro'yxati elementi.
+/// "Mening e'lonlarim" ro'yxati elementi (GET ad/me/ javobi).
 class MyListingItemDto {
   const MyListingItemDto({
     required this.slug,
@@ -10,7 +10,9 @@ class MyListingItemDto {
     this.status,
     this.adType,
     this.listingType,
+    this.categoryId,
     this.categoryName,
+    this.description,
     this.viewsCount = 0,
     this.likesCount = 0,
     this.callCount = 0,
@@ -26,7 +28,9 @@ class MyListingItemDto {
   final String? status;
   final String? adType;
   final String? listingType;
+  final int? categoryId;
   final String? categoryName;
+  final String? description;
   final int viewsCount;
   final int likesCount;
   final int callCount;
@@ -34,8 +38,10 @@ class MyListingItemDto {
 
   factory MyListingItemDto.fromJson(Map<String, dynamic> json) {
     final category = json['category'];
+    int? categoryId;
     String? categoryName;
     if (category is Map<String, dynamic>) {
+      categoryId = (category['id'] as num?)?.toInt();
       categoryName = category['name'] as String?;
     }
     return MyListingItemDto(
@@ -48,7 +54,9 @@ class MyListingItemDto {
       status: json['status'] as String?,
       adType: json['ad_type'] as String?,
       listingType: json['listing_type'] as String?,
+      categoryId: categoryId,
       categoryName: categoryName,
+      description: json['description'] as String?,
       viewsCount: (json['views_count'] as num?)?.toInt() ?? 0,
       likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
       callCount: (json['call_count'] as num?)?.toInt() ?? 0,

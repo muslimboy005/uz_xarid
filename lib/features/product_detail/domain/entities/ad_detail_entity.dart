@@ -5,7 +5,10 @@ class AdDetailEntity extends Equatable {
   const AdDetailEntity({
     required this.slug,
     required this.title,
+    this.categoryId,
     this.categoryName,
+    this.adType,
+    this.listingType,
     this.price,
     this.finalPrice,
     this.discount,
@@ -24,6 +27,12 @@ class AdDetailEntity extends Equatable {
     this.userPhone,
     this.userDateJoined,
     this.totalAds,
+    this.weight,
+    this.width,
+    this.length,
+    this.height,
+    this.dimensionUnit,
+    this.weightUnit,
     this.options = const [],
     this.images = const [],
     this.colors = const [],
@@ -34,7 +43,10 @@ class AdDetailEntity extends Equatable {
   final String slug;
   final String title;
   final String? description;
+  final int? categoryId;
   final String? categoryName;
+  final String? adType;
+  final String? listingType;
   final String? price;
   final String? finalPrice;
   final String? discount;
@@ -52,6 +64,12 @@ class AdDetailEntity extends Equatable {
   final String? userPhone;
   final String? userDateJoined;
   final int? totalAds;
+  final num? weight;
+  final num? width;
+  final num? length;
+  final num? height;
+  final String? dimensionUnit;
+  final String? weightUnit;
   final List<AdOptionEntity> options;
   final List<String> images;
   final List<AdColorEntity> colors;
@@ -62,7 +80,10 @@ class AdDetailEntity extends Equatable {
   List<Object?> get props => [
     slug,
     title,
+    categoryId,
     categoryName,
+    adType,
+    listingType,
     price,
     finalPrice,
     mainImage,
@@ -80,6 +101,12 @@ class AdDetailEntity extends Equatable {
     userPhone,
     userDateJoined,
     totalAds,
+    weight,
+    width,
+    length,
+    height,
+    dimensionUnit,
+    weightUnit,
     options,
     images,
     colors,

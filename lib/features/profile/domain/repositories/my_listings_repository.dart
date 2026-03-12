@@ -7,4 +7,7 @@ abstract class MyListingsRepository {
   Future<Either<Failure, List<MyListingItemDto>>> getMyListings(
     String status,
   );
+
+  /// E'lonni slug orqali o'chirish. DELETE ad/{slug}/
+  Future<Either<Failure, void>> deleteAd(String slug);
 }

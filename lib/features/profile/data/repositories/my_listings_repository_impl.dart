@@ -40,4 +40,25 @@ class MyListingsRepositoryImpl implements MyListingsRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteAd(String slug) async {
+    if (slug.isEmpty) {
+      return Left(ServerFailure(message: 'Slug bo\'sh'));
+    }
+    try {
+      await dio.delete('ad/$slug/');
+      return Right(null);
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map
+          ? (e.response?.data as Map)['message'] ??
+              (e.response?.data as Map)['detail']
+          : null;
+      return Left(ServerFailure(
+        message: msg?.toString() ?? e.message ?? 'Tarmoq xatosi',
+      ));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
 }
