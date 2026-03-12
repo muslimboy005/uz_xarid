@@ -81,7 +81,6 @@ Future<void> registerBlocs(GetIt getIt) async {
       () => OrderCreateCubit(repository: getIt()),
     )
     ..registerFactory<MyOrdersBloc>(() => MyOrdersBloc(repository: getIt()))
-    ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>()));
     ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()));
 
   log("Register BLOC Complate For GetIT");

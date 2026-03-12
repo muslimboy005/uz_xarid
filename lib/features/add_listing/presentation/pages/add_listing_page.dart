@@ -82,7 +82,7 @@ class _AddListingPageState extends State<AddListingPage> {
   final _heightController = TextEditingController();
 
   String _weightUnit = 'KG';
-  String _dimensionUnit = 'sm';
+  String _dimensionUnit = 'cm';
 
   static const double _kInputHeight = 48.0;
 
@@ -351,7 +351,10 @@ class _AddListingPageState extends State<AddListingPage> {
     if (ad.length != null) _lengthController.text = ad.length.toString();
     if (ad.height != null) _heightController.text = ad.height.toString();
     if (ad.weightUnit != null) _weightUnit = ad.weightUnit!.toUpperCase();
-    if (ad.dimensionUnit != null) _dimensionUnit = ad.dimensionUnit!.toLowerCase();
+    if (ad.dimensionUnit != null) {
+      final u = ad.dimensionUnit!.toLowerCase();
+      _dimensionUnit = (u == 'sm') ? 'cm' : u;
+    }
     if (ad.listingType != null) {
       switch (ad.listingType!) {
         case 'Product':
@@ -1451,7 +1454,7 @@ class _AddListingPageState extends State<AddListingPage> {
   ) {
     final surface = context.surfaceContainer;
     const weightUnits = ['KG', 'g'];
-    const dimensionUnits = ['sm', 'm'];
+    const dimensionUnits = ['cm', 'm'];
 
     return _card(
       cardColor: cardColor,
@@ -1552,8 +1555,8 @@ class _AddListingPageState extends State<AddListingPage> {
             borderColor: borderColor,
             textColor: textColor,
             textSecondary: textSecondary,
-            displayLabels: const {'sm': 'sm (santimetr)', 'm': 'm (metr)'},
-            onChanged: (v) => setState(() => _dimensionUnit = v ?? 'sm'),
+            displayLabels: const {'cm': 'sm (santimetr)', 'm': 'm (metr)'},
+            onChanged: (v) => setState(() => _dimensionUnit = v ?? 'cm'),
           ),
         ],
       ),
