@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failures.dart';
@@ -13,6 +15,7 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
 
   @override
   Future<Either<Failure, AdDetailEntity>> getAdDetail(String slug) async {
+    developer.log('ProductDetailRepo: getAdDetail slug=$slug', name: 'ProductDetailRepo');
     try {
       final detailFuture = api.getAdDetail(slug);
       final similarFuture = api.getSimilar(slug);
@@ -21,7 +24,14 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
       final detailResponse = results[0] as AdDetailResponseDto;
       final similarResponse = results[1] as AdSimilarResponseDto;
 
+      developer.log(
+        'ProductDetailRepo: getAdDetail response status=${detailResponse.status}, '
+        'slug=${detailResponse.data.slug}, title=${detailResponse.data.title}',
+        name: 'ProductDetailRepo',
+      );
+
       if (!detailResponse.status || detailResponse.data.slug.isEmpty) {
+        developer.log('ProductDetailRepo: getAdDetail invalid response', name: 'ProductDetailRepo');
         return Left(ServerFailure(message: 'Ma\'lumot topilmadi'));
       }
 
@@ -46,7 +56,10 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
       final entity = AdDetailEntity(
         slug: d.slug,
         title: d.title,
+        categoryId: d.category?.id,
         categoryName: d.category?.name,
+        adType: d.adType,
+        listingType: d.listingType,
         price: d.price,
         finalPrice: d.finalPrice,
         discount: d.discount,
@@ -65,6 +78,12 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
         userPhone: d.user?.phone,
         userDateJoined: d.user?.dateJoined,
         totalAds: d.user?.adCount ?? d.totalAds ?? 0,
+        weight: d.weight,
+        width: d.width,
+        length: d.length,
+        height: d.height,
+        dimensionUnit: d.dimensionUnit,
+        weightUnit: d.weightUnit,
         options: (d.options ?? [])
             .map((e) => AdOptionEntity(name: e.name, value: e.value))
             .toList(),
@@ -89,9 +108,16 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
         }).toList(),
         similar: similarList,
       );
+      developer.log('ProductDetailRepo: getAdDetail success entity.slug=${entity.slug}', name: 'ProductDetailRepo');
       return Right(entity);
     } on DioException catch (e) {
       final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
+      final statusCode = e.response?.statusCode;
+      final responseData = e.response?.data;
+      developer.log(
+        'ProductDetailRepo: getAdDetail DioException slug=$slug, statusCode=$statusCode, message=$message, data=$responseData',
+        name: 'ProductDetailRepo',
+      );
       return Left(ServerFailure(message: message));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

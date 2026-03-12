@@ -5,6 +5,7 @@ import 'package:uz_xarid/features/add_listing/domain/repositories/listing_reposi
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_colors.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/create_ad.dart';
 import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
+import 'package:uz_xarid/features/add_listing/domain/usecases/update_ad.dart';
 import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
 import 'package:uz_xarid/features/catalog/domain/usecases/get_ads_by_category.dart';
 import 'package:uz_xarid/features/catalog/domain/usecases/get_categories.dart';
@@ -17,6 +18,7 @@ import 'package:uz_xarid/features/product_detail/domain/usecases/leave_product_f
 import 'package:uz_xarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/my_listings_repository.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uz_xarid/features/profile/domain/usecases/delete_my_ad.dart';
 import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
 import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
@@ -33,6 +35,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<CreateAd>(
       () => CreateAd(getIt<ListingRepository>()),
+    )
+    ..registerLazySingleton<UpdateAd>(
+      () => UpdateAd(getIt<ListingRepository>()),
     )
     ..registerLazySingleton<GetCategories>(
       () => GetCategories(getIt<CatalogRepository>()),
@@ -100,6 +105,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<GetMyListings>(
       () => GetMyListings(getIt<MyListingsRepository>()),
+    )
+    ..registerLazySingleton<DeleteMyAd>(
+      () => DeleteMyAd(getIt<MyListingsRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }

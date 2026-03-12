@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:uz_xarid/core/constants/app_colors.dart';
+
 enum AppMode { selling, buying }
 
 class AppModeCubit extends Cubit<AppMode> {
@@ -13,22 +15,31 @@ class AppModeCubit extends Cubit<AppMode> {
 }
 
 extension AppModeColor on AppMode {
-  /// AppBar blue fon rangi — selling=ko'k, buying=sariq
+  /// Sotaman = ko'k primary, Sotib olaman = olovrang primary
+  Color get primaryColor {
+    switch (this) {
+      case AppMode.selling:
+        return AppColors.primary;
+      case AppMode.buying:
+        return AppColors.primaryBuying;
+    }
+  }
+
+  /// AppBar rangi — selling=ko'k (primary), buying=toq olovrang
   Color get appBarColor {
     switch (this) {
       case AppMode.selling:
-        return const Color(0xFF1565C0); // primary blue
+        return AppColors.primary;
       case AppMode.buying:
-        return const Color(0xFFF9A825); // amber/yellow
+        return AppColors.primaryBuyingAppBar;
     }
   }
 
   Color get onAppBarColor {
     switch (this) {
       case AppMode.selling:
-        return Colors.white;
       case AppMode.buying:
-        return Colors.black87;
+        return Colors.white;
     }
   }
 }

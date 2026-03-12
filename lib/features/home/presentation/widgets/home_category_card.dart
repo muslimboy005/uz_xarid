@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 
 class HomeCategory {
@@ -29,8 +30,9 @@ class HomeCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = category.isHighlighted;
+    final primary = context.primaryColor;
     final bgColor = isSelected
-        ? AppColors.primary
+        ? primary
         : (isDark ? AppColors.darkCard : AppColors.white);
     final textColor = isSelected
         ? AppColors.white
@@ -46,7 +48,7 @@ class HomeCategoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? AppColors.primary
+                ? primary
                 : (isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor),
             width: isSelected ? 2.5 : 1,
           ),

@@ -1,4 +1,4 @@
-/// Form ma'lumotlari – e'lon yaratish so'rovida yuboriladi.
+/// Form ma'lumotlari – e'lon yaratish/tahrirlash so'rovida yuboriladi.
 class CreateAdParams {
   CreateAdParams({
     required this.title,
@@ -14,6 +14,15 @@ class CreateAdParams {
     required this.currency,
     this.mainImagePath,
     this.additionalImagePaths = const [],
+    this.slug,
+    this.existingMainImageUrl,
+    this.existingImageUrls = const [],
+    this.weight,
+    this.width,
+    this.length,
+    this.height,
+    this.dimensionUnit,
+    this.weightUnit,
   });
 
   final String title;
@@ -29,4 +38,16 @@ class CreateAdParams {
   final String currency;
   final String? mainImagePath;
   final List<String> additionalImagePaths;
+  /// Tahrirlash rejimida e'lon slug'i.
+  final String? slug;
+  /// Tahrirlashda mavjud asosiy rasm URL (o'zgartirilmaganda).
+  final String? existingMainImageUrl;
+  /// Tahrirlashda mavjud qo'shimcha rasm URL lar.
+  final List<String> existingImageUrls;
+  final String? weight;
+  final String? width;
+  final String? length;
+  final String? height;
+  final String? dimensionUnit;
+  final String? weightUnit;
 }

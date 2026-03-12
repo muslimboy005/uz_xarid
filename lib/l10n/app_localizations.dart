@@ -520,6 +520,12 @@ abstract class AppLocalizations {
   /// **'Perfect gifts for everyone'**
   String get giftHeadline;
 
+  /// No description provided for @giftSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We also recommend all ideal gifts for you'**
+  String get giftSubtitle;
+
   /// No description provided for @servicesTitle.
   ///
   /// In en, this message translates to:
@@ -1467,6 +1473,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'pcs'**
   String get orderQuantityDona;
+
+  /// No description provided for @myAdsLimitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad limit'**
+  String get myAdsLimitTitle;
+
+  /// No description provided for @myAdsLimitUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'You can post up to {count} ads'**
+  String myAdsLimitUpTo(int count);
+
+  /// No description provided for @myAdsIncreaseLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase limit'**
+  String get myAdsIncreaseLimit;
+
+  /// No description provided for @myAdsStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get myAdsStatusActive;
+
+  /// No description provided for @myAdsStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get myAdsStatusPending;
+
+  /// No description provided for @myAdsStatusUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get myAdsStatusUnpaid;
+
+  /// No description provided for @myAdsStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get myAdsStatusInactive;
+
+  /// No description provided for @myAdsStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get myAdsStatusRejected;
+
+  /// No description provided for @myAdsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no ads yet.'**
+  String get myAdsEmptyTitle;
+
+  /// No description provided for @myAdsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first ad and start selling!'**
+  String get myAdsEmptySubtitle;
+
+  /// No description provided for @myAdsDeleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete ad'**
+  String get myAdsDeleteDialogTitle;
+
+  /// No description provided for @myAdsDeleteDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure? This action cannot be undone.'**
+  String get myAdsDeleteDialogMessage;
+
+  /// No description provided for @myAdsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get myAdsDelete;
+
+  /// No description provided for @myAdsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get myAdsEdit;
+
+  /// No description provided for @myAdsPromoFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo from 7,000 soum'**
+  String get myAdsPromoFrom;
+
+  /// No description provided for @adTypeSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get adTypeSell;
+
+  /// No description provided for @adTypeBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get adTypeBuy;
+
+  /// No description provided for @listingTypeProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get listingTypeProduct;
+
+  /// No description provided for @listingTypeService.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get listingTypeService;
+
+  /// No description provided for @listingTypeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get listingTypeAuto;
+
+  /// No description provided for @listingTypeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get listingTypeHome;
 }
 
 class _AppLocalizationsDelegate

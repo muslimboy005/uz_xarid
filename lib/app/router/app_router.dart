@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/home/presentation/pages/home_page.dart';
@@ -65,9 +66,10 @@ class AppRouter {
         builder: (context, state) {
           final slug = state.pathParameters['slug'] ?? '';
           final favoritesBloc = context.read<FavoritesBloc>();
+          final fallbackItem = state.extra;
           return BlocProvider<FavoritesBloc>.value(
             value: favoritesBloc,
-            child: ProductDetailPage(slug: slug),
+            child: ProductDetailPage(slug: slug, fallbackAdItem: fallbackItem),
           );
         },
         routes: [
@@ -190,28 +192,15 @@ class AppRouter {
           final l10n = AppLocalizations.of(context)!;
           final theme = Theme.of(context);
           final isDark = theme.brightness == Brightness.dark;
+          final appMode = context.watch<AppModeCubit>().state;
           final barColor = isDark ? AppColors.darkSurface : AppColors.surface;
-          final selectedColor = AppColors.primary;
+          final selectedColor = appMode.primaryColor;
           final unselectedColor = isDark
               ? AppColors.darkTextSecondary
               : AppColors.textSecondary;
 
-          final bool isAddListing = location.startsWith('/add-listing');
-          final Widget body = isAddListing
-              ? BlocProvider(
-                  create: (_) {
-                    final bloc = getIt<ProfileBloc>();
-                    getIt<SecureStorageService>().hasToken().then((hasToken) {
-                      if (hasToken) bloc.add(const ProfileLoadEvent());
-                    });
-                    return bloc;
-                  },
-                  child: child,
-                )
-              : child;
-
           return Scaffold(
-            body: body,
+            body: child,
             bottomNavigationBar: Builder(
               builder: (context) {
                 final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
@@ -289,7 +278,7 @@ class AppRouter {
                       bottom: 31 + bottomPadding,
                       child: Material(
                         elevation: 6,
-                        shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                        shadowColor: selectedColor.withValues(alpha: 0.4),
                         shape: const CircleBorder(),
                         child: InkWell(
                           onTap: () => context.go('/add-listing'),
@@ -297,9 +286,9 @@ class AppRouter {
                           child: Container(
                             width: 56,
                             height: 56,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.primary,
+                              color: selectedColor,
                             ),
                             child: const Icon(
                               Icons.add,
@@ -320,8 +309,10 @@ class AppRouter {
           GoRoute(
             path: '/home',
             name: 'home',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: HomePage()),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('shell-home'),
+              child: const HomePage(),
+            ),
           ),
           GoRoute(
             path: '/catalog',
@@ -331,6 +322,7 @@ class AppRouter {
               final idStr = state.uri.queryParameters['categoryId'];
               final id = int.tryParse(idStr ?? '');
               return NoTransitionPage(
+                key: ValueKey('shell-catalog-${state.uri}'),
                 child: CatalogPage(
                   initialCategoryType: type,
                   initialCategoryId: id != null && id > 0 ? id : null,
@@ -341,14 +333,53 @@ class AppRouter {
           GoRoute(
             path: '/favorites',
             name: 'favorites',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: FavoritesPage()),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('shell-favorites'),
+              child: const FavoritesPage(),
+            ),
           ),
           GoRoute(
             path: '/add-listing',
             name: 'add-listing',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: AddListingPage()),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('shell-add-listing'),
+              child: BlocProvider<ProfileBloc>(
+                create: (_) {
+                  final bloc = getIt<ProfileBloc>();
+                  getIt<SecureStorageService>().hasToken().then((hasToken) {
+                    if (hasToken) bloc.add(const ProfileLoadEvent());
+                  });
+                  return bloc;
+                },
+                child: const AddListingPage(editSlug: null),
+              ),
+            ),
+            routes: [
+              GoRoute(
+                path: ':slug',
+                name: 'add-listing-edit',
+                pageBuilder: (context, state) {
+                  final slug = state.pathParameters['slug'] ?? '';
+                  final fallbackItem = state.extra;
+                  return NoTransitionPage(
+                    key: ValueKey('shell-add-listing-edit-$slug'),
+                    child: BlocProvider<ProfileBloc>(
+                      create: (_) {
+                        final bloc = getIt<ProfileBloc>();
+                        getIt<SecureStorageService>().hasToken().then((hasToken) {
+                          if (hasToken) bloc.add(const ProfileLoadEvent());
+                        });
+                        return bloc;
+                      },
+                      child: AddListingPage(
+                        editSlug: slug.isNotEmpty ? slug : null,
+                        editFallbackItem: fallbackItem,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: '/profile',
