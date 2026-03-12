@@ -55,13 +55,18 @@ class ProductFilterData {
   }
 }
 
-// ─── Bottom Sheet Entry Point ─────────────────────────────────────────────────
+// Sentinel: returned by _reset() to signal "clear all filters"
+final _kClearedFilter = ProductFilterData();
 
+/// Shows the filter sheet. Returns:
+/// - non-null ProductFilterData when user pressed Qo'llash with selections
+/// - null when user dismissed without changes OR pressed Tozalash (clear all)
+/// Caller should set _activeFilter = null when result is null (clear badge).
 Future<ProductFilterData?> showProductFilterSheet(
   BuildContext context, {
   ProductFilterData? initial,
-}) {
-  return showModalBottomSheet<ProductFilterData>(
+}) async {
+  final result = await showModalBottomSheet<ProductFilterData>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -69,6 +74,9 @@ Future<ProductFilterData?> showProductFilterSheet(
     builder: (_) =>
         _ProductFilterSheet(initial: initial ?? ProductFilterData()),
   );
+  // Sentinel (empty filter from Tozalash) → return special sentinel
+  // so parent can distinguish "cleared" from "dismissed without change"
+  return result;
 }
 
 // ─── Sheet Widget ─────────────────────────────────────────────────────────────
@@ -152,12 +160,9 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
   }
 
   void _reset() {
-    setState(() {
-      _data = ProductFilterData();
-      _priceRange = const RangeValues(0, _maxSlider);
-      _minCtrl.clear();
-      _maxCtrl.clear();
-    });
+    // Pop with a special sentinel empty filter — parent will detect allCleared = true
+    // and set _activeFilter = null (removes red dot badge)
+    Navigator.of(context).pop(_kClearedFilter);
   }
 
   void _apply() => Navigator.of(context).pop(

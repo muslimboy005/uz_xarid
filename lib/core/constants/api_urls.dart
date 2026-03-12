@@ -13,6 +13,10 @@ class ApiUrls {
   static const String businessMe = 'business/me/';
   static const String businessDelete = 'business/delete/';
 
+  /// Order API
+  static const String order = 'order/';
+  static const String myOrders = 'order/my-orders/';
+
   static const String categories = 'category/';
   static const String banner = 'banner/';
   static const String recommendations = 'ad/recommendations/';
@@ -31,4 +35,10 @@ class ApiUrls {
 
   /// Foydalanuvchi e'lonlari: GET ad/me/?status=active|pending|unpaid|inactive|rejected
   static const String myListings = 'ad/me/';
+
+  /// Sort param values for recommendations endpoint (?sort=...)
+  static const String sortPopular = 'popular';
+  static const String sortCheap = 'cheap';
+  static const String sortExpensive = 'expensive';
+  static const String sortHighRanking = 'high-ranking';
 }

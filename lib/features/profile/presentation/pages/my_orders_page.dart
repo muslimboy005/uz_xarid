@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_bloc.dart';
+import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_event.dart';
+import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_state.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class MyOrdersPage extends StatefulWidget {
@@ -30,7 +35,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     final bodyBg = context.bodyBackground;
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      
+
       body: Container(
         color: bodyBg,
         child: SafeArea(
@@ -81,11 +86,20 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                           ),
                         ),
                         Expanded(
-                          child: _EmptyState(
-                            icon: Icons.shopping_cart_rounded,
-                            title: l10n.myOrdersEmptyTitle,
-                            subtitle: l10n.myOrdersEmptySubtitle,
-                          ),
+                          child: _selectedTab == 0
+                              ? BlocProvider(
+                                  create: (context) => getIt<MyOrdersBloc>()
+                                    ..add(
+                                      const LoadMyOrdersEvent(refresh: true),
+                                    ),
+                                  child: const _OrdersListView(),
+                                )
+                              : _EmptyState(
+                                  icon: Icons.list_alt_rounded,
+                                  title: 'Hali so‘rovlar yo‘q',
+                                  subtitle:
+                                      'Siz hali hech qanday so‘rov qoldirmadingiz.',
+                                ),
                         ),
                       ],
                     ),
@@ -209,6 +223,117 @@ class _EmptyState extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _OrdersListView extends StatelessWidget {
+  const _OrdersListView();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<MyOrdersBloc, MyOrdersState>(
+      builder: (context, state) {
+        if (state.status == MyOrdersStatus.loading && state.orders.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state.status == MyOrdersStatus.failure &&
+            state.orders.isEmpty) {
+          return Center(child: Text(state.errorMessage ?? 'Error'));
+        } else if (state.status == MyOrdersStatus.success &&
+            state.orders.isEmpty) {
+          return _EmptyState(
+            icon: Icons.shopping_cart_rounded,
+            title: l10n.myOrdersEmptyTitle,
+            subtitle: l10n.myOrdersEmptySubtitle,
+          );
+        }
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: state.orders.length + (state.hasReachedMax ? 0 : 1),
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            if (index >= state.orders.length) {
+              context.read<MyOrdersBloc>().add(const LoadMyOrdersEvent());
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            final order = state.orders[index];
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: context.bodyBackground,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: context.borderColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Buyurtma #${order.id}',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: context.textPrimary,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          order.status ?? 'pending',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Miqdor: ${order.quantity}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: context.textPrimary,
+                    ),
+                  ),
+                  if (order.notes != null && order.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Izoh: ${order.notes}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: context.textSecondary,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Text(
+                    (order.createdAt ?? '').split('T').first,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

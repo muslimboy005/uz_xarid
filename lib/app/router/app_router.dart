@@ -81,8 +81,15 @@ class AppRouter {
               if (ad == null) {
                 return const SizedBox.shrink();
               }
-              return BlocProvider(
-                create: (_) => getIt<AddressBloc>()..add(LoadAddressesEvent()),
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) => getIt<AddressBloc>()..add(LoadAddressesEvent()),
+                  ),
+                  BlocProvider(
+                    create: (_) => getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
+                  ),
+                ],
                 child: OrderPage(ad: ad),
               );
             },

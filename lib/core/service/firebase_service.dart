@@ -26,7 +26,7 @@ class FirebaseService {
       announcement: true,
       badge: true,
       carPlay: false,
-      criticalAlert: true,
+      criticalAlert: false,
       provisional: false,
       sound: true,
     );

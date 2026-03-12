@@ -22,8 +22,9 @@ abstract class HomeApi {
   @GET(ApiUrls.recommendations)
   Future<RecommendationResponseDto> getRecommendations(
     @Query('page_size') int pageSize,
-    @Query('ad_type') String adType,
-  );
+    @Query('ad_type') String adType, {
+    @Query('sort') String? sort,
+  });
 
   @GET(ApiUrls.gifts)
   Future<RecommendationResponseDto> getGifts(@Query('page_size') int pageSize);

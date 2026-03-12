@@ -16,6 +16,7 @@ abstract class ProductListRemoteDatasource {
   Future<List<ProductListItemDto>> getRecommendations({
     int pageSize = 100,
     String adType = 'Sell',
+    String? sort, // 'popular' | 'cheap' | 'expensive' | 'high-ranking' | null
   });
 
   Future<List<ProductListItemDto>> getServices({int pageSize = 100});
@@ -65,8 +66,13 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   Future<List<ProductListItemDto>> getRecommendations({
     int pageSize = 100,
     String adType = 'Sell',
+    String? sort,
   }) async {
-    final response = await homeApi.getRecommendations(pageSize, adType);
+    final response = await homeApi.getRecommendations(
+      pageSize,
+      adType,
+      sort: sort,
+    );
     return response.data.results.map(_fromRecommendationDto).toList();
   }
 

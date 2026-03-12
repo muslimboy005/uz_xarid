@@ -12,17 +12,18 @@ class CatalogApi {
   Future<CatalogAdListResponseDto> getAds({
     int? categoryId,
     String adType = 'Buy',
-    String listingType = 'Product',
+    String?
+    listingType, // null = all types; pass 'Product','Auto', etc. to filter
     int page = 1,
     int pageSize = 10,
     Map<String, dynamic>? extraParams,
   }) async {
     final queryParams = <String, dynamic>{
       'ad_type': adType,
-      'listing_type': listingType,
       'page': page,
       'page_size': pageSize,
     };
+    if (listingType != null) queryParams['listing_type'] = listingType;
     if (categoryId != null) queryParams['category'] = categoryId;
     if (extraParams != null) {
       queryParams.addAll(extraParams);

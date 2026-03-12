@@ -24,6 +24,7 @@ class GetProductList
     pageSize: params.pageSize,
     adType: params.adType,
     filterParams: params.filterParams,
+    sort: params.sort,
   );
 }
 
@@ -35,6 +36,7 @@ class GetProductListParams {
     this.pageSize = 100,
     this.adType = 'Sell',
     this.filterParams,
+    this.sort, // 'popular' | 'cheap' | 'expensive' | 'high-ranking' | null
   });
 
   /// Qidiruv so'rovi – berilsa ads/search API chaqiladi.
@@ -46,4 +48,5 @@ class GetProductListParams {
   final int pageSize;
   final String adType;
   final Map<String, dynamic>? filterParams;
+  final String? sort;
 }
