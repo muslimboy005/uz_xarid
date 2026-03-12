@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_params.dart';
 import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
+import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uz_xarid/features/add_listing/presentation/bloc/add_listing_bloc.dart';
 import 'package:uz_xarid/features/add_listing/presentation/widgets/color_dropdown_field.dart';
@@ -28,7 +31,12 @@ enum _ListingType { product, service, car, home }
 enum _NameLang { uz, ru, en }
 
 class AddListingPage extends StatefulWidget {
-  const AddListingPage({super.key});
+  const AddListingPage({super.key, this.editSlug, this.editFallbackItem});
+
+  /// Tahrirlash rejimida e'lon slug'i (product detail dan yuklanadi).
+  final String? editSlug;
+  /// 404 bo'lsa forma shu ma'lumotlar bilan to'ldiriladi (Mening e'lonlarimdan uzatiladi).
+  final Object? editFallbackItem;
 
   @override
   State<AddListingPage> createState() => _AddListingPageState();
@@ -74,7 +82,7 @@ class _AddListingPageState extends State<AddListingPage> {
   final _heightController = TextEditingController();
 
   String _weightUnit = 'KG';
-  String _dimensionUnit = 'sm';
+  String _dimensionUnit = 'cm';
 
   static const double _kInputHeight = 48.0;
 
@@ -88,6 +96,8 @@ class _AddListingPageState extends State<AddListingPage> {
 
   final List<String?> _imagePaths = [null, null, null, null];
   static final _imagePicker = ImagePicker();
+  bool _formFilledFromEdit = false;
+  bool _usedFallbackForEdit = false;
 
   @override
   void initState() {
@@ -199,12 +209,19 @@ class _AddListingPageState extends State<AddListingPage> {
                   );
                 }
                 return BlocProvider(
-                  create: (_) => getIt<AddListingBloc>()
-                    ..add(AddListingLoadCategoriesRequested(
-                      categoryType: _categoryTypeForListingType(_listingType),
-                    ))
-                    ..add(const AddListingLoadColorsRequested())
-                    ..add(const AddListingLoadSizesRequested()),
+                  create: (_) {
+                    final bloc = getIt<AddListingBloc>()
+                      ..add(AddListingLoadCategoriesRequested(
+                        categoryType: _categoryTypeForListingType(_listingType),
+                      ))
+                      ..add(const AddListingLoadColorsRequested())
+                      ..add(const AddListingLoadSizesRequested());
+                    if (widget.editSlug != null && widget.editSlug!.isNotEmpty) {
+                      developer.log('AddListingPage: edit mode, loading ad slug=${widget.editSlug}', name: 'AddListingPage');
+                      bloc.add(AddListingLoadAdForEditRequested(widget.editSlug!));
+                    }
+                    return bloc;
+                  },
                   child: Builder(
                     builder: (formContext) => _buildForm(
                       formContext,
@@ -300,6 +317,113 @@ class _AddListingPageState extends State<AddListingPage> {
     };
   }
 
+  /// Kategoriya daraxtida id bo‘yicha yo‘lni qaytaradi [root, ..., leaf].
+  static List<CategoryEntity>? _findCategoryPath(
+    List<CategoryEntity>? list,
+    int id,
+  ) {
+    if (list == null) return null;
+    for (final c in list) {
+      if (c.id == id) return [c];
+      final childPath = _findCategoryPath(c.children, id);
+      if (childPath != null) return [c, ...childPath];
+    }
+    return null;
+  }
+
+  void _fillFormFromAdDetail(AdDetailEntity ad, List<CategoryEntity>? categories) {
+    if (_formFilledFromEdit) {
+      developer.log('AddListing: _fillFormFromAdDetail skipped (already filled)', name: 'AddListingPage');
+      return;
+    }
+    _formFilledFromEdit = true;
+    developer.log('AddListing: _fillFormFromAdDetail applying title=${ad.title}, price=${ad.price}, categoryId=${ad.categoryId}', name: 'AddListingPage');
+    _nameUzController.text = ad.title;
+    _nameRuController.text = '';
+    _nameEnController.text = '';
+    _descUzController.text = ad.description ?? '';
+    _descRuController.text = '';
+    _descEnController.text = '';
+    _amountController.text = ad.price ?? ad.finalPrice ?? '';
+    _currency = (ad.currency ?? 'uzs').toUpperCase();
+    if (ad.weight != null) _weightValueController.text = ad.weight.toString();
+    if (ad.width != null) _widthController.text = ad.width.toString();
+    if (ad.length != null) _lengthController.text = ad.length.toString();
+    if (ad.height != null) _heightController.text = ad.height.toString();
+    if (ad.weightUnit != null) _weightUnit = ad.weightUnit!.toUpperCase();
+    if (ad.dimensionUnit != null) {
+      final u = ad.dimensionUnit!.toLowerCase();
+      _dimensionUnit = (u == 'sm') ? 'cm' : u;
+    }
+    if (ad.listingType != null) {
+      switch (ad.listingType!) {
+        case 'Product':
+          _listingType = _ListingType.product;
+          break;
+        case 'Service':
+          _listingType = _ListingType.service;
+          break;
+        case 'Auto':
+          _listingType = _ListingType.car;
+          break;
+        case 'Home':
+          _listingType = _ListingType.home;
+          break;
+      }
+    }
+    if (ad.categoryId != null && categories != null && categories.isNotEmpty) {
+      final path = _findCategoryPath(categories, ad.categoryId!);
+      if (path != null && path.isNotEmpty) {
+        _selectedCategory = path[0];
+        _selectedSubcategory = path.length > 1 ? path[1] : null;
+        _selectedSubSubcategory = path.length > 2 ? path[2] : null;
+      }
+    }
+    setState(() {});
+  }
+
+  void _fillFormFromMyListingItem(MyListingItemDto item, List<CategoryEntity>? categories) {
+    if (_formFilledFromEdit) return;
+    _formFilledFromEdit = true;
+    _usedFallbackForEdit = true;
+    developer.log('AddListing: _fillFormFromMyListingItem slug=${item.slug}, title=${item.title}', name: 'AddListingPage');
+    _nameUzController.text = item.title;
+    _nameRuController.text = '';
+    _nameEnController.text = '';
+    _descUzController.text = item.description ?? '';
+    _descRuController.text = '';
+    _descEnController.text = '';
+    _amountController.text = item.price ?? item.finalPrice ?? '';
+    _currency = (item.currency).toUpperCase();
+    if (item.listingType != null) {
+      switch (item.listingType!) {
+        case 'Product':
+          _listingType = _ListingType.product;
+          break;
+        case 'Service':
+          _listingType = _ListingType.service;
+          break;
+        case 'Auto':
+          _listingType = _ListingType.car;
+          break;
+        case 'Home':
+          _listingType = _ListingType.home;
+          break;
+        default:
+          _listingType = _ListingType.product;
+      }
+    }
+    if (item.categoryId != null && categories != null && categories.isNotEmpty) {
+      final path = _findCategoryPath(categories, item.categoryId!);
+      if (path != null && path.isNotEmpty) {
+        _selectedCategory = path[0];
+        _selectedSubcategory = path.length > 1 ? path[1] : null;
+        _selectedSubSubcategory = path.length > 2 ? path[2] : null;
+      }
+    }
+    setState(() {});
+  }
+
   // ─── FORM ───────────────────────────────────────────────────────
 
   Widget _buildForm(
@@ -309,15 +433,55 @@ class _AddListingPageState extends State<AddListingPage> {
     Color textSecondary,
     Color borderColor,
   ) {
-    return BlocListener<AddListingBloc, AddListingState>(
-      listenWhen: (prev, cur) =>
-          prev.createAdSlug != cur.createAdSlug ||
-          prev.createAdError != cur.createAdError,
+    return BlocConsumer<AddListingBloc, AddListingState>(
+      listenWhen: (prev, cur) {
+        final adChanged = cur.adDetailForEdit != null && prev.adDetailForEdit != cur.adDetailForEdit;
+        final categoriesArrived = cur.adDetailForEdit != null && prev.categories != cur.categories;
+        final errorArrived = cur.loadAdForEditError != null && prev.loadAdForEditError != cur.loadAdForEditError;
+        final shouldListen = prev.createAdSlug != cur.createAdSlug ||
+            prev.createAdError != cur.createAdError ||
+            adChanged ||
+            categoriesArrived ||
+            errorArrived;
+        return shouldListen;
+      },
       listener: (context, state) {
+        final fallback = widget.editFallbackItem is MyListingItemDto
+            ? widget.editFallbackItem as MyListingItemDto
+            : null;
+        if (state.loadAdForEditError != null &&
+            state.adDetailForEdit == null &&
+            fallback != null &&
+            !_formFilledFromEdit) {
+          _fillFormFromMyListingItem(fallback, state.categories);
+          return;
+        }
+        final hasDetail = state.adDetailForEdit != null;
+        final hasCategories = state.categories != null && state.categories!.isNotEmpty;
+        if (hasDetail && hasCategories && !_formFilledFromEdit) {
+          developer.log(
+            'AddListing: filling form from adDetail slug=${state.adDetailForEdit!.slug}, '
+            'title=${state.adDetailForEdit!.title}, categoryId=${state.adDetailForEdit!.categoryId}',
+            name: 'AddListingPage',
+          );
+          _fillFormFromAdDetail(state.adDetailForEdit!, state.categories!);
+        } else if (hasDetail && !hasCategories && !_formFilledFromEdit) {
+          developer.log(
+            'AddListing: waiting for categories (adDetail loaded, categories=${state.categories?.length ?? 0})',
+            name: 'AddListingPage',
+          );
+        } else if (!hasDetail && widget.editSlug != null) {
+          developer.log(
+            'AddListing: adDetail not loaded yet, loadAdForEditLoading=${state.loadAdForEditLoading}, error=${state.loadAdForEditError}',
+            name: 'AddListingPage',
+          );
+        }
         if (state.createAdSlug != null && state.createAdSlug!.isNotEmpty) {
           ScaffoldMessenger.of(formContext).showSnackBar(
             SnackBar(
-              content: Text('E\'lon muvaffaqiyatli yaratildi'),
+              content: Text(widget.editSlug != null
+                  ? 'E\'lon yangilandi'
+                  : 'E\'lon muvaffaqiyatli yaratildi'),
               backgroundColor: Colors.green,
             ),
           );
@@ -333,7 +497,40 @@ class _AddListingPageState extends State<AddListingPage> {
           );
         }
       },
-      child: Column(
+      buildWhen: (prev, cur) =>
+          prev.loadAdForEditLoading != cur.loadAdForEditLoading ||
+          prev.loadAdForEditError != cur.loadAdForEditError ||
+          prev.adDetailForEdit != cur.adDetailForEdit,
+      builder: (context, state) {
+        if (widget.editSlug != null && state.loadAdForEditLoading && state.adDetailForEdit == null && !_usedFallbackForEdit) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (widget.editSlug != null &&
+            state.loadAdForEditError != null &&
+            state.adDetailForEdit == null &&
+            !_usedFallbackForEdit) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    state.loadAdForEditError!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: textSecondary),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () => formContext.pop(),
+                    child: const Text('Orqaga'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
@@ -395,8 +592,12 @@ class _AddListingPageState extends State<AddListingPage> {
               buildWhen: (prev, cur) =>
                   prev.createAdLoading != cur.createAdLoading,
               builder: (context, state) {
+                final isEdit = widget.editSlug != null && widget.editSlug!.isNotEmpty;
+                final label = state.createAdLoading
+                    ? 'Yuklanmoqda...'
+                    : (isEdit ? 'Saqlash' : 'E\'lon yaratish');
                 return _primaryButton(
-                  state.createAdLoading ? 'Yuklanmoqda...' : 'E\'lon yaratish',
+                  label,
                   onTap: state.createAdLoading
                       ? () {}
                       : () => _submitCreateAd(context),
@@ -405,7 +606,8 @@ class _AddListingPageState extends State<AddListingPage> {
             ),
           ),
         ],
-      ),
+      );
+      },
     );
   }
 
@@ -442,8 +644,19 @@ class _AddListingPageState extends State<AddListingPage> {
       );
       return;
     }
+    final isEdit = widget.editSlug != null && widget.editSlug!.isNotEmpty;
+    final blocState = formContext.read<AddListingBloc>().state;
+    final adDetail = blocState.adDetailForEdit;
+    final fallbackItem = widget.editFallbackItem is MyListingItemDto
+        ? widget.editFallbackItem as MyListingItemDto
+        : null;
+    final hasExistingImages = isEdit &&
+        ((adDetail != null &&
+            ((adDetail.mainImage != null && adDetail.mainImage!.isNotEmpty) ||
+                adDetail.images.isNotEmpty)) ||
+            (fallbackItem?.mainImage != null && fallbackItem!.mainImage!.isNotEmpty));
     final mainImage = _imagePaths[0];
-    if (mainImage == null || mainImage.isEmpty) {
+    if ((mainImage == null || mainImage.isEmpty) && !hasExistingImages) {
       ScaffoldMessenger.of(formContext).showSnackBar(
         const SnackBar(
           content: Text('Asosiy rasmni yuklang'),
@@ -458,6 +671,13 @@ class _AddListingPageState extends State<AddListingPage> {
       _ListingType.car => 'Auto',
       _ListingType.home => 'Home',
     };
+    final adTypeStr = (isEdit && (adDetail?.adType ?? fallbackItem?.adType) != null)
+        ? (adDetail?.adType ?? fallbackItem!.adType)!
+        : 'Sell';
+    final existingMainUrl = isEdit
+        ? (adDetail?.mainImage ?? fallbackItem?.mainImage)
+        : null;
+    final existingUrls = isEdit && adDetail != null ? adDetail.images : const <String>[];
     final params = CreateAdParams(
       title: titleUz,
       titleEn: _nameEnController.text.trim(),
@@ -465,18 +685,32 @@ class _AddListingPageState extends State<AddListingPage> {
       description: _descUzController.text.trim(),
       descriptionEn: _descEnController.text.trim(),
       descriptionRu: _descRuController.text.trim(),
-      adType: 'Sell',
+      adType: adTypeStr,
       listingType: listingTypeStr,
       categoryId: category.id,
       price: price,
       currency: _currency,
-      mainImagePath: _imagePaths[0],
+      mainImagePath: (mainImage != null && mainImage.isNotEmpty) ? mainImage : null,
       additionalImagePaths:
           _imagePaths.skip(1).whereType<String>().toList(),
+      existingMainImageUrl: existingMainUrl,
+      existingImageUrls: existingUrls,
+      weight: _weightValueController.text.trim().isEmpty ? null : _weightValueController.text.trim(),
+      width: _widthController.text.trim().isEmpty ? null : _widthController.text.trim(),
+      length: _lengthController.text.trim().isEmpty ? null : _lengthController.text.trim(),
+      height: _heightController.text.trim().isEmpty ? null : _heightController.text.trim(),
+      dimensionUnit: _dimensionUnit.isEmpty ? null : _dimensionUnit,
+      weightUnit: _weightUnit.isEmpty ? null : _weightUnit,
     );
-    formContext.read<AddListingBloc>().add(
-          AddListingCreateAdRequested(params),
-        );
+    if (isEdit) {
+      formContext.read<AddListingBloc>().add(
+            AddListingUpdateAdRequested(slug: widget.editSlug!, params: params),
+          );
+    } else {
+      formContext.read<AddListingBloc>().add(
+            AddListingCreateAdRequested(params),
+          );
+    }
   }
 
   // ─── LISTING TYPE TABS (segmented) ──────────────────────────────
@@ -1220,7 +1454,7 @@ class _AddListingPageState extends State<AddListingPage> {
   ) {
     final surface = context.surfaceContainer;
     const weightUnits = ['KG', 'g'];
-    const dimensionUnits = ['sm', 'm'];
+    const dimensionUnits = ['cm', 'm'];
 
     return _card(
       cardColor: cardColor,
@@ -1321,8 +1555,8 @@ class _AddListingPageState extends State<AddListingPage> {
             borderColor: borderColor,
             textColor: textColor,
             textSecondary: textSecondary,
-            displayLabels: const {'sm': 'sm (santimetr)', 'm': 'm (metr)'},
-            onChanged: (v) => setState(() => _dimensionUnit = v ?? 'sm'),
+            displayLabels: const {'cm': 'sm (santimetr)', 'm': 'm (metr)'},
+            onChanged: (v) => setState(() => _dimensionUnit = v ?? 'cm'),
           ),
         ],
       ),

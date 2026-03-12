@@ -98,7 +98,6 @@ class HomePage extends StatelessWidget {
         return HomeBloc(useCase)..add(const HomeRequested());
       },
       child: Scaffold(
-        
         appBar: UzXaridAppBar(
           onSearchTap: () => context.push('/search'),
           onSearchChanged: (query) {},
@@ -235,51 +234,63 @@ class HomePage extends StatelessWidget {
                     radius: 16,
                     color: context.surfaceContainer,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 20,
+                      padding: const EdgeInsets.only(
+                        left: 20,
+                        right: 0,
+                        top: 16,
+                        bottom: 0,
                       ),
                       child: Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                l10n.recommendationsTitle,
-                                style: Theme.of(context).textTheme.headlineSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w800,
-                                      color: textColor,
-                                    ),
-                              ),
-                              InkWell(
-                                onTap: () => context.push(
-                                  '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    l10n.recommendationsTitle,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: textColor,
+                                        ),
+                                  ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      l10n.seeAll,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                const SizedBox(width: 12),
+                                InkWell(
+                                  onTap: () => context.push(
+                                    '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        l10n.seeAll,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
                                         color: textColor,
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 16,
-                                      color: textColor,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 12),
                           SizedBox(
-                            height: 290,
+                            height: 300,
                             child: BlocBuilder<HomeBloc, HomeState>(
                               builder: (context, state) {
                                 if (state.status == HomeStatus.failure &&
@@ -306,7 +317,7 @@ class HomePage extends StatelessWidget {
                                       horizontal: 16,
                                     ),
                                     itemBuilder: (_, __) =>
-                                        const ShimmerProductCard(width: 230),
+                                        const ShimmerProductCard(width: 162),
                                     separatorBuilder: (_, __) =>
                                         const SizedBox(width: 12),
                                     itemCount: 3,
@@ -338,264 +349,261 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),
-                  // Gifts section
-                  Container(
+                  // Ideal sovgalar — Sizga tavsiya qilamiz bilan bir xil dizayn
+                  ContainerW(
                     width: double.infinity,
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 329,
-                          height: 460,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/rectangel.png'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 14,
-                            top: 14,
-                            bottom: 14,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.25),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  l10n.recommendationsTitle,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              SizedBox(
-                                width: 290,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    l10n.giftHeadline,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                        ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              SizedBox(
-                                height: 290,
-                                child: BlocBuilder<HomeBloc, HomeState>(
-                                  builder: (context, state) {
-                                    if (state.status == HomeStatus.failure &&
-                                        state.gifts.isEmpty) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        child: Text(
-                                          state.error ?? l10n.dataLoadError,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(color: AppColors.red),
-                                        ),
-                                      );
-                                    }
-                                    if (state.status == HomeStatus.loading &&
-                                        state.gifts.isEmpty) {
-                                      return ListView.separated(
-                                        scrollDirection: Axis.horizontal,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        itemBuilder: (_, __) =>
-                                            const ShimmerProductCardSmall(
-                                              width: 240,
-                                            ),
-                                        separatorBuilder: (_, __) =>
-                                            const SizedBox(width: 12),
-                                        itemCount: 2,
-                                      );
-                                    }
-                                    if (state.gifts.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    return ListView.separated(
-                                      scrollDirection: Axis.horizontal,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      itemCount: state.gifts.length,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(width: 12),
-                                      itemBuilder: (context, index) =>
-                                          RecommendationCard(
-                                            item: state.gifts[index],
-                                          ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () => context.push(
-                                  '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
-                                ),
-                                child: Container(
-                                  margin: const EdgeInsets.only(
-                                    top: 15,
-                                    right: 14,
-                                    left: 10,
-                                  ),
-                                  width: 240,
-                                  height: 45,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.blue600,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Center(
+                    radius: 16,
+                    color: context.surfaceContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 20,
+                        right: 0,
+                        top: 16,
+                        bottom: 0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
                                     child: Text(
-                                      l10n.view,
+                                      l10n.giftHeadline,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .bodyMedium
+                                          .headlineSmall
                                           ?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 15,
-                                            color: AppColors.white,
+                                            fontWeight: FontWeight.w800,
+                                            color: textColor,
                                           ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                InkWell(
+                                  onTap: () => context.push(
+                                    '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        l10n.seeAll,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                        color: textColor,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          // const SizedBox(height: 4),
+                          // Text(
+                          //   l10n.giftSubtitle,
+                          //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          //     color: context.textSecondary,
+                          //     height: 1.3,
+                          //   ),
+                          // ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 300,
+                            child: BlocBuilder<HomeBloc, HomeState>(
+                              builder: (context, state) {
+                                if (state.status == HomeStatus.failure &&
+                                    state.gifts.isEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      state.error ?? l10n.dataLoadError,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(color: AppColors.red),
+                                    ),
+                                  );
+                                }
+                                if (state.status == HomeStatus.loading &&
+                                    state.gifts.isEmpty) {
+                                  return ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    itemBuilder: (_, __) =>
+                                        const ShimmerProductCard(width: 162),
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(width: 12),
+                                    itemCount: 3,
+                                  );
+                                }
+                                if (state.gifts.isEmpty) {
+                                  return ProductsNotFoundPlaceholder(
+                                    l10n: l10n,
+                                  );
+                                }
+                                return ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                  ),
+                                  itemCount: state.gifts.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 12),
+                                  itemBuilder: (context, index) =>
+                                      RecommendationCard(
+                                        item: state.gifts[index],
+                                      ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),
                   // Services section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.paddingMedium,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: FittedBox(
-                            alignment: Alignment.centerLeft,
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              l10n.servicesTitle,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: textColor,
+                  ContainerW(
+                    width: double.infinity,
+                    radius: 16,
+                    color: context.surfaceContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 20,
+                        right: 0,
+                        top: 16,
+                        bottom: 0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: FittedBox(
+                                    alignment: Alignment.centerLeft,
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      l10n.servicesTitle,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: textColor,
+                                          ),
+                                    ),
                                   ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        InkWell(
-                          onTap: () => context.push(
-                            '/products?title=${Uri.encodeComponent(l10n.servicesTitle)}&source=services',
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                l10n.servicesSeeAll,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: textColor,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.paddingMedium,
-                    ),
-                    child: BlocBuilder<HomeBloc, HomeState>(
-                      builder: (context, state) {
-                        if (state.status == HomeStatus.failure &&
-                            state.services.isEmpty) {
-                          return _servicesEmpty(context, l10n);
-                        }
-
-                        if (state.status == HomeStatus.loading &&
-                            state.services.isEmpty) {
-                          return SizedBox(
-                            height: 340,
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 12,
-                                    mainAxisSpacing: 12,
-                                    childAspectRatio: 0.72,
+                                const SizedBox(width: 12),
+                                InkWell(
+                                  onTap: () => context.push(
+                                    '/products?title=${Uri.encodeComponent(l10n.servicesTitle)}&source=services',
                                   ),
-                              itemCount: 4,
-                              itemBuilder: (_, __) =>
-                                  const ShimmerServiceCard(),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        l10n.servicesSeeAll,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                        color: textColor,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppDimens.paddingMedium,
+                            ),
+                            child: BlocBuilder<HomeBloc, HomeState>(
+                              builder: (context, state) {
+                                if (state.status == HomeStatus.failure &&
+                                    state.services.isEmpty) {
+                                  return _servicesEmpty(context, l10n);
+                                }
 
-                        if (state.services.isEmpty) {
-                          return _servicesEmpty(context, l10n);
-                        }
+                                if (state.status == HomeStatus.loading &&
+                                    state.services.isEmpty) {
+                                  return SizedBox(
+                                    height: 340,
+                                    child: GridView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            crossAxisSpacing: 12,
+                                            mainAxisSpacing: 12,
+                                            childAspectRatio: 0.72,
+                                          ),
+                                      itemCount: 4,
+                                      itemBuilder: (_, __) =>
+                                          const ShimmerServiceCard(),
+                                    ),
+                                  );
+                                }
 
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.72,
-                              ),
-                          itemCount: state.services.length,
-                          itemBuilder: (context, index) =>
-                              RecommendationCard(item: state.services[index]),
-                        );
-                      },
+                                if (state.services.isEmpty) {
+                                  return _servicesEmpty(context, l10n);
+                                }
+
+                                return GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 12,
+                                        mainAxisSpacing: 12,
+                                        childAspectRatio: 0.72,
+                                      ),
+                                  itemCount: state.services.length,
+                                  itemBuilder: (context, index) =>
+                                      RecommendationCard(
+                                        item: state.services[index],
+                                      ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppDimens.paddingLarge),

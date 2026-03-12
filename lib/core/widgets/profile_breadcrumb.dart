@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 
@@ -14,7 +13,7 @@ class ProfileBreadcrumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textSecondary = context.textSecondary;
-    final activeColor = AppColors.primary;
+    final activeColor = context.primaryColor;
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
       child: Row(

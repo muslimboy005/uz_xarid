@@ -13,6 +13,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
@@ -82,10 +83,32 @@ String? _formatAuthorDate(String? raw, String localeCode) {
   return '${date.day} $month ${date.year}';
 }
 
+/// Mening e'lonlarimdan 404 bo'lganda ko'rsatish uchun MyListingItemDto -> AdDetailEntity.
+AdDetailEntity _adDetailFromMyListingItem(MyListingItemDto item) {
+  return AdDetailEntity(
+    slug: item.slug,
+    title: item.title,
+    description: item.description,
+    categoryName: item.categoryName,
+    price: item.price,
+    finalPrice: item.finalPrice,
+    mainImage: item.mainImage,
+    currency: item.currency,
+    images: item.mainImage != null && item.mainImage!.isNotEmpty
+        ? [item.mainImage!]
+        : [],
+    likesCount: item.likesCount,
+    viewsCount: item.viewsCount,
+    callCount: item.callCount,
+  );
+}
+
 class ProductDetailPage extends StatelessWidget {
-  const ProductDetailPage({super.key, required this.slug});
+  const ProductDetailPage({super.key, required this.slug, this.fallbackAdItem});
 
   final String slug;
+  /// 404 bo'lsa shu ma'lumotdan detail ko'rsatiladi (Mening e'lonlarimdan uzatiladi).
+  final Object? fallbackAdItem;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +116,8 @@ class ProductDetailPage extends StatelessWidget {
     final cardColor = context.cardSurface;
     // final surfaceContainer = context.surfaceContainer;
     final iconColor = context.textPrimary;
+    final fallbackAdItem = this.fallbackAdItem;
+    final slug = this.slug;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -110,8 +135,11 @@ class ProductDetailPage extends StatelessWidget {
           },
         ),
         BlocProvider(
-          create: (_) =>
-              getIt<ProfileBloc>(), // local injection for bottom sheets
+          create: (_) {
+            final bloc = getIt<ProfileBloc>();
+            bloc.add(const ProfileLoadEvent());
+            return bloc;
+          },
         ),
       ],
       child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
@@ -209,7 +237,7 @@ class ProductDetailPage extends StatelessWidget {
                 const SizedBox(width: 16),
               ],
             ),
-            body: _buildDetailBody(context, detailState),
+            body: _buildDetailBody(context, detailState, fallbackAdItem, slug),
           );
         },
       ),
@@ -219,6 +247,8 @@ class ProductDetailPage extends StatelessWidget {
   Widget _buildDetailBody(
     BuildContext context,
     ProductDetailState detailState,
+    Object? fallbackAdItem,
+    String slug,
   ) {
     return BlocBuilder<ProductDetailBloc, ProductDetailState>(
       builder: (context, state) {
@@ -242,6 +272,12 @@ class ProductDetailPage extends StatelessWidget {
           );
         }
         if (state.status == ProductDetailStatus.failure) {
+          if (fallbackAdItem is MyListingItemDto) {
+            return _ProductDetailBody(
+              ad: _adDetailFromMyListingItem(fallbackAdItem),
+              isOwnAd: true,
+            );
+          }
           final l10n = AppLocalizations.of(context)!;
           return Center(
             child: Padding(
@@ -268,16 +304,18 @@ class ProductDetailPage extends StatelessWidget {
         }
         final ad = state.ad;
         if (ad == null) return const SizedBox.shrink();
-        return _ProductDetailBody(ad: ad);
+        return _ProductDetailBody(ad: ad, isOwnAd: false);
       },
     );
   }
 }
 
 class _ProductDetailBody extends StatefulWidget {
-  const _ProductDetailBody({required this.ad});
+  const _ProductDetailBody({required this.ad, this.isOwnAd = false});
 
   final AdDetailEntity ad;
+  /// Mening e'lonlarimdan 404 bo'lganda — muallif sifatida joriy profil ko'rsatiladi.
+  final bool isOwnAd;
 
   @override
   State<_ProductDetailBody> createState() => _ProductDetailBodyState();
@@ -823,6 +861,109 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
     final surfaceContainer = context.surfaceContainer;
+    final isOwnAd = widget.isOwnAd;
+
+    if (isOwnAd) {
+      return BlocBuilder<ProfileBloc, ProfileState>(
+        buildWhen: (prev, cur) => prev.profileModel != cur.profileModel,
+        builder: (context, profileState) {
+          final user = profileState.profileModel?.data.user;
+          String displayName = 'Mening profilim';
+          if (user != null) {
+            final fullName = '${user.firstName} ${user.lastName}'.trim();
+            displayName = fullName.isNotEmpty
+                ? fullName
+                : (user.username.isNotEmpty ? user.username : 'Mening profilim');
+          }
+          final avatarUrl = user?.avatar ?? '';
+          final hasAvatar = avatarUrl.isNotEmpty;
+          return ContainerW(
+            color: context.cardSurface,
+            radius: 12,
+            borderColor: context.borderColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.adAuthorTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: surfaceContainer,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: hasAvatar
+                            ? CachedNetworkImage(
+                                imageUrl: avatarUrl,
+                                fit: BoxFit.cover,
+                                errorWidget: (_, __, ___) => Icon(
+                                  Icons.person_outline,
+                                  size: 28,
+                                  color: textSecondary,
+                                ),
+                              )
+                            : Icon(
+                                Icons.person_outline,
+                                size: 28,
+                                color: textSecondary,
+                              ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: textColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ContainerW(
+                    onTap: () => context.go('/profile'),
+                    width: double.infinity,
+                    color: AppColors.blue500,
+                    radius: 12,
+                    child: Padding(
+                      padding: const EdgeInsets.all(14.0),
+                      child: Center(
+                        child: AppText(
+                          text: 'Mening profilim',
+                          fontWeight: 500,
+                          fontSize: 16,
+                          color: context.textWhite,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return ContainerW(
       color: context.cardSurface,
       radius: 12,
@@ -842,12 +983,6 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     color: textColor,
                   ),
                 ),
-                // Text(
-                //   "Kecha 12:35 da bo'lgan",
-                //   style: Theme.of(
-                //     context,
-                //   ).textTheme.bodySmall?.copyWith(color: textSecondary),
-                // ),
               ],
             ),
             const SizedBox(height: 16),

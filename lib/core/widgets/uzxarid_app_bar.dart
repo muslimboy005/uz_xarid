@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart' show GoRouterHelper;
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
@@ -49,7 +50,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
         leading: leading,
         onSearchChanged: onSearchChanged,
         onSearchTap: onSearchTap,
-        onMenuTap: onMenuTap,
+        onMenuTap: () => context.push('/support-menu'),
         isMenuOpen: isMenuOpen,
         actions: actions,
       ),

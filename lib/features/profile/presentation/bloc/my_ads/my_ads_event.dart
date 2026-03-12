@@ -15,3 +15,12 @@ class MyAdsLoadRequested extends MyAdsEvent {
   @override
   List<Object?> get props => [status];
 }
+
+class MyAdsDeleteRequested extends MyAdsEvent {
+  const MyAdsDeleteRequested(this.slug);
+
+  final String slug;
+
+  @override
+  List<Object?> get props => [slug];
+}

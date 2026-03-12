@@ -111,8 +111,8 @@ class SupportMenuPage extends StatelessWidget {
             ),
             _MenuItem(
               icon: Icons.chat_bubble_outline,
-              iconColor: AppColors.primary,
-              iconBg: AppColors.primary.withValues(alpha: 0.12),
+              iconColor: mode.primaryColor,
+              iconBg: mode.primaryColor.withValues(alpha: 0.12),
               title: 'Qo\'llab-quvvatlash',
               textColor: textPrimary,
               border: border,
@@ -180,6 +180,7 @@ class _Tab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mode = context.watch<AppModeCubit>().state;
+    final selectedBg = mode.primaryColor;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -187,7 +188,7 @@ class _Tab extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: selected ? mode.appBarColor : Colors.transparent,
+            color: selected ? selectedBg : Colors.transparent,
             borderRadius: BorderRadius.circular(9),
           ),
           alignment: Alignment.center,
@@ -195,7 +196,7 @@ class _Tab extends StatelessWidget {
             label,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: selected ? mode.onAppBarColor : context.textSecondary,
+              color: selected ? Colors.white : context.textSecondary,
             ),
           ),
         ),
