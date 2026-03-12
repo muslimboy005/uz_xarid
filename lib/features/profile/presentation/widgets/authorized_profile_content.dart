@@ -92,11 +92,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                         : null,
                     onBackgroundImageError: (exception, stackTrace) {},
                     child: user.avatar.isEmpty
-                        ? Icon(
-                            Icons.person,
-                            color: AppColors.blue500,
-                            size: 24,
-                          )
+                        ? Icon(Icons.person, color: AppColors.blue500, size: 24)
                         : null,
                   ),
                   const SizedBox(width: 12),
@@ -248,7 +244,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                     onTap: () => context.push('/profile/view-history'),
                   ),
                   _ProfileMenuItem(
-                    icon: AppAssets.settingsPhone,
+                    icon: AppAssets.settings,
                     title: l10n.profileMenuSettings,
                     onTap: () => context.push('/profile/settings'),
                   ),

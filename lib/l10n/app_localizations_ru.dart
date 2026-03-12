@@ -538,10 +538,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get supportTitle => 'Поддержка';
 
   @override
+  String get supportChat => 'Чат со специалистом';
+
+  @override
+  String get supportPhone => 'Поддержка по телефону';
+
+  @override
   String get paymentTitle => 'Оплата и тарифы';
 
   @override
   String get viewHistoryTitle => 'История просмотров';
+
+  @override
+  String get noViewHistory => 'Нет просмотров';
+
+  @override
+  String get viewHistoryEmptyDesc =>
+      'Начните поиск, чтобы увидеть интересные предложения и товары';
+
+  @override
+  String get clearHistory => 'Очистить историю';
 
   @override
   String get myAddressesTitle => 'Мои адреса';

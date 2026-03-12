@@ -8,9 +8,9 @@ part of 'order_response_dto.dart';
 
 OrderResponseDto _$OrderResponseDtoFromJson(Map<String, dynamic> json) =>
     OrderResponseDto(
-      id: (json['id'] as num?)?.toInt() ?? 0,
+      id: (json['id'] as num).toInt(),
       adSlug: json['ad_slug'] as String?,
-      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+      quantity: (json['quantity'] as num).toInt(),
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       addressId: (json['address_id'] as num?)?.toInt(),
@@ -34,6 +34,17 @@ Map<String, dynamic> _$OrderResponseDtoToJson(OrderResponseDto instance) =>
       'status': instance.status,
     };
 
+OrderCreateResponseDto _$OrderCreateResponseDtoFromJson(
+  Map<String, dynamic> json,
+) => OrderCreateResponseDto(
+  status: json['status'] as bool,
+  data: OrderResponseDto.fromJson(json['data'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$OrderCreateResponseDtoToJson(
+  OrderCreateResponseDto instance,
+) => <String, dynamic>{'status': instance.status, 'data': instance.data};
+
 OrderListResponseDto _$OrderListResponseDtoFromJson(
   Map<String, dynamic> json,
 ) => OrderListResponseDto(
@@ -45,24 +56,15 @@ Map<String, dynamic> _$OrderListResponseDtoToJson(
   OrderListResponseDto instance,
 ) => <String, dynamic>{'status': instance.status, 'data': instance.data};
 
-OrderCreateResponseDto _$OrderCreateResponseDtoFromJson(Map<String, dynamic> json) =>
-    OrderCreateResponseDto(
-      status: json['status'] as bool? ?? false,
-      data: OrderResponseDto.fromJson(json['data'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$OrderCreateResponseDtoToJson(OrderCreateResponseDto instance) =>
-    <String, dynamic>{'status': instance.status, 'data': instance.data};
-
 OrderListDataDto _$OrderListDataDtoFromJson(Map<String, dynamic> json) =>
     OrderListDataDto(
-      totalItems: (json['total_items'] as num?)?.toInt() ?? 0,
-      totalPages: (json['total_pages'] as num?)?.toInt() ?? 0,
-      pageSize: (json['page_size'] as num?)?.toInt() ?? 0,
-      currentPage: (json['current_page'] as num?)?.toInt() ?? 0,
-      results: (json['results'] as List<dynamic>?)
-          ?.map((e) => OrderResponseDto.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+      totalItems: (json['total_items'] as num).toInt(),
+      totalPages: (json['total_pages'] as num).toInt(),
+      pageSize: (json['page_size'] as num).toInt(),
+      currentPage: (json['current_page'] as num).toInt(),
+      results: (json['results'] as List<dynamic>)
+          .map((e) => OrderResponseDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$OrderListDataDtoToJson(OrderListDataDto instance) =>

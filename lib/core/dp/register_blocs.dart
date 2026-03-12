@@ -25,6 +25,9 @@ import 'package:uz_xarid/features/profile/domain/usecases/delete_my_ad.dart';
 import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/view_history/view_history_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/payment/payment_bloc.dart';
+import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 
 Future<void> registerBlocs(GetIt getIt) async {
   getIt
@@ -80,7 +83,9 @@ Future<void> registerBlocs(GetIt getIt) async {
       () => OrderCreateCubit(repository: getIt()),
     )
     ..registerFactory<MyOrdersBloc>(() => MyOrdersBloc(repository: getIt()))
-    ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()));
+    ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()))
+    ..registerFactory<ViewHistoryBloc>(() => ViewHistoryBloc(repository: getIt<ProfileRepository>()))
+    ..registerFactory<PaymentBloc>(() => PaymentBloc(repository: getIt<ProfileRepository>()));
 
   log("Register BLOC Complate For GetIT");
 }

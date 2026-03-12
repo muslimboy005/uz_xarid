@@ -9,6 +9,7 @@ class ProductListItemEntity {
     this.currency = 'uzs',
     this.rating = 0,
     this.reviewCount = 0,
+    this.categoryName,
   });
 
   final String slug;
@@ -19,4 +20,5 @@ class ProductListItemEntity {
   final String currency;
   final double rating;
   final int reviewCount;
+  final String? categoryName;
 }

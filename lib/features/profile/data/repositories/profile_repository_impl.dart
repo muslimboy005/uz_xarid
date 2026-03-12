@@ -7,6 +7,8 @@ import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
+import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
+import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileApi _profileDataSource;
@@ -271,6 +273,57 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       await _profileDataSource.deleteAddress(id);
       return Right(null);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, dynamic>> getViewedAds(int page, int pageSize) async {
+    try {
+      final result = await _profileDataSource.getViewedAds(page, pageSize);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> clearViewedAds() async {
+    try {
+      await _profileDataSource.clearViewedAds();
+      return Right(null);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, PlanResponseModel>> getPlans() async {
+    try {
+      final result = await _profileDataSource.getPlans();
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, PlanHistoryResponseModel>> getPlanHistory(
+    int page,
+    int pageSize,
+  ) async {
+    try {
+      final result = await _profileDataSource.getPlanHistory(page, pageSize);
+      return Right(result);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
