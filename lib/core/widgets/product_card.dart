@@ -172,11 +172,15 @@ class ProductCard extends StatelessWidget {
                         const SizedBox(width: 17),
                         AppImage(path: AppAssets.chat),
                         const SizedBox(width: 4),
-                        AppText(
-                          text: '$reviewCount ${l10n.reviewsLabel}',
-                          color: context.textPrimary,
-                          fontSize: 12,
-                          fontWeight: 500,
+                        Flexible(
+                          child: AppText(
+                            text: '$reviewCount ${l10n.reviewsLabel}',
+                            color: context.textPrimary,
+                            fontSize: 12,
+                            fontWeight: 500,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
                       ],
                     ),
@@ -193,26 +197,44 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     if (oldPrice.isNotEmpty)
-                      AppText(
-                        text: '$oldPrice $_displayCurrency',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: context.textSecondary,
-                          decoration: TextDecoration.lineThrough,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppText(
+                              text: '$oldPrice $_displayCurrency',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: context.textSecondary,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                            ),
+                          ),
+                        ],
                       ),
                     if (oldPrice.isNotEmpty) const SizedBox(height: 2),
-                    Text(
-                      currentPrice.isNotEmpty
-                          ? '$currentPrice $_displayCurrency'
-                          : '',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.orange,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            currentPrice.isNotEmpty
+                                ? '$currentPrice $_displayCurrency'
+                                : '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.orange,
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -225,7 +247,7 @@ class ProductCard extends StatelessWidget {
                 height: 40,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.blue600,
+                    backgroundColor: context.primaryColor,
                     foregroundColor: AppColors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

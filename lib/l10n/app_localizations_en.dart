@@ -228,6 +228,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get giftHeadline => 'Perfect gifts for everyone';
 
   @override
+  String get giftSubtitle => 'We also recommend all ideal gifts for you';
+
+  @override
   String get servicesTitle => 'Services nearby';
 
   @override
@@ -711,4 +714,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderQuantityDona => 'pcs';
+
+  @override
+  String get myAdsLimitTitle => 'Ad limit';
+
+  @override
+  String myAdsLimitUpTo(int count) {
+    return 'You can post up to $count ads';
+  }
+
+  @override
+  String get myAdsIncreaseLimit => 'Increase limit';
+
+  @override
+  String get myAdsStatusActive => 'Active';
+
+  @override
+  String get myAdsStatusPending => 'Pending';
+
+  @override
+  String get myAdsStatusUnpaid => 'Unpaid';
+
+  @override
+  String get myAdsStatusInactive => 'Inactive';
+
+  @override
+  String get myAdsStatusRejected => 'Rejected';
+
+  @override
+  String get myAdsEmptyTitle => 'You have no ads yet.';
+
+  @override
+  String get myAdsEmptySubtitle => 'Create your first ad and start selling!';
+
+  @override
+  String get myAdsDeleteDialogTitle => 'Delete ad';
+
+  @override
+  String get myAdsDeleteDialogMessage =>
+      'Are you sure? This action cannot be undone.';
+
+  @override
+  String get myAdsDelete => 'Delete';
+
+  @override
+  String get myAdsEdit => 'Edit';
+
+  @override
+  String get myAdsPromoFrom => 'Promo from 7,000 soum';
+
+  @override
+  String get adTypeSell => 'Sell';
+
+  @override
+  String get adTypeBuy => 'Buy';
+
+  @override
+  String get listingTypeProduct => 'Product';
+
+  @override
+  String get listingTypeService => 'Service';
+
+  @override
+  String get listingTypeAuto => 'Auto';
+
+  @override
+  String get listingTypeHome => 'Home';
 }

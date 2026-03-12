@@ -21,7 +21,7 @@ class ProductsNotFoundPlaceholder extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: context.primaryColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(

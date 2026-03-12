@@ -82,7 +82,7 @@ class HomeBannerCard extends StatelessWidget {
                 height: 40,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.blue600,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: AppColors.white,
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(

@@ -6,6 +6,9 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 extension ThemeColors on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 
+  /// Rejimga qarab (Sotaman=ko'k, Sotib olaman=olovrang) tema orqali beriladi.
+  Color get primaryColor => Theme.of(this).colorScheme.primary;
+
   Color get bodyBackground =>
       isDark ? AppColors.darkBackground : AppColors.black50;
 

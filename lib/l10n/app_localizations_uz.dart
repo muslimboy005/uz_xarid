@@ -228,6 +228,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get giftHeadline => 'Barchaga ideal sovg\'alar';
 
   @override
+  String get giftSubtitle =>
+      'Barcha ideal sovgalarni ham sizga tafsiya qilamiz';
+
+  @override
   String get servicesTitle => 'Yaqin atrofdagi xizmatlar';
 
   @override
@@ -716,4 +720,71 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get orderQuantityDona => 'dona';
+
+  @override
+  String get myAdsLimitTitle => 'E\'lonlar limiti';
+
+  @override
+  String myAdsLimitUpTo(int count) {
+    return 'Siz $count tagacha e\'lon joylashtirishingiz mumkin';
+  }
+
+  @override
+  String get myAdsIncreaseLimit => 'Limitni oshirish';
+
+  @override
+  String get myAdsStatusActive => 'Faol';
+
+  @override
+  String get myAdsStatusPending => 'Kutilayotgan';
+
+  @override
+  String get myAdsStatusUnpaid => 'To\'lanmagan';
+
+  @override
+  String get myAdsStatusInactive => 'Nofaol';
+
+  @override
+  String get myAdsStatusRejected => 'Rad etilgan';
+
+  @override
+  String get myAdsEmptyTitle => 'Sizda hali e\'lonlar yo\'q.';
+
+  @override
+  String get myAdsEmptySubtitle =>
+      'Birinchi e\'loningizni yarating va hoziroq sotishni boshlang!';
+
+  @override
+  String get myAdsDeleteDialogTitle => 'E\'lonni o\'chirish';
+
+  @override
+  String get myAdsDeleteDialogMessage =>
+      'Ishonchingiz komilmi? Bu amalni qaytarib bo\'lmaydi.';
+
+  @override
+  String get myAdsDelete => 'O\'chirish';
+
+  @override
+  String get myAdsEdit => 'Tahrirlash';
+
+  @override
+  String get myAdsPromoFrom => '7 000 so\'m dan boshlab reklama';
+
+  @override
+  String get adTypeSell => 'Sotiladi';
+
+  @override
+  String get adTypeBuy => 'Sotib olish';
+
+  @override
+  String get listingTypeProduct => 'Mahsulot';
+
+  @override
+  String get listingTypeService => 'Xizmat';
+
+  @override
+  String get listingTypeAuto => 'Avtomobil';
+
+  @override
+  String get listingTypeHome => 'Uy';
 }

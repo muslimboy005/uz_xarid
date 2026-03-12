@@ -228,6 +228,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get giftHeadline => 'Идеальные подарки для всех';
 
   @override
+  String get giftSubtitle => 'Мы также рекомендуем вам все идеальные подарки';
+
+  @override
   String get servicesTitle => 'Сервис рядом';
 
   @override
@@ -713,4 +716,71 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get orderQuantityDona => 'шт';
+
+  @override
+  String get myAdsLimitTitle => 'Лимит объявлений';
+
+  @override
+  String myAdsLimitUpTo(int count) {
+    return 'Вы можете разместить до $count объявлений';
+  }
+
+  @override
+  String get myAdsIncreaseLimit => 'Увеличить лимит';
+
+  @override
+  String get myAdsStatusActive => 'Активные';
+
+  @override
+  String get myAdsStatusPending => 'На модерации';
+
+  @override
+  String get myAdsStatusUnpaid => 'Не оплачено';
+
+  @override
+  String get myAdsStatusInactive => 'Неактивные';
+
+  @override
+  String get myAdsStatusRejected => 'Отклонённые';
+
+  @override
+  String get myAdsEmptyTitle => 'У вас пока нет объявлений.';
+
+  @override
+  String get myAdsEmptySubtitle =>
+      'Создайте первое объявление и начните продавать!';
+
+  @override
+  String get myAdsDeleteDialogTitle => 'Удалить объявление';
+
+  @override
+  String get myAdsDeleteDialogMessage =>
+      'Вы уверены? Это действие нельзя отменить.';
+
+  @override
+  String get myAdsDelete => 'Удалить';
+
+  @override
+  String get myAdsEdit => 'Редактировать';
+
+  @override
+  String get myAdsPromoFrom => 'Реклама от 7 000 сум';
+
+  @override
+  String get adTypeSell => 'Продажа';
+
+  @override
+  String get adTypeBuy => 'Покупка';
+
+  @override
+  String get listingTypeProduct => 'Товар';
+
+  @override
+  String get listingTypeService => 'Услуга';
+
+  @override
+  String get listingTypeAuto => 'Авто';
+
+  @override
+  String get listingTypeHome => 'Дом';
 }

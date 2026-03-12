@@ -14,6 +14,10 @@ class AddListingState extends Equatable {
     this.createAdLoading = false,
     this.createAdError,
     this.createAdSlug,
+    this.editSlug,
+    this.adDetailForEdit,
+    this.loadAdForEditLoading = false,
+    this.loadAdForEditError,
   });
 
   final List<ColorEntity>? colors;
@@ -32,6 +36,13 @@ class AddListingState extends Equatable {
   final String? createAdError;
   final String? createAdSlug;
 
+  final String? editSlug;
+  final AdDetailEntity? adDetailForEdit;
+  final bool loadAdForEditLoading;
+  final String? loadAdForEditError;
+
+  bool get isEditMode => editSlug != null && editSlug!.isNotEmpty;
+
   AddListingState copyWith({
     List<ColorEntity>? colors,
     bool? colorsLoading,
@@ -45,6 +56,10 @@ class AddListingState extends Equatable {
     bool? createAdLoading,
     String? createAdError,
     String? createAdSlug,
+    String? editSlug,
+    AdDetailEntity? adDetailForEdit,
+    bool? loadAdForEditLoading,
+    String? loadAdForEditError,
   }) {
     return AddListingState(
       colors: colors ?? this.colors,
@@ -59,6 +74,10 @@ class AddListingState extends Equatable {
       createAdLoading: createAdLoading ?? this.createAdLoading,
       createAdError: createAdError,
       createAdSlug: createAdSlug,
+      editSlug: editSlug ?? this.editSlug,
+      adDetailForEdit: adDetailForEdit ?? this.adDetailForEdit,
+      loadAdForEditLoading: loadAdForEditLoading ?? this.loadAdForEditLoading,
+      loadAdForEditError: loadAdForEditError,
     );
   }
 
@@ -76,5 +95,9 @@ class AddListingState extends Equatable {
         createAdLoading,
         createAdError,
         createAdSlug,
+        editSlug,
+        adDetailForEdit,
+        loadAdForEditLoading,
+        loadAdForEditError,
       ];
 }

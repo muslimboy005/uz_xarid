@@ -4,6 +4,10 @@ class AppColors {
   const AppColors._();
 
   static const Color primary = Color(0xFF0077FF);
+  /// Sotib olaman rejimida primary rang (olovrang)
+  static const Color primaryBuying = Color(0xFFF78C4B);
+  /// Sotib olaman rejimida AppBar rangi (toq olovrang)
+  static const Color primaryBuyingAppBar = Color(0xFFC96B2E);
   static const Color secondary = Color(0xFFFFC107);
 
   static const Color surface = Colors.white;
