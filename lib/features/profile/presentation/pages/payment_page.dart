@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -22,6 +24,7 @@ class PaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final isDark = context.isDark;
     final l10n = AppLocalizations.of(context)!;
     final cardColor = context.cardSurface;
@@ -190,6 +193,7 @@ class PaymentPage extends StatelessWidget {
 
   Widget _buildTariffCard({
     required BuildContext context,
+    required Color primaryColor,
     required String title,
     required String price,
     required String unit,
@@ -249,7 +253,7 @@ class PaymentPage extends StatelessWidget {
                     text: isCurrentPlan ? 'Текущий план' : 'Выбрать план',
                     fontSize: 14,
                     fontWeight: 600,
-                    color: isCurrentPlan ? AppColors.white : AppColors.primary,
+                    color: isCurrentPlan ? AppColors.white : primaryColor,
                   ),
                 ),
               ),

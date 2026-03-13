@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
@@ -24,6 +25,7 @@ class MyAdsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
@@ -46,7 +48,7 @@ class MyAdsPage extends StatelessWidget {
           fontWeight: 700,
           color: Colors.white,
         ),
-        backgroundColor: AppColors.primary,
+        backgroundColor: primaryColor,
         elevation: 0,
 
         //   actions: [
@@ -76,12 +78,13 @@ class MyAdsPage extends StatelessWidget {
             _buildLimitCard(
               context,
               l10n,
+              primaryColor,
               cardColor,
               textColor,
               textSecondary,
               borderColor,
             ),
-            _buildTabs(context, l10n, cardColor, textColor, borderColor),
+            _buildTabs(context, l10n, primaryColor, cardColor, textColor, borderColor),
             Expanded(
               child: BlocBuilder<MyAdsBloc, MyAdsState>(
                 builder: (context, state) {
@@ -101,12 +104,13 @@ class MyAdsPage extends StatelessWidget {
                     );
                   }
                   if (state.list.isEmpty) {
-                    return _buildEmptyState(l10n, textColor, textSecondary);
+                    return _buildEmptyState(l10n, primaryColor, textColor, textSecondary);
                   }
                   return _buildGrid(
                     context,
                     state,
                     l10n,
+                    primaryColor,
                     cardColor,
                     textColor,
                     textSecondary,
@@ -120,7 +124,7 @@ class MyAdsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/add-listing'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: primaryColor,
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
       ),
     );
@@ -129,6 +133,7 @@ class MyAdsPage extends StatelessWidget {
   Widget _buildLimitCard(
     BuildContext context,
     AppLocalizations l10n,
+    Color primaryColor,
     Color cardColor,
     Color textColor,
     Color textSecondary,
@@ -166,13 +171,13 @@ class MyAdsPage extends StatelessWidget {
             icon: Icon(
               Icons.arrow_outward_rounded,
               size: 16,
-              color: AppColors.primary,
+              color: primaryColor,
             ),
             label: AppText(
               text: l10n.myAdsIncreaseLimit,
               fontSize: 14,
               fontWeight: 500,
-              color: AppColors.primary,
+              color: primaryColor,
             ),
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
@@ -190,7 +195,7 @@ class MyAdsPage extends StatelessWidget {
                   height: 6,
                   decoration: BoxDecoration(
                     color: filled
-                        ? AppColors.primary
+                        ? primaryColor
                         : borderColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(3),
                   ),
@@ -206,6 +211,7 @@ class MyAdsPage extends StatelessWidget {
   Widget _buildTabs(
     BuildContext context,
     AppLocalizations l10n,
+    Color primaryColor,
     Color cardColor,
     Color textColor,
     Color borderColor,
@@ -237,10 +243,10 @@ class MyAdsPage extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: selected ? AppColors.primary : cardColor,
+                    color: selected ? primaryColor : cardColor,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: selected ? AppColors.primary : borderColor,
+                      color: selected ? primaryColor : borderColor,
                     ),
                   ),
                   child: Center(
@@ -260,7 +266,7 @@ class MyAdsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(AppLocalizations l10n, Color textColor, Color textSecondary) {
+  Widget _buildEmptyState(AppLocalizations l10n, Color primaryColor, Color textColor, Color textSecondary) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -270,7 +276,7 @@ class MyAdsPage extends StatelessWidget {
             Icon(
               Icons.folder_open_rounded,
               size: 80,
-              color: AppColors.primary.withValues(alpha: 0.7),
+              color: primaryColor.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 24),
             AppText(
@@ -298,6 +304,7 @@ class MyAdsPage extends StatelessWidget {
     BuildContext context,
     MyAdsState state,
     AppLocalizations l10n,
+    Color primaryColor,
     Color cardColor,
     Color textColor,
     Color textSecondary,
@@ -319,6 +326,7 @@ class MyAdsPage extends StatelessWidget {
         return _MyAdCard(
           item: item,
           l10n: l10n,
+          primaryColor: primaryColor,
           cardColor: cardColor,
           textColor: textColor,
           textSecondary: textSecondary,
@@ -409,6 +417,7 @@ class _MyAdCard extends StatelessWidget {
   const _MyAdCard({
     required this.item,
     required this.l10n,
+    required this.primaryColor,
     required this.cardColor,
     required this.textColor,
     required this.textSecondary,
@@ -421,6 +430,7 @@ class _MyAdCard extends StatelessWidget {
 
   final MyListingItemDto item;
   final AppLocalizations l10n;
+  final Color primaryColor;
   final Color cardColor;
   final Color textColor;
   final Color textSecondary;
@@ -613,7 +623,7 @@ class _MyAdCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     _CardButton(
                       label: l10n.myAdsEdit,
-                      color: AppColors.primary,
+                      color: primaryColor,
                       textColor: Colors.white,
                       icon: Icons.edit_outlined,
                       onTap: onEdit,

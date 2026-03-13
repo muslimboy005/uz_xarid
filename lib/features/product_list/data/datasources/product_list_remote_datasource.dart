@@ -27,6 +27,7 @@ abstract class ProductListRemoteDatasource {
     int? categoryId,
     int page = 1,
     int pageSize = 10,
+    String adType = 'Buy',
     Map<String, dynamic>? filterParams,
   });
 
@@ -93,12 +94,14 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
     int? categoryId,
     int page = 1,
     int pageSize = 10,
+    String adType = 'Buy',
     Map<String, dynamic>? filterParams,
   }) async {
     final response = await catalogApi.getAds(
       categoryId: categoryId,
       page: page,
       pageSize: pageSize,
+      adType: adType,
       extraParams: filterParams,
     );
     return response.data.results.map(_fromCatalogAdItemDto).toList();
@@ -112,7 +115,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   }) async {
     final extra = <String, dynamic>{
       if (filterParams != null) ...filterParams,
-      'ad_type': ?adType,
+      if (adType != null) 'ad_type': adType,
     };
     final response = await catalogApi.getAds(
       pageSize: pageSize,

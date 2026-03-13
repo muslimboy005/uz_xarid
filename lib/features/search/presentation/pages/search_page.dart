@@ -7,6 +7,7 @@ import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failures.dart';
@@ -35,12 +36,21 @@ class _SearchPageState extends State<SearchPage> {
   List<ProductListItemEntity> _recommendations = [];
   bool _recommendationsLoading = true;
   Timer? _debounceTimer;
+  bool _recommendationsLoadDone = false;
 
   @override
   void initState() {
     super.initState();
-    _loadRecommendations();
     _searchController.addListener(_onSearchTextChanged);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_recommendationsLoadDone) {
+      _recommendationsLoadDone = true;
+      _loadRecommendations();
+    }
   }
 
   @override
@@ -83,30 +93,20 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _loadRecommendations() async {
+    if (!mounted) return;
     setState(() => _recommendationsLoading = true);
-    // Avval 'Buy', bo'sh bo'lsa 'Sell' tavsiyalarni yuklash
-    var result = await getIt<GetProductList>()(
-      const GetProductListParams(
+    final mode = context.read<AppModeCubit>().state;
+    final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
+    final result = await getIt<GetProductList>()(
+      GetProductListParams(
         listSource: 'recommendations',
         pageSize: 20,
-        adType: 'Buy',
+        adType: adType,
       ),
     );
-    var list = result is Right<Failure, List<ProductListItemEntity>>
+    final list = result is Right<Failure, List<ProductListItemEntity>>
         ? result.right
         : <ProductListItemEntity>[];
-    if (list.isEmpty) {
-      result = await getIt<GetProductList>()(
-        const GetProductListParams(
-          listSource: 'recommendations',
-          pageSize: 20,
-          adType: 'Sell',
-        ),
-      );
-      list = result is Right<Failure, List<ProductListItemEntity>>
-          ? result.right
-          : [];
-    }
     if (!mounted) return;
     setState(() {
       _recommendationsLoading = false;

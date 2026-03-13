@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -22,7 +23,7 @@ class UnauthProfileContent extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!context.mounted) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context)!;
-
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
 
@@ -81,17 +82,17 @@ class UnauthProfileContent extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.settings_outlined,
                     size: 20,
-                    color: AppColors.primary,
+                    color: primaryColor,
                   ),
                   const SizedBox(width: 8),
                   AppText(
                     text: l10n.profileMenuSettings,
                     fontSize: 15,
                     fontWeight: 600,
-                    color: AppColors.primary,
+                    color: primaryColor,
                   ),
                 ],
               ),
@@ -103,11 +104,11 @@ class UnauthProfileContent extends StatelessWidget {
           ContainerW(
             width: double.infinity,
             onTap: () => _showPhoneBottomSheet(context),
-            color: AppColors.primary,
+            color: primaryColor,
             radius: 16,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: primaryColor.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),

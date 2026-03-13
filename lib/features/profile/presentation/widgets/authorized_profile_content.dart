@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
@@ -24,6 +25,7 @@ class AuthorizedProfileContent extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!context.mounted) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context)!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
     final cardColor = context.cardSurface;
@@ -76,7 +78,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                   CircleAvatar(
                     radius: 24,
                     backgroundColor: context.isDark
-                        ? AppColors.primary.withValues(alpha: 0.25)
+                        ? primaryColor.withValues(alpha: 0.25)
                         : AppColors.blue50,
                     backgroundImage: user.avatar.isNotEmpty
                         ? NetworkImage(() {

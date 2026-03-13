@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -333,6 +334,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   AdDetailEntity get ad => widget.ad;
 
+  Color get _primaryColor => context.watch<AppModeCubit>().state.primaryColor;
+
   @override
   void initState() {
     super.initState();
@@ -528,7 +531,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
-                            ? AppColors.primary
+                            ? _primaryColor
                             : context.borderColor,
                         width: isSelected ? 1.5 : 1.0,
                       ),
@@ -567,7 +570,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               ),
               const SizedBox(width: 16),
             ],
-            const Icon(Icons.chat, size: 14, color: AppColors.primary),
+            Icon(Icons.chat, size: 14, color: _primaryColor),
             const SizedBox(width: 4),
             Text(
               '${ad.reviewCount ?? 0}',
@@ -696,13 +699,13 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                           ),
                           decoration: BoxDecoration(
                             color: selected && available
-                                ? AppColors.primary
+                                ? _primaryColor
                                 : cardColor,
                             borderRadius: BorderRadius.circular(10),
                             border: available
                                 ? Border.all(
                                     color: selected
-                                        ? AppColors.primary
+                                        ? _primaryColor
                                         : borderColor.withOpacity(0.5),
                                     width: 1,
                                   )
@@ -838,7 +841,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         ContainerW(
           width: double.infinity,
           onTap: () => context.push('/ad/${ad.slug}/order', extra: ad),
-          color: AppColors.blue500,
+          color: _primaryColor,
           radius: 12,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -942,7 +945,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   ContainerW(
                     onTap: () => context.go('/profile'),
                     width: double.infinity,
-                    color: AppColors.blue500,
+                    color: _primaryColor,
                     radius: 12,
                     child: Padding(
                       padding: const EdgeInsets.all(14.0),
@@ -1073,7 +1076,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 }
               },
               width: double.infinity,
-              color: AppColors.blue500,
+              color: _primaryColor,
               radius: 12,
               child: Padding(
                 padding: const EdgeInsets.all(14.0),
@@ -1120,7 +1123,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 labelColor: AppColors.white,
                 unselectedLabelColor: context.textPrimary,
                 indicator: BoxDecoration(
-                  color: AppColors.blue500,
+                  color: _primaryColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 padding: const EdgeInsets.all(4),
@@ -1199,8 +1202,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                                 : AppLocalizations.of(
                                     context,
                                   )!.productDetailShowAll,
-                            style: const TextStyle(
-                              color: AppColors.primary,
+                            style: TextStyle(
+                              color: _primaryColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -1209,7 +1212,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                             isDescExpanded
                                 ? Icons.keyboard_arrow_up
                                 : Icons.keyboard_arrow_down,
-                            color: AppColors.primary,
+                            color: _primaryColor,
                             size: 16,
                           ),
                         ],
@@ -1291,8 +1294,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                                   : AppLocalizations.of(
                                       context,
                                     )!.productDetailShowAll,
-                              style: const TextStyle(
-                                color: AppColors.primary,
+                              style: TextStyle(
+                                color: _primaryColor,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -1301,7 +1304,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                               isFeaturesExpanded
                                   ? Icons.keyboard_arrow_up
                                   : Icons.keyboard_arrow_down,
-                              color: AppColors.primary,
+                              color: _primaryColor,
                               size: 16,
                             ),
                           ],
@@ -1357,8 +1360,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   Container(
                     width: 56,
                     height: 56,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    decoration: BoxDecoration(
+                      color: _primaryColor,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -1430,8 +1433,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     onPressed: () => _showLeaveFeedbackSheet(context),
                     child: Text(
                       l10n.reviewsWriteReview,
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: _primaryColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1658,7 +1661,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary),
+                        borderSide: BorderSide(color: parentContext.watch<AppModeCubit>().state.primaryColor),
                       ),
                     ),
                   ),
@@ -1943,10 +1946,10 @@ class _SimilarCard extends StatelessWidget {
                           ),
                           if (item.reviewCount != null) ...[
                             const SizedBox(width: 8),
-                            const Icon(
+                            Icon(
                               Icons.chat_bubble_outline,
                               size: 12,
-                              color: AppColors.primary,
+                              color: context.watch<AppModeCubit>().state.primaryColor,
                             ),
                             const SizedBox(width: 4),
                             Text(

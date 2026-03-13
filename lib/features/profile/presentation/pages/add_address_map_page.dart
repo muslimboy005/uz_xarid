@@ -5,7 +5,9 @@ import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:latlong2/latlong.dart' as lt;
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
@@ -118,6 +120,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
     return Scaffold(
@@ -147,9 +150,9 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                             }
                           },
                     )
-                  : const Center(
+                  : Center(
                       child: CircularProgressIndicator(
-                        color: AppColors.primary,
+                        color: primaryColor,
                       ),
                     );
             },
@@ -170,7 +173,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: primaryColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: AppText(
@@ -200,7 +203,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: primaryColor,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -328,7 +331,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                     }
                   }
                 },
-                color: AppColors.primary,
+                color: primaryColor,
                 width: double.infinity,
                 radius: 12,
                 child: Padding(
