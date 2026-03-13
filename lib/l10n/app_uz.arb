@@ -201,8 +201,13 @@
     }
   },
   "supportTitle": "Qo'llab-quvvatlash",
+  "supportChat": "Mutaxassis bilan bog'lanish",
+  "supportPhone": "Telefon orqali qo'llab-quvvatlash",
   "paymentTitle": "To'lov va tariflar",
   "viewHistoryTitle": "Ko‘rish tarixi",
+  "noViewHistory": "Ko'rilganlar yo'q",
+  "viewHistoryEmptyDesc": "Qiziqarli takliflar va mahsulotlarni ko'rish uchun qidirishni boshlang",
+  "clearHistory": "Tarixni tozalash",
   "myAddressesTitle": "Manzillarim",
   "myAdsTitle": "Mening e'lonlarim",
   "profileVerifyBanner": "Akkauntingizni tasdiqlang",

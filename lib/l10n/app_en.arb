@@ -201,8 +201,13 @@
     }
   },
   "supportTitle": "Support",
+  "supportChat": "Chat with a specialist",
+  "supportPhone": "Phone support",
   "paymentTitle": "Payments and tariffs",
   "viewHistoryTitle": "View history",
+  "noViewHistory": "No views yet",
+  "viewHistoryEmptyDesc": "Start searching to see interesting offers and products",
+  "clearHistory": "Clear history",
   "myAddressesTitle": "My addresses",
   "myAdsTitle": "My ads",
   "profileVerifyBanner": "Confirm your account",

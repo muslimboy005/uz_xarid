@@ -7,6 +7,8 @@ import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
+import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
+import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
 
 abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> sendOtp(String phone);
@@ -39,6 +41,15 @@ abstract class ProfileRepository {
     Map<String, dynamic> data,
   );
   Future<Either<Failure, void>> deleteAddress(int id);
+
+  Future<Either<Failure, dynamic>> getViewedAds(int page, int pageSize);
+  Future<Either<Failure, void>> clearViewedAds();
+
+  Future<Either<Failure, PlanResponseModel>> getPlans();
+  Future<Either<Failure, PlanHistoryResponseModel>> getPlanHistory(
+    int page,
+    int pageSize,
+  );
 
   factory ProfileRepository(ProfileApi profileDataSource, Dio dio) =>
       ProfileRepositoryImpl(profileDataSource: profileDataSource, dio: dio);

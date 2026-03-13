@@ -1114,6 +1114,18 @@ abstract class AppLocalizations {
   /// **'Support'**
   String get supportTitle;
 
+  /// No description provided for @supportChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with a specialist'**
+  String get supportChat;
+
+  /// No description provided for @supportPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone support'**
+  String get supportPhone;
+
   /// No description provided for @paymentTitle.
   ///
   /// In en, this message translates to:
@@ -1125,6 +1137,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View history'**
   String get viewHistoryTitle;
+
+  /// No description provided for @noViewHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No views yet'**
+  String get noViewHistory;
+
+  /// No description provided for @viewHistoryEmptyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Start searching to see interesting offers and products'**
+  String get viewHistoryEmptyDesc;
+
+  /// No description provided for @clearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get clearHistory;
 
   /// No description provided for @myAddressesTitle.
   ///

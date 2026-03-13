@@ -4,6 +4,9 @@ import 'package:retrofit/http.dart';
 import 'package:uz_xarid/core/constants/api_urls.dart';
 import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
+import 'package:uz_xarid/features/profile/data/model/viewed_ads_response_model.dart';
+import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
+import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
 part 'profile_datasource.g.dart';
 
 @RestApi(baseUrl: ApiUrls.baseUrl)
@@ -69,4 +72,22 @@ abstract class ProfileApi {
 
   @DELETE('${ApiUrls.address}{id}/')
   Future<void> deleteAddress(@Path('id') int id);
+
+  @GET(ApiUrls.viewedAds)
+  Future<ViewedAdsResponseModel> getViewedAds(
+    @Query('page') int page,
+    @Query('page_size') int pageSize,
+  );
+
+  @DELETE(ApiUrls.viewedAdsClear)
+  Future<void> clearViewedAds();
+
+  @GET(ApiUrls.plans)
+  Future<PlanResponseModel> getPlans();
+
+  @GET(ApiUrls.planHistory)
+  Future<PlanHistoryResponseModel> getPlanHistory(
+    @Query('page') int page,
+    @Query('page_size') int pageSize,
+  );
 }

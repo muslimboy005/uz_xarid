@@ -536,10 +536,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportTitle => 'Support';
 
   @override
+  String get supportChat => 'Chat with a specialist';
+
+  @override
+  String get supportPhone => 'Phone support';
+
+  @override
   String get paymentTitle => 'Payments and tariffs';
 
   @override
   String get viewHistoryTitle => 'View history';
+
+  @override
+  String get noViewHistory => 'No views yet';
+
+  @override
+  String get viewHistoryEmptyDesc =>
+      'Start searching to see interesting offers and products';
+
+  @override
+  String get clearHistory => 'Clear history';
 
   @override
   String get myAddressesTitle => 'My addresses';

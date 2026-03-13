@@ -201,8 +201,13 @@
     }
   },
   "supportTitle": "Поддержка",
+  "supportChat": "Чат со специалистом",
+  "supportPhone": "Поддержка по телефону",
   "paymentTitle": "Оплата и тарифы",
   "viewHistoryTitle": "История просмотров",
+  "noViewHistory": "Нет просмотров",
+  "viewHistoryEmptyDesc": "Начните поиск, чтобы увидеть интересные предложения и товары",
+  "clearHistory": "Очистить историю",
   "myAddressesTitle": "Мои адреса",
   "myAdsTitle": "Мои объявления",
   "profileVerifyBanner": "Подтвердите аккаунт",

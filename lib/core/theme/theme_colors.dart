@@ -26,4 +26,6 @@ extension ThemeColors on BuildContext {
 
   Color get borderColor =>
       isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor;
+
+  Color get tabUnselected => isDark ? AppColors.darkBackground : AppColors.black50;
 }

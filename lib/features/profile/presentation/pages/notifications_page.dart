@@ -33,7 +33,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      
+
       body: Container(
         color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
@@ -142,7 +142,8 @@ class _TabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final surfaceContainer = context.surfaceContainer;
-    final cardSurface = context.cardSurface;
+    final cardColor = context.cardSurface;
+    final tabUnselected = context.tabUnselected;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
 
@@ -162,7 +163,7 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.black500 : cardSurface,
+                  color: selected ? cardColor : tabUnselected,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [

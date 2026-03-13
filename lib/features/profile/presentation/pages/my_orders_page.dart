@@ -129,9 +129,10 @@ class _TabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
+    // final isDark = context.isDark;
     // final surfaceContainer = context.surfaceContainer;
-    // final cardColor = context.cardSurface;
+    final cardColor = context.cardSurface;
+    final tabUnselected = context.tabUnselected;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
     final bodyBg = context.bodyBackground;
@@ -151,13 +152,7 @@ class _TabBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? isDark
-                            ? AppColors.darkCard
-                            : AppColors.white
-                      : isDark
-                      ? AppColors.darkBackground
-                      : AppColors.black50,
+                  color: selected ? cardColor : tabUnselected,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: selected
                       ? [

@@ -11,6 +11,7 @@ class ProductListItemDto {
     this.currency = 'uzs',
     this.rating = 0,
     this.reviewCount = 0,
+    this.categoryName,
   });
 
   final String slug;
@@ -21,6 +22,25 @@ class ProductListItemDto {
   final String currency;
   final double rating;
   final int reviewCount;
+  final String? categoryName;
+
+  factory ProductListItemDto.fromJson(Map<String, dynamic> json) {
+    String? category;
+    if (json['category'] != null) {
+      category = json['category']['name'];
+    }
+    return ProductListItemDto(
+      slug: json['slug'] ?? '',
+      title: json['title'] ?? '',
+      mainImage: json['main_image'] ?? json['mainImage'],
+      price: json['price']?.toString(),
+      finalPrice: json['final_price']?.toString() ?? json['finalPrice']?.toString(),
+      currency: json['currency'] ?? 'uzs',
+      rating: (json['rating'] ?? 0).toDouble(),
+      reviewCount: json['review_count'] ?? json['reviewCount'] ?? 0,
+      categoryName: category,
+    );
+  }
 
   ProductListItemEntity toEntity() => ProductListItemEntity(
     slug: slug,
@@ -31,5 +51,6 @@ class ProductListItemDto {
     currency: currency,
     rating: rating,
     reviewCount: reviewCount,
+    categoryName: categoryName,
   );
 }

@@ -542,10 +542,26 @@ class AppLocalizationsUz extends AppLocalizations {
   String get supportTitle => 'Qo\'llab-quvvatlash';
 
   @override
+  String get supportChat => 'Mutaxassis bilan bog\'lanish';
+
+  @override
+  String get supportPhone => 'Telefon orqali qo\'llab-quvvatlash';
+
+  @override
   String get paymentTitle => 'To\'lov va tariflar';
 
   @override
   String get viewHistoryTitle => 'Ko‘rish tarixi';
+
+  @override
+  String get noViewHistory => 'Ko\'rilganlar yo\'q';
+
+  @override
+  String get viewHistoryEmptyDesc =>
+      'Qiziqarli takliflar va mahsulotlarni ko\'rish uchun qidirishni boshlang';
+
+  @override
+  String get clearHistory => 'Tarixni tozalash';
 
   @override
   String get myAddressesTitle => 'Manzillarim';
