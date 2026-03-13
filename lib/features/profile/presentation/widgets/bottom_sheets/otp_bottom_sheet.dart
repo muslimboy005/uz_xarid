@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:pinput/pinput.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
@@ -236,7 +237,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     decoration: BoxDecoration(
                       color: cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primary, width: 2),
+                      border: Border.all(color: context.watch<AppModeCubit>().state.primaryColor, width: 2),
                     ),
                   ),
                   submittedPinTheme: PinTheme(
@@ -330,7 +331,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                               style: TextStyle(
                                 color: (isLoading || !resendEnabled)
                                     ? textSecondary
-                                    : AppColors.primary,
+                                    : context.watch<AppModeCubit>().state.primaryColor,
                               ),
                             ),
                           ),

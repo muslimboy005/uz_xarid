@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/product_card.dart';
@@ -50,6 +51,7 @@ class _AuthorPageState extends State<AuthorPage>
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -82,7 +84,7 @@ class _AuthorPageState extends State<AuthorPage>
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return [
                   SliverToBoxAdapter(
-                    child: _buildAuthorHeader(context, author),
+                    child: _buildAuthorHeader(context, author, primaryColor),
                   ),
                   SliverPersistentHeader(
                     pinned: true,
@@ -95,7 +97,7 @@ class _AuthorPageState extends State<AuthorPage>
                         indicatorPadding: const EdgeInsets.all(4),
                         indicator: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: AppColors.blue600,
+                          color: primaryColor,
                         ),
                         tabs: [
                           Tab(text: AppLocalizations.of(context)!.authorTabAds),
@@ -121,7 +123,7 @@ class _AuthorPageState extends State<AuthorPage>
                   Center(
                     child: Text(AppLocalizations.of(context)!.authorAboutEmpty),
                   ),
-                  _buildContacts(context, author),
+                  _buildContacts(context, author, primaryColor),
                 ],
               ),
             );
@@ -132,7 +134,7 @@ class _AuthorPageState extends State<AuthorPage>
     );
   }
 
-  Widget _buildAuthorHeader(BuildContext context, AuthorEntity author) {
+  Widget _buildAuthorHeader(BuildContext context, AuthorEntity author, Color primaryColor) {
     return Container(
       color: context.surfaceContainer,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -180,7 +182,7 @@ class _AuthorPageState extends State<AuthorPage>
                         Icon(
                           Icons.chat_bubble_outline,
                           size: 14,
-                          color: AppColors.blue600,
+                          color: primaryColor,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -203,7 +205,7 @@ class _AuthorPageState extends State<AuthorPage>
               _buildIconButton(context, Icons.camera_alt_outlined), // Inst
               _buildIconButton(context, Icons.facebook),
               _buildIconButton(context, Icons.telegram),
-              _buildCallButton(context, author),
+              _buildCallButton(context, author, primaryColor),
             ],
           ),
         ],
@@ -240,7 +242,7 @@ class _AuthorPageState extends State<AuthorPage>
     }
   }
 
-  Widget _buildCallButton(BuildContext context, AuthorEntity author) {
+  Widget _buildCallButton(BuildContext context, AuthorEntity author, Color primaryColor) {
     return GestureDetector(
       onTap: () {
         if (author.phone != null && author.phone!.isNotEmpty) {
@@ -251,7 +253,7 @@ class _AuthorPageState extends State<AuthorPage>
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.blue600,
+          color: primaryColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Center(
@@ -302,7 +304,7 @@ class _AuthorPageState extends State<AuthorPage>
     );
   }
 
-  Widget _buildContacts(BuildContext context, AuthorEntity author) {
+  Widget _buildContacts(BuildContext context, AuthorEntity author, Color primaryColor) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -313,6 +315,7 @@ class _AuthorPageState extends State<AuthorPage>
         const SizedBox(height: 16),
         _buildInfoCard(
           context,
+          primaryColor: primaryColor,
           icon: Icons.phone,
           title: AppLocalizations.of(context)!.authorContactPhone,
           content: author.phone ?? AppLocalizations.of(context)!.authorAdsEmpty,
@@ -324,6 +327,7 @@ class _AuthorPageState extends State<AuthorPage>
         const SizedBox(height: 12),
         _buildInfoCard(
           context,
+          primaryColor: primaryColor,
           icon: Icons.access_time_filled,
           title: AppLocalizations.of(context)!.authorContactWorkTime,
           content: AppLocalizations.of(context)!.authorContactWorkTimeContent,
@@ -335,6 +339,7 @@ class _AuthorPageState extends State<AuthorPage>
         const SizedBox(height: 12),
         _buildInfoCard(
           context,
+          primaryColor: primaryColor,
           icon: Icons.location_on,
           title: AppLocalizations.of(context)!.authorContactAddress,
           content: AppLocalizations.of(context)!.authorContactAddressDefault,
@@ -349,6 +354,7 @@ class _AuthorPageState extends State<AuthorPage>
 
   Widget _buildInfoCard(
     BuildContext context, {
+    required Color primaryColor,
     required IconData icon,
     required String title,
     required String content,
@@ -365,7 +371,7 @@ class _AuthorPageState extends State<AuthorPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [Icon(icon, color: AppColors.blue600, size: 20)]),
+          Row(children: [Icon(icon, color: primaryColor, size: 20)]),
           const SizedBox(height: 8),
           Text(
             title,
@@ -391,7 +397,7 @@ class _AuthorPageState extends State<AuthorPage>
                   actionText,
                   style: TextStyle(
                     color: onTap != null
-                        ? AppColors.orange
+                        ? primaryColor
                         : context.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
@@ -400,7 +406,7 @@ class _AuthorPageState extends State<AuthorPage>
                 Icon(
                   Icons.arrow_forward_rounded,
                   color: onTap != null
-                      ? AppColors.orange
+                      ? primaryColor
                       : context.textSecondary,
                   size: 16,
                 ),

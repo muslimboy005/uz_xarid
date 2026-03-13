@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
@@ -39,7 +40,10 @@ class SupportMenuPage extends StatelessWidget {
             child: Row(
               children: [
                 // Logo
-                Image.asset('assets/images/uzxarid.png', height: 36),
+                Image.asset(
+                  isBuying ? AppAssets.logoAppBarBuying : AppAssets.logoAppBar,
+                  height: 36,
+                ),
                 const Spacer(),
                 // X close button
                 GestureDetector(

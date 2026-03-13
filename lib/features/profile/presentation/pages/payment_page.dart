@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -14,6 +16,7 @@ class PaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final isDark = context.isDark;
     // final textSecondary = context.textSecondary;
     // final l10n = AppLocalizations.of(context)!;
@@ -69,6 +72,7 @@ class PaymentPage extends StatelessWidget {
                           children: [
                             _buildTariffCard(
                               context: context,
+                              primaryColor: primaryColor,
                               title: 'Базовый аккаунт',
                               price: '0.00',
                               unit: "so'm, Oylik",
@@ -95,6 +99,7 @@ class PaymentPage extends StatelessWidget {
                             const SizedBox(height: 16),
                             _buildTariffCard(
                               context: context,
+                              primaryColor: primaryColor,
                               title: 'Бизнес-аккаунт',
                               price: '300 000',
                               unit: "so'm, Oylik",
@@ -185,6 +190,7 @@ class PaymentPage extends StatelessWidget {
 
   Widget _buildTariffCard({
     required BuildContext context,
+    required Color primaryColor,
     required String title,
     required String price,
     required String unit,
@@ -233,8 +239,8 @@ class PaymentPage extends StatelessWidget {
             const SizedBox(height: 16),
             ContainerW(
               color: isCurrentPlan
-                  ? AppColors.primary
-                  : AppColors.primary.withValues(alpha: 0.2),
+                  ? primaryColor
+                  : primaryColor.withValues(alpha: 0.2),
               radius: 8,
               width: double.infinity,
               child: Padding(
@@ -244,7 +250,7 @@ class PaymentPage extends StatelessWidget {
                     text: isCurrentPlan ? 'Текущий план' : 'Выбрать план',
                     fontSize: 14,
                     fontWeight: 600,
-                    color: isCurrentPlan ? AppColors.white : AppColors.primary,
+                    color: isCurrentPlan ? AppColors.white : primaryColor,
                   ),
                 ),
               ),
@@ -260,7 +266,7 @@ class PaymentPage extends StatelessWidget {
                           ? Icons.check_circle
                           : Icons.cancel_outlined,
                       color: feature.isIncluded
-                          ? AppColors.primary
+                          ? primaryColor
                           : AppColors.red,
                       size: 20,
                     ),

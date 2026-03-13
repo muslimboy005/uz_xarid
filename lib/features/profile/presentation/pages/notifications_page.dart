@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
@@ -198,6 +200,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
 
@@ -209,7 +212,7 @@ class _EmptyState extends StatelessWidget {
             width: 68,
             height: 68,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: primaryColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Icon(icon, color: AppColors.white, size: 34),

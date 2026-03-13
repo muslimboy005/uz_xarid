@@ -13,6 +13,7 @@ class HomeState extends Equatable {
     this.gifts = const [],
     this.services = const [],
     this.error,
+    this.lastAdType = 'Sell',
   });
 
   final int selectedIndex;
@@ -27,6 +28,9 @@ class HomeState extends Equatable {
   final List<HomeRecommendation> services;
   final String? error;
 
+  /// Oxirgi so‘rovda ishlatilgan ad_type (BlocListener rejim o‘zgarganda qayta so‘rash uchun).
+  final String lastAdType;
+
   HomeState copyWith({
     int? selectedIndex,
     HomeStatus? status,
@@ -37,6 +41,7 @@ class HomeState extends Equatable {
     List<HomeRecommendation>? gifts,
     List<HomeRecommendation>? services,
     String? error,
+    String? lastAdType,
   }) {
     return HomeState(
       selectedIndex: selectedIndex ?? this.selectedIndex,
@@ -48,6 +53,7 @@ class HomeState extends Equatable {
       gifts: gifts ?? this.gifts,
       services: services ?? this.services,
       error: error,
+      lastAdType: lastAdType ?? this.lastAdType,
     );
   }
 
@@ -62,5 +68,6 @@ class HomeState extends Equatable {
     gifts,
     services,
     error,
+    lastAdType,
   ];
 }

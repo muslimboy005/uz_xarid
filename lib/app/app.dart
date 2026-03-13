@@ -22,7 +22,7 @@ class UzXaridApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => LocaleCubit()..load()),
         BlocProvider(create: (_) => ThemeCubit()..load()),
-        BlocProvider(create: (_) => AppModeCubit()),
+        BlocProvider(create: (_) => AppModeCubit()..load()),
         BlocProvider(
           create: (_) =>
               getIt<FavoritesBloc>()..add(const FavoritesLoadListRequested()),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
@@ -92,12 +93,20 @@ class HomePage extends StatelessWidget {
     ];
 
     return BlocProvider(
-      create: (_) {
+      create: (context) {
+        final mode = context.read<AppModeCubit>().state;
+        final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
         final repo = HomeRepositoryImpl(homeApi: getIt<HomeApi>());
         final useCase = GetHome(repo);
-        return HomeBloc(useCase)..add(const HomeRequested());
+        return HomeBloc(useCase)
+          ..add(HomeRequested(adType: adType, pageSize: 16));
       },
-      child: Scaffold(
+      child: BlocListener<AppModeCubit, AppMode>(
+        listener: (context, mode) {
+          final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
+          context.read<HomeBloc>().add(HomeRequested(adType: adType, pageSize: 16));
+        },
+        child: Scaffold(
         appBar: UzXaridAppBar(
           onSearchTap: () => context.push('/search'),
           onSearchChanged: (query) {},
@@ -612,6 +621,7 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

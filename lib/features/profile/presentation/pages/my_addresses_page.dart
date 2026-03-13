@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
@@ -28,6 +29,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     // final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
@@ -84,9 +86,9 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     builder: (context, state) {
                       if (state.status == AddressStatus.loading &&
                           state.addresses.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: CircularProgressIndicator(
-                            color: AppColors.primary,
+                            color: primaryColor,
                           ),
                         );
                       }
@@ -106,6 +108,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                               state.status == AddressStatus.initial)) {
                         return _buildEmptyState(
                           context,
+                          primaryColor,
                           cardColor,
                           textColor,
                           textSecondary,
@@ -128,7 +131,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                 );
                               }
                             },
-                            color: AppColors.primary,
+                            color: primaryColor,
                             radius: 8,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -163,14 +166,14 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                     index == 0; // Mock selection logic
                                 return ContainerW(
                                   color: isSelected
-                                      ? AppColors.primary.withValues(
+                                      ? primaryColor.withValues(
                                           alpha: 0.04,
                                         )
                                       : cardColor,
                                   radius: 12,
                                   border: Border.all(
                                     color: isSelected
-                                        ? AppColors.primary
+                                        ? primaryColor
                                         : (context.borderColor),
                                   ),
                                   child: Padding(
@@ -189,7 +192,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                               ),
                                               child: AppImage(
                                                 path: AppAssets.mapLocation,
-                                                color: AppColors.primary,
+                                                color: primaryColor,
                                                 size: 24,
                                               ),
                                             ),
@@ -222,7 +225,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                               value: true,
                                               groupValue: isSelected,
                                               onChanged: (_) {},
-                                              activeColor: AppColors.primary,
+                                              activeColor: primaryColor,
                                             ),
                                           ],
                                         ),
@@ -295,7 +298,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                             const SizedBox(width: 12),
                                             Expanded(
                                               child: ContainerW(
-                                                color: AppColors.primary,
+                                                color: primaryColor,
                                                 radius: 8,
                                                 onTap: () async {
                                                   final result = await context
@@ -364,6 +367,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
 
   Widget _buildEmptyState(
     BuildContext context,
+    Color primaryColor,
     Color cardColor,
     Color textColor,
     Color textSecondary,
@@ -376,7 +380,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ContainerW(
-            color: AppColors.primary,
+            color: primaryColor,
             radius: 12,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -411,7 +415,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                 context.read<AddressBloc>().add(LoadAddressesEvent());
               }
             },
-            color: AppColors.primary,
+            color: primaryColor,
             radius: 8,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

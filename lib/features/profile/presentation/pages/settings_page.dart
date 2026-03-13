@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/localization/locale_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_cubit.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -22,6 +23,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -97,6 +99,7 @@ class SettingsPage extends StatelessWidget {
                             locale: locale,
                             isSelected: isSelected,
                             isDark: isDark,
+                            primaryColor: primaryColor,
                             onTap: () {
                               context.read<LocaleCubit>().change(locale);
                             },
@@ -135,6 +138,7 @@ class SettingsPage extends StatelessWidget {
                                     icon: Icons.light_mode_outlined,
                                     isSelected: !isDarkMode,
                                     isDark: isDark,
+                                    primaryColor: primaryColor,
                                     onTap: () {
                                       context.read<ThemeCubit>().setThemeMode(
                                         ThemeMode.light,
@@ -149,6 +153,7 @@ class SettingsPage extends StatelessWidget {
                                     icon: Icons.dark_mode_outlined,
                                     isSelected: isDarkMode,
                                     isDark: isDark,
+                                    primaryColor: primaryColor,
                                     onTap: () {
                                       context.read<ThemeCubit>().setThemeMode(
                                         ThemeMode.dark,
@@ -201,12 +206,14 @@ class _LanguageTile extends StatelessWidget {
     required this.locale,
     required this.isSelected,
     required this.isDark,
+    required this.primaryColor,
     required this.onTap,
   });
 
   final Locale locale;
   final bool isSelected;
   final bool isDark;
+  final Color primaryColor;
   final VoidCallback onTap;
 
   static String _languageName(String code) {
@@ -241,7 +248,7 @@ class _LanguageTile extends StatelessWidget {
               ),
               const Spacer(),
               if (isSelected)
-                Icon(Icons.check_circle, size: 22, color: AppColors.primary),
+                Icon(Icons.check_circle, size: 22, color: primaryColor),
             ],
           ),
         ),
@@ -256,6 +263,7 @@ class _ThemeOptionTile extends StatelessWidget {
     required this.icon,
     required this.isSelected,
     required this.isDark,
+    required this.primaryColor,
     required this.onTap,
   });
 
@@ -263,13 +271,14 @@ class _ThemeOptionTile extends StatelessWidget {
   final IconData icon;
   final bool isSelected;
   final bool isDark;
+  final Color primaryColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: isSelected
-          ? (AppColors.primary.withValues(alpha: 0.15))
+          ? (primaryColor.withValues(alpha: 0.15))
           : Colors.transparent,
       borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
       child: InkWell(
@@ -283,7 +292,7 @@ class _ThemeOptionTile extends StatelessWidget {
                 icon,
                 size: 28,
                 color: isSelected
-                    ? AppColors.primary
+                    ? primaryColor
                     : (isDark
                           ? AppColors.darkTextSecondary
                           : AppColors.textSecondary),
@@ -295,9 +304,9 @@ class _ThemeOptionTile extends StatelessWidget {
                 fontWeight: isSelected ? 700 : 500,
                 color: isDark
                     ? (isSelected
-                          ? AppColors.primary
+                          ? primaryColor
                           : AppColors.darkTextPrimary)
-                    : (isSelected ? AppColors.primary : AppColors.black500),
+                    : (isSelected ? primaryColor : AppColors.black500),
               ),
             ],
           ),

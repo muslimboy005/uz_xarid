@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -58,6 +59,7 @@ class _OrderPageState extends State<OrderPage> {
       return const Scaffold(body: Center(child: Text('Mahsulot topilmadi')));
     }
     final ad = widget.ad!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final AppLocalizations l = AppLocalizations.of(context)!;
     final bool isDark = context.isDark;
     final bg = context.bodyBackground;
@@ -79,7 +81,7 @@ class _OrderPageState extends State<OrderPage> {
                 content: Text(
                   'Muvaffaqiyatli!',
                 ), // l.actionSuccess might not exist
-                backgroundColor: AppColors.primary,
+                backgroundColor: primaryColor,
               ),
             );
             context.go('/home');
@@ -118,15 +120,15 @@ class _OrderPageState extends State<OrderPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               child: Column(
                 children: [
-                  _productCard(ad, price, curr, l, card, txt, txtSec, border),
+                  _productCard(ad, price, curr, l, card, txt, txtSec, border, primaryColor),
                   const SizedBox(height: 16),
-                  _deliveryCard(l, card, txt, txtSec, border),
+                  _deliveryCard(l, card, txt, txtSec, border, primaryColor),
                   const SizedBox(height: 16),
-                  _commentCard(l, card, txt, border),
+                  _commentCard(l, card, txt, border, primaryColor),
                 ],
               ),
             ),
-            bottomNavigationBar: _bottomBar(l, card, txt, border, isLoading),
+            bottomNavigationBar: _bottomBar(l, card, txt, border, isLoading, primaryColor),
           );
         },
       ),
@@ -142,6 +144,7 @@ class _OrderPageState extends State<OrderPage> {
     Color txt,
     Color txtSec,
     Color border,
+    Color primaryColor,
   ) {
     final img = ad.mainImage ?? (ad.images.isNotEmpty ? ad.images.first : null);
 
@@ -202,7 +205,7 @@ class _OrderPageState extends State<OrderPage> {
                   child: Switch(
                     value: _sendToAll,
                     onChanged: (v) => setState(() => _sendToAll = v),
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: primaryColor,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
@@ -310,6 +313,7 @@ class _OrderPageState extends State<OrderPage> {
     Color txt,
     Color txtSec,
     Color border,
+    Color primaryColor,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -342,11 +346,12 @@ class _OrderPageState extends State<OrderPage> {
               }
 
               if (state.addresses.isEmpty) {
-                return _buildEmptyAddressState(l, txt, txtSec);
+                return _buildEmptyAddressState(l, txt, txtSec, primaryColor);
               }
 
               return _buildAddressList(
                 state.addresses,
+                primaryColor,
                 card,
                 txt,
                 txtSec,
@@ -359,7 +364,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildEmptyAddressState(AppLocalizations l, Color txt, Color txtSec) {
+  Widget _buildEmptyAddressState(AppLocalizations l, Color txt, Color txtSec, Color primaryColor) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -372,8 +377,8 @@ class _OrderPageState extends State<OrderPage> {
           Container(
             width: 52,
             height: 52,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: primaryColor,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -430,6 +435,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Widget _buildAddressList(
     List<AddressModel> addresses,
+    Color primaryColor,
     Color cardColor,
     Color textColor,
     Color textSecondary,
@@ -454,7 +460,7 @@ class _OrderPageState extends State<OrderPage> {
               context.read<AddressBloc>().add(LoadAddressesEvent());
             }
           },
-          color: AppColors.primary,
+          color: primaryColor,
           radius: 8,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -490,11 +496,11 @@ class _OrderPageState extends State<OrderPage> {
                 });
               },
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.04)
+                  ? primaryColor.withValues(alpha: 0.04)
                   : cardColor,
               radius: 12,
               border: Border.all(
-                color: isSelected ? AppColors.primary : borderColor,
+                color: isSelected ? primaryColor : borderColor,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -505,7 +511,7 @@ class _OrderPageState extends State<OrderPage> {
                       padding: const EdgeInsets.only(top: 2),
                       child: AppImage(
                         path: AppAssets.mapLocation,
-                        color: AppColors.primary,
+                        color: primaryColor,
                         size: 24,
                       ),
                     ),
@@ -540,7 +546,7 @@ class _OrderPageState extends State<OrderPage> {
                           _selectedAddress = address;
                         });
                       },
-                      activeColor: AppColors.primary,
+                      activeColor: primaryColor,
                     ),
                   ],
                 ),
@@ -552,7 +558,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _commentCard(AppLocalizations l, Color card, Color txt, Color border) {
+  Widget _commentCard(AppLocalizations l, Color card, Color txt, Color border, Color primaryColor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -592,8 +598,8 @@ class _OrderPageState extends State<OrderPage> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
+                borderSide: BorderSide(
+                  color: primaryColor,
                   width: 1.5,
                 ),
               ),
@@ -612,6 +618,7 @@ class _OrderPageState extends State<OrderPage> {
     Color txt,
     Color border,
     bool isLoading,
+    Color primaryColor,
   ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -672,8 +679,8 @@ class _OrderPageState extends State<OrderPage> {
                           },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: AppColors.white,
-                      backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: AppColors.primary.withValues(
+                      backgroundColor: primaryColor,
+                      disabledBackgroundColor: primaryColor.withValues(
                         alpha: 0.5,
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 14),

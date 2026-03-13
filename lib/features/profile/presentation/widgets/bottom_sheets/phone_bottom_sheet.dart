@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -218,7 +218,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                       TextSpan(
                         text: l10n.loginPolicyLink,
                         style: TextStyle(
-                          color: AppColors.primary,
+                          color: context.watch<AppModeCubit>().state.primaryColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

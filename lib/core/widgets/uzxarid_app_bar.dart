@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
 
+import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/localization/locale_cubit.dart';
@@ -183,7 +184,12 @@ class _UzXaridAppBarContent extends StatelessWidget {
                           leading!,
                           const SizedBox(width: 8),
                         ],
-                        Image.asset('assets/images/uzxarid.png', height: 42),
+                        Image.asset(
+                          appMode == AppMode.buying
+                              ? AppAssets.logoAppBarBuying
+                              : AppAssets.logoAppBar,
+                          height: 42,
+                        ),
                         const Spacer(),
                         // _LanguageSelector(currentLocale: locale),
                         // const SizedBox(width: 12),
