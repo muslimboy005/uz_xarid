@@ -43,12 +43,18 @@ class PaymentPage extends StatelessWidget {
           child: SafeArea(
             child: BlocBuilder<PaymentBloc, PaymentState>(
               builder: (context, state) {
-                if (state.status == PaymentStatus.loading && state.plans == null) {
+                if (state.status == PaymentStatus.loading &&
+                    state.plans == null) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (state.status == PaymentStatus.failure && state.plans == null) {
-                  return Center(child: AppText(text: state.errorMessage ?? l10n.dataLoadError));
+                if (state.status == PaymentStatus.failure &&
+                    state.plans == null) {
+                  return Center(
+                    child: AppText(
+                      text: state.errorMessage ?? l10n.dataLoadError,
+                    ),
+                  );
                 }
 
                 final plans = state.plans?.data.results ?? [];
@@ -98,6 +104,7 @@ class PaymentPage extends StatelessWidget {
                                     return Column(
                                       children: [
                                         _buildTariffCard(
+                                          primaryColor: primaryColor,
                                           context: context,
                                           title: plan.name,
                                           price: plan.price,
@@ -123,7 +130,8 @@ class PaymentPage extends StatelessWidget {
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       AppText(
                                         text: 'История',
@@ -163,7 +171,9 @@ class PaymentPage extends StatelessWidget {
                                   const SizedBox(height: 16),
                                   if (history.isEmpty)
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 24),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 24,
+                                      ),
                                       child: Center(
                                         child: AppText(
                                           text: 'Tarix mavjud emas',
@@ -265,8 +275,12 @@ class PaymentPage extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      feature.isIncluded ? Icons.check_circle : Icons.cancel_outlined,
-                      color: feature.isIncluded ? AppColors.primary : AppColors.red,
+                      feature.isIncluded
+                          ? Icons.check_circle
+                          : Icons.cancel_outlined,
+                      color: feature.isIncluded
+                          ? AppColors.primary
+                          : AppColors.red,
                       size: 20,
                     ),
                     const SizedBox(width: 12),
@@ -288,7 +302,10 @@ class PaymentPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHistoryTable(BuildContext context, List<PlanHistoryItemModel> history) {
+  Widget _buildHistoryTable(
+    BuildContext context,
+    List<PlanHistoryItemModel> history,
+  ) {
     return ContainerW(
       color: context.cardSurface,
       radius: 12,
@@ -381,4 +398,3 @@ class PaymentPage extends StatelessWidget {
     );
   }
 }
-
