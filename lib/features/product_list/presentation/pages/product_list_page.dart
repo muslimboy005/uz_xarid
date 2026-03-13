@@ -63,12 +63,21 @@ class _ProductListPageState extends State<ProductListPage> {
   // Sort option: 0=Tanlangan(default), 1=Eng yangi, 2=Eng arzon, 3=Eng qimmat
   int _sortOption = 0;
   ProductFilterData? _activeFilter;
+  bool _initialLoadDone = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
     _loadSubcategoriesIfNeeded();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialLoadDone) {
+      _initialLoadDone = true;
+      _load();
+    }
   }
 
   /// categoryId bor, subcategories bo'sh va categoryType bor bo'lsa – daraxtdan bolalarni yuklaydi.
@@ -118,6 +127,8 @@ class _ProductListPageState extends State<ProductListPage> {
       _error = null;
     });
 
+    final mode = context.read<AppModeCubit>().state;
+    final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
     final filterParams = _buildFilterParams();
 
     final result = await getIt<GetProductList>()(
@@ -125,6 +136,7 @@ class _ProductListPageState extends State<ProductListPage> {
         searchQuery: widget.searchQuery,
         categoryId: widget.categoryId,
         listSource: widget.listSource,
+        adType: adType,
         filterParams: filterParams,
         sort: _activeSortValue, // passed to getRecommendations
       ),

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -359,9 +360,10 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           imageProvider = NetworkImage(url);
         }
 
+        final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
         final textColor = context.textPrimary;
         final avatarBg = context.isDark
-            ? AppColors.primary.withValues(alpha: 0.25)
+            ? primaryColor.withValues(alpha: 0.25)
             : AppColors.blue50;
         return Row(
           children: [
@@ -377,7 +379,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                         ? (exception, stackTrace) {}
                         : null,
                     child: imageProvider == null
-                        ? Icon(Icons.person, color: AppColors.primary, size: 36)
+                        ? Icon(Icons.person, color: primaryColor, size: 36)
                         : null,
                   ),
                   Positioned(
@@ -387,7 +389,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                       width: 22,
                       height: 22,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: primaryColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: context.cardSurface,
@@ -418,7 +420,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                       text: 'Выбрать из галереи',
                       fontSize: 13,
                       fontWeight: 400,
-                      color: AppColors.primary,
+                      color: primaryColor,
                     ),
                   ),
                 ],
@@ -618,7 +620,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.isDark
                     ? AppColors.darkBackground
-                    : AppColors.primary,
+                    : context.watch<AppModeCubit>().state.primaryColor,
                 foregroundColor: AppColors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

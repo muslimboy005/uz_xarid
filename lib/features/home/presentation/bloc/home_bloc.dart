@@ -40,6 +40,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           recommendations: data.recommendations,
           gifts: data.gifts,
           services: data.services,
+          lastAdType: event.adType,
         ),
       );
     } else if (result is Left<Failure, HomeEntity>) {
@@ -57,6 +58,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) {
     emit(state.copyWith(selectedIndex: event.index));
-    add(HomeRequested(categoryType: event.categoryType));
+    add(HomeRequested(
+      categoryType: event.categoryType,
+      adType: state.lastAdType,
+      pageSize: 16,
+    ));
   }
 }

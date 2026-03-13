@@ -1,17 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/constants/app_keys.dart';
 
 enum AppMode { selling, buying }
 
 class AppModeCubit extends Cubit<AppMode> {
   AppModeCubit() : super(AppMode.selling);
 
-  void setSelling() => emit(AppMode.selling);
-  void setBuying() => emit(AppMode.buying);
+  /// Saqlangan rejimni yuklaydi (ilova qayta ochilganda yoki hot restart).
+  Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(AppKeys.appModeKey);
+    if (saved == 'buying') {
+      emit(AppMode.buying);
+    } else if (saved == 'selling') {
+      emit(AppMode.selling);
+    }
+  }
+
+  Future<void> setSelling() async {
+    emit(AppMode.selling);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppKeys.appModeKey, 'selling');
+  }
+
+  Future<void> setBuying() async {
+    emit(AppMode.buying);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppKeys.appModeKey, 'buying');
+  }
+
   void toggle() =>
-      emit(state == AppMode.selling ? AppMode.buying : AppMode.selling);
+      state == AppMode.selling ? setBuying() : setSelling();
 }
 
 extension AppModeColor on AppMode {

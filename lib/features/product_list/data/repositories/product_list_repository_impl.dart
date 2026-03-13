@@ -32,6 +32,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
           : categoryId != null
           ? await _remoteDatasource.getByCategory(
               categoryId: categoryId,
+              adType: adType,
               filterParams: filterParams,
             )
           // When filters are active, always route through the /ad/ endpoint

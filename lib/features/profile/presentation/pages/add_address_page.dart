@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
@@ -96,6 +97,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     // final isDark = context.isDark;
     final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
@@ -168,7 +170,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                       child: Row(
                                         children: [
                                           ContainerW(
-                                            color: AppColors.primary,
+                                            color: primaryColor,
                                             radius: 20,
                                             child: const Padding(
                                               padding: EdgeInsets.all(8.0),
@@ -339,7 +341,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                     onTap: state.status == AddressStatus.loading
                         ? null
                         : _submit,
-                    color: AppColors.primary,
+                    color: primaryColor,
                     radius: 12,
                     width: double.infinity,
                     child: Padding(

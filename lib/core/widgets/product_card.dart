@@ -255,11 +255,14 @@ class ProductCard extends StatelessWidget {
                     elevation: 0,
                   ),
                   onPressed: () => _openDetail(context),
-                  child: Text(
-                    l10n.view,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      l10n.view,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ),
