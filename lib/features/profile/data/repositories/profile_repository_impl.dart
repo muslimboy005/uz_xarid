@@ -9,6 +9,7 @@ import 'package:uz_xarid/features/profile/domain/repositories/profile_repository
 import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
 import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileApi _profileDataSource;
@@ -328,6 +329,65 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ChatMessagesResponseModel>> getChatMessages(
+    int chatRoomId,
+    int page,
+    int pageSize,
+  ) async {
+    try {
+      final result = await _profileDataSource.getChatMessages(
+        chatRoomId,
+        page,
+        pageSize,
+      );
+      return Right(result);
+    } on DioException catch (e) {
+      String message = 'Ma\'lumot yuklashda xatolik';
+      if (e.response?.statusCode == 400) {
+        final data = e.response?.data;
+        message = 'Ruxsat berilmadi yoki xato so\'rov (400) [ID: $chatRoomId] - ${data.toString()}';
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        message = 'Internet aloqasi sekin';
+      }
+      return Left(ServerFailure(message));
+    } catch (e) {
+      return Left(ValidationFailure('Kutilmagan xato: ${e.toString().split('\n').first}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ChatMessagesResponseModel>> sendChatMessage(
+    dynamic data,
+  ) async {
+    try {
+      final result = await _profileDataSource.sendChatMessage(data);
+      return Right(result);
+    } on DioException catch (e) {
+      String message = 'Xabar yuborishda xatolik';
+      if (e.response?.statusCode == 400) {
+        final responseData = e.response?.data;
+        final errors = responseData?['data'];
+        // Detect "Chat room not found" specifically
+        if (errors is Map && errors['chat_room_id'] != null) {
+          final roomErrors = errors['chat_room_id'];
+          if (roomErrors is List && roomErrors.any((e) => e.toString().contains('not found'))) {
+            message = 'CHAT_ROOM_NOT_FOUND';
+          } else if (roomErrors is List && roomErrors.any((e) => e.toString().contains('Обязательное'))) {
+            message = 'CHAT_ROOM_NOT_FOUND';
+          } else {
+            message = 'Xato (400) [Send] - ${responseData.toString()}';
+          }
+        } else {
+          message = 'Xato (400) [Send] - ${responseData.toString()}';
+        }
+      }
+      return Left(ServerFailure(message));
+    } catch (e) {
+      return Left(ValidationFailure('Xabar yuborishda kutilmagan xato: ${e.toString().split('\n').first}'));
     }
   }
 }

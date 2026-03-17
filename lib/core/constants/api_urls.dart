@@ -36,6 +36,7 @@ class ApiUrls {
   static const String viewedAdsClear = 'viewed-ads/clear/';
   static const String plans = 'plan/';
   static const String planHistory = 'plan-order-history/';
+  static const String chatMessages = 'chat/messages/';
 
   /// Foydalanuvchi e'lonlari: GET ad/me/?status=active|pending|unpaid|inactive|rejected
   static const String myListings = 'ad/me/';

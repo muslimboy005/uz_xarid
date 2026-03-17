@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
@@ -81,7 +82,10 @@ class SupportPage extends StatelessWidget {
                       iconPath: AppAssets.chat,
                       title: l10n.supportChat,
                       onTap: () {
-                        // Plan: Implement chat or redirect to Telegram
+                        context.pushNamed(
+                          'support-chat',
+                          extra: {'chatRoomId': 0}, // Remove hardcoded 10, use 0 as placeholder
+                        );
                       },
                     ),
                     Divider(height: 1, color: borderColor, indent: 48),

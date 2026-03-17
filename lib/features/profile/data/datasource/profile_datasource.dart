@@ -7,6 +7,7 @@ import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
 import 'package:uz_xarid/features/profile/data/model/viewed_ads_response_model.dart';
 import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
 import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
 part 'profile_datasource.g.dart';
 
 @RestApi(baseUrl: ApiUrls.baseUrl)
@@ -89,5 +90,17 @@ abstract class ProfileApi {
   Future<PlanHistoryResponseModel> getPlanHistory(
     @Query('page') int page,
     @Query('page_size') int pageSize,
+  );
+
+  @GET(ApiUrls.chatMessages)
+  Future<ChatMessagesResponseModel> getChatMessages(
+    @Query('chat_room_id') int? chatRoomId,
+    @Query('page') int page,
+    @Query('page_size') int pageSize,
+  );
+
+  @POST(ApiUrls.chatMessages)
+  Future<ChatMessagesResponseModel> sendChatMessage(
+    @Body() dynamic body,
   );
 }

@@ -9,6 +9,7 @@ import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
 import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
 import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
 import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
 
 abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> sendOtp(String phone);
@@ -49,6 +50,16 @@ abstract class ProfileRepository {
   Future<Either<Failure, PlanHistoryResponseModel>> getPlanHistory(
     int page,
     int pageSize,
+  );
+
+  Future<Either<Failure, ChatMessagesResponseModel>> getChatMessages(
+    int chatRoomId,
+    int page,
+    int pageSize,
+  );
+
+  Future<Either<Failure, ChatMessagesResponseModel>> sendChatMessage(
+    dynamic data,
   );
 
   factory ProfileRepository(ProfileApi profileDataSource, Dio dio) =>
