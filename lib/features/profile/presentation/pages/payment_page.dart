@@ -104,6 +104,8 @@ class PaymentPage extends StatelessWidget {
                                           unit: "so'm, Oylik",
                                           isCurrentPlan: plan.isPurchased,
                                           features: plan.features,
+                                          primaryColor: primaryColor,
+                                          
                                         ),
                                         if (index != plans.length - 1)
                                           const SizedBox(height: 16),

@@ -34,6 +34,9 @@ import 'package:uz_xarid/features/profile/presentation/pages/add_address_map_pag
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart';
+import 'package:uz_xarid/features/profile/presentation/pages/support_chat_page.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_bloc.dart';
+import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_event.dart';
 import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
 import 'package:uz_xarid/features/author/presentation/pages/author_page.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
@@ -480,6 +483,26 @@ class AppRouter {
                 path: 'view-history',
                 name: 'profile-view-history',
                 builder: (context, state) => const ViewHistoryPage(),
+              ),
+              GoRoute(
+                path: 'support-chat',
+                name: 'support-chat',
+                parentNavigatorKey: _rootNavigatorKey,
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  final chatRoomId = extra?['chatRoomId'] ?? 0;
+                  return MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) => getIt<ChatBloc>()..add(GetChatMessagesEvent(chatRoomId: chatRoomId)),
+                      ),
+                      BlocProvider.value(
+                        value: getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
+                      ),
+                    ],
+                    child: SupportChatPage(chatRoomId: chatRoomId),
+                  );
+                },
               ),
               GoRoute(
                 path: 'settings',
