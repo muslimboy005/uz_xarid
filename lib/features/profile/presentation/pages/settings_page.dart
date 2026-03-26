@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
@@ -11,14 +12,62 @@ import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver {
   static const List<Locale> _supportedLocales = [
     Locale('uz'),
     Locale('ru'),
     Locale('en'),
   ];
+
+  final Map<Permission, PermissionStatus> _permissionStatuses = {
+    Permission.notification: PermissionStatus.denied,
+    Permission.camera: PermissionStatus.denied,
+    Permission.photos: PermissionStatus.denied,
+    Permission.locationWhenInUse: PermissionStatus.denied,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkPermissions();
+    }
+  }
+
+  Future<void> _checkPermissions() async {
+    final notification = await Permission.notification.status;
+    final camera = await Permission.camera.status;
+    final photos = await Permission.photos.status;
+    final location = await Permission.locationWhenInUse.status;
+
+    if (mounted) {
+      setState(() {
+        _permissionStatuses[Permission.notification] = notification;
+        _permissionStatuses[Permission.camera] = camera;
+        _permissionStatuses[Permission.photos] = photos;
+        _permissionStatuses[Permission.locationWhenInUse] = location;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +82,10 @@ class SettingsPage extends StatelessWidget {
       body: Container(
         color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -170,12 +220,59 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: AppDimens.paddingMedium),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.paddingMedium,
+                ),
+                child: ContainerW(
+                  color: isDark ? AppColors.darkCard : AppColors.white,
+                  radius: 16,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        _SettingsSectionTitle(
+                          title: 'Ruxsatlar',
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 8),
+                        _PermissionTile(
+                          icon: Icons.notifications_none,
+                          title: 'Bildirishnoma',
+                          status: _permissionStatuses[Permission.notification]!,
+                          isDark: isDark,
+                        ),
+                        _PermissionTile(
+                          icon: Icons.camera_alt_outlined,
+                          title: 'Kamera',
+                          status: _permissionStatuses[Permission.camera]!,
+                          isDark: isDark,
+                        ),
+                        _PermissionTile(
+                          icon: Icons.photo_library_outlined,
+                          title: 'Galereya',
+                          status: _permissionStatuses[Permission.photos]!,
+                          isDark: isDark,
+                        ),
+                        _PermissionTile(
+                          icon: Icons.location_on_outlined,
+                          title: 'Lokatsiya',
+                          status: _permissionStatuses[Permission.locationWhenInUse]!,
+                          isDark: isDark,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _SettingsSectionTitle extends StatelessWidget {
@@ -307,6 +404,70 @@ class _ThemeOptionTile extends StatelessWidget {
                           ? primaryColor
                           : AppColors.darkTextPrimary)
                     : (isSelected ? primaryColor : AppColors.black500),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PermissionTile extends StatelessWidget {
+  const _PermissionTile({
+    required this.icon,
+    required this.title,
+    required this.status,
+    required this.isDark,
+  });
+
+  final IconData icon;
+  final String title;
+  final PermissionStatus status;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isGranted = status.isGranted || status.isLimited;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => openAppSettings(),
+        borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                size: 24,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText(
+                      text: title,
+                      fontSize: 16,
+                      fontWeight: 500,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.black500,
+                    ),
+                    const SizedBox(height: 4),
+                    AppText(
+                      text: isGranted ? 'Ruxsat berilgan' : 'Ruxsat berilmagan',
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: isGranted ? AppColors.green : AppColors.textSecondary,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                size: 20,
               ),
             ],
           ),

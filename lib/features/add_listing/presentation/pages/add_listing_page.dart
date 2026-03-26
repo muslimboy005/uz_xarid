@@ -63,6 +63,7 @@ class _AddListingPageState extends State<AddListingPage> {
   late Future<bool> _authFuture;
 
   _ListingType _listingType = _ListingType.product;
+  String _adType = 'Sell';
   _NameLang _nameLang = _NameLang.uz;
   String _currency = 'UZS';
 
@@ -183,7 +184,21 @@ class _AddListingPageState extends State<AddListingPage> {
 
     return Scaffold(
       backgroundColor: AppColors.primary,
-      appBar: UzXaridAppBar(onSearchChanged: (_) {}, onMenuTap: () {}),
+      appBar: UzXaridAppBar(
+        onSearchChanged: (_) {},
+        onMenuTap: () {},
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.push('/soon');
+            },
+            icon: const Icon(
+              Icons.sync_alt,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Container(
           color: bodyBg,
@@ -355,6 +370,12 @@ class _AddListingPageState extends State<AddListingPage> {
       final u = ad.dimensionUnit!.toLowerCase();
       _dimensionUnit = (u == 'sm') ? 'cm' : u;
     }
+    if (ad.adType != null) {
+      final t = ad.adType!;
+      if (t == 'Sell' || t == 'Buy') {
+        _adType = t;
+      }
+    }
     if (ad.listingType != null) {
       switch (ad.listingType!) {
         case 'Product':
@@ -395,6 +416,12 @@ class _AddListingPageState extends State<AddListingPage> {
     _descEnController.text = '';
     _amountController.text = item.price ?? item.finalPrice ?? '';
     _currency = (item.currency).toUpperCase();
+    if (item.adType != null) {
+      final t = item.adType!;
+      if (t == 'Sell' || t == 'Buy') {
+        _adType = t;
+      }
+    }
     if (item.listingType != null) {
       switch (item.listingType!) {
         case 'Product':
@@ -538,6 +565,8 @@ class _AddListingPageState extends State<AddListingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _buildAdTypeTabs(cardColor, textColor, borderColor),
+                  const SizedBox(height: 16),
                   _buildTypeTabs(formContext, cardColor, textColor, borderColor),
                 const SizedBox(height: 16),
                 _buildSummaCard(
@@ -671,9 +700,7 @@ class _AddListingPageState extends State<AddListingPage> {
       _ListingType.car => 'Auto',
       _ListingType.home => 'Home',
     };
-    final adTypeStr = (isEdit && (adDetail?.adType ?? fallbackItem?.adType) != null)
-        ? (adDetail?.adType ?? fallbackItem!.adType)!
-        : 'Sell';
+    final adTypeStr = _adType;
     final existingMainUrl = isEdit
         ? (adDetail?.mainImage ?? fallbackItem?.mainImage)
         : null;
@@ -711,6 +738,53 @@ class _AddListingPageState extends State<AddListingPage> {
             AddListingCreateAdRequested(params),
           );
     }
+  }
+
+  // ─── AD TYPE TABS (Sell / Buy) ──────────────────────────────────
+
+  Widget _buildAdTypeTabs(Color cardColor, Color textColor, Color borderColor) {
+    const types = [
+      ('Sell', 'Sotaman'),
+      ('Buy', 'Sotib olaman'),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+        color: cardColor,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: types.map((e) {
+          final selected = _adType == e.$1;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _adType = e.$1;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.center,
+                child: AppText(
+                  text: e.$2,
+                  fontSize: 14,
+                  fontWeight: selected ? 600 : 500,
+                  color: selected ? AppColors.white : textColor,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 
   // ─── LISTING TYPE TABS (segmented) ──────────────────────────────

@@ -45,8 +45,8 @@ class CatalogCategoryTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
                   child: AppImage(
                     path: category.image!,
-                    width: 40,
-                    height: 40,
+                    width: 56,
+                    height: 56,
                     fit: BoxFit.cover,
                   ),
                 ),

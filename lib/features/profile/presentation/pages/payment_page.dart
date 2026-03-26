@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
@@ -111,8 +110,6 @@ class PaymentPage extends StatelessWidget {
                                           unit: "so'm, Oylik",
                                           isCurrentPlan: plan.isPurchased,
                                           features: plan.features,
-                                          primaryColor: primaryColor,
-                                          
                                         ),
                                         if (index != plans.length - 1)
                                           const SizedBox(height: 16),
