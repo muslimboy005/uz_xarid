@@ -9,6 +9,7 @@ import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/products_not_found_placeholder.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
 import 'package:uz_xarid/features/home/data/repositories/home_repository_impl.dart';
 import 'package:uz_xarid/features/home/domain/usecases/get_home.dart';
@@ -122,6 +123,68 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.paddingMedium,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: context.borderColor),
+                        color: context.cardSurface,
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => context.read<AppModeCubit>().setSelling(),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: context.watch<AppModeCubit>().state == AppMode.selling
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                alignment: Alignment.center,
+                                child: AppText(
+                                  text: 'Sotaman',
+                                  fontSize: 14,
+                                  fontWeight: context.watch<AppModeCubit>().state == AppMode.selling ? 600 : 500,
+                                  color: context.watch<AppModeCubit>().state == AppMode.selling ? AppColors.white : textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => context.read<AppModeCubit>().setBuying(),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: context.watch<AppModeCubit>().state == AppMode.buying
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                alignment: Alignment.center,
+                                child: AppText(
+                                  text: 'Sotib olaman',
+                                  fontSize: 14,
+                                  fontWeight: context.watch<AppModeCubit>().state == AppMode.buying ? 600 : 500,
+                                  color: context.watch<AppModeCubit>().state == AppMode.buying ? AppColors.white : textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDimens.paddingMedium,

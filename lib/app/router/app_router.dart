@@ -38,6 +38,7 @@ import 'package:uz_xarid/features/profile/presentation/pages/support_chat_page.d
 import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_event.dart';
 import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
+import 'package:uz_xarid/features/add_listing/presentation/pages/soon_page.dart';
 import 'package:uz_xarid/features/author/presentation/pages/author_page.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
 import 'package:uz_xarid/features/home/presentation/pages/support_menu_page.dart';
@@ -115,6 +116,11 @@ class AppRouter {
         path: '/search',
         name: 'search',
         builder: (context, state) => const SearchPage(),
+      ),
+      GoRoute(
+        path: '/soon',
+        name: 'soon',
+        builder: (context, state) => const SoonPage(),
       ),
       GoRoute(
         path: '/add-address',
