@@ -13,12 +13,14 @@ import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/core/widgets/cart_counter.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uz_xarid/core/widgets/product_card.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_bloc.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_event.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_state.dart';
@@ -27,6 +29,9 @@ import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/nam
 import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/otp_bottom_sheet.dart';
 import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/phone_bottom_sheet.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:uz_xarid/features/chat/presentation/pages/chat_room_page.dart';
 
 /// API dan kelgan sanani "26 Dek 2025" formatida qaytaradi (tilga qarab).
 String? _formatAuthorDate(String? raw, String localeCode) {
@@ -108,6 +113,7 @@ class ProductDetailPage extends StatelessWidget {
   const ProductDetailPage({super.key, required this.slug, this.fallbackAdItem});
 
   final String slug;
+
   /// 404 bo'lsa shu ma'lumotdan detail ko'rsatiladi (Mening e'lonlarimdan uzatiladi).
   final Object? fallbackAdItem;
 
@@ -315,6 +321,7 @@ class _ProductDetailBody extends StatefulWidget {
   const _ProductDetailBody({required this.ad, this.isOwnAd = false});
 
   final AdDetailEntity ad;
+
   /// Mening e'lonlarimdan 404 bo'lganda — muallif sifatida joriy profil ko'rsatiladi.
   final bool isOwnAd;
 
@@ -396,6 +403,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             _buildImageGallery(),
             const SizedBox(height: 12),
             _buildTitleSection(),
+            if (ad.attributes.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _buildVehicleAttributesSection(),
+            ],
             if (ad.colors.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildColorSection(),
@@ -412,6 +423,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             _buildSellerSection(),
             const SizedBox(height: 16),
             _buildTabSection(),
+            if (ad.latitude != null && ad.longitude != null) ...[
+              const SizedBox(height: 16),
+              _buildLocationSection(),
+            ],
             if (ad.similar.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildSimilarSection(),
@@ -468,36 +483,37 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     ),
                   ),
                 ),
+
                 // Video button
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.play_circle_fill,
-                      color: AppColors.white,
-                      size: 20,
-                    ),
-                    label: Text(
-                      AppLocalizations.of(context)!.productDetailWatchVideo,
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      elevation: 0,
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   bottom: 16,
+                //   left: 16,
+                //   child: ElevatedButton.icon(
+                //     onPressed: () {},
+                //     icon: const Icon(
+                //       Icons.play_circle_fill,
+                //       color: AppColors.white,
+                //       size: 20,
+                //     ),
+                //     label: Text(
+                //       AppLocalizations.of(context)!.productDetailWatchVideo,
+                //       style: TextStyle(
+                //         color: AppColors.white,
+                //         fontWeight: FontWeight.w600,
+                //       ),
+                //     ),
+                //     style: ElevatedButton.styleFrom(
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(10),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(
+                //         horizontal: 16,
+                //         vertical: 12,
+                //       ),
+                //       elevation: 0,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -530,9 +546,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       color: cardColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected
-                            ? _primaryColor
-                            : context.borderColor,
+                        color: isSelected ? _primaryColor : context.borderColor,
                         width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
@@ -598,6 +612,53 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           ).textTheme.bodyMedium?.copyWith(color: textSecondary),
         ),
       ],
+    );
+  }
+
+  /// Avto / mototexnika: API `attributes` (MARKA, MODEL, PROBEG …) — veb-saytdagi chip uslubi.
+  Widget _buildVehicleAttributesSection() {
+    if (ad.attributes.isEmpty) return const SizedBox.shrink();
+    final textPrimary = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+    final cardColor = context.cardSurface;
+    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: textSecondary,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.4,
+    );
+    final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+      color: textPrimary,
+      fontWeight: FontWeight.w700,
+      height: 1.25,
+    );
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: ad.attributes.map((a) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                a.label.toUpperCase(),
+                style: labelStyle,
+              ),
+              if (a.value.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(a.value, style: valueStyle),
+              ],
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -740,7 +801,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   Widget _buildPriceSection() {
     final hasDiscount =
         ad.price != null && ad.finalPrice != null && ad.price != ad.finalPrice;
-    final curr = (ad.currency ?? 'uzs') == 'uzs' ? 'сум' : ad.currency!;
+    final curr = (ad.currency ?? 'uzs') == 'uzs' ? AppLocalizations.of(context)!.currencySom : ad.currency!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -764,6 +825,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 
   Widget _buildActionButtons() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -771,7 +833,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           children: [
             Expanded(
               child: ContainerW(
-                onTap: () {},
+                onTap: () => _launchCaller(ad.userPhone),
                 radius: 12,
                 color: context.surfaceContainer,
                 child: Padding(
@@ -789,7 +851,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       const SizedBox(width: 8),
                       Flexible(
                         child: AppText(
-                          text: AppLocalizations.of(context)!.productDetailCall,
+                          text: l10n.productDetailCall,
                           fontWeight: 500,
                           fontSize: 16,
                           color: context.textPrimary,
@@ -803,7 +865,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             const SizedBox(width: 12),
             Expanded(
               child: ContainerW(
-                onTap: () {},
+                onTap: () => _launchTelegram(ad.userName),
                 color: context.surfaceContainer,
                 radius: 12,
                 child: Padding(
@@ -821,9 +883,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       const SizedBox(width: 8),
                       Flexible(
                         child: AppText(
-                          text: AppLocalizations.of(
-                            context,
-                          )!.productDetailTelegram,
+                          text: l10n.productDetailTelegram,
                           fontWeight: 500,
                           fontSize: 16,
                           color: context.textPrimary,
@@ -840,23 +900,90 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         const SizedBox(height: 12),
         ContainerW(
           width: double.infinity,
-          onTap: () => context.push('/ad/${ad.slug}/order', extra: ad),
-          color: _primaryColor,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChatRoomPage(
+                  adSlug: ad.slug,
+                  participantId: ad.userId ?? 0,
+                  participantName: ad.userName ?? ad.title,
+                ),
+              ),
+            );
+          },
+          color: context.surfaceContainer,
           radius: 12,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: AppText(
-                text: AppLocalizations.of(context)!.productDetailPlaceOrder,
-                fontWeight: 500,
-                fontSize: 16,
-                color: context.textWhite,
-              ),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  color: context.textPrimary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                AppText(
+                  text: l10n.productDetailChat,
+                  fontWeight: 500,
+                  fontSize: 16,
+                  color: context.textPrimary,
+                ),
+              ],
             ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 48,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: CartCounter(adSlug: ad.slug, height: 48),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ContainerW(
+                  onTap: () => context.push('/ad/${ad.slug}/order', extra: ad),
+                  color: _primaryColor,
+                  radius: 12,
+                  child: Center(
+                    child: AppText(
+                      text: l10n.productDetailPlaceOrder,
+                      fontWeight: 500,
+                      fontSize: 16,
+                      color: context.textWhite,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
+  }
+
+  void _launchCaller(String? phone) async {
+    if (phone == null || phone.isEmpty) return;
+    final Uri url = Uri.parse('tel:$phone');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
+  void _launchTelegram(String? username) async {
+    if (username == null || username.isEmpty) return;
+    final Uri url = Uri.parse('https://t.me/${username.replaceAll('@', '')}');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
   }
 
   Widget _buildSellerSection() {
@@ -876,7 +1003,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             final fullName = '${user.firstName} ${user.lastName}'.trim();
             displayName = fullName.isNotEmpty
                 ? fullName
-                : (user.username.isNotEmpty ? user.username : 'Mening profilim');
+                : (user.username.isNotEmpty
+                      ? user.username
+                      : 'Mening profilim');
           }
           final avatarUrl = user?.avatar ?? '';
           final hasAvatar = avatarUrl.isNotEmpty;
@@ -931,10 +1060,11 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                           children: [
                             Text(
                               displayName,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: textColor,
-                              ),
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: textColor,
+                                  ),
                             ),
                           ],
                         ),
@@ -1401,7 +1531,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         elevation: 0,
                       ),
                       child: Text(
-                        'Написать отзыв',
+                        AppLocalizations.of(context)!.reviewsWriteReview,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -1423,7 +1553,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Отзывы (${results.length})',
+                    '${l10n.reviewsCountTitle} (${results.length})',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: textColor,
@@ -1661,7 +1791,12 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: parentContext.watch<AppModeCubit>().state.primaryColor),
+                        borderSide: BorderSide(
+                          color: parentContext
+                              .watch<AppModeCubit>()
+                              .state
+                              .primaryColor,
+                        ),
                       ),
                     ),
                   ),
@@ -1757,6 +1892,181 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     );
   }
 
+  Widget _buildLocationSection() {
+    final lat = ad.latitude;
+    final lng = ad.longitude;
+    if (lat == null || lng == null) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context)!;
+    final textColor = context.textPrimary;
+    final cardColor = context.cardSurface;
+
+    return ContainerW(
+      color: cardColor,
+      radius: 16,
+      borderColor: context.borderColor,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.productDetailLocationTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 60,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: AppColors.orange,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (ad.address != null && ad.address!.isNotEmpty) ...[
+              Row(
+                children: [
+                  Icon(Icons.location_on_outlined, size: 18, color: context.textSecondary),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      ad.address!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                height: 220,
+                child: Stack(
+                  children: [
+                    YandexMap(
+                      onMapCreated: (YandexMapController controller) {
+                        controller.moveCamera(
+                          CameraUpdate.newCameraPosition(
+                            CameraPosition(
+                              target: Point(latitude: lat, longitude: lng),
+                              zoom: 13,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 36),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: _primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 3),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.location_on,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            CustomPaint(
+                              size: const Size(3, 12),
+                              painter: _PinStemPainter(color: _primaryColor),
+                            ),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: _primaryColor.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _LocationButton(
+                    icon: Icons.map_outlined,
+                    iconColor: const Color(0xFF34A853),
+                    label: 'Google Maps',
+                    onTap: () => _openGoogleMaps(lat, lng),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _LocationButton(
+                    icon: Icons.location_on,
+                    iconColor: const Color(0xFFFF3F3F),
+                    label: 'Yandex Maps',
+                    onTap: () => _openYandexMaps(lat, lng),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openGoogleMaps(double lat, double lng) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _openYandexMaps(double lat, double lng) async {
+    final uri = Uri.parse(
+      'yandexmaps://maps.yandex.ru/?pt=$lng,$lat&z=15&l=map',
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      final webUri = Uri.parse(
+        'https://yandex.com/maps/?pt=$lng,$lat&z=15&l=map',
+      );
+      if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      }
+    }
+  }
+
   Widget _buildSimilarSection() {
     final l10n = AppLocalizations.of(context)!;
     final textColor = context.textPrimary;
@@ -1799,7 +2109,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 280,
+          height: 300,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -1809,7 +2119,42 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final item = ad.similar[index];
-              return _SimilarCard(item: item);
+              return BlocBuilder<FavoritesBloc, FavoritesState>(
+                buildWhen: (prev, curr) =>
+                    prev.isLiked(item.slug) != curr.isLiked(item.slug),
+                builder: (context, likeState) {
+                  return ProductCard(
+                    slug: item.slug,
+                    title: item.title,
+                    mainImage: item.mainImage,
+                    price: item.price,
+                    finalPrice: item.finalPrice,
+                    currency: item.currency ?? 'uzs',
+                    rating: item.rating ?? 0.0,
+                    reviewCount: item.reviewCount ?? 0,
+                    width: 162,
+                    isLiked: likeState.isLiked(item.slug),
+                    onLikeTap: () {
+                      context.read<FavoritesBloc>().add(
+                        FavoritesToggleRequested(
+                          adSlug: item.slug,
+                          adForLocal: FavoriteItemEntity(
+                            slug: item.slug,
+                            title: item.title,
+                            mainImage: item.mainImage,
+                            price: item.price,
+                            finalPrice: item.finalPrice,
+                            currency: item.currency ?? 'uzs',
+                            rating: item.rating ?? 0.0,
+                            reviewCount: item.reviewCount ?? 0,
+                            isLiked: true,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             },
           ),
         ),
@@ -1818,217 +2163,78 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   }
 }
 
-class _SimilarCard extends StatelessWidget {
-  const _SimilarCard({required this.item});
 
-  final AdSimilarEntity item;
+class _LocationButton extends StatelessWidget {
+  const _LocationButton({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.onTap,
+  });
 
-  String _formatPrice(String? value) {
-    if (value == null || value.isEmpty) return '';
-    final intPart = value.split('.').first;
-    final buf = StringBuffer();
-    var count = 0;
-    for (var i = intPart.length - 1; i >= 0; i--) {
-      buf.write(intPart[i]);
-      count++;
-      if (count % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final curr = (item.currency ?? 'uzs') == 'uzs' ? 'сум' : item.currency!;
-    final textColor = context.textPrimary;
-    final textSecondary = context.textSecondary;
     final cardColor = context.cardSurface;
-    final borderColor = context.borderColor;
-    return GestureDetector(
-      onTap: () => context.push('/ad/${item.slug}'),
-      child: Container(
-        width: 180,
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 120,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: AppImage(
-                      path: item.mainImage ?? '',
-                      fit: BoxFit.cover,
-                      errorWidget: Container(
-                        color: context.surfaceContainer,
-                        child: Center(
-                          child: Icon(Icons.image, color: textSecondary),
-                        ),
-                      ),
-                    ),
+    final textColor = context.textPrimary;
+    return Material(
+      color: cardColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: context.borderColor),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 22, color: iconColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: BlocBuilder<FavoritesBloc, FavoritesState>(
-                      buildWhen: (prev, curr) =>
-                          prev.isLiked(item.slug) != curr.isLiked(item.slug),
-                      builder: (context, likeState) {
-                        final isLiked = likeState.isLiked(item.slug);
-                        return GestureDetector(
-                          onTap: () {
-                            context.read<FavoritesBloc>().add(
-                              FavoritesToggleRequested(
-                                adSlug: item.slug,
-                                adForLocal: FavoriteItemEntity(
-                                  slug: item.slug,
-                                  title: item.title,
-                                  mainImage: item.mainImage,
-                                  price: item
-                                      .finalPrice, // Assuming similar doesn't map price, just finalPrice
-                                  finalPrice: item.finalPrice,
-                                  currency: item.currency ?? 'uzs',
-                                  rating: item.rating ?? 0,
-                                  reviewCount: item.reviewCount ?? 0,
-                                  isLiked: true,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: context.surfaceContainer.withOpacity(0.9),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: isLiked ? AppColors.red : textSecondary,
-                              size: 16,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (item.rating != null) ...[
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star,
-                            size: 14,
-                            color: AppColors.orange,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            item.rating!.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                          ),
-                          if (item.reviewCount != null) ...[
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 12,
-                              color: context.watch<AppModeCubit>().state.primaryColor,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.productDetailReviewsCount(
-                                '${item.reviewCount}',
-                              ),
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: textSecondary),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-                    Text(
-                      item.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                        height: 1.3,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (item.price != null &&
-                        item.price != item.finalPrice) ...[
-                      Text(
-                        '${_formatPrice(item.price)} $curr',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: textSecondary,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                    ],
-                    if (item.finalPrice != null)
-                      Text(
-                        '${_formatPrice(item.finalPrice)} $curr',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.orange,
-                        ),
-                      ),
-                  ],
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-              child: SizedBox(
-                width: double.infinity,
-                height: 36,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/ad/${item.slug}'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 0,
-                    padding: EdgeInsets.zero,
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.view,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+class _PinStemPainter extends CustomPainter {
+  const _PinStemPainter({required this.color});
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = size.width
+      ..style = PaintingStyle.stroke;
+    canvas.drawLine(
+      Offset(size.width / 2, 0),
+      Offset(size.width / 2, size.height),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _DashedBorderPainter extends CustomPainter {

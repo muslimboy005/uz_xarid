@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/app/app.dart';
+import 'package:uz_xarid/core/app_config.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -10,8 +11,6 @@ Future<void> main() async {
   await Firebase.initializeApp();
   await FirebaseService.init();
   await setupDependencies();
+  AppConfig.packageName = null; // Standalone mode
   runApp(const UzXaridApp());
 }
-
-
-/// home page va barcha cardlarda 

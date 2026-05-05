@@ -12,9 +12,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     required FavoritesApi api,
     required FavoritesLocalDatasource localDatasource,
     required SecureStorageService secureStorage,
-  })  : _api = api,
-        _local = localDatasource,
-        _secure = secureStorage;
+  }) : _api = api,
+       _local = localDatasource,
+       _secure = secureStorage;
 
   final FavoritesApi _api;
   final FavoritesLocalDatasource _local;
@@ -37,7 +37,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         final status = res.data?.status ?? 'unliked';
         final isLiked = status == 'liked';
         final likesCount = res.data?.likesCount;
-        return Right(ToggleLikeResult(isLiked: isLiked, likesCount: likesCount));
+        return Right(
+          ToggleLikeResult(isLiked: isLiked, likesCount: likesCount),
+        );
       } on DioException catch (e) {
         final msg = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
         return Left(ServerFailure(message: msg));
@@ -53,11 +55,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         if (adForLocal != null) {
           await _local.addLiked(adForLocal);
         } else {
-          await _local.addLiked(FavoriteItemEntity(
-            slug: adSlug,
-            title: '',
-            isLiked: true,
-          ));
+          await _local.addLiked(
+            FavoriteItemEntity(slug: adSlug, title: '', isLiked: true),
+          );
         }
         return Right(ToggleLikeResult(isLiked: true));
       }
@@ -77,17 +77,19 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
           return Left(ServerFailure(message: 'Ma\'lumot olib bo\'lmadi'));
         }
         final list = (res.data.results ?? [])
-            .map((e) => FavoriteItemEntity(
-                  slug: e.ad.slug,
-                  title: e.ad.title,
-                  mainImage: e.ad.mainImage,
-                  price: e.ad.price,
-                  finalPrice: e.ad.finalPrice,
-                  currency: e.ad.currency ?? 'uzs',
-                  rating: e.ad.rating ?? 0,
-                  reviewCount: e.ad.reviewCount ?? 0,
-                  isLiked: true,
-                ))
+            .map(
+              (e) => FavoriteItemEntity(
+                slug: e.ad.slug,
+                title: e.ad.title,
+                mainImage: e.ad.mainImage,
+                price: e.ad.price,
+                finalPrice: e.ad.finalPrice,
+                currency: e.ad.currency ?? 'uzs',
+                rating: e.ad.rating ?? 0,
+                reviewCount: e.ad.reviewCount ?? 0,
+                isLiked: true,
+              ),
+            )
             .toList();
         return Right(list);
       } on DioException catch (e) {

@@ -4,10 +4,7 @@ import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity
 
 /// Toggle natijasi: yangi like holati va likes_count.
 class ToggleLikeResult {
-  const ToggleLikeResult({
-    required this.isLiked,
-    this.likesCount,
-  });
+  const ToggleLikeResult({required this.isLiked, this.likesCount});
   final bool isLiked;
   final int? likesCount;
 }

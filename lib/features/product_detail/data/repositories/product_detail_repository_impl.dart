@@ -15,7 +15,10 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
 
   @override
   Future<Either<Failure, AdDetailEntity>> getAdDetail(String slug) async {
-    developer.log('ProductDetailRepo: getAdDetail slug=$slug', name: 'ProductDetailRepo');
+    developer.log(
+      'ProductDetailRepo: getAdDetail slug=$slug',
+      name: 'ProductDetailRepo',
+    );
     try {
       final detailFuture = api.getAdDetail(slug);
       final similarFuture = api.getSimilar(slug);
@@ -31,7 +34,10 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
       );
 
       if (!detailResponse.status || detailResponse.data.slug.isEmpty) {
-        developer.log('ProductDetailRepo: getAdDetail invalid response', name: 'ProductDetailRepo');
+        developer.log(
+          'ProductDetailRepo: getAdDetail invalid response',
+          name: 'ProductDetailRepo',
+        );
         return Left(ServerFailure(message: 'Ma\'lumot topilmadi'));
       }
 
@@ -89,7 +95,9 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
             .toList(),
         images: [
           if (d.mainImage != null && d.mainImage!.isNotEmpty) d.mainImage!,
-          ...(d.images ?? []).map((e) => e.image),
+          ...(d.images ?? [])
+              .where((e) => e.image != null)
+              .map((e) => e.image!),
         ],
         colors: (d.colors ?? [])
             .map(
@@ -106,9 +114,20 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
             isAvailable: (d.variants?.isEmpty ?? true) ? true : available,
           );
         }).toList(),
+        attributes: (d.attributes ?? [])
+            .map(
+              (e) => AdAttributeEntity(label: e.label, value: e.value),
+            )
+            .toList(),
         similar: similarList,
+        latitude: d.latitude,
+        longitude: d.longitude,
+        address: d.address,
       );
-      developer.log('ProductDetailRepo: getAdDetail success entity.slug=${entity.slug}', name: 'ProductDetailRepo');
+      developer.log(
+        'ProductDetailRepo: getAdDetail success entity.slug=${entity.slug}',
+        name: 'ProductDetailRepo',
+      );
       return Right(entity);
     } on DioException catch (e) {
       final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';

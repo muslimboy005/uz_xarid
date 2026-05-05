@@ -37,7 +37,11 @@ class AdDetailEntity extends Equatable {
     this.images = const [],
     this.colors = const [],
     this.sizes = const [],
+    this.attributes = const [],
     this.similar = const [],
+    this.latitude,
+    this.longitude,
+    this.address,
   });
 
   final String slug;
@@ -74,7 +78,12 @@ class AdDetailEntity extends Equatable {
   final List<String> images;
   final List<AdColorEntity> colors;
   final List<AdSizeEntity> sizes;
+  /// Avto / mototexnika: MARKA, MODEL, PROBEG va hokazo (API `attributes`).
+  final List<AdAttributeEntity> attributes;
   final List<AdSimilarEntity> similar;
+  final double? latitude;
+  final double? longitude;
+  final String? address;
 
   @override
   List<Object?> get props => [
@@ -111,7 +120,11 @@ class AdDetailEntity extends Equatable {
     images,
     colors,
     sizes,
+    attributes,
     similar,
+    latitude,
+    longitude,
+    address,
   ];
 }
 
@@ -123,6 +136,16 @@ class AdOptionEntity extends Equatable {
 
   @override
   List<Object?> get props => [name, value];
+}
+
+class AdAttributeEntity extends Equatable {
+  const AdAttributeEntity({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  List<Object?> get props => [label, value];
 }
 
 class AdColorEntity extends Equatable {

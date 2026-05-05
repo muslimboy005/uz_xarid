@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:uz_xarid/core/constants/api_urls.dart';
 import 'package:uz_xarid/core/either/either.dart';
 import 'package:uz_xarid/core/error/failure.dart';
 import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dart';
@@ -24,7 +25,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, ProfileModel>> sendOtp(String phone) async {
     try {
-      final result = await _profileDataSource.sendOtp({'phone': phone});
+      final body = await _buildOtpRequestBody(phone);
+      final result = await _profileDataSource.sendOtp(body);
       return Right(result);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? 'Network error'));
@@ -98,7 +100,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, ProfileModel>> resendOtp(String phone) async {
     try {
-      final result = await _profileDataSource.resendOtp({'phone': phone});
+      final body = await _buildOtpRequestBody(phone);
+      final result = await _profileDataSource.resendOtp(body);
       return Right(result);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? 'Network error'));
@@ -349,13 +352,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
       String message = 'Ma\'lumot yuklashda xatolik';
       if (e.response?.statusCode == 400) {
         final data = e.response?.data;
-        message = 'Ruxsat berilmadi yoki xato so\'rov (400) [ID: $chatRoomId] - ${data.toString()}';
+        message =
+            'Ruxsat berilmadi yoki xato so\'rov (400) [ID: $chatRoomId] - ${data.toString()}';
       } else if (e.type == DioExceptionType.connectionTimeout) {
         message = 'Internet aloqasi sekin';
       }
       return Left(ServerFailure(message));
     } catch (e) {
-      return Left(ValidationFailure('Kutilmagan xato: ${e.toString().split('\n').first}'));
+      return Left(
+        ValidationFailure('Kutilmagan xato: ${e.toString().split('\n').first}'),
+      );
     }
   }
 
@@ -374,9 +380,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
         // Detect "Chat room not found" specifically
         if (errors is Map && errors['chat_room_id'] != null) {
           final roomErrors = errors['chat_room_id'];
-          if (roomErrors is List && roomErrors.any((e) => e.toString().contains('not found'))) {
+          if (roomErrors is List &&
+              roomErrors.any((e) => e.toString().contains('not found'))) {
             message = 'CHAT_ROOM_NOT_FOUND';
-          } else if (roomErrors is List && roomErrors.any((e) => e.toString().contains('Обязательное'))) {
+          } else if (roomErrors is List &&
+              roomErrors.any((e) => e.toString().contains('Обязательное'))) {
             message = 'CHAT_ROOM_NOT_FOUND';
           } else {
             message = 'Xato (400) [Send] - ${responseData.toString()}';
@@ -387,7 +395,39 @@ class ProfileRepositoryImpl implements ProfileRepository {
       }
       return Left(ServerFailure(message));
     } catch (e) {
-      return Left(ValidationFailure('Xabar yuborishda kutilmagan xato: ${e.toString().split('\n').first}'));
+      return Left(
+        ValidationFailure(
+          'Xabar yuborishda kutilmagan xato: ${e.toString().split('\n').first}',
+        ),
+      );
     }
+  }
+
+  Future<Map<String, dynamic>> _buildOtpRequestBody(String phone) async {
+    final body = <String, dynamic>{'phone': phone};
+    final offerId = await _getActiveOfferId();
+    if (offerId != null) {
+      body['offer_id'] = offerId;
+      body['offer_accepted'] = true;
+    }
+    return body;
+  }
+
+  Future<int?> _getActiveOfferId() async {
+    final response = await _dio.get(ApiUrls.activeOffer);
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      final directId = data['id'];
+      if (directId is int) return directId;
+      if (directId is String) return int.tryParse(directId);
+
+      final nestedData = data['data'];
+      if (nestedData is Map<String, dynamic>) {
+        final nestedId = nestedData['id'];
+        if (nestedId is int) return nestedId;
+        if (nestedId is String) return int.tryParse(nestedId);
+      }
+    }
+    return null;
   }
 }

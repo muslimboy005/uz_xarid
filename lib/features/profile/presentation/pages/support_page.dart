@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:uz_xarid/core/app_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
@@ -14,10 +15,7 @@ class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
 
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     }
@@ -32,10 +30,7 @@ class SupportPage extends StatelessWidget {
     final borderColor = context.borderColor;
 
     return Scaffold(
-      appBar: UzXaridAppBar(
-        onSearchChanged: (query) {},
-        onMenuTap: () {},
-      ),
+      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       backgroundColor: bodyBg,
       body: SafeArea(
         child: Column(
@@ -54,7 +49,11 @@ class SupportPage extends StatelessWidget {
                         padding: const EdgeInsets.all(10.0),
                         child: SvgPicture.asset(
                           AppAssets.backDropleft,
-                          colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn),
+                          package: AppConfig.packageName,
+                          colorFilter: ColorFilter.mode(
+                            textColor,
+                            BlendMode.srcIn,
+                          ),
                           height: 20,
                         ),
                       ),
@@ -84,7 +83,9 @@ class SupportPage extends StatelessWidget {
                       onTap: () {
                         context.pushNamed(
                           'support-chat',
-                          extra: {'chatRoomId': 0}, // Remove hardcoded 10, use 0 as placeholder
+                          extra: {
+                            'chatRoomId': 0,
+                          }, // Remove hardcoded 10, use 0 as placeholder
                         );
                       },
                     ),
@@ -133,7 +134,11 @@ class _SupportItem extends StatelessWidget {
           children: [
             SvgPicture.asset(
               iconPath,
-              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+              package: AppConfig.packageName,
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary,
+                BlendMode.srcIn,
+              ),
               height: 24,
             ),
             const SizedBox(width: 16),
@@ -156,8 +161,9 @@ class _SupportItem extends StatelessWidget {
             ],
             SvgPicture.asset(
               AppAssets.backDropright,
+              package: AppConfig.packageName,
               colorFilter: ColorFilter.mode(
-                isDark ? Colors.white54 : Colors.black26, 
+                isDark ? Colors.white54 : Colors.black26,
                 BlendMode.srcIn,
               ),
               height: 14,

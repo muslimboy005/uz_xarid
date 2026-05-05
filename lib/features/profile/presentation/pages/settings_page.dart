@@ -19,7 +19,8 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver {
+class _SettingsPageState extends State<SettingsPage>
+    with WidgetsBindingObserver {
   static const List<Locale> _supportedLocales = [
     Locale('uz'),
     Locale('ru'),
@@ -78,7 +79,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (_) {}, onMenuTap: () {}),
-      
+
       body: Container(
         color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
@@ -86,193 +87,197 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: ContainerW(
-                        color: isDark ? AppColors.darkCard : AppColors.white,
-                        radius: 8,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            size: 16,
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.black500,
+                SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: ContainerW(
+                          color: isDark ? AppColors.darkCard : AppColors.white,
+                          radius: 8,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Icon(
+                              Icons.arrow_back_ios_new,
+                              size: 16,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.black500,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AppText(
-                        text: l10n.settingsTitle,
-                        fontSize: 20,
-                        fontWeight: 700,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.black500,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppText(
+                          text: l10n.settingsTitle,
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.black500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppDimens.paddingLarge),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: ContainerW(
+                    color: isDark ? AppColors.darkCard : AppColors.white,
+                    radius: 16,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          _SettingsSectionTitle(
+                            title: l10n.settingsLanguage,
+                            isDark: isDark,
+                          ),
+                          const SizedBox(height: 8),
+                          ..._supportedLocales.map((locale) {
+                            final currentLocale = context
+                                .watch<LocaleCubit>()
+                                .state;
+                            final isSelected =
+                                currentLocale.languageCode ==
+                                locale.languageCode;
+                            return _LanguageTile(
+                              locale: locale,
+                              isSelected: isSelected,
+                              isDark: isDark,
+                              primaryColor: primaryColor,
+                              onTap: () {
+                                context.read<LocaleCubit>().change(locale);
+                              },
+                            );
+                          }),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.paddingLarge),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.paddingMedium,
-                ),
-                child: ContainerW(
-                  color: isDark ? AppColors.darkCard : AppColors.white,
-                  radius: 16,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        _SettingsSectionTitle(
-                          title: l10n.settingsLanguage,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 8),
-                        ..._supportedLocales.map((locale) {
-                          final currentLocale = context
-                              .watch<LocaleCubit>()
-                              .state;
-                          final isSelected =
-                              currentLocale.languageCode == locale.languageCode;
-                          return _LanguageTile(
-                            locale: locale,
-                            isSelected: isSelected,
+                const SizedBox(height: AppDimens.paddingMedium),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: ContainerW(
+                    color: isDark ? AppColors.darkCard : AppColors.white,
+                    radius: 16,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          _SettingsSectionTitle(
+                            title: l10n.settingsTheme,
                             isDark: isDark,
-                            primaryColor: primaryColor,
-                            onTap: () {
-                              context.read<LocaleCubit>().change(locale);
+                          ),
+                          const SizedBox(height: 8),
+                          BlocBuilder<ThemeCubit, ThemeMode>(
+                            builder: (context, themeMode) {
+                              final isDarkMode = themeMode == ThemeMode.dark;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: _ThemeOptionTile(
+                                      label: l10n.settingsThemeLight,
+                                      icon: Icons.light_mode_outlined,
+                                      isSelected: !isDarkMode,
+                                      isDark: isDark,
+                                      primaryColor: primaryColor,
+                                      onTap: () {
+                                        context.read<ThemeCubit>().setThemeMode(
+                                          ThemeMode.light,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _ThemeOptionTile(
+                                      label: l10n.settingsThemeDark,
+                                      icon: Icons.dark_mode_outlined,
+                                      isSelected: isDarkMode,
+                                      isDark: isDark,
+                                      primaryColor: primaryColor,
+                                      onTap: () {
+                                        context.read<ThemeCubit>().setThemeMode(
+                                          ThemeMode.dark,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
                             },
-                          );
-                        }),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.paddingMedium),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.paddingMedium,
-                ),
-                child: ContainerW(
-                  color: isDark ? AppColors.darkCard : AppColors.white,
-                  radius: 16,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        _SettingsSectionTitle(
-                          title: l10n.settingsTheme,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 8),
-                        BlocBuilder<ThemeCubit, ThemeMode>(
-                          builder: (context, themeMode) {
-                            final isDarkMode = themeMode == ThemeMode.dark;
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: _ThemeOptionTile(
-                                    label: l10n.settingsThemeLight,
-                                    icon: Icons.light_mode_outlined,
-                                    isSelected: !isDarkMode,
-                                    isDark: isDark,
-                                    primaryColor: primaryColor,
-                                    onTap: () {
-                                      context.read<ThemeCubit>().setThemeMode(
-                                        ThemeMode.light,
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: _ThemeOptionTile(
-                                    label: l10n.settingsThemeDark,
-                                    icon: Icons.dark_mode_outlined,
-                                    isSelected: isDarkMode,
-                                    isDark: isDark,
-                                    primaryColor: primaryColor,
-                                    onTap: () {
-                                      context.read<ThemeCubit>().setThemeMode(
-                                        ThemeMode.dark,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
+                const SizedBox(height: AppDimens.paddingMedium),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: ContainerW(
+                    color: isDark ? AppColors.darkCard : AppColors.white,
+                    radius: 16,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          _SettingsSectionTitle(
+                            title: l10n.permissionsTitle,
+                            isDark: isDark,
+                          ),
+                          const SizedBox(height: 8),
+                          _PermissionTile(
+                            icon: Icons.notifications_none,
+                            title: l10n.permissionNotification,
+                            status:
+                                _permissionStatuses[Permission.notification]!,
+                            isDark: isDark,
+                          ),
+                          _PermissionTile(
+                            icon: Icons.camera_alt_outlined,
+                            title: l10n.permissionCamera,
+                            status: _permissionStatuses[Permission.camera]!,
+                            isDark: isDark,
+                          ),
+                          _PermissionTile(
+                            icon: Icons.photo_library_outlined,
+                            title: l10n.permissionGallery,
+                            status: _permissionStatuses[Permission.photos]!,
+                            isDark: isDark,
+                          ),
+                          _PermissionTile(
+                            icon: Icons.location_on_outlined,
+                            title: l10n.permissionLocation,
+                            status:
+                                _permissionStatuses[Permission
+                                    .locationWhenInUse]!,
+                            isDark: isDark,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.paddingMedium),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.paddingMedium,
-                ),
-                child: ContainerW(
-                  color: isDark ? AppColors.darkCard : AppColors.white,
-                  radius: 16,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        _SettingsSectionTitle(
-                          title: 'Ruxsatlar',
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 8),
-                        _PermissionTile(
-                          icon: Icons.notifications_none,
-                          title: 'Bildirishnoma',
-                          status: _permissionStatuses[Permission.notification]!,
-                          isDark: isDark,
-                        ),
-                        _PermissionTile(
-                          icon: Icons.camera_alt_outlined,
-                          title: 'Kamera',
-                          status: _permissionStatuses[Permission.camera]!,
-                          isDark: isDark,
-                        ),
-                        _PermissionTile(
-                          icon: Icons.photo_library_outlined,
-                          title: 'Galereya',
-                          status: _permissionStatuses[Permission.photos]!,
-                          isDark: isDark,
-                        ),
-                        _PermissionTile(
-                          icon: Icons.location_on_outlined,
-                          title: 'Lokatsiya',
-                          status: _permissionStatuses[Permission.locationWhenInUse]!,
-                          isDark: isDark,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _SettingsSectionTitle extends StatelessWidget {
@@ -400,9 +405,7 @@ class _ThemeOptionTile extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: isSelected ? 700 : 500,
                 color: isDark
-                    ? (isSelected
-                          ? primaryColor
-                          : AppColors.darkTextPrimary)
+                    ? (isSelected ? primaryColor : AppColors.darkTextPrimary)
                     : (isSelected ? primaryColor : AppColors.black500),
               ),
             ],
@@ -428,6 +431,7 @@ class _PermissionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bool isGranted = status.isGranted || status.isLimited;
     return Material(
       color: Colors.transparent,
@@ -440,7 +444,9 @@ class _PermissionTile extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
                 size: 24,
               ),
               const SizedBox(width: 16),
@@ -452,21 +458,27 @@ class _PermissionTile extends StatelessWidget {
                       text: title,
                       fontSize: 16,
                       fontWeight: 500,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.black500,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.black500,
                     ),
                     const SizedBox(height: 4),
                     AppText(
-                      text: isGranted ? 'Ruxsat berilgan' : 'Ruxsat berilmagan',
+                      text: isGranted ? l10n.permissionGranted : l10n.permissionDenied,
                       fontSize: 12,
                       fontWeight: 400,
-                      color: isGranted ? AppColors.green : AppColors.textSecondary,
+                      color: isGranted
+                          ? AppColors.green
+                          : AppColors.textSecondary,
                     ),
                   ],
                 ),
               ),
               Icon(
                 Icons.chevron_right,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
                 size: 20,
               ),
             ],

@@ -47,7 +47,9 @@ class SizeDropdownField extends StatelessWidget {
             color: surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: hasError ? Theme.of(context).colorScheme.error : borderColor,
+              color: hasError
+                  ? Theme.of(context).colorScheme.error
+                  : borderColor,
             ),
           ),
           child: DropdownButtonHideUnderline(
@@ -80,7 +82,10 @@ class SizeDropdownField extends StatelessWidget {
                       fontWeight: 400,
                       color: textSecondary,
                     ),
-              icon: Icon(Icons.keyboard_arrow_down_rounded, color: textSecondary),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: textSecondary,
+              ),
               items: items
                   .map(
                     (s) => DropdownMenuItem<int>(

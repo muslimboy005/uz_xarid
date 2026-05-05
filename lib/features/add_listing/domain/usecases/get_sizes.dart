@@ -4,7 +4,8 @@ import 'package:uz_xarid/core/usecases/usecase.dart';
 import 'package:uz_xarid/features/add_listing/domain/entities/size_entity.dart';
 import 'package:uz_xarid/features/add_listing/domain/repositories/listing_repository.dart';
 
-class GetSizes extends UseCase<Either<Failure, List<SizeEntity>>, GetSizesParams> {
+class GetSizes
+    extends UseCase<Either<Failure, List<SizeEntity>>, GetSizesParams> {
   GetSizes(this.repository);
 
   final ListingRepository repository;

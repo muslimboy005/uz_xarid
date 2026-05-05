@@ -120,7 +120,17 @@ class _OrderPageState extends State<OrderPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               child: Column(
                 children: [
-                  _productCard(ad, price, curr, l, card, txt, txtSec, border, primaryColor),
+                  _productCard(
+                    ad,
+                    price,
+                    curr,
+                    l,
+                    card,
+                    txt,
+                    txtSec,
+                    border,
+                    primaryColor,
+                  ),
                   const SizedBox(height: 16),
                   _deliveryCard(l, card, txt, txtSec, border, primaryColor),
                   const SizedBox(height: 16),
@@ -128,7 +138,14 @@ class _OrderPageState extends State<OrderPage> {
                 ],
               ),
             ),
-            bottomNavigationBar: _bottomBar(l, card, txt, border, isLoading, primaryColor),
+            bottomNavigationBar: _bottomBar(
+              l,
+              card,
+              txt,
+              border,
+              isLoading,
+              primaryColor,
+            ),
           );
         },
       ),
@@ -364,7 +381,12 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildEmptyAddressState(AppLocalizations l, Color txt, Color txtSec, Color primaryColor) {
+  Widget _buildEmptyAddressState(
+    AppLocalizations l,
+    Color txt,
+    Color txtSec,
+    Color primaryColor,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -470,7 +492,7 @@ class _OrderPageState extends State<OrderPage> {
                 const Icon(Icons.add, color: AppColors.white, size: 20),
                 const SizedBox(width: 8),
                 AppText(
-                  text: 'Добавить',
+                  text: AppLocalizations.of(context)!.addressAdd,
                   fontSize: 16,
                   fontWeight: 500,
                   color: AppColors.white,
@@ -523,7 +545,7 @@ class _OrderPageState extends State<OrderPage> {
                           AppText(
                             text: address.name.isNotEmpty
                                 ? address.name
-                                : 'Адрес ${index + 1}',
+                                : AppLocalizations.of(context)!.addressIndexLabel(index + 1),
                             fontSize: 16,
                             fontWeight: 600,
                             color: textColor,
@@ -558,7 +580,13 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _commentCard(AppLocalizations l, Color card, Color txt, Color border, Color primaryColor) {
+  Widget _commentCard(
+    AppLocalizations l,
+    Color card,
+    Color txt,
+    Color border,
+    Color primaryColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -598,10 +626,7 @@ class _OrderPageState extends State<OrderPage> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: primaryColor,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: primaryColor, width: 1.5),
               ),
               contentPadding: const EdgeInsets.all(14),
               alignLabelWithHint: true,
@@ -656,16 +681,27 @@ class _OrderPageState extends State<OrderPage> {
               child: BlocBuilder<OrderCreateCubit, OrderCreateState>(
                 builder: (context, state) {
                   final profileState = context.watch<ProfileBloc>().state;
-                  final isProfileLoading = profileState.status == ProfileStatus.loading;
+                  final isProfileLoading =
+                      profileState.status == ProfileStatus.loading;
                   final user = profileState.profileModel?.data.user;
-                  final hasProfileNames = user != null && user.firstName.isNotEmpty;
+                  final hasProfileNames =
+                      user != null && user.firstName.isNotEmpty;
 
                   return ElevatedButton(
-                    onPressed: isLoading || isProfileLoading || _selectedAddress == null || !hasProfileNames
+                    onPressed:
+                        isLoading ||
+                            isProfileLoading ||
+                            _selectedAddress == null ||
+                            !hasProfileNames
                         ? null
                         : () {
                             FocusScope.of(context).unfocus();
-                            final profile = context.read<ProfileBloc>().state.profileModel?.data.user;
+                            final profile = context
+                                .read<ProfileBloc>()
+                                .state
+                                .profileModel
+                                ?.data
+                                .user;
                             final req = OrderCreateDto(
                               adSlug: widget.ad!.slug,
                               quantity: _quantity,

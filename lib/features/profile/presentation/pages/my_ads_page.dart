@@ -84,7 +84,14 @@ class MyAdsPage extends StatelessWidget {
               textSecondary,
               borderColor,
             ),
-            _buildTabs(context, l10n, primaryColor, cardColor, textColor, borderColor),
+            _buildTabs(
+              context,
+              l10n,
+              primaryColor,
+              cardColor,
+              textColor,
+              borderColor,
+            ),
             Expanded(
               child: BlocBuilder<MyAdsBloc, MyAdsState>(
                 builder: (context, state) {
@@ -104,7 +111,12 @@ class MyAdsPage extends StatelessWidget {
                     );
                   }
                   if (state.list.isEmpty) {
-                    return _buildEmptyState(l10n, primaryColor, textColor, textSecondary);
+                    return _buildEmptyState(
+                      l10n,
+                      primaryColor,
+                      textColor,
+                      textSecondary,
+                    );
                   }
                   return _buildGrid(
                     context,
@@ -266,7 +278,12 @@ class MyAdsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(AppLocalizations l10n, Color primaryColor, Color textColor, Color textSecondary) {
+  Widget _buildEmptyState(
+    AppLocalizations l10n,
+    Color primaryColor,
+    Color textColor,
+    Color textSecondary,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -340,7 +357,11 @@ class MyAdsPage extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmDialog(BuildContext context, AppLocalizations l10n, String slug) {
+  void _showDeleteConfirmDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+    String slug,
+  ) {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -353,9 +374,7 @@ class MyAdsPage extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.red,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.red),
             child: Text(l10n.myAdsDelete),
           ),
         ],
@@ -534,7 +553,10 @@ class _MyAdCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: AppText(
-                                  text: _formatListingType(l10n, item.listingType),
+                                  text: _formatListingType(
+                                    l10n,
+                                    item.listingType,
+                                  ),
                                   fontSize: 10,
                                   fontWeight: 500,
                                   color: Colors.white,

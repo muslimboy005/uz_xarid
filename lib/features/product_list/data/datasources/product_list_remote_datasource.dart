@@ -28,6 +28,7 @@ abstract class ProductListRemoteDatasource {
     int page = 1,
     int pageSize = 10,
     String adType = 'Buy',
+    String? listingType,
     Map<String, dynamic>? filterParams,
   });
 
@@ -35,6 +36,7 @@ abstract class ProductListRemoteDatasource {
     Map<String, dynamic>? filterParams,
     int pageSize = 100,
     String? adType,
+    String? listingType,
   });
 }
 
@@ -95,6 +97,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
     int page = 1,
     int pageSize = 10,
     String adType = 'Buy',
+    String? listingType,
     Map<String, dynamic>? filterParams,
   }) async {
     final response = await catalogApi.getAds(
@@ -102,6 +105,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
       page: page,
       pageSize: pageSize,
       adType: adType,
+      listingType: listingType,
       extraParams: filterParams,
     );
     return response.data.results.map(_fromCatalogAdItemDto).toList();
@@ -112,10 +116,12 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
     Map<String, dynamic>? filterParams,
     int pageSize = 100,
     String? adType,
+    String? listingType,
   }) async {
     final extra = <String, dynamic>{
       if (filterParams != null) ...filterParams,
       'ad_type': ?adType,
+      'listing_type': ?listingType,
     };
     final response = await catalogApi.getAds(
       pageSize: pageSize,

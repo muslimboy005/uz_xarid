@@ -18,4 +18,11 @@ abstract class CatalogRepository {
     int page = 1,
     int pageSize = 10,
   });
+
+  /// Berilgan turkum ostidagi podturkumlar (API v2, sahifalangan).
+  Future<Either<Failure, List<CategoryEntity>>> getCategoryChildren({
+    required int parentCategoryId,
+    int pageSize = 12,
+    int page = 1,
+  });
 }

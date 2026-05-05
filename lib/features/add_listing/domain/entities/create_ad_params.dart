@@ -23,6 +23,13 @@ class CreateAdParams {
     this.height,
     this.dimensionUnit,
     this.weightUnit,
+    this.latitude,
+    this.longitude,
+    this.address,
+    this.regionId,
+    this.districtId,
+    this.neighborhoodId,
+    this.dynamicFields = const {},
   });
 
   final String title;
@@ -38,10 +45,13 @@ class CreateAdParams {
   final String currency;
   final String? mainImagePath;
   final List<String> additionalImagePaths;
+
   /// Tahrirlash rejimida e'lon slug'i.
   final String? slug;
+
   /// Tahrirlashda mavjud asosiy rasm URL (o'zgartirilmaganda).
   final String? existingMainImageUrl;
+
   /// Tahrirlashda mavjud qo'shimcha rasm URL lar.
   final List<String> existingImageUrls;
   final String? weight;
@@ -50,4 +60,11 @@ class CreateAdParams {
   final String? height;
   final String? dimensionUnit;
   final String? weightUnit;
+  final double? latitude;
+  final double? longitude;
+  final String? address;
+  final int? regionId;
+  final int? districtId;
+  final int? neighborhoodId;
+  final Map<String, dynamic> dynamicFields;
 }

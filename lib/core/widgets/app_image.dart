@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:uz_xarid/core/app_config.dart';
 
 enum ImageType { svg, png, jpg, jpeg, gif, webp, network }
 
@@ -60,6 +61,7 @@ class GlobalImageWidget extends StatelessWidget {
           width: width,
           height: height,
           fit: fit,
+          package: AppConfig.packageName,
           colorFilter: color != null
               ? ColorFilter.mode(color!, BlendMode.srcIn)
               : null,
@@ -84,6 +86,7 @@ class GlobalImageWidget extends StatelessWidget {
           width: width,
           height: height,
           fit: fit,
+          package: AppConfig.packageName,
           color: color,
           errorBuilder: (context, error, stackTrace) =>
               errorWidget ?? _defaultErrorWidget(),

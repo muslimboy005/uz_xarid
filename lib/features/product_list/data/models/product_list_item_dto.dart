@@ -1,3 +1,4 @@
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 /// Mahsulot ro'yxati elementining DTO si (tavsiyalar yoki turkum API javobidan).
@@ -32,9 +33,10 @@ class ProductListItemDto {
     return ProductListItemDto(
       slug: json['slug'] ?? '',
       title: json['title'] ?? '',
-      mainImage: json['main_image'] ?? json['mainImage'],
+      mainImage: ImageParser.parse(json['main_image'] ?? json['mainImage']),
       price: json['price']?.toString(),
-      finalPrice: json['final_price']?.toString() ?? json['finalPrice']?.toString(),
+      finalPrice:
+          json['final_price']?.toString() ?? json['finalPrice']?.toString(),
       currency: json['currency'] ?? 'uzs',
       rating: (json['rating'] ?? 0).toDouble(),
       reviewCount: json['review_count'] ?? json['reviewCount'] ?? 0,

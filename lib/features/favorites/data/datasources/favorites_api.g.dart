@@ -12,7 +12,7 @@ part of 'favorites_api.dart';
 
 class _FavoritesApi implements FavoritesApi {
   _FavoritesApi(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://uzxarid.felixits.uz/api/v1/';
+    baseUrl ??= 'https://api.uzxarid.uz/api/v1/';
   }
 
   final Dio _dio;

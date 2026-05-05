@@ -33,10 +33,7 @@ class HomeSubCategoryCard extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: AppImage(
-                path: category.image ?? '',
-                fit: BoxFit.cover,
-              ),
+              child: AppImage(path: category.image ?? '', fit: BoxFit.cover),
             ),
           ),
           const SizedBox(height: 6),

@@ -79,8 +79,10 @@ class AppAssets {
 
   // PNG (agar kerak bo'lsa)
   static const String logo = '${_png}logo.png';
+
   /// AppBar logosi — Sotaman rejimi
   static const String logoAppBar = '${_png}uzxarid.png';
+
   /// AppBar logosi — Sotib olaman rejimi
   static const String logoAppBarBuying = '${_png}uzxarid2.png';
   static const String businessImage = '${_png}business_image.png';

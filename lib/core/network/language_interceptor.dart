@@ -10,11 +10,11 @@ class LanguageInterceptor extends Interceptor {
   final AppLocaleHolder _localeHolder;
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
-    options.headers['Accept-Language'] = _localeHolder.languageCode;
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final current = _localeHolder.languageCode.toLowerCase();
+    const supported = ['uz', 'ru', 'en'];
+    final ordered = <String>[current, ...supported.where((e) => e != current)];
+    options.headers['Accept-Language'] = ordered.join(', ');
     handler.next(options);
   }
 }

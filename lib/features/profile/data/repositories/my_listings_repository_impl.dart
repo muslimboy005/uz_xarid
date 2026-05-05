@@ -31,11 +31,11 @@ class MyListingsRepositoryImpl implements MyListingsRepository {
     } on DioException catch (e) {
       final msg = e.response?.data is Map
           ? (e.response?.data as Map)['message'] ??
-              (e.response?.data as Map)['detail']
+                (e.response?.data as Map)['detail']
           : null;
-      return Left(ServerFailure(
-        message: msg?.toString() ?? e.message ?? 'Tarmoq xatosi',
-      ));
+      return Left(
+        ServerFailure(message: msg?.toString() ?? e.message ?? 'Tarmoq xatosi'),
+      );
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
@@ -52,11 +52,11 @@ class MyListingsRepositoryImpl implements MyListingsRepository {
     } on DioException catch (e) {
       final msg = e.response?.data is Map
           ? (e.response?.data as Map)['message'] ??
-              (e.response?.data as Map)['detail']
+                (e.response?.data as Map)['detail']
           : null;
-      return Left(ServerFailure(
-        message: msg?.toString() ?? e.message ?? 'Tarmoq xatosi',
-      ));
+      return Left(
+        ServerFailure(message: msg?.toString() ?? e.message ?? 'Tarmoq xatosi'),
+      );
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

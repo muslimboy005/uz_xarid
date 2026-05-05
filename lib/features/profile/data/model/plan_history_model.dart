@@ -7,10 +7,7 @@ class PlanHistoryResponseModel {
   final bool status;
   final PlanHistoryData data;
 
-  PlanHistoryResponseModel({
-    required this.status,
-    required this.data,
-  });
+  PlanHistoryResponseModel({required this.status, required this.data});
 
   factory PlanHistoryResponseModel.fromJson(Map<String, dynamic> json) =>
       _$PlanHistoryResponseModelFromJson(json);

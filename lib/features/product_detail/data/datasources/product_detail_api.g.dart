@@ -12,7 +12,7 @@ part of 'product_detail_api.dart';
 
 class _ProductDetailApi implements ProductDetailApi {
   _ProductDetailApi(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://uzxarid.felixits.uz/api/v1/';
+    baseUrl ??= 'https://api.uzxarid.uz/api/v1/';
   }
 
   final Dio _dio;

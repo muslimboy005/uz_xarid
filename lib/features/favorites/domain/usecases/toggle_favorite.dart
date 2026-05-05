@@ -11,6 +11,5 @@ class ToggleFavorite {
   Future<Either<Failure, ToggleLikeResult>> call({
     required String adSlug,
     FavoriteItemEntity? adForLocal,
-  }) =>
-      _repository.toggle(adSlug: adSlug, adForLocal: adForLocal);
+  }) => _repository.toggle(adSlug: adSlug, adForLocal: adForLocal);
 }

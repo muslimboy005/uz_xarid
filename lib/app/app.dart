@@ -10,6 +10,8 @@ import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/localization/locale_cubit.dart';
 import 'package:uz_xarid/core/theme/app_theme.dart';
 import 'package:uz_xarid/core/theme/theme_cubit.dart';
+import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:uz_xarid/features/cart/presentation/bloc/cart_event.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
@@ -26,6 +28,9 @@ class UzXaridApp extends StatelessWidget {
         BlocProvider(
           create: (_) =>
               getIt<FavoritesBloc>()..add(const FavoritesLoadListRequested()),
+        ),
+        BlocProvider(
+          create: (_) => getIt<CartBloc>()..add(CartLoadRequested()),
         ),
       ],
       child: const _AppView(),

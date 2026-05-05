@@ -1,13 +1,25 @@
 import 'package:dio/dio.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
+import 'package:uz_xarid/core/dp/infection.dart';
+import 'package:uz_xarid/core/service/auth_action_service.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorageService secureStorageService;
 
-  static const _publicEndpoints = ['auth/send-code', 'auth/confirm'];
+  static const _publicEndpoints = [
+    'auth/send-code',
+    'auth/confirm',
+    'home/',
+    'banners/',
+    'categories/',
+    'products/',
+    'ads/',
+    'search/',
+  ];
   static const _refreshEndpoint = 'internal/auth/token/refresh/';
 
   bool _isRefreshing = false;
+  bool _isAuthenticating = false;
   final _pendingRequests =
       <({RequestOptions options, ErrorInterceptorHandler handler})>[];
 
@@ -20,7 +32,7 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor(this.secureStorageService) {
     _refreshDio = Dio(
       BaseOptions(
-        baseUrl: 'https://uzxarid.felixits.uz/api/v1/',
+        baseUrl: 'https://api.uzxarid.uz/api/v1/',
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         headers: {
@@ -32,7 +44,7 @@ class AuthInterceptor extends Interceptor {
 
     _retryDio = Dio(
       BaseOptions(
-        baseUrl: 'https://uzxarid.felixits.uz/api/v1/',
+        baseUrl: 'https://api.uzxarid.uz/api/v1/',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
       ),
@@ -46,10 +58,28 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // Faqat options ga token qo'shilmagan bo'lsa qo'shamiz
-    // (retry'da options.headers ga allaqachon yangi token bor bo'ladi)
+    final token = await secureStorageService.getToken();
+
+    if (options.path.contains('chat/') && (token == null || token.isEmpty)) {
+      // Proactive login ONLY for chat endpoints if token is completely missing
+      final success = await getIt<AuthActionService>().ensureAuthenticated();
+      if (success) {
+        final newToken = await secureStorageService.getToken();
+        if (newToken != null) {
+          options.headers['Authorization'] = 'Bearer $newToken';
+        }
+        return handler.next(options);
+      } else {
+        return handler.reject(
+          DioException(
+            requestOptions: options,
+            error: 'Authentication required for chat',
+          ),
+        );
+      }
+    }
+
     if (!_isPublic(options.path) && options.headers['Authorization'] == null) {
-      final token = await secureStorageService.getToken();
       if (token != null && token.isNotEmpty) {
         options.headers['Authorization'] = 'Bearer $token';
       }
@@ -74,13 +104,18 @@ class AuthInterceptor extends Interceptor {
     final path = err.requestOptions.path;
 
     // Refresh endpointida 401 bo'lsa — refresh token ham eskirgan
-    if (path.contains(_refreshEndpoint) || _isPublic(path)) {
-      await secureStorageService.clearAll();
+    if (path.contains(_refreshEndpoint)) {
+      _isRefreshing = false;
+      await _handleUnauthorized(err, handler);
+      return;
+    }
+
+    if (_isPublic(path)) {
       return handler.next(err);
     }
 
-    // Allaqachon refresh qilinmoqda — navbatga qo'shamiz
-    if (_isRefreshing) {
+    // Allaqachon refresh qilinmoqda yoki login ko'rsatilmoqda — navbatga qo'shamiz
+    if (_isRefreshing || _isAuthenticating) {
       _pendingRequests.add((options: err.requestOptions, handler: handler));
       return;
     }
@@ -92,9 +127,13 @@ class AuthInterceptor extends Interceptor {
 
       if (refreshToken == null || refreshToken.isEmpty) {
         _isRefreshing = false;
-        await secureStorageService.clearAll();
-        _rejectAll(err);
-        return handler.next(err);
+        if (path.contains('chat/')) {
+          await _handleUnauthorized(err, handler);
+        } else {
+          await secureStorageService.clearAll();
+          return handler.next(err);
+        }
+        return;
       }
 
       final response = await _refreshDio.post(
@@ -106,9 +145,13 @@ class AuthInterceptor extends Interceptor {
 
       if (newAccess == null || newAccess.isEmpty) {
         _isRefreshing = false;
-        await secureStorageService.clearAll();
-        _rejectAll(err);
-        return handler.next(err);
+        if (path.contains('chat/')) {
+          await _handleUnauthorized(err, handler);
+        } else {
+          await secureStorageService.clearAll();
+          return handler.next(err);
+        }
+        return;
       }
 
       // Yangi tokenni saqlash
@@ -125,9 +168,41 @@ class AuthInterceptor extends Interceptor {
       return handler.resolve(retried);
     } catch (_) {
       _isRefreshing = false;
-      await secureStorageService.clearAll();
+      if (path.contains('chat/')) {
+        await _handleUnauthorized(err, handler);
+      } else {
+        await secureStorageService.clearAll();
+        return handler.next(err);
+      }
+    }
+  }
+
+  Future<void> _handleUnauthorized(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (_isAuthenticating) {
+      _pendingRequests.add((options: err.requestOptions, handler: handler));
+      return;
+    }
+
+    _isAuthenticating = true;
+    _pendingRequests.add((options: err.requestOptions, handler: handler));
+
+    final success = await getIt<AuthActionService>().ensureAuthenticated();
+
+    if (success) {
+      final newToken = await secureStorageService.getToken();
+      if (newToken != null) {
+        _isAuthenticating = false;
+        _retryAll(newToken);
+      } else {
+        _isAuthenticating = false;
+        _rejectAll(err);
+      }
+    } else {
+      _isAuthenticating = false;
       _rejectAll(err);
-      return handler.next(err);
     }
   }
 

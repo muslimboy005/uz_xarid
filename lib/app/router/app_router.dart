@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
+import 'package:uz_xarid/core/dio/dio_client.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/home/presentation/pages/home_page.dart';
 import 'package:uz_xarid/features/catalog/presentation/pages/catalog_page.dart';
+import 'package:uz_xarid/features/catalog/domain/usecases/get_categories.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.dart';
 import 'package:uz_xarid/features/product_list/presentation/pages/product_list_page.dart';
 import 'package:uz_xarid/features/profile/data/model/address_model.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_event.dart';
 import 'package:uz_xarid/features/search/presentation/pages/search_page.dart';
+import 'package:uz_xarid/features/cart/presentation/pages/cart_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/pages/favorites_page.dart';
+import 'package:uz_xarid/features/favorites/presentation/pages/keraklilar_page.dart';
+import 'package:uz_xarid/features/chat/presentation/pages/chat_list_page.dart';
+import 'package:uz_xarid/features/chat/presentation/pages/chat_room_page.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uz_xarid/features/product_detail/presentation/pages/order_page.dart';
@@ -37,14 +44,18 @@ import 'package:uz_xarid/features/profile/presentation/pages/settings_page.dart'
 import 'package:uz_xarid/features/profile/presentation/pages/support_chat_page.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_event.dart';
+import 'package:uz_xarid/features/contracts/presentation/pages/contracts_page.dart';
+import 'package:uz_xarid/features/contracts/presentation/pages/document_detail_page.dart';
 import 'package:uz_xarid/features/add_listing/presentation/pages/add_listing_page.dart';
 import 'package:uz_xarid/features/add_listing/presentation/pages/soon_page.dart';
 import 'package:uz_xarid/features/author/presentation/pages/author_page.dart';
 import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
+import 'package:uz_xarid/features/feedback/data/feedback_repository.dart';
+import 'package:uz_xarid/features/feedback/presentation/pages/feedback_page.dart';
 import 'package:uz_xarid/features/home/presentation/pages/support_menu_page.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(
@@ -54,14 +65,16 @@ final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(
 class AppRouter {
   const AppRouter._();
 
+  static GlobalKey<NavigatorState> get navigatorKey => rootNavigatorKey;
+
   static final GoRouter router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/home',
     routes: [
       GoRoute(
         path: '/support-menu',
         name: 'support-menu',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SupportMenuPage(),
       ),
       GoRoute(
@@ -88,10 +101,12 @@ class AppRouter {
               return MultiBlocProvider(
                 providers: [
                   BlocProvider(
-                    create: (_) => getIt<AddressBloc>()..add(LoadAddressesEvent()),
+                    create: (_) =>
+                        getIt<AddressBloc>()..add(LoadAddressesEvent()),
                   ),
                   BlocProvider(
-                    create: (_) => getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
+                    create: (_) =>
+                        getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
                   ),
                 ],
                 child: OrderPage(ad: ad),
@@ -111,6 +126,12 @@ class AppRouter {
             child: AuthorPage(userId: userId),
           );
         },
+      ),
+      GoRoute(
+        path: '/cart',
+        name: 'cart',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const CartPage(),
       ),
       GoRoute(
         path: '/search',
@@ -205,121 +226,7 @@ class AppRouter {
         builder: (context, state, child) {
           final String location = state.uri.path;
           final int currentIndex = _getIndexFromLocation(location);
-          final l10n = AppLocalizations.of(context)!;
-          final theme = Theme.of(context);
-          final isDark = theme.brightness == Brightness.dark;
-          final appMode = context.watch<AppModeCubit>().state;
-          final barColor = isDark ? AppColors.darkSurface : AppColors.surface;
-          final selectedColor = appMode.primaryColor;
-          final unselectedColor = isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.textSecondary;
-
-          return Scaffold(
-            body: child,
-            bottomNavigationBar: Builder(
-              builder: (context) {
-                final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-                return Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Container(
-                      height: 62 + bottomPadding,
-                      decoration: BoxDecoration(
-                        color: barColor,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, -2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 62,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _NavItem(
-                                    icon: Icons.home_outlined,
-                                    label: l10n.navHome,
-                                    isSelected: currentIndex == 0,
-                                    selectedColor: selectedColor,
-                                    unselectedColor: unselectedColor,
-                                    onTap: () => _onItemTapped(context, 0),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _NavItem(
-                                    icon: Icons.menu,
-                                    label: l10n.navCatalog,
-                                    isSelected: currentIndex == 1,
-                                    selectedColor: selectedColor,
-                                    unselectedColor: unselectedColor,
-                                    onTap: () => _onItemTapped(context, 1),
-                                  ),
-                                ),
-                                const Expanded(child: SizedBox.shrink()),
-                                Expanded(
-                                  child: _NavItem(
-                                    icon: Icons.favorite_border,
-                                    label: l10n.navFavorites,
-                                    isSelected: currentIndex == 2,
-                                    selectedColor: selectedColor,
-                                    unselectedColor: unselectedColor,
-                                    onTap: () => _onItemTapped(context, 2),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _NavItem(
-                                    icon: Icons.person_outline,
-                                    label: l10n.navProfile,
-                                    isSelected: currentIndex == 3,
-                                    selectedColor: selectedColor,
-                                    unselectedColor: unselectedColor,
-                                    onTap: () => _onItemTapped(context, 3),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: bottomPadding),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 31 + bottomPadding,
-                      child: Material(
-                        elevation: 6,
-                        shadowColor: selectedColor.withValues(alpha: 0.4),
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          onTap: () => context.go('/add-listing'),
-                          customBorder: const CircleBorder(),
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: selectedColor,
-                            ),
-                            child: const Icon(
-                              Icons.add,
-                              color: AppColors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          );
+          return ScaffoldWithNavBar(currentIndex: currentIndex, child: child);
         },
         routes: [
           GoRoute(
@@ -347,12 +254,44 @@ class AppRouter {
             },
           ),
           GoRoute(
-            path: '/favorites',
-            name: 'favorites',
+            path: '/keraklilar',
+            name: 'keraklilar',
             pageBuilder: (context, state) => NoTransitionPage(
-              key: const ValueKey('shell-favorites'),
-              child: const FavoritesPage(),
+              key: const ValueKey('shell-keraklilar'),
+              child: const KeraklilarPage(),
             ),
+            routes: [
+              GoRoute(
+                path: 'favorites',
+                name: 'keraklilar-favorites',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) => BlocProvider<FavoritesBloc>.value(
+                  value: context.read<FavoritesBloc>(),
+                  child: const FavoritesPage(),
+                ),
+              ),
+              GoRoute(
+                path: 'chats',
+                name: 'keraklilar-chats',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) => const ChatListPage(),
+                routes: [
+                  GoRoute(
+                    path: 'room',
+                    name: 'chat-room',
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>;
+                      return ChatRoomPage(
+                        adSlug: extra['adSlug'] as String,
+                        participantId: extra['participantId'] as int,
+                        participantName: extra['participantName'] as String,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
           GoRoute(
             path: '/add-listing',
@@ -382,7 +321,9 @@ class AppRouter {
                     child: BlocProvider<ProfileBloc>(
                       create: (_) {
                         final bloc = getIt<ProfileBloc>();
-                        getIt<SecureStorageService>().hasToken().then((hasToken) {
+                        getIt<SecureStorageService>().hasToken().then((
+                          hasToken,
+                        ) {
                           if (hasToken) bloc.add(const ProfileLoadEvent());
                         });
                         return bloc;
@@ -445,8 +386,9 @@ class AppRouter {
                 path: 'my-ads',
                 name: 'profile-my-ads',
                 builder: (context, state) => BlocProvider(
-                  create: (_) => getIt<MyAdsBloc>()
-                    ..add(const MyAdsLoadRequested('active')),
+                  create: (_) =>
+                      getIt<MyAdsBloc>()
+                        ..add(const MyAdsLoadRequested('active')),
                   child: const MyAdsPage(),
                 ),
               ),
@@ -454,6 +396,20 @@ class AppRouter {
                 path: 'my-orders',
                 name: 'profile-my-orders',
                 builder: (context, state) => const MyOrdersPage(),
+              ),
+              GoRoute(
+                path: 'contracts',
+                name: 'profile-contracts',
+                builder: (context, state) => const ContractsPage(),
+              ),
+              GoRoute(
+                path: 'contracts/:id',
+                name: 'profile-contract-detail',
+                builder: (context, state) {
+                  final idStr = state.pathParameters['id'] ?? '0';
+                  final documentId = int.tryParse(idStr) ?? 0;
+                  return DocumentDetailPage(documentId: documentId);
+                },
               ),
               // GoRoute(
               //   path: 'favorites',
@@ -486,6 +442,16 @@ class AppRouter {
                 builder: (context, state) => const SupportPage(),
               ),
               GoRoute(
+                path: 'feedback',
+                name: 'profile-feedback',
+                builder: (context, state) => FeedbackPage(
+                  repository: FeedbackRepository(
+                    dio: getIt<DioClient>().dio,
+                    getCategories: getIt<GetCategories>(),
+                  ),
+                ),
+              ),
+              GoRoute(
                 path: 'view-history',
                 name: 'profile-view-history',
                 builder: (context, state) => const ViewHistoryPage(),
@@ -493,17 +459,19 @@ class AppRouter {
               GoRoute(
                 path: 'support-chat',
                 name: 'support-chat',
-                parentNavigatorKey: _rootNavigatorKey,
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) {
                   final extra = state.extra as Map<String, dynamic>?;
                   final chatRoomId = extra?['chatRoomId'] ?? 0;
                   return MultiBlocProvider(
                     providers: [
                       BlocProvider(
-                        create: (_) => getIt<ChatBloc>()..add(GetChatMessagesEvent(chatRoomId: chatRoomId)),
+                        create: (_) => getIt<ChatBloc>()
+                          ..add(GetChatMessagesEvent(chatRoomId: chatRoomId)),
                       ),
                       BlocProvider.value(
-                        value: getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
+                        value: getIt<ProfileBloc>()
+                          ..add(const ProfileLoadEvent()),
                       ),
                     ],
                     child: SupportChatPage(chatRoomId: chatRoomId),
@@ -530,18 +498,28 @@ class AppRouter {
     ],
   );
 
+  /// App1 SDK removed, fallback to home.
+  static void openApp1(BuildContext context) {
+    context.go('/home');
+  }
+
+  /// App2 SDK removed, fallback to home.
+  static void openApp2(BuildContext context) {
+    context.go('/home');
+  }
+
   static int _getIndexFromLocation(String location) {
-    if (location.startsWith('/add-listing')) {
-      return -1;
-    }
     if (location.startsWith('/catalog')) {
       return 1;
     }
-    if (location.startsWith('/favorites')) {
+    if (location.startsWith('/add-listing')) {
       return 2;
     }
-    if (location.startsWith('/profile')) {
+    if (location.startsWith('/keraklilar')) {
       return 3;
+    }
+    if (location.startsWith('/profile')) {
+      return 4;
     }
     return 0;
   }
@@ -555,68 +533,137 @@ class AppRouter {
         context.go('/catalog');
         break;
       case 2:
-        context.go('/favorites');
+        context.go('/add-listing');
         break;
       case 3:
+        context.go('/keraklilar');
+        break;
+      case 4:
         context.go('/profile');
         break;
     }
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.selectedColor,
-    required this.unselectedColor,
-    required this.onTap,
+class ScaffoldWithNavBar extends StatefulWidget {
+  const ScaffoldWithNavBar({
+    super.key,
+    required this.child,
+    required this.currentIndex,
   });
 
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final Color selectedColor;
-  final Color unselectedColor;
-  final VoidCallback onTap;
+  final Widget child;
+  final int currentIndex;
+
+  @override
+  State<ScaffoldWithNavBar> createState() => _ScaffoldWithNavBarState();
+}
+
+class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
+  late NotchBottomBarController _controller;
+  int? _lastColorArgb;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = NotchBottomBarController(index: widget.currentIndex);
+  }
+
+  @override
+  void didUpdateWidget(covariant ScaffoldWithNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentIndex != widget.currentIndex) {
+      _controller.jumpTo(widget.currentIndex);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? selectedColor : unselectedColor;
-    return InkWell(
-      onTap: onTap,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 24, color: color),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final appMode = context.watch<AppModeCubit>().state;
+    final barColor = isDark ? AppColors.darkSurface : AppColors.surface;
+    final selectedColor = appMode.primaryColor;
+    final unselectedColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    if (_lastColorArgb != null && _lastColorArgb != selectedColor.toARGB32()) {
+      final oldController = _controller;
+      _controller = NotchBottomBarController(index: widget.currentIndex);
+      oldController.dispose();
+    }
+    _lastColorArgb = selectedColor.toARGB32();
+
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      body: widget.child,
+      extendBody: false,
+      bottomNavigationBar: SafeArea(
+        child: AnimatedNotchBottomBar(
+          key: ValueKey(selectedColor.toARGB32()),
+          notchBottomBarController: _controller,
+          color: barColor,
+          showLabel: true,
+          notchColor: selectedColor,
+          removeMargins: true,
+          showBottomRadius: false,
+          showTopRadius: false,
+          bottomBarWidth: 500.0,
+          showShadow: true,
+          durationInMilliSeconds: 300,
+          elevation: 8,
+          kBottomRadius: 28.0,
+          kIconSize: 24.0,
+          itemLabelStyle: TextStyle(
+            color: unselectedColor,
+            fontSize: 10.0,
+            fontWeight: FontWeight.w500,
           ),
+          bottomBarItems: [
+            BottomBarItem(
+              inActiveItem: Icon(Icons.home_outlined, color: unselectedColor),
+              activeItem: const Icon(Icons.home_filled, color: Colors.white),
+              itemLabel: l10n.navHome,
+            ),
+            BottomBarItem(
+              inActiveItem: Icon(Icons.menu, color: unselectedColor),
+              activeItem: const Icon(Icons.menu, color: Colors.white),
+              itemLabel: l10n.navCatalog,
+            ),
+            // Add Listing - markazda
+            BottomBarItem(
+              inActiveItem: Icon(
+                Icons.add_circle_outline,
+                color: unselectedColor,
+              ),
+              activeItem: const Icon(Icons.add, color: Colors.white),
+              itemLabel: 'Qo\'shish',
+            ),
+            BottomBarItem(
+              inActiveItem: Icon(Icons.star_border, color: unselectedColor),
+              activeItem: const Icon(Icons.star, color: Colors.white),
+              itemLabel: 'Keraklilar',
+            ),
+            BottomBarItem(
+              inActiveItem: Icon(Icons.person_outline, color: unselectedColor),
+              activeItem: const Icon(Icons.person, color: Colors.white),
+              itemLabel: l10n.navProfile,
+            ),
+          ],
+          onTap: (index) {
+            AppRouter._onItemTapped(context, index);
+          },
         ),
       ),
     );
   }
 }
+

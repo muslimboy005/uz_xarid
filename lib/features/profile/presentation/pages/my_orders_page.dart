@@ -288,14 +288,21 @@ class _OrdersListView extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: context.watch<AppModeCubit>().state.primaryColor.withValues(alpha: 0.1),
+                          color: context
+                              .watch<AppModeCubit>()
+                              .state
+                              .primaryColor
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           order.status ?? 'pending',
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: context.watch<AppModeCubit>().state.primaryColor,
+                                color: context
+                                    .watch<AppModeCubit>()
+                                    .state
+                                    .primaryColor,
                                 fontWeight: FontWeight.w600,
                               ),
                         ),

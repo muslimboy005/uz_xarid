@@ -13,6 +13,7 @@ class MyAdsState extends Equatable {
   final bool loading;
   final String? error;
   final String status;
+
   /// O'chirilayotgan e'lon slug'i — shu kartochkada o'chirish tugmasida CircularProgressIndicator ko'rsatiladi.
   final String? deletingSlug;
 

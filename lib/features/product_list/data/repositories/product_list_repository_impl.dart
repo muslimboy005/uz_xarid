@@ -17,6 +17,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
     String listSource = 'recommendations',
     int pageSize = 100,
     String adType = 'Sell',
+    String? categoryType,
     Map<String, dynamic>? filterParams,
     String? sort,
   }) async {
@@ -33,6 +34,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
           ? await _remoteDatasource.getByCategory(
               categoryId: categoryId,
               adType: adType,
+              listingType: categoryType,
               filterParams: filterParams,
             )
           // When filters are active, always route through the /ad/ endpoint
@@ -42,6 +44,7 @@ class ProductListRepositoryImpl implements ProductListRepository {
               filterParams: filterParams,
               pageSize: pageSize,
               adType: adType,
+              listingType: categoryType,
             )
           : listSource == 'services'
           ? await _remoteDatasource.getServices(pageSize: pageSize)

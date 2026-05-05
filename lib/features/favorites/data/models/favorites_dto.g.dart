@@ -87,12 +87,12 @@ FavoritesAdDto _$FavoritesAdDtoFromJson(Map<String, dynamic> json) =>
     FavoritesAdDto(
       slug: json['slug'] as String,
       title: json['title'] as String,
-      mainImage: json['main_image'] as String?,
+      mainImage: ImageParser.parse(json['main_image']),
       price: json['price'] as String?,
       finalPrice: json['final_price'] as String?,
       currency: json['currency'] as String?,
-      rating: (json['rating'] as num?)?.toDouble(),
-      reviewCount: (json['review_count'] as num?)?.toInt(),
+      rating: parseDouble(json['rating']),
+      reviewCount: parseInt(json['review_count']),
       isLikes: json['is_likes'] as bool?,
     );
 

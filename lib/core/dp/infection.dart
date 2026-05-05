@@ -9,12 +9,17 @@ import 'register_services.dart';
 import 'register_usecases.dart';
 
 final GetIt getIt = GetIt.instance;
+bool _isDependenciesRegistered = false;
+
 Future<void> setupDependencies() async {
+  if (_isDependenciesRegistered) return;
+
   await registerServices(getIt);
   await registerDataSources(getIt);
   await registerRepositories(getIt);
   await registerUseCases(getIt);
   await registerBlocs(getIt);
 
-  log("All Register Complate For GetIT");
+  _isDependenciesRegistered = true;
+  log("All Register Complete For GetIT");
 }

@@ -26,12 +26,10 @@ class ViewHistoryPage extends StatelessWidget {
     final textColor = context.textPrimary;
 
     return BlocProvider(
-      create: (context) => GetIt.I<ViewHistoryBloc>()..add(const GetViewHistoryEvent()),
+      create: (context) =>
+          GetIt.I<ViewHistoryBloc>()..add(const GetViewHistoryEvent()),
       child: Scaffold(
-        appBar: UzXaridAppBar(
-          onSearchChanged: (query) {},
-          onMenuTap: () {},
-        ),
+        appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
         backgroundColor: bodyBg,
         body: SafeArea(
           child: Column(
@@ -72,7 +70,9 @@ class ViewHistoryPage extends StatelessWidget {
                     }
 
                     if (state.status == ViewHistoryStatus.failure) {
-                      return Center(child: AppText(text: state.errorMessage ?? 'Error'));
+                      return Center(
+                        child: AppText(text: state.errorMessage ?? 'Error'),
+                      );
                     }
 
                     final history = state.history?.data.results ?? [];
@@ -87,17 +87,23 @@ class ViewHistoryPage extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
                             child: InkWell(
-                              onTap: () => context.read<ViewHistoryBloc>().add(const ClearHistoryEvent()),
+                              onTap: () => context.read<ViewHistoryBloc>().add(
+                                const ClearHistoryEvent(),
+                              ),
                               child: ContainerW(
-                                color: context.surfaceContainer.withOpacity(0.5),
+                                color: context.surfaceContainer.withOpacity(
+                                  0.5,
+                                ),
                                 radius: 12,
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
-                                        Icons.cleaning_services_sharp, 
+                                        Icons.cleaning_services_sharp,
                                         size: 20,
                                         color: context.textPrimary,
                                       ),
@@ -118,16 +124,16 @@ class ViewHistoryPage extends StatelessWidget {
                         SliverPadding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final item = history[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: _HistoryItemCard(item: item),
-                                );
-                              },
-                              childCount: history.length,
-                            ),
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
+                              final item = history[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _HistoryItemCard(item: item),
+                              );
+                            }, childCount: history.length),
                           ),
                         ),
                       ],
@@ -164,62 +170,64 @@ class _HistoryItemCard extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 16,
-                        color: context.textSecondary,
-                      ),
-                      const SizedBox(width: 6),
-                      AppText(
-                        text: "1 min ago", // API dan kelgan bo'lsa o'zgartiriladi
-                        fontSize: 14,
-                        color: context.textSecondary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  AppText(
-                    text: item.title,
-                    fontSize: 17,
-                    fontWeight: 800,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  AppText(
-                    text: "Bosh sahifa › Kategoriyalar › ${item.categoryName ?? 'Boshqa'}",
-                    fontSize: 14,
-                    color: context.textSecondary.withOpacity(0.7),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 16,
+                          color: context.textSecondary,
+                        ),
+                        const SizedBox(width: 6),
+                        AppText(
+                          text:
+                              "1 min ago", // API dan kelgan bo'lsa o'zgartiriladi
+                          fontSize: 14,
+                          color: context.textSecondary,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    AppText(
+                      text: item.title,
+                      fontSize: 17,
+                      fontWeight: 800,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    AppText(
+                      text:
+                          "Bosh sahifa › Kategoriyalar › ${item.categoryName ?? 'Boshqa'}",
+                      fontSize: 14,
+                      color: context.textSecondary.withOpacity(0.7),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: context.surfaceContainer.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(12),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: context.surfaceContainer.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.arrow_outward_rounded,
+                  size: 22,
+                  color: context.textPrimary,
+                ),
               ),
-              child: Icon(
-                Icons.arrow_outward_rounded,
-                size: 22,
-                color: context.textPrimary,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-   );
+    );
   }
 }
 

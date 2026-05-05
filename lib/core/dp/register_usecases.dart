@@ -25,8 +25,32 @@ import 'package:uz_xarid/features/favorites/domain/repositories/favorites_reposi
 import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
 import 'package:uz_xarid/features/favorites/domain/usecases/toggle_favorite.dart';
 
+import 'package:uz_xarid/features/cart/domain/repositories/cart_repository.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/add_to_cart.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/cart_operations.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/get_cart.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/update_cart_quantity.dart';
+
 Future<void> registerUseCases(GetIt getIt) async {
   getIt
+    ..registerLazySingleton<GetCartItemsUseCase>(
+      () => GetCartItemsUseCase(getIt<CartRepository>()),
+    )
+    ..registerLazySingleton<AddToCartUseCase>(
+      () => AddToCartUseCase(getIt<CartRepository>()),
+    )
+    ..registerLazySingleton<UpdateCartQuantityUseCase>(
+      () => UpdateCartQuantityUseCase(getIt<CartRepository>()),
+    )
+    ..registerLazySingleton<RemoveFromCartItemUseCase>(
+      () => RemoveFromCartItemUseCase(getIt<CartRepository>()),
+    )
+    ..registerLazySingleton<ClearCartUseCase>(
+      () => ClearCartUseCase(getIt<CartRepository>()),
+    )
+    ..registerLazySingleton<CheckoutUseCase>(
+      () => CheckoutUseCase(getIt<CartRepository>()),
+    )
     ..registerLazySingleton<GetColors>(
       () => GetColors(getIt<ListingRepository>()),
     )

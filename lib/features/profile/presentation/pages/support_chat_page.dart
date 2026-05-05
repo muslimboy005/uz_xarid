@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,27 +30,27 @@ class _SupportChatPageState extends State<SupportChatPage> {
   final TextEditingController _messageController = TextEditingController();
   bool _isLoadingMore = false;
 
-  final List<String> _quickReplies = [
-    'Жалоба на пользователя или объявление',
-    'Технические проблемы',
-    'Проблемы с объявлением',
-    'Другое / Задать вопрос',
-    'Предложения и отзывы',
+  List<String> get _quickReplies => [
+    AppLocalizations.of(context)!.supportQuickReply1,
+    AppLocalizations.of(context)!.supportQuickReply2,
+    AppLocalizations.of(context)!.supportQuickReply3,
+    AppLocalizations.of(context)!.supportQuickReply4,
+    AppLocalizations.of(context)!.supportQuickReply5,
   ];
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    
+
     // Initialize the BLoC with the room ID (could be 0 for new chat)
     context.read<ChatBloc>().add(InitializeChatEvent(widget.chatRoomId));
 
     // Start polling for new messages when the page is opened
     WidgetsBinding.instance.addPostFrameCallback((_) {
-       if (widget.chatRoomId > 0) {
-          context.read<ChatBloc>().add(StartChatPollingEvent(widget.chatRoomId));
-       }
+      if (widget.chatRoomId > 0) {
+        context.read<ChatBloc>().add(StartChatPollingEvent(widget.chatRoomId));
+      }
     });
   }
 
@@ -57,7 +58,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
   void dispose() {
     // Stop polling before disposing
     _stopPollingSafe();
-    
+
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
@@ -76,19 +77,22 @@ class _SupportChatPageState extends State<SupportChatPage> {
   void _onScroll() {
     if (_isBottom && !_isLoadingMore) {
       final chatBloc = context.read<ChatBloc>(); // Use local reference
-      if (chatBloc.state.status != ChatStatus.loading && !chatBloc.state.hasReachedMax) {
+      if (chatBloc.state.status != ChatStatus.loading &&
+          !chatBloc.state.hasReachedMax) {
         setState(() {
           _isLoadingMore = true;
         });
-        
+
         // Debounce: wait 200ms before adding event
         Future.delayed(const Duration(milliseconds: 200), () {
           if (!mounted) return;
-          
-          chatBloc.add(GetChatMessagesEvent(
-            chatRoomId: widget.chatRoomId,
-            page: chatBloc.state.currentPage + 1,
-          ));
+
+          chatBloc.add(
+            GetChatMessagesEvent(
+              chatRoomId: widget.chatRoomId,
+              page: chatBloc.state.currentPage + 1,
+            ),
+          );
           if (mounted) {
             setState(() {
               _isLoadingMore = false;
@@ -113,11 +117,13 @@ class _SupportChatPageState extends State<SupportChatPage> {
 
     if (content.isEmpty && filePaths.isEmpty) return;
 
-    bloc.add(SendChatMessageEvent(
-      chatRoomId: widget.chatRoomId,
-      content: content,
-      filePaths: filePaths,
-    ));
+    bloc.add(
+      SendChatMessageEvent(
+        chatRoomId: widget.chatRoomId,
+        content: content,
+        filePaths: filePaths,
+      ),
+    );
     _messageController.clear();
   }
 
@@ -132,7 +138,9 @@ class _SupportChatPageState extends State<SupportChatPage> {
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
     if (result != null && mounted) {
-      context.read<ChatBloc>().add(PickFilesEvent(result.paths.whereType<String>().toList()));
+      context.read<ChatBloc>().add(
+        PickFilesEvent(result.paths.whereType<String>().toList()),
+      );
     }
   }
 
@@ -149,7 +157,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.image),
-                title: const Text('Галерея (Фото)'),
+                title: Text(AppLocalizations.of(context)!.supportSourceGallery),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage();
@@ -157,7 +165,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.file_present),
-                title: const Text('Документ / Файл'),
+                title: Text(AppLocalizations.of(context)!.supportSourceDocument),
                 onTap: () {
                   Navigator.pop(context);
                   _pickFile();
@@ -173,10 +181,19 @@ class _SupportChatPageState extends State<SupportChatPage> {
   @override
   Widget build(BuildContext context) {
     // Initial sync of user ID if available
-    final initialUserId = context.read<ProfileBloc>().state.profileModel?.data.user?.id;
-    if (initialUserId != null && context.read<ChatBloc>().state.currentUserId == null) {
+    final initialUserId = context
+        .read<ProfileBloc>()
+        .state
+        .profileModel
+        ?.data
+        .user
+        ?.id;
+    if (initialUserId != null &&
+        context.read<ChatBloc>().state.currentUserId == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-         if (mounted) context.read<ChatBloc>().add(SetChatUserIdEvent(initialUserId));
+        if (mounted) {
+          context.read<ChatBloc>().add(SetChatUserIdEvent(initialUserId));
+        }
       });
     }
 
@@ -184,7 +201,8 @@ class _SupportChatPageState extends State<SupportChatPage> {
       listeners: [
         BlocListener<ProfileBloc, ProfileState>(
           listenWhen: (prev, curr) =>
-              prev.profileModel?.data.user?.id != curr.profileModel?.data.user?.id,
+              prev.profileModel?.data.user?.id !=
+              curr.profileModel?.data.user?.id,
           listener: (context, state) {
             final userId = state.profileModel?.data.user?.id;
             if (userId != null) {
@@ -195,22 +213,24 @@ class _SupportChatPageState extends State<SupportChatPage> {
         BlocListener<ChatBloc, ChatState>(
           listenWhen: (prev, curr) => prev.errorMessage != curr.errorMessage,
           listener: (context, state) {
-             if (state.errorMessage != null && 
-                 state.errorMessage!.isNotEmpty &&
-                 state.errorMessage != 'CHAT_ROOM_NOT_FOUND') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.errorMessage!),
-                    backgroundColor: Colors.red,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-             }
+            if (state.errorMessage != null &&
+                state.errorMessage!.isNotEmpty &&
+                state.errorMessage != 'CHAT_ROOM_NOT_FOUND') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
           },
         ),
       ],
       child: Scaffold(
-        backgroundColor: context.isDark ? AppColors.darkBackground : AppColors.black50,
+        backgroundColor: context.isDark
+            ? AppColors.darkBackground
+            : AppColors.black50,
         appBar: _buildAppBar(context),
         body: SafeArea(
           child: Column(
@@ -226,12 +246,17 @@ class _SupportChatPageState extends State<SupportChatPage> {
                         child: BlocBuilder<ChatBloc, ChatState>(
                           builder: (context, state) {
                             if (state.status == ChatStatus.initial ||
-                                (state.status == ChatStatus.loading && state.messages.isEmpty)) {
-                              return const Center(child: CircularProgressIndicator());
+                                (state.status == ChatStatus.loading &&
+                                    state.messages.isEmpty)) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
                             }
-      
-                            if (state.status == ChatStatus.failure && state.messages.isEmpty) {
-                              final isRoomNotFound = state.errorMessage == 'CHAT_ROOM_NOT_FOUND';
+
+                            if (state.status == ChatStatus.failure &&
+                                state.messages.isEmpty) {
+                              final isRoomNotFound =
+                                  state.errorMessage == 'CHAT_ROOM_NOT_FOUND';
                               return Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(32.0),
@@ -239,45 +264,57 @@ class _SupportChatPageState extends State<SupportChatPage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        isRoomNotFound ? Icons.chat_bubble_outline : Icons.error_outline,
+                                        isRoomNotFound
+                                            ? Icons.chat_bubble_outline
+                                            : Icons.error_outline,
                                         size: 48,
-                                        color: isRoomNotFound ? Colors.orange : Colors.red,
+                                        color: isRoomNotFound
+                                            ? Colors.orange
+                                            : Colors.red,
                                       ),
                                       const SizedBox(height: 16),
                                       AppText(
                                         text: isRoomNotFound
                                             ? 'Qo\'llab-quvvatlash xizmati hali sozlanmagan.\nIltimos, keyinroq urinib ko\'ring yoki administrator bilan bog\'laning.'
-                                            : (state.errorMessage ?? 'Xatolik yuz berdi'),
+                                            : (state.errorMessage ??
+                                                  AppLocalizations.of(context)!.supportErrorDefault),
                                         textAlign: TextAlign.center,
                                         color: context.textPrimary,
                                       ),
                                       const SizedBox(height: 16),
-                                      if (!isRoomNotFound) ElevatedButton(
-                                        onPressed: () {
-                                          context.read<ChatBloc>().add(GetChatMessagesEvent(chatRoomId: widget.chatRoomId));
-                                        },
-                                        child: const Text('Qayta urinish'),
-                                      ),
+                                      if (!isRoomNotFound)
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            context.read<ChatBloc>().add(
+                                              GetChatMessagesEvent(
+                                                chatRoomId: widget.chatRoomId,
+                                              ),
+                                            );
+                                          },
+                                          child: const Text('Qayta urinish'),
+                                        ),
                                     ],
                                   ),
                                 ),
                               );
                             }
-                            
+
                             if (state.messages.isEmpty) {
                               return Column(
-                                 children: [
-                                   const Spacer(),
-                                   _buildQuickReplies(context),
-                                 ],
+                                children: [
+                                  const Spacer(),
+                                  _buildQuickReplies(context),
+                                ],
                               );
                             }
-      
+
                             return ListView.builder(
                               controller: _scrollController,
                               reverse: true,
                               padding: const EdgeInsets.all(16),
-                              itemCount: state.messages.length + (state.hasReachedMax ? 0 : 1),
+                              itemCount:
+                                  state.messages.length +
+                                  (state.hasReachedMax ? 0 : 1),
                               itemBuilder: (context, index) {
                                 if (index >= state.messages.length) {
                                   return const Center(
@@ -287,14 +324,20 @@ class _SupportChatPageState extends State<SupportChatPage> {
                                     ),
                                   );
                                 }
-      
+
                                 final message = state.messages[index];
-                                
+
                                 // Simplified stable 'isMe' check:
-                                final isMe = message.id < 0 || 
-                                            (state.currentUserId != null && message.sender == state.currentUserId);
-  
-                                return _buildMessageBubble(context, message, isMe);
+                                final isMe =
+                                    message.id < 0 ||
+                                    (state.currentUserId != null &&
+                                        message.sender == state.currentUserId);
+
+                                return _buildMessageBubble(
+                                  context,
+                                  message,
+                                  isMe,
+                                );
                               },
                             );
                           },
@@ -351,14 +394,20 @@ class _SupportChatPageState extends State<SupportChatPage> {
                           right: 0,
                           top: 0,
                           child: GestureDetector(
-                            onTap: () => context.read<ChatBloc>().add(RemoveFileEvent(path)),
+                            onTap: () => context.read<ChatBloc>().add(
+                              RemoveFileEvent(path),
+                            ),
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: const BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.close, size: 12, color: Colors.white),
+                              child: const Icon(
+                                Icons.close,
+                                size: 12,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -376,7 +425,9 @@ class _SupportChatPageState extends State<SupportChatPage> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: context.isDark ? AppColors.darkBackground : AppColors.black50,
+                        color: context.isDark
+                            ? AppColors.darkBackground
+                            : AppColors.black50,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add, size: 24),
@@ -387,9 +438,12 @@ class _SupportChatPageState extends State<SupportChatPage> {
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: 'Напишите ваш вопрос...',
+                        hintText: AppLocalizations.of(context)!.supportHint,
                         hintStyle: TextStyle(color: context.textSecondary),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: borderColor),
@@ -416,9 +470,20 @@ class _SupportChatPageState extends State<SupportChatPage> {
                         color: primaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: state.isSending 
-                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Icon(Icons.send, color: Colors.white, size: 24),
+                      child: state.isSending
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.send,
+                              color: Colors.white,
+                              size: 24,
+                            ),
                     ),
                   ),
                 ],
@@ -432,16 +497,22 @@ class _SupportChatPageState extends State<SupportChatPage> {
 
   bool _isImagePath(String path) {
     final p = path.toLowerCase();
-    return p.endsWith('.jpg') || p.endsWith('.jpeg') || p.endsWith('.png') || p.endsWith('.webp');
+    return p.endsWith('.jpg') ||
+        p.endsWith('.jpeg') ||
+        p.endsWith('.png') ||
+        p.endsWith('.webp');
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final textColor = context.textPrimary;
     final cardColor = context.cardSurface;
     final borderColor = context.borderColor;
 
     return AppBar(
-      backgroundColor: context.isDark ? AppColors.darkBackground : AppColors.black50,
+      backgroundColor: context.isDark
+          ? AppColors.darkBackground
+          : AppColors.black50,
       elevation: 0,
       automaticallyImplyLeading: false,
       title: Row(
@@ -456,12 +527,16 @@ class _SupportChatPageState extends State<SupportChatPage> {
                 border: Border.all(color: borderColor),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Icon(Icons.arrow_back_ios_new, size: 18, color: textColor),
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 18,
+                    color: textColor,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
               AppText(
-                text: 'Поддержка',
+                text: l10n.supportTitle,
                 fontSize: 22,
                 fontWeight: 700,
                 color: textColor,
@@ -480,7 +555,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
                   Icon(Icons.close, size: 18, color: textColor),
                   const SizedBox(width: 8),
                   AppText(
-                    text: 'Закрыть чат',
+                    text: l10n.supportCloseChat,
                     fontSize: 14,
                     fontWeight: 500,
                     color: textColor,
@@ -494,7 +569,11 @@ class _SupportChatPageState extends State<SupportChatPage> {
     );
   }
 
-  Widget _buildMessageBubble(BuildContext context, ChatMessageModel message, bool isMe) {
+  Widget _buildMessageBubble(
+    BuildContext context,
+    ChatMessageModel message,
+    bool isMe,
+  ) {
     final primaryColor = context.read<AppModeCubit>().state.primaryColor;
     final isOptimistic = message.id < 0;
 
@@ -502,7 +581,8 @@ class _SupportChatPageState extends State<SupportChatPage> {
     String timeStr = "";
     try {
       final date = DateTime.parse(message.createdAt);
-      timeStr = "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+      timeStr =
+          "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
     } catch (_) {}
 
     return Padding(
@@ -510,7 +590,9 @@ class _SupportChatPageState extends State<SupportChatPage> {
       child: Opacity(
         opacity: isOptimistic ? 0.7 : 1.0,
         child: Row(
-          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: isMe
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!isMe) ...[
@@ -527,56 +609,81 @@ class _SupportChatPageState extends State<SupportChatPage> {
             ],
             Flexible(
               child: Column(
-                crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment: isMe
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
-                      color: isMe ? primaryColor : AppColors.primary.withValues(alpha: 0.1),
+                      color: isMe
+                          ? primaryColor
+                          : AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(16),
                         topRight: const Radius.circular(16),
-                        bottomLeft: isMe ? const Radius.circular(16) : Radius.zero,
-                        bottomRight: isMe ? Radius.zero : const Radius.circular(16),
+                        bottomLeft: isMe
+                            ? const Radius.circular(16)
+                            : Radius.zero,
+                        bottomRight: isMe
+                            ? Radius.zero
+                            : const Radius.circular(16),
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
                       children: [
-                        if (message.content != null && message.content!.isNotEmpty)
+                        if (message.content != null &&
+                            message.content!.isNotEmpty)
                           AppText(
                             text: message.content!,
                             fontSize: 14,
                             color: isMe ? AppColors.white : context.textPrimary,
                           ),
-                        if (message.fileUrl != null || message.files.isNotEmpty) ...[
-                          if (message.content != null && message.content!.isNotEmpty) const SizedBox(height: 8),
+                        if (message.fileUrl != null ||
+                            message.files.isNotEmpty) ...[
+                          if (message.content != null &&
+                              message.content!.isNotEmpty)
+                            const SizedBox(height: 8),
                           ...({
                             if (message.fileUrl != null) message.fileUrl!,
-                            ...message.files.map((f) => f.fileUrlDisplay ?? f.file)
+                            ...message.files.map(
+                              (f) => f.fileUrlDisplay ?? f.file,
+                            ),
                           }).whereType<String>().map((url) {
                             final isLocalFile = url.startsWith('/');
                             return GestureDetector(
-                              onTap: isLocalFile ? null : () => _previewImage(context, url),
+                              onTap: isLocalFile
+                                  ? null
+                                  : () => _previewImage(context, url),
                               child: Container(
-                                constraints: const BoxConstraints(maxHeight: 200, maxWidth: 200),
+                                constraints: const BoxConstraints(
+                                  maxHeight: 200,
+                                  maxWidth: 200,
+                                ),
                                 margin: const EdgeInsets.only(bottom: 4),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                  child: isLocalFile 
-                                    ? Image.file(File(url), fit: BoxFit.cover)
-                                    : Image.network(
-                                        url,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => const Icon(Icons.file_present),
-                                      ),
+                                  child: isLocalFile
+                                      ? Image.file(File(url), fit: BoxFit.cover)
+                                      : Image.network(
+                                          url,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              const Icon(Icons.file_present),
+                                        ),
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ],
                     ),
@@ -595,7 +702,9 @@ class _SupportChatPageState extends State<SupportChatPage> {
                         Icon(
                           isOptimistic ? Icons.access_time : Icons.done_all,
                           size: 14,
-                          color: isOptimistic ? context.textSecondary : primaryColor,
+                          color: isOptimistic
+                              ? context.textSecondary
+                              : primaryColor,
                         ),
                       ],
                     ],
@@ -611,7 +720,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
 
   Widget _buildQuickReplies(BuildContext context) {
     return BlocBuilder<ChatBloc, ChatState>(
-      // Only rebuild if room ID changes which might affect how we send 
+      // Only rebuild if room ID changes which might affect how we send
       buildWhen: (prev, curr) => prev.chatRoomId != curr.chatRoomId,
       builder: (context, state) {
         return Container(
@@ -623,29 +732,34 @@ class _SupportChatPageState extends State<SupportChatPage> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: GestureDetector(
                   onTap: () {
-                     context.read<ChatBloc>().add(SendChatMessageEvent(
-                       chatRoomId: state.chatRoomId ?? widget.chatRoomId,
-                       content: reply,
-                     ));
+                    context.read<ChatBloc>().add(
+                      SendChatMessageEvent(
+                        chatRoomId: state.chatRoomId ?? widget.chatRoomId,
+                        content: reply,
+                      ),
+                    );
                   },
-                   child: ContainerW(
-                     radius: 16,
-                     color: context.surfaceContainer,
-                 child: Padding(
-                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                   child: AppText(
-                     text: reply,
-                     fontSize: 14,
-                     fontWeight: 500,
-                     color: context.textSecondary,
-                   ),
-                 ),
-               ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
+                  child: ContainerW(
+                    radius: 16,
+                    color: context.surfaceContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: AppText(
+                        text: reply,
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: context.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
       },
     );
   }
@@ -658,11 +772,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
         insetPadding: EdgeInsets.zero,
         child: Stack(
           children: [
-            InteractiveViewer(
-              child: Center(
-                child: Image.network(url),
-              ),
-            ),
+            InteractiveViewer(child: Center(child: Image.network(url))),
             Positioned(
               top: 40,
               right: 20,

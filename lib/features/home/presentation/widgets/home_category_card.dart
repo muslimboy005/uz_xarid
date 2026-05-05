@@ -49,7 +49,9 @@ class HomeCategoryCard extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? primary
-                : (isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor),
+                : (isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.cardBorderColor),
             width: isSelected ? 2.5 : 1,
           ),
           boxShadow: [
@@ -66,22 +68,6 @@ class HomeCategoryCard extends StatelessWidget {
             clipBehavior: Clip.hardEdge,
             children: [
               Positioned(
-                left: 14,
-                top: 14,
-                right: 72,
-                child: Text(
-                  category.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                    height: 1.3,
-                  ),
-                ),
-              ),
-              Positioned(
                 right: -12,
                 bottom: -12,
                 child: SizedBox(
@@ -96,10 +82,23 @@ class HomeCategoryCard extends StatelessWidget {
                             fit: BoxFit.contain,
                           ),
                         )
-                      : AppImage(
-                          path: category.asset,
-                          fit: BoxFit.contain,
-                        ),
+                      : AppImage(path: category.asset, fit: BoxFit.contain),
+                ),
+              ),
+              Positioned(
+                left: 12,
+                top: 12,
+                right: 12,
+                child: Text(
+                  category.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.visible,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                    height: 1.2,
+                  ),
                 ),
               ),
             ],

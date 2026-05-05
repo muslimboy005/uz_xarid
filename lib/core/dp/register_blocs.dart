@@ -28,10 +28,30 @@ import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.d
 import 'package:uz_xarid/features/profile/presentation/bloc/view_history/view_history_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/payment/payment_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/chat/chat_bloc.dart';
+import 'package:uz_xarid/features/chat/presentation/bloc/ad_chat_bloc.dart';
+import 'package:uz_xarid/features/chat/presentation/bloc/chat_list_bloc.dart';
+import 'package:uz_xarid/features/chat/domain/repositories/chat_repository.dart';
 import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uz_xarid/core/service/local_service.dart';
+
+import 'package:uz_xarid/features/cart/domain/usecases/add_to_cart.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/cart_operations.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/get_cart.dart';
+import 'package:uz_xarid/features/cart/domain/usecases/update_cart_quantity.dart';
+import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
 
 Future<void> registerBlocs(GetIt getIt) async {
   getIt
+    ..registerLazySingleton<CartBloc>(
+      () => CartBloc(
+        getCartItemsUseCase: getIt<GetCartItemsUseCase>(),
+        addToCartUseCase: getIt<AddToCartUseCase>(),
+        updateCartQuantityUseCase: getIt<UpdateCartQuantityUseCase>(),
+        removeFromCartItemUseCase: getIt<RemoveFromCartItemUseCase>(),
+        clearCartUseCase: getIt<ClearCartUseCase>(),
+        checkoutUseCase: getIt<CheckoutUseCase>(),
+      ),
+    )
     ..registerFactory<AddListingBloc>(
       () => AddListingBloc(
         getIt<GetColors>(),
@@ -84,10 +104,27 @@ Future<void> registerBlocs(GetIt getIt) async {
       () => OrderCreateCubit(repository: getIt()),
     )
     ..registerFactory<MyOrdersBloc>(() => MyOrdersBloc(repository: getIt()))
-    ..registerFactory<MyAdsBloc>(() => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()))
-    ..registerFactory<ViewHistoryBloc>(() => ViewHistoryBloc(repository: getIt<ProfileRepository>()))
-    ..registerFactory<PaymentBloc>(() => PaymentBloc(repository: getIt<ProfileRepository>()))
-    ..registerFactory<ChatBloc>(() => ChatBloc(repository: getIt<ProfileRepository>()));
+    ..registerFactory<MyAdsBloc>(
+      () => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()),
+    )
+    ..registerFactory<ViewHistoryBloc>(
+      () => ViewHistoryBloc(repository: getIt<ProfileRepository>()),
+    )
+    ..registerFactory<PaymentBloc>(
+      () => PaymentBloc(repository: getIt<ProfileRepository>()),
+    )
+    ..registerFactory<ChatBloc>(
+      () => ChatBloc(repository: getIt<ProfileRepository>()),
+    )
+    ..registerFactory<AdChatBloc>(
+      () => AdChatBloc(
+        repository: getIt<ChatRepository>(),
+        storage: getIt<SecureStorageService>(),
+      ),
+    )
+    ..registerFactory<ChatListBloc>(
+      () => ChatListBloc(getIt<ChatRepository>()),
+    );
 
   log("Register BLOC Complate For GetIT");
 }

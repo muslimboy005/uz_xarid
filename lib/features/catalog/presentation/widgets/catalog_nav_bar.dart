@@ -97,13 +97,13 @@ class CatalogNavBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: AppImage(
                 path: trailingImagePath!,
-                width: 22,
-                height: 22,
+                width: 32,
+                height: 32,
                 fit: BoxFit.cover,
               ),
             )
           else
-            Icon(Icons.local_shipping_outlined, color: textSecondary, size: 22),
+            Icon(Icons.local_shipping_outlined, color: textSecondary, size: 32),
         ],
       ),
     );

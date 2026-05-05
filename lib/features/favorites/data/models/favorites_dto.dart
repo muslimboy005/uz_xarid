@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 
 part 'favorites_dto.g.dart';
 
@@ -82,14 +83,15 @@ class FavoritesItemDto {
 class FavoritesAdDto {
   final String slug;
   final String title;
-  @JsonKey(name: 'main_image')
+  @JsonKey(name: 'main_image', fromJson: ImageParser.parse)
   final String? mainImage;
   final String? price;
   @JsonKey(name: 'final_price')
   final String? finalPrice;
   final String? currency;
+  @JsonKey(fromJson: parseDouble)
   final double? rating;
-  @JsonKey(name: 'review_count')
+  @JsonKey(name: 'review_count', fromJson: parseInt)
   final int? reviewCount;
   @JsonKey(name: 'is_likes')
   final bool? isLikes;
@@ -109,4 +111,18 @@ class FavoritesAdDto {
   factory FavoritesAdDto.fromJson(Map<String, dynamic> json) =>
       _$FavoritesAdDtoFromJson(json);
   Map<String, dynamic> toJson() => _$FavoritesAdDtoToJson(this);
+}
+
+double? parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
+int? parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }

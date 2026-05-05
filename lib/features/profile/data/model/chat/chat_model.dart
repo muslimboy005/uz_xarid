@@ -9,10 +9,7 @@ class ChatMessagesResponseModel {
   @JsonKey(name: 'data')
   final ChatMessagesData data;
 
-  ChatMessagesResponseModel({
-    required this.status,
-    required this.data,
-  });
+  ChatMessagesResponseModel({required this.status, required this.data});
 
   factory ChatMessagesResponseModel.fromJson(Map<String, dynamic> json) =>
       _$ChatMessagesResponseModelFromJson(json);
@@ -134,11 +131,7 @@ class ChatSenderInfoModel {
   @JsonKey(name: 'phone')
   final String? phone;
 
-  ChatSenderInfoModel({
-    this.firstName,
-    this.avatar,
-    this.phone,
-  });
+  ChatSenderInfoModel({this.firstName, this.avatar, this.phone});
 
   factory ChatSenderInfoModel.fromJson(Map<String, dynamic> json) =>
       _$ChatSenderInfoModelFromJson(json);

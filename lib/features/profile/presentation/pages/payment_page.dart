@@ -133,7 +133,7 @@ class PaymentPage extends StatelessWidget {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       AppText(
-                                        text: 'История',
+                                        text: l10n.paymentHistoryTitle,
                                         fontSize: 20,
                                         fontWeight: 700,
                                         color: textColor,
@@ -259,7 +259,7 @@ class PaymentPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Center(
                   child: AppText(
-                    text: isCurrentPlan ? 'Текущий план' : 'Выбрать план',
+                    text: isCurrentPlan ? AppLocalizations.of(context)!.paymentCurrentPlan : AppLocalizations.of(context)!.paymentSelectPlan,
                     fontSize: 14,
                     fontWeight: 600,
                     color: isCurrentPlan ? AppColors.white : primaryColor,
@@ -325,7 +325,7 @@ class PaymentPage extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: AppText(
-                    text: 'Счёт',
+                    text: AppLocalizations.of(context)!.paymentAccount,
                     fontSize: 12,
                     fontWeight: 500,
                     color: context.textPrimary,
@@ -334,7 +334,7 @@ class PaymentPage extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: AppText(
-                    text: 'Тариф',
+                    text: AppLocalizations.of(context)!.paymentTariff,
                     fontSize: 12,
                     fontWeight: 500,
                     color: context.textPrimary,

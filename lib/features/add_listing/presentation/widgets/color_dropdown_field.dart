@@ -55,7 +55,9 @@ class ColorDropdownField extends StatelessWidget {
             color: surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: hasError ? Theme.of(context).colorScheme.error : borderColor,
+              color: hasError
+                  ? Theme.of(context).colorScheme.error
+                  : borderColor,
             ),
           ),
           child: DropdownButtonHideUnderline(
@@ -88,7 +90,10 @@ class ColorDropdownField extends StatelessWidget {
                       fontWeight: 400,
                       color: textSecondary,
                     ),
-              icon: Icon(Icons.keyboard_arrow_down_rounded, color: textSecondary),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: textSecondary,
+              ),
               items: items
                   .map(
                     (c) => DropdownMenuItem<int>(

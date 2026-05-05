@@ -10,7 +10,8 @@ class SizeDto {
 
   SizeDto({required this.id, required this.name});
 
-  factory SizeDto.fromJson(Map<String, dynamic> json) => _$SizeDtoFromJson(json);
+  factory SizeDto.fromJson(Map<String, dynamic> json) =>
+      _$SizeDtoFromJson(json);
   Map<String, dynamic> toJson() => _$SizeDtoToJson(this);
 
   SizeEntity toEntity() => SizeEntity(id: id, name: name);

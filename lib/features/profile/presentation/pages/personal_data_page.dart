@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -146,6 +147,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   Widget build(BuildContext context) {
     if (!context.mounted) return const SizedBox.shrink();
     final borderColor = context.borderColor;
+    final l10n = AppLocalizations.of(context)!;
     final surfaceContainer = context.surfaceContainer;
     return BlocConsumer<ProfileBloc, ProfileState>(
       listenWhen: (prev, curr) =>
@@ -176,7 +178,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
 
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (q) {}, onMenuTap: () {}),
-          
+
           body: SafeArea(
             child: Container(
               color: bodyBg,
@@ -209,7 +211,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 ),
                                 const SizedBox(width: 12),
                                 AppText(
-                                  text: 'Личные данные',
+                                  text: l10n.profilePersonalDataLabel,
                                   fontSize: 20,
                                   fontWeight: 700,
                                   color: textColor,
@@ -217,53 +219,53 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                               ],
                             ),
                           ),
-                          // _sectionHeader('Личные данные'),
+                          // _sectionHeader(l10n.profilePersonalDataLabel),
                           const SizedBox(height: 12),
                           _card(
                             children: [
                               _avatarRow(),
                               const SizedBox(height: 16),
-                              _label('Имя'),
+                              _label(l10n.profileFirstNameLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _firstNameController,
-                                hintText: 'Введите имя',
+                                hintText: l10n.profileFirstNameHint,
                                 keyboardType: TextInputType.name,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
-                              _label('Фамилия'),
+                              _label(l10n.profileLastNameLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _lastNameController,
-                                hintText: 'Введите фамилию',
+                                hintText: l10n.profileLastNameHint,
                                 keyboardType: TextInputType.name,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
-                              _label('Пол'),
+                              _label(l10n.profileGenderLabel),
                               const SizedBox(height: 6),
                               _genderDropdown(isLoading),
                               const SizedBox(height: 12),
-                              _label('Дата рождения'),
+                              _label(l10n.profileBirthDateLabel),
                               const SizedBox(height: 6),
                               _dateField(isLoading),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _sectionHeader('Контактные данные'),
+                          _sectionHeader(l10n.profileContactDataLabel),
                           const SizedBox(height: 12),
                           _card(
                             children: [
-                              _label('Телефон'),
+                              _label(l10n.profilePhoneLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _phoneController,
-                                hintText: '+998 XX XXX-XX-XX',
+                                hintText: l10n.profilePhoneHint,
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [UzbekPhoneInputFormatter()],
                                 enabled: !isLoading,
@@ -271,11 +273,11 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
-                              _label('Электронная почта'),
+                              _label(l10n.profileEmailLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _emailController,
-                                hintText: 'Введите E-mail',
+                                hintText: l10n.profileEmailHint,
                                 keyboardType: TextInputType.emailAddress,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
@@ -284,45 +286,45 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _sectionHeader('Адрес'),
+                          _sectionHeader(l10n.profileAddressSectionLabel),
                           const SizedBox(height: 12),
                           _card(
                             children: [
-                              _label('Город'),
+                              _label(l10n.profileCityLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _cityController,
-                                hintText: 'Введите город',
+                                hintText: l10n.profileCityHint,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
-                              _label('Улица'),
+                              _label(l10n.profileStreetLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _streetController,
-                                hintText: 'Введите улицу',
+                                hintText: l10n.profileStreetHint,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
-                              _label('Дом / Квартира'),
+                              _label(l10n.profileHouseOrAptLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _houseController,
-                                hintText: 'Дом / Квартира',
+                                hintText: l10n.profileHouseOrAptLabel,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
                               const SizedBox(height: 12),
-                              _label('Район'),
+                              _label(l10n.profileDistrictLabel),
                               const SizedBox(height: 6),
                               WTextField(
                                 controller: _districtController,
-                                hintText: 'Введите район',
+                                hintText: l10n.profileDistrictHint,
                                 enabled: !isLoading,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
@@ -334,7 +336,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                       ),
                     ),
                   ),
-                  _bottomButtons(context, isLoading),
+                  _bottomButtons(context, isLoading, l10n),
                 ],
               ),
             ),
@@ -348,6 +350,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     return ValueListenableBuilder<File?>(
       valueListenable: _avatarFile,
       builder: (context, avatar, _) {
+        final l10n = AppLocalizations.of(context)!;
         ImageProvider? imageProvider;
         if (avatar != null) {
           imageProvider = FileImage(avatar);
@@ -355,7 +358,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
             _serverAvatarUrl.value!.isNotEmpty) {
           String url = _serverAvatarUrl.value!.replaceFirst('file://', '');
           if (url.startsWith('/')) {
-            url = 'https://uzxarid.felixits.uz$url';
+            url = 'https://api.uzxarid.uz$url';
           }
           imageProvider = NetworkImage(url);
         }
@@ -408,7 +411,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    text: 'Фото профиля',
+                    text: l10n.profilePhotoLabel,
                     fontSize: 14,
                     fontWeight: 600,
                     color: textColor,
@@ -417,7 +420,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                   GestureDetector(
                     onTap: _pickImageFromGallery,
                     child: AppText(
-                      text: 'Выбрать из галереи',
+                      text: l10n.profileChooseFromGallery,
                       fontSize: 13,
                       fontWeight: 400,
                       color: primaryColor,
@@ -433,27 +436,12 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Map<String, String> _localizedGenderLabels(BuildContext context) {
-    final lang = Localizations.localeOf(context).languageCode;
-    switch (lang) {
-      case 'uz':
-        return {'male': 'Erkak', 'female': 'Ayol'};
-      case 'ru':
-        return {'male': 'Мужчина', 'female': 'Женщина'};
-      default:
-        return {'male': 'Male', 'female': 'Female'};
-    }
+    final l10n = AppLocalizations.of(context)!;
+    return {'male': l10n.profileGenderMale, 'female': l10n.profileGenderFemale};
   }
 
   String _genderHint(BuildContext context) {
-    final lang = Localizations.localeOf(context).languageCode;
-    switch (lang) {
-      case 'uz':
-        return 'Jinsni tanlang';
-      case 'ru':
-        return 'Выберите пол';
-      default:
-        return 'Select gender';
-    }
+    return AppLocalizations.of(context)!.profileGenderHint;
   }
 
   Widget _genderDropdown(bool disabled) {
@@ -531,7 +519,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
               children: [
                 Expanded(
                   child: AppText(
-                    text: date != null ? _formatDate(date) : 'ДД.ММ.ГГГГ',
+                    text: date != null
+                        ? _formatDate(date)
+                        : AppLocalizations.of(context)!.profileBirthDateHint,
                     fontSize: 14,
                     fontWeight: 400,
                     color: date != null ? textColor : textSecondary,
@@ -591,7 +581,11 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     );
   }
 
-  Widget _bottomButtons(BuildContext context, bool isLoading) {
+  Widget _bottomButtons(
+    BuildContext context,
+    bool isLoading,
+    AppLocalizations l10n,
+  ) {
     final textColor = context.textPrimary;
     final borderColor = context.borderColor;
     return Container(
@@ -610,7 +604,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Отмена'),
+              child: Text(l10n.actionCancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -636,7 +630,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                         color: AppColors.white,
                       ),
                     )
-                  : const Text('Сохранить'),
+                  : Text(l10n.addressSave),
             ),
           ),
         ],

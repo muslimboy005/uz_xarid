@@ -1,7 +1,5 @@
 part of 'favorites_bloc.dart';
 
-
-
 abstract class FavoritesEvent extends Equatable {
   const FavoritesEvent();
 
@@ -18,10 +16,7 @@ class FavoritesLoadListRequested extends FavoritesEvent {
 }
 
 class FavoritesToggleRequested extends FavoritesEvent {
-  const FavoritesToggleRequested({
-    required this.adSlug,
-    this.adForLocal,
-  });
+  const FavoritesToggleRequested({required this.adSlug, this.adForLocal});
   final String adSlug;
   final FavoriteItemEntity? adForLocal;
   @override

@@ -15,7 +15,7 @@ abstract class FavoritesLocalDatasource {
 
 class FavoritesLocalDatasourceImpl implements FavoritesLocalDatasource {
   FavoritesLocalDatasourceImpl({required SharedPreferences prefs})
-      : _prefs = prefs;
+    : _prefs = prefs;
 
   final SharedPreferences _prefs;
 
@@ -26,9 +26,7 @@ class FavoritesLocalDatasourceImpl implements FavoritesLocalDatasource {
     try {
       final list = jsonDecode(json) as List<dynamic>?;
       if (list == null) return [];
-      return list
-          .map((e) => _mapFromJson(e as Map<String, dynamic>))
-          .toList();
+      return list.map((e) => _mapFromJson(e as Map<String, dynamic>)).toList();
     } catch (_) {
       return [];
     }

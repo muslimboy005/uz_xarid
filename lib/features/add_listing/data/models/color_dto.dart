@@ -15,13 +15,10 @@ class ColorDto {
   @JsonKey(fromJson: _normalizeHex)
   final String color;
 
-  ColorDto({
-    required this.id,
-    required this.name,
-    required this.color,
-  });
+  ColorDto({required this.id, required this.name, required this.color});
 
-  factory ColorDto.fromJson(Map<String, dynamic> json) => _$ColorDtoFromJson(json);
+  factory ColorDto.fromJson(Map<String, dynamic> json) =>
+      _$ColorDtoFromJson(json);
   Map<String, dynamic> toJson() => _$ColorDtoToJson(this);
 
   ColorEntity toEntity() => ColorEntity(id: id, name: name, hex: color);

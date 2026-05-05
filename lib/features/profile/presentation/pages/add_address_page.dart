@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
@@ -70,10 +71,11 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context)!;
     final Map<String, dynamic> data = {
       "name": _nameController.text.trim().isNotEmpty
           ? _nameController.text.trim()
-          : "Мой адрес ${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
+          : "${l10n.addressDefaultName} ${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
       "address":
           "${_cityController.text}, ${_streetController.text}${_houseController.text.isNotEmpty ? ', ${_houseController.text}' : ''}",
       "apartment": _apartmentController.text,
@@ -97,6 +99,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     // final isDark = context.isDark;
     final bodyBg = context.bodyBackground;
@@ -107,7 +110,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      
+
       body: Container(
         color: bodyBg,
         child: SafeArea(
@@ -132,7 +135,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                     ),
                     const SizedBox(width: 16),
                     AppText(
-                      text: 'Qayerga yetkazamiz?',
+                      text: l10n.addressAddTitle,
                       fontSize: 24,
                       fontWeight: 700,
                       color: textColor,
@@ -155,7 +158,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AppText(
-                                    text: 'Xaritadan manzilni kiriting',
+                                    text: l10n.addressAddMapHint,
                                     fontSize: 14,
                                     fontWeight: 400,
                                     color: textSecondary,
@@ -191,14 +194,14 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                                   text:
                                                       widget.coordinates != null
                                                       ? '${widget.coordinates!.latitude.toStringAsFixed(4)}, ${widget.coordinates!.longitude.toStringAsFixed(4)}'
-                                                      : 'Адрес на карте',
+                                                      : l10n.addressAddMapSelectedLabel,
                                                   fontSize: 16,
                                                   fontWeight: 600,
                                                   color: textColor,
                                                 ),
                                                 const SizedBox(height: 4),
                                                 AppText(
-                                                  text: 'Tanlangan manzil',
+                                                  text: l10n.addressAddMapSelectedSub,
                                                   fontSize: 14,
                                                   fontWeight: 400,
                                                   color: textSecondary,
@@ -230,25 +233,25 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   children: [
                                     WTextField(
                                       controller: _nameController,
-                                      title: 'Название адреса',
-                                      hintText: 'Дом, Работа, и т.д.',
+                                      title: l10n.addressNameLabel,
+                                      hintText: l10n.addressNameHint,
                                       fillColor: context.surfaceContainer,
                                       borderNoFocusColor: context.borderColor,
                                       validator: (value) =>
                                           value == null || value.trim().isEmpty
-                                          ? 'Maydonni to\'ldiring'
+                                          ? l10n.addressRequiredError
                                           : null,
                                     ),
                                     const SizedBox(height: 16),
                                     WTextField(
                                       controller: _cityController,
-                                      title: 'Город',
-                                      hintText: 'Введите город',
+                                      title: l10n.addressCityLabel,
+                                      hintText: l10n.addressCityHint,
                                       fillColor: context.surfaceContainer,
                                       borderNoFocusColor: context.borderColor,
                                       validator: (value) =>
                                           value == null || value.trim().isEmpty
-                                          ? 'Maydonni to\'ldiring'
+                                          ? l10n.addressRequiredError
                                           : null,
                                     ),
                                     const SizedBox(height: 16),
@@ -257,15 +260,15 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                         Expanded(
                                           child: WTextField(
                                             controller: _streetController,
-                                            title: 'Улица',
-                                            hintText: 'Введите улицу',
+                                            title: l10n.addressStreetLabel,
+                                            hintText: l10n.addressStreetHint,
                                             fillColor: context.surfaceContainer,
                                             borderNoFocusColor:
                                                 context.borderColor,
                                             validator: (value) =>
                                                 value == null ||
                                                     value.trim().isEmpty
-                                                ? 'Maydonni to\'ldiring'
+                                                ? l10n.addressRequiredError
                                                 : null,
                                           ),
                                         ),
@@ -273,8 +276,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                         Expanded(
                                           child: WTextField(
                                             controller: _houseController,
-                                            title: 'Дом',
-                                            hintText: 'Дом',
+                                            title: l10n.addressHouseLabel,
+                                            hintText: l10n.addressHouseHint,
                                             fillColor: context.surfaceContainer,
                                             borderNoFocusColor:
                                                 context.borderColor,
@@ -284,8 +287,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                         Expanded(
                                           child: WTextField(
                                             controller: _apartmentController,
-                                            title: 'Квартира',
-                                            hintText: 'Кв',
+                                            title: l10n.addressAptLabel,
+                                            hintText: l10n.addressAptHint,
                                             fillColor: context.surfaceContainer,
                                             borderNoFocusColor:
                                                 context.borderColor,
@@ -296,8 +299,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                     const SizedBox(height: 16),
                                     WTextField(
                                       controller: _landmarkController,
-                                      title: 'Ориентир',
-                                      hintText: 'Укажите ближайший ориентир',
+                                      title: l10n.addressLandmarkLabel,
+                                      hintText: l10n.addressLandmarkHint,
                                       fillColor: context.surfaceContainer,
                                       borderNoFocusColor: context.borderColor,
                                     ),
@@ -317,57 +320,59 @@ class _AddAddressPageState extends State<AddAddressPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        color: bodyBg,
-        child: ContainerW(
-          // height: 82,
-          width: double.infinity,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-          color: cardColor,
-          child: BlocConsumer<AddressBloc, AddressState>(
-            listener: (context, state) {
-              if (state.status == AddressStatus.createSuccess ||
-                  state.status == AddressStatus.updateSuccess) {
-                context.pop(true); // Return success
-              }
-            },
-            builder: (context, state) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  color: bodyBg,
-                  child: ContainerW(
-                    height: 50,
-                    onTap: state.status == AddressStatus.loading
-                        ? null
-                        : _submit,
-                    color: primaryColor,
-                    radius: 12,
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: state.status == AddressStatus.loading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          color: bodyBg,
+          child: ContainerW(
+            // height: 82,
+            width: double.infinity,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+            color: cardColor,
+            child: BlocConsumer<AddressBloc, AddressState>(
+              listener: (context, state) {
+                if (state.status == AddressStatus.createSuccess ||
+                    state.status == AddressStatus.updateSuccess) {
+                  context.pop(true); // Return success
+                }
+              },
+              builder: (context, state) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    color: bodyBg,
+                    child: ContainerW(
+                      height: 50,
+                      onTap: state.status == AddressStatus.loading
+                          ? null
+                          : _submit,
+                      color: primaryColor,
+                      radius: 12,
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: state.status == AddressStatus.loading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : AppText(
+                                  text: l10n.addressSave,
+                                  fontSize: 16,
+                                  fontWeight: 600,
                                   color: AppColors.white,
-                                  strokeWidth: 2,
                                 ),
-                              )
-                            : AppText(
-                                text: 'Сохранить',
-                                fontSize: 16,
-                                fontWeight: 600,
-                                color: AppColors.white,
-                              ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),

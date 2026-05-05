@@ -100,7 +100,5 @@ abstract class ProfileApi {
   );
 
   @POST(ApiUrls.chatMessages)
-  Future<ChatMessagesResponseModel> sendChatMessage(
-    @Body() dynamic body,
-  );
+  Future<ChatMessagesResponseModel> sendChatMessage(@Body() dynamic body);
 }

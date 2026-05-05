@@ -4,10 +4,7 @@ class ViewedAdsResponseModel {
   final bool status;
   final ViewedAdsData data;
 
-  ViewedAdsResponseModel({
-    required this.status,
-    required this.data,
-  });
+  ViewedAdsResponseModel({required this.status, required this.data});
 
   factory ViewedAdsResponseModel.fromJson(Map<String, dynamic> json) {
     return ViewedAdsResponseModel(

@@ -23,16 +23,14 @@ class MyAdsBloc extends Bloc<MyAdsEvent, MyAdsState> {
     emit(state.copyWith(loading: true, error: null, status: event.status));
     final result = await _getMyListings(event.status);
     result.either(
-      (failure) => emit(state.copyWith(
-        loading: false,
-        error: failure.message ?? 'Xatolik',
-        list: [],
-      )),
-      (list) => emit(state.copyWith(
-        loading: false,
-        list: list,
-        error: null,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          loading: false,
+          error: failure.message ?? 'Xatolik',
+          list: [],
+        ),
+      ),
+      (list) => emit(state.copyWith(loading: false, list: list, error: null)),
     );
   }
 
@@ -45,10 +43,12 @@ class MyAdsBloc extends Bloc<MyAdsEvent, MyAdsState> {
     final result = await _deleteMyAd(event.slug);
     result.either(
       (failure) => emit(state.copyWith(deletingSlug: null)),
-      (_) => emit(state.copyWith(
-        deletingSlug: null,
-        list: state.list.where((e) => e.slug != event.slug).toList(),
-      )),
+      (_) => emit(
+        state.copyWith(
+          deletingSlug: null,
+          list: state.list.where((e) => e.slug != event.slug).toList(),
+        ),
+      ),
     );
   }
 }

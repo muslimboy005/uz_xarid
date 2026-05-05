@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
+import 'package:uz_xarid/core/app_config.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class SupportMenuPage extends StatelessWidget {
   const SupportMenuPage({super.key});
@@ -26,6 +28,7 @@ class SupportMenuPage extends StatelessWidget {
     final textSecondary = context.textSecondary;
     final border = context.borderColor;
     final card = context.surfaceContainer;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: appBarColor,
@@ -42,6 +45,7 @@ class SupportMenuPage extends StatelessWidget {
                 // Logo
                 Image.asset(
                   isBuying ? AppAssets.logoAppBarBuying : AppAssets.logoAppBar,
+                  package: AppConfig.packageName,
                   height: 36,
                 ),
                 const Spacer(),
@@ -80,12 +84,12 @@ class SupportMenuPage extends StatelessWidget {
                 child: Row(
                   children: [
                     _Tab(
-                      label: 'Sotaman',
+                      label: l10n.supportMenuSotaman,
                       selected: !isBuying,
                       onTap: () => context.read<AppModeCubit>().setSelling(),
                     ),
                     _Tab(
-                      label: 'Sotib olaman',
+                      label: l10n.supportMenuSotibOlaman,
                       selected: isBuying,
                       onTap: () => context.read<AppModeCubit>().setBuying(),
                     ),
@@ -99,7 +103,7 @@ class SupportMenuPage extends StatelessWidget {
               icon: Icons.local_offer_outlined,
               iconColor: AppColors.red,
               iconBg: AppColors.red.withValues(alpha: 0.12),
-              title: 'Chegirmalar',
+              title: l10n.supportMenuChegirmalar,
               textColor: textPrimary,
               border: border,
               onTap: () {},
@@ -108,7 +112,7 @@ class SupportMenuPage extends StatelessWidget {
               icon: Icons.campaign_outlined,
               iconColor: const Color(0xFFFF8C00),
               iconBg: const Color(0xFFFF8C00).withValues(alpha: 0.12),
-              title: 'Aksiyalar',
+              title: l10n.supportMenuAksiyalar,
               textColor: textPrimary,
               border: border,
               onTap: () {},
@@ -117,7 +121,7 @@ class SupportMenuPage extends StatelessWidget {
               icon: Icons.chat_bubble_outline,
               iconColor: mode.primaryColor,
               iconBg: mode.primaryColor.withValues(alpha: 0.12),
-              title: 'Qo\'llab-quvvatlash',
+              title: l10n.supportMenuQollabQuvvatlash,
               textColor: textPrimary,
               border: border,
               onTap: () => context.push('/profile/support'),
@@ -126,7 +130,7 @@ class SupportMenuPage extends StatelessWidget {
               icon: null,
               iconColor: Colors.transparent,
               iconBg: Colors.transparent,
-              title: 'Buyurtma qanday beriladi?',
+              title: l10n.supportMenuHowToOrder,
               textColor: textPrimary,
               border: border,
               onTap: () {},
@@ -135,7 +139,7 @@ class SupportMenuPage extends StatelessWidget {
               icon: null,
               iconColor: Colors.transparent,
               iconBg: Colors.transparent,
-              title: 'Yetkazib berish va to\'lov',
+              title: l10n.supportMenuDeliveryAndPayment,
               textColor: textPrimary,
               border: border,
               onTap: () {},
@@ -152,7 +156,7 @@ class SupportMenuPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        '+998 99 55-01-48 \u2013 Doimiy',
+                        '+998 99 55-01-48 \u2013 ${l10n.phoneDoimiy}',
                         style: TextStyle(fontSize: 15, color: textPrimary),
                       ),
                     ),

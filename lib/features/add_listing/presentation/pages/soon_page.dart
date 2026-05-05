@@ -19,7 +19,11 @@ class SoonPage extends StatelessWidget {
           color: Colors.white.withOpacity(0.2),
           child: const Padding(
             padding: EdgeInsets.all(10),
-            child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+            child: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
         ),
       ),

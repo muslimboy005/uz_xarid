@@ -1,0 +1,89 @@
+class CategoryFieldEntity {
+  const CategoryFieldEntity({
+    required this.name,
+    required this.label,
+    required this.type,
+    required this.required,
+    required this.placeholder,
+    required this.suffix,
+    required this.options,
+    required this.condition,
+  });
+
+  final String name;
+  final String label;
+  final String type;
+  final bool required;
+  final String? placeholder;
+  final String? suffix;
+  final List<CategoryFieldOptionEntity> options;
+  final CategoryFieldConditionEntity? condition;
+
+  factory CategoryFieldEntity.fromJson(Map<String, dynamic> json) {
+    final optionsRaw = json['options'];
+    final options = <CategoryFieldOptionEntity>[];
+    if (optionsRaw is List) {
+      for (final e in optionsRaw) {
+        if (e is Map<String, dynamic>) {
+          options.add(CategoryFieldOptionEntity.fromJson(e));
+        } else if (e is Map) {
+          options.add(
+            CategoryFieldOptionEntity.fromJson(e.cast<String, dynamic>()),
+          );
+        }
+      }
+    }
+
+    CategoryFieldConditionEntity? condition;
+    final condRaw = json['condition'];
+    if (condRaw is Map<String, dynamic>) {
+      condition = CategoryFieldConditionEntity.fromJson(condRaw);
+    } else if (condRaw is Map) {
+      condition = CategoryFieldConditionEntity.fromJson(
+        condRaw.cast<String, dynamic>(),
+      );
+    }
+
+    return CategoryFieldEntity(
+      name: (json['name'] ?? '').toString(),
+      label: (json['label'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      required: json['required'] == true,
+      placeholder: json['placeholder']?.toString(),
+      suffix: json['suffix']?.toString(),
+      options: options,
+      condition: condition,
+    );
+  }
+}
+
+class CategoryFieldOptionEntity {
+  const CategoryFieldOptionEntity({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  factory CategoryFieldOptionEntity.fromJson(Map<String, dynamic> json) {
+    return CategoryFieldOptionEntity(
+      label: (json['label'] ?? '').toString(),
+      value: (json['value'] ?? '').toString(),
+    );
+  }
+}
+
+class CategoryFieldConditionEntity {
+  const CategoryFieldConditionEntity({
+    required this.field,
+    required this.equals,
+  });
+
+  final String field;
+  final String equals;
+
+  factory CategoryFieldConditionEntity.fromJson(Map<String, dynamic> json) {
+    return CategoryFieldConditionEntity(
+      field: (json['field'] ?? '').toString(),
+      equals: (json['equals'] ?? '').toString(),
+    );
+  }
+}

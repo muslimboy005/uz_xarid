@@ -5,7 +5,8 @@ import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_params.d
 import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_result.dart';
 import 'package:uz_xarid/features/add_listing/domain/repositories/listing_repository.dart';
 
-class CreateAd extends UseCase<Either<Failure, CreateAdResult>, CreateAdParams> {
+class CreateAd
+    extends UseCase<Either<Failure, CreateAdResult>, CreateAdParams> {
   CreateAd(this.repository);
 
   final ListingRepository repository;

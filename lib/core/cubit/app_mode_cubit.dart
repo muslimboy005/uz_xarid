@@ -33,8 +33,7 @@ class AppModeCubit extends Cubit<AppMode> {
     await prefs.setString(AppKeys.appModeKey, 'buying');
   }
 
-  void toggle() =>
-      state == AppMode.selling ? setBuying() : setSelling();
+  void toggle() => state == AppMode.selling ? setBuying() : setSelling();
 }
 
 extension AppModeColor on AppMode {

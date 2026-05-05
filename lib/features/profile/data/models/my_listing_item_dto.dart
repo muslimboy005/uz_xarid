@@ -17,6 +17,9 @@ class MyListingItemDto {
     this.likesCount = 0,
     this.callCount = 0,
     this.createdAt,
+    this.latitude,
+    this.longitude,
+    this.address,
   });
 
   final String slug;
@@ -35,6 +38,9 @@ class MyListingItemDto {
   final int likesCount;
   final int callCount;
   final String? createdAt;
+  final double? latitude;
+  final double? longitude;
+  final String? address;
 
   factory MyListingItemDto.fromJson(Map<String, dynamic> json) {
     final category = json['category'];
@@ -61,6 +67,9 @@ class MyListingItemDto {
       likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
       callCount: (json['call_count'] as num?)?.toInt() ?? 0,
       createdAt: json['created_at'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      address: json['address'] as String?,
     );
   }
 }

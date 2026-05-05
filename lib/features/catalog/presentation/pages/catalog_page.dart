@@ -54,7 +54,6 @@ class _CatalogPageState extends State<CatalogPage> {
         return bloc;
       },
       child: Scaffold(
-        
         appBar: UzXaridAppBar(
           onSearchTap: () => context.push('/search'),
           onSearchChanged: (query) {
@@ -154,6 +153,8 @@ class _CatalogPageState extends State<CatalogPage> {
         return l10n.categoryAutoMoto;
       case 'Service':
         return l10n.categoryServices;
+      case 'Equipment':
+        return l10n.categoryEquipment;
       default:
         return l10n.allCategories;
     }
@@ -173,6 +174,7 @@ class _CatalogPageState extends State<CatalogPage> {
     'Home': 'assets/images/apartment.png',
     'Auto': 'assets/images/car.png',
     'Service': 'assets/images/service.png',
+    'Equipment': 'assets/images/service.png',
   };
 
   Widget _buildTypeTilesSliver(
@@ -186,34 +188,39 @@ class _CatalogPageState extends State<CatalogPage> {
       (l10n.categoryConstruction, 'Home'),
       (l10n.categoryAutoMoto, 'Auto'),
       (l10n.categoryServices, 'Service'),
+      (l10n.categoryEquipment, 'Equipment'),
     ];
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         final e = types[index];
         final assetPath = _typeAssets[e.$2];
-        return ListTile(
-          leading: assetPath != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
-                  child: AppImage(
-                    path: assetPath,
-                    width: 48,
-                    height: 48,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : null,
-          title: Text(
-            e.$1,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: context.textPrimary,
+        return Card(
+          elevation: 8,
+
+          child: ListTile(
+            leading: assetPath != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
+                    child: AppImage(
+                      path: assetPath,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : null,
+            title: Text(
+              e.$1,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: context.textPrimary,
+              ),
             ),
+            trailing: Icon(Icons.chevron_right, color: context.textSecondary),
+            onTap: () {
+              bloc.add(CatalogLoadRequested(categoryType: e.$2));
+            },
           ),
-          trailing: Icon(Icons.chevron_right, color: context.textSecondary),
-          onTap: () {
-            bloc.add(CatalogLoadRequested(categoryType: e.$2));
-          },
         );
       }, childCount: types.length),
     );

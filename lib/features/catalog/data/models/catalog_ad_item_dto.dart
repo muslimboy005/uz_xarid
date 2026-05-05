@@ -1,3 +1,5 @@
+import 'package:uz_xarid/core/utils/image_parser.dart';
+
 /// E'lon ro'yxati elementi (katalog bo'yicha mahsulotlar).
 class CatalogAdItemDto {
   const CatalogAdItemDto({
@@ -24,7 +26,7 @@ class CatalogAdItemDto {
     return CatalogAdItemDto(
       slug: json['slug'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      mainImage: json['main_image'] as String?,
+      mainImage: ImageParser.parse(json['main_image']),
       price: json['price']?.toString(),
       finalPrice: json['final_price']?.toString(),
       currency: json['currency'] as String? ?? 'uzs',

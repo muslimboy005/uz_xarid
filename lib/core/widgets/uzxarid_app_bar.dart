@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
+import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:uz_xarid/features/cart/presentation/bloc/cart_state.dart';
 
+import 'package:uz_xarid/app/router/app_router.dart';
+import 'package:uz_xarid/core/app_config.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
@@ -138,6 +142,75 @@ class _UzXaridAppBarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void onAppsIconTapped() {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          final l10n = AppLocalizations.of(dialogContext)!;
+          final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+          final currentMode = dialogContext.watch<AppModeCubit>().state;
+          final textColor = isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.textPrimary;
+
+          return AlertDialog(
+            backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              l10n.appsTitle,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
+            ),
+            contentPadding: const EdgeInsets.only(top: 16, bottom: 24),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: currentMode.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.local_shipping,
+                      color: currentMode.primaryColor,
+                    ),
+                  ),
+                  title: Text(
+                    'Tez Elt',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    l10n.tezEltSubtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(dialogContext);
+                    AppRouter.openApp1(context);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
     final appMode = context.watch<AppModeCubit>().state;
@@ -154,7 +227,7 @@ class _UzXaridAppBarContent extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: 85 + topPadding,
+            height: 112 + topPadding,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
@@ -188,13 +261,69 @@ class _UzXaridAppBarContent extends StatelessWidget {
                           appMode == AppMode.buying
                               ? AppAssets.logoAppBarBuying
                               : AppAssets.logoAppBar,
+                          package: AppConfig.packageName,
                           height: 42,
                         ),
                         const Spacer(),
                         // _LanguageSelector(currentLocale: locale),
                         // const SizedBox(width: 12),
-                        if (actions != null) ...actions!,
+                        _AppBarButton(
+                          onTap: onAppsIconTapped,
+                          icon: Icon(
+                            Icons.apps_outlined,
+                            color: onHeader,
+                            size: 22,
+                          ),
+                          color: onHeader,
+                        ),
                         const SizedBox(width: 8),
+                        BlocBuilder<CartBloc, CartState>(
+                          builder: (context, state) {
+                            final count = state.totalItems;
+                            return Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                _AppBarButton(
+                                  onTap: () => context.push('/cart'),
+                                  icon: Icon(
+                                    Icons.shopping_cart_outlined,
+                                    color: onHeader,
+                                    size: 22,
+                                  ),
+                                  color: onHeader,
+                                ),
+                                if (count > 0)
+                                  Positioned(
+                                    right: -4,
+                                    top: -4,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 16,
+                                        minHeight: 16,
+                                      ),
+                                      child: Text(
+                                        '$count',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        if (actions != null) ...actions!,
+                        if (actions != null) const SizedBox(width: 8),
                         _MenuButton(
                           onTap: onMenuTap,
                           isOpen: isMenuOpen,
@@ -265,6 +394,7 @@ class _LanguageSelector extends StatelessWidget {
           children: [
             SvgPicture.asset(
               _flagAssetFor(languageCode),
+              package: AppConfig.packageName,
               width: 28,
               height: 28,
             ),
@@ -299,10 +429,46 @@ class _LanguageSelector extends StatelessWidget {
       value: locale,
       child: Row(
         children: [
-          SvgPicture.asset(asset, width: 20, height: 20),
+          SvgPicture.asset(
+            asset,
+            width: 20,
+            height: 20,
+            package: AppConfig.packageName,
+          ),
           const SizedBox(width: 8),
           Text(label),
         ],
+      ),
+    );
+  }
+}
+
+class _AppBarButton extends StatelessWidget {
+  const _AppBarButton({
+    required this.icon,
+    this.onTap,
+    this.color = AppColors.white,
+    this.alpha = 0.12,
+  });
+
+  final Widget icon;
+  final VoidCallback? onTap;
+  final Color color;
+  final double alpha;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: alpha),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(child: icon),
       ),
     );
   }
@@ -321,35 +487,27 @@ class _MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return _AppBarButton(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
+      alpha: isOpen ? 0.25 : 0.12,
+      color: iconColor,
+      icon: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: isOpen ? 0.25 : 0.12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (child, anim) =>
-              ScaleTransition(scale: anim, child: child),
-          child: isOpen
-              ? Icon(
-                  Icons.close,
-                  color: iconColor,
-                  size: 22,
-                  key: const ValueKey('close'),
-                )
-              : Icon(
-                  Icons.menu,
-                  color: iconColor,
-                  size: 25,
-                  key: const ValueKey('menu'),
-                ),
-        ),
+        transitionBuilder: (child, anim) =>
+            ScaleTransition(scale: anim, child: child),
+        child: isOpen
+            ? Icon(
+                Icons.close,
+                color: iconColor,
+                size: 22,
+                key: const ValueKey('close'),
+              )
+            : Icon(
+                Icons.menu,
+                color: iconColor,
+                size: 25,
+                key: const ValueKey('menu'),
+              ),
       ),
     );
   }
@@ -400,6 +558,7 @@ class _SearchField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SvgPicture.asset(
               'assets/svg/search.svg',
+              package: AppConfig.packageName,
               width: 20,
               height: 20,
               colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
@@ -413,6 +572,7 @@ class _SearchField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SvgPicture.asset(
               'assets/svg/access_time_filled.svg',
+              package: AppConfig.packageName,
               width: 20,
               height: 20,
               colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),

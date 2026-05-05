@@ -22,9 +22,23 @@ import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.
 import 'package:uz_xarid/features/product_list/domain/usecases/get_product_list.dart';
 import 'package:uz_xarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
 import 'package:uz_xarid/features/product_list/presentation/widgets/product_filter_sheet.dart';
+import 'package:uz_xarid/features/product_list/presentation/widgets/product_list_map_view.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
-/// Barcha joylardan ochiladigan mahsulotlar ro'yxati (Barchasi, turkum bo'yicha).
+class CategoryBreadcrumb {
+  final String title;
+  final List<SubcategoryItem> primarySubcategories;
+  final int? activeChipId;
+  final List<SubcategoryItem> secondarySubcategories;
+
+  CategoryBreadcrumb({
+    required this.title,
+    required this.primarySubcategories,
+    this.activeChipId,
+    required this.secondarySubcategories,
+  });
+}
+
 class ProductListPage extends StatefulWidget {
   const ProductListPage({
     super.key,
@@ -37,18 +51,10 @@ class ProductListPage extends StatefulWidget {
   });
 
   final String title;
-
-  /// Qidiruv so'rovi – berilsa ads/search orqali yuklanadi.
   final String? searchQuery;
   final int? categoryId;
-
-  /// 'recommendations' | 'services' – bosh sahifa "Barchasi" bo'limi.
   final String listSource;
-
-  /// Ostki turkumlar – bo'lsa tepada gorizontal scroll qatorida ko'rsatiladi.
   final List<SubcategoryItem> subcategories;
-
-  /// Product | Auto | Home | Service – subkategoriyalarni yuklash uchun (strip bo'sh bo'lsa).
   final String categoryType;
 
   @override
@@ -58,16 +64,26 @@ class ProductListPage extends StatefulWidget {
 class _ProductListPageState extends State<ProductListPage> {
   List<ProductListItemEntity> _items = [];
   List<SubcategoryItem> _loadedSubcategories = [];
+  List<SubcategoryItem> _primarySubcategories = [];
+  List<SubcategoryItem> _secondarySubcategories = [];
+
+  final List<CategoryBreadcrumb> _navigationStack = [];
+  late String _currentTitle;
+
+  int? _activeChipId;
+  int? _activeCardId;
+
   bool _loading = true;
   String? _error;
-  // Sort option: 0=Tanlangan(default), 1=Eng yangi, 2=Eng arzon, 3=Eng qimmat
   int _sortOption = 0;
   ProductFilterData? _activeFilter;
   bool _initialLoadDone = false;
+  bool _mapViewMode = false;
 
   @override
   void initState() {
     super.initState();
+    _currentTitle = widget.title;
     _loadSubcategoriesIfNeeded();
   }
 
@@ -80,22 +96,24 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  /// categoryId bor, subcategories bo'sh va categoryType bor bo'lsa – daraxtdan bolalarni yuklaydi.
   Future<void> _loadSubcategoriesIfNeeded() async {
-    if (widget.subcategories.isNotEmpty ||
-        widget.categoryId == null ||
-        widget.categoryId! <= 0) {
-      return;
-    }
+    if (widget.subcategories.isNotEmpty) return;
+    if (widget.categoryId == null && widget.listSource != 'category') return;
+
     final result = await getIt<GetSubcategoriesByCategoryId>()(
       GetSubcategoriesByCategoryIdParams(
-        categoryId: widget.categoryId!,
+        categoryId: widget.categoryId,
         categoryType: widget.categoryType,
       ),
     );
     if (!mounted) return;
     if (result is Right<Failure, List<SubcategoryItem>>) {
-      setState(() => _loadedSubcategories = result.right);
+      setState(() {
+        _loadedSubcategories = result.right;
+        if (_navigationStack.isEmpty) {
+          _primarySubcategories = _loadedSubcategories;
+        }
+      });
     }
   }
 
@@ -104,24 +122,23 @@ class _ProductListPageState extends State<ProductListPage> {
       ? widget.subcategories
       : _loadedSubcategories;
 
-  /// Returns the active sort string for the recommendations API
-  /// (popular | cheap | expensive | high-ranking | null)
   String? get _activeSortValue {
     switch (_sortOption) {
       case 1:
-        return ApiUrls.sortPopular; // 'popular'
+        return ApiUrls.sortPopular;
       case 2:
-        return ApiUrls.sortCheap; // 'cheap'
+        return ApiUrls.sortCheap;
       case 3:
-        return ApiUrls.sortExpensive; // 'expensive'
+        return ApiUrls.sortExpensive;
       case 4:
-        return ApiUrls.sortHighRanking; // 'high-ranking'
+        return ApiUrls.sortHighRanking;
       default:
-        return null; // no sort
+        return null;
     }
   }
 
   Future<void> _load() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _loading = true;
       _error = null;
@@ -129,16 +146,18 @@ class _ProductListPageState extends State<ProductListPage> {
 
     final mode = context.read<AppModeCubit>().state;
     final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
-    final filterParams = _buildFilterParams();
+
+    final filterId = _activeCardId ?? _activeChipId ?? widget.categoryId;
 
     final result = await getIt<GetProductList>()(
       GetProductListParams(
         searchQuery: widget.searchQuery,
-        categoryId: widget.categoryId,
+        categoryId: filterId,
         listSource: widget.listSource,
         adType: adType,
-        filterParams: filterParams,
-        sort: _activeSortValue, // passed to getRecommendations
+        categoryType: widget.categoryType,
+        filterParams: _buildFilterParams(),
+        sort: _activeSortValue,
       ),
     );
 
@@ -149,77 +168,236 @@ class _ProductListPageState extends State<ProductListPage> {
         _items = result.right;
         _error = null;
       } else {
-        _error = (result as Left).left.message ?? 'Xatolik';
+        _error = (result as Left).left.message ?? l10n.dataLoadError;
       }
     });
   }
 
   Map<String, dynamic> _buildFilterParams() {
     final params = <String, dynamic>{};
-
-    // ── Sort: now handled directly via sort param in GetProductListParams,
-    // not via ordering in filterParams. Nothing to add here.
-
     if (_activeFilter != null) {
       final f = _activeFilter!;
-
-      // Price range
       if (f.minPrice != null) params['price_min'] = f.minPrice;
       if (f.maxPrice != null) params['price_max'] = f.maxPrice;
-
-      // Toggles
       if (f.hasDiscount) params['has_discount'] = true;
       if (f.hasServices) params['listing_type'] = 'Service';
-
-      // Seller type: Jismoniy shaxs=0 → is_physical=true; Biznes=1 → is_physical=false
-      if (f.selectedSellerTypeIndex != null) {
-        params['is_physical'] = f.selectedSellerTypeIndex == 0;
+      if (widget.categoryType == 'Auto') {
+        if (f.onlyTop) params['is_top'] = true;
+        if (f.vehicleMark != null) params['mark'] = f.vehicleMark;
+        if (f.vehicleModel != null && f.vehicleModel!.trim().isNotEmpty) {
+          params['model'] = f.vehicleModel!.trim();
+        }
+        if (f.yearFrom != null) params['manufacture_min'] = f.yearFrom;
+        if (f.yearTo != null) params['manufacture_max'] = f.yearTo;
+        if (f.probegFrom != null) params['probeg_min'] = f.probegFrom;
+        if (f.probegTo != null) params['probeg_max'] = f.probegTo;
+        if (f.engineCcFrom != null) {
+          params['engine_capacity_min'] = f.engineCcFrom;
+        }
+        if (f.engineCcTo != null) params['engine_capacity_max'] = f.engineCcTo;
+        if (f.enginePowerFrom != null) {
+          params['engine_power_min'] = f.enginePowerFrom;
+        }
+        if (f.enginePowerTo != null) {
+          params['engine_power_max'] = f.enginePowerTo;
+        }
+        if (f.vehicleFuelType != null) {
+          params['fuel_type'] = f.vehicleFuelType;
+        }
+        if (f.vehicleTransmission != null) {
+          params['transmission_type'] = f.vehicleTransmission;
+        }
+        if (f.vehiclePrivod != null) params['privod'] = f.vehiclePrivod;
+        if (f.vehicleBody != null) params['body'] = f.vehicleBody;
+        const autoColorNames = [
+          'purple',
+          'red',
+          'pink',
+          'sandy',
+          'yellow',
+          'blue',
+          'lightblue',
+          'green',
+          'brown',
+          'black',
+          'black',
+          'gray',
+          'white',
+        ];
+        if (f.selectedColorIndex != null &&
+            f.selectedColorIndex! < autoColorNames.length) {
+          params['color'] = autoColorNames[f.selectedColorIndex!];
+        }
+        if (f.vehicleConfiguration != null &&
+            f.vehicleConfiguration!.trim().isNotEmpty) {
+          params['configuration'] = f.vehicleConfiguration!.trim();
+        }
+        if (f.vehiclePaymentType != null) {
+          params['payment_type'] = f.vehiclePaymentType;
+        }
+        if (f.selectedConditionIndex != null &&
+            f.selectedConditionIndex! >= 0 &&
+            f.selectedConditionIndex! < 3) {
+          const condKeys = ['yangi', 'ishlatilgan', 'tamir_talab'];
+          params['condition'] = condKeys[f.selectedConditionIndex!];
+        }
+      } else {
+        if (f.selectedSellerTypeIndex != null) {
+          params['is_physical'] = f.selectedSellerTypeIndex == 0;
+        }
+        const colorNames = [
+          'purple',
+          'red',
+          'pink',
+          'sandy',
+          'yellow',
+          'blue',
+          'lightblue',
+          'green',
+          'brown',
+          'black',
+          'black',
+          'gray',
+          'white',
+        ];
+        if (f.selectedColorIndex != null &&
+            f.selectedColorIndex! < colorNames.length) {
+          params['color'] = colorNames[f.selectedColorIndex!];
+        }
+        const sizeNames = ['2XS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+        if (f.selectedSizeIndex != null &&
+            f.selectedSizeIndex! < sizeNames.length) {
+          params['size'] = sizeNames[f.selectedSizeIndex!];
+        }
       }
+      params.addAll(f.dynamicFields);
+    }
+    return params;
+  }
 
-      // Color: map index to color name string
-      const colorNames = [
-        'purple',
-        'red',
-        'pink',
-        'sandy',
-        'yellow',
-        'blue',
-        'lightblue',
-        'green',
-        'brown',
-        'black',
-        'black',
-        'gray',
-        'white',
-      ];
-      if (f.selectedColorIndex != null &&
-          f.selectedColorIndex! < colorNames.length) {
-        params['color'] = colorNames[f.selectedColorIndex!];
-      }
+  bool _filterDataIsEmpty(ProductFilterData f) {
+    if (widget.categoryType == 'Auto') {
+      bool emptyStr(String? s) => s == null || s.trim().isEmpty;
+      return f.minPrice == null &&
+          f.maxPrice == null &&
+          !f.hasDiscount &&
+          !f.onlyTop &&
+          f.selectedConditionIndex == null &&
+          f.vehicleMark == null &&
+          emptyStr(f.vehicleModel) &&
+          f.yearFrom == null &&
+          f.yearTo == null &&
+          f.probegFrom == null &&
+          f.probegTo == null &&
+          f.engineCcFrom == null &&
+          f.engineCcTo == null &&
+          f.enginePowerFrom == null &&
+          f.enginePowerTo == null &&
+          f.vehicleFuelType == null &&
+          f.vehicleTransmission == null &&
+          f.vehiclePrivod == null &&
+          f.vehicleBody == null &&
+          f.selectedColorIndex == null &&
+          emptyStr(f.vehicleConfiguration) &&
+          f.vehiclePaymentType == null &&
+          f.dynamicFields.isEmpty;
+    }
+    return f.minPrice == null &&
+        f.maxPrice == null &&
+        !f.hasDiscount &&
+        !f.hasServices &&
+        f.selectedConditionIndex == null &&
+        f.selectedSellerTypeIndex == null &&
+        f.selectedColorIndex == null &&
+        f.selectedSizeIndex == null &&
+        f.dynamicFields.isEmpty;
+  }
 
-      // Size: map index to size string
-      const sizeNames = ['2XS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
-      if (f.selectedSizeIndex != null &&
-          f.selectedSizeIndex! < sizeNames.length) {
-        params['size'] = sizeNames[f.selectedSizeIndex!];
-      }
+  Future<void> _syncAutoPrimaryCategoryFromFilter(ProductFilterData? f) async {
+    if (widget.categoryType != 'Auto' || f == null) return;
+    final want = f.vehiclePrimaryCategoryId;
+    if (want == _activeChipId) return;
+    setState(() {
+      _activeChipId = want;
+      _activeCardId = null;
+      _secondarySubcategories = [];
+    });
+    if (want == null) return;
+    final result = await getIt<GetSubcategoriesByCategoryId>()(
+      GetSubcategoriesByCategoryIdParams(
+        categoryId: want,
+        categoryType: widget.categoryType,
+      ),
+    );
+    if (!mounted) return;
+    if (result is Right<Failure, List<SubcategoryItem>>) {
+      setState(() => _secondarySubcategories = result.right);
+    }
+  }
+
+  Future<void> _openFilterSheet() async {
+    final res = await showProductFilterSheet(
+      context,
+      initial: _activeFilter,
+      vehicleListing: widget.categoryType == 'Auto',
+      vehiclePrimaryCategories: _primarySubcategories,
+      currentVehiclePrimaryCategoryId: _activeChipId,
+      listingType: widget.categoryType,
+      categoryId: _activeCardId ?? _activeChipId ?? widget.categoryId,
+    );
+    if (!mounted || res == null) return;
+
+    if (res.clearedFilters) {
+      setState(() => _activeFilter = null);
+      _load();
+      return;
     }
 
-    return params;
+    if (res.openMapView) {
+      final f = res.filter;
+      await _syncAutoPrimaryCategoryFromFilter(f);
+      if (!mounted) return;
+      if (f != null) {
+        final empty = _filterDataIsEmpty(f);
+        setState(() {
+          _activeFilter = empty ? null : f;
+          _mapViewMode = true;
+        });
+      } else {
+        setState(() => _mapViewMode = true);
+      }
+      _load();
+      return;
+    }
+
+    final f = res.filter;
+    await _syncAutoPrimaryCategoryFromFilter(f);
+    if (!mounted) return;
+    if (f != null) {
+      final empty = _filterDataIsEmpty(f);
+      setState(() => _activeFilter = empty ? null : f);
+    }
+    _load();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final bodyBg = context.bodyBackground;
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _mapViewMode ? null : _buildAppBar(context),
       body: Container(
-        color: bodyBg,
+        color: context.bodyBackground,
         height: MediaQuery.of(context).size.height,
         child: _error != null && !_loading
-            ? _buildErrorBody(l10n)
-            : _buildBody(l10n),
+            ? _buildErrorBody(AppLocalizations.of(context)!)
+            : _mapViewMode
+            ? ProductListMapView(
+                title: _currentTitle,
+                items: _items,
+                filterActive: _activeFilter != null,
+                onBack: () => setState(() => _mapViewMode = false),
+                onOpenFilters: _openFilterSheet,
+              )
+            : _buildBody(AppLocalizations.of(context)!),
       ),
     );
   }
@@ -232,11 +410,10 @@ class _ProductListPageState extends State<ProductListPage> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 16, 16, 12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                  onPressed: () => context.pop(),
+                  onPressed: _onBackTap,
                   color: context.textPrimary,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
@@ -246,22 +423,24 @@ class _ProductListPageState extends State<ProductListPage> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.title,
+                    _currentTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: context.textPrimary,
                     ),
                   ),
                 ),
-                // Sort popup button
                 _buildSortButton(context),
               ],
             ),
           ),
         ),
-
-        if (hasSubcategories && !_loading) ...[
+        if (hasSubcategories) ...[
           SliverToBoxAdapter(child: _buildSubcategoriesStrip()),
+          if (_secondarySubcategories.isNotEmpty) ...[
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            SliverToBoxAdapter(child: _buildSecondarySubcategoriesStrip()),
+          ],
           const SliverToBoxAdapter(child: SizedBox(height: 12)),
         ],
         if (_loading)
@@ -305,20 +484,23 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
-  /// Sort popup button shown in the title row
   Widget _buildSortButton(BuildContext context) {
-    // 4 sort options; _sortOption 0 means none selected
-    const labels = ['Mashhur', 'Arzonroq', 'Qimmatroq', 'Yuqori reyting'];
+    final l10n = AppLocalizations.of(context)!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
+    final labels = [
+      l10n.sortPopular,
+      l10n.sortCheaper,
+      l10n.sortExpensive,
+      l10n.sortHighRating,
+    ];
     final bool nonDefault = _sortOption != 0;
     final displayLabel = _sortOption == 0
-        ? 'Saralash'
+        ? l10n.sortTitle
         : labels[_sortOption - 1];
     return PopupMenuButton<int>(
       color: context.cardSurface,
       onSelected: (value) {
-        // Tapping already-selected item deselects it
-        final next = (_sortOption == value) ? 0 : value;
-        setState(() => _sortOption = next);
+        setState(() => _sortOption = (_sortOption == value) ? 0 : value);
         _load();
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -326,9 +508,7 @@ class _ProductListPageState extends State<ProductListPage> {
       itemBuilder: (_) => List.generate(
         labels.length,
         (i) => PopupMenuItem<int>(
-          value:
-              i +
-              1, // 1-indexed: 1=Mashhur, 2=Arzonroq, 3=Qimmatroq, 4=Yuqori reyting
+          value: i + 1,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -342,7 +522,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 ),
               ),
               if (_sortOption == i + 1)
-                Icon(Icons.check_rounded, color: AppColors.primary, size: 18),
+                Icon(Icons.check_rounded, color: primaryColor, size: 18),
             ],
           ),
         ),
@@ -350,11 +530,10 @@ class _ProductListPageState extends State<ProductListPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: nonDefault ? AppColors.primary : context.cardSurface,
+          color: nonDefault ? primaryColor : context.cardSurface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               displayLabel,
@@ -376,7 +555,53 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Widget _buildSubcategoriesStrip() {
-    final list = _effectiveSubcategories;
+    final list = _primarySubcategories;
+    final bool hasSelection = _activeChipId != null;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
+
+    if (hasSelection) {
+      return SizedBox(
+        height: 40,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          itemCount: list.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final sub = list[index];
+            final isSelected = _activeChipId == sub.id;
+            return GestureDetector(
+              onTap: () => _onPrimaryCategoryTap(sub),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? primaryColor : context.cardSurface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected ? primaryColor : context.borderColor,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    sub.name,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isSelected ? Colors.white : context.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
     return SizedBox(
       height: 100,
       child: ListView.separated(
@@ -386,15 +611,126 @@ class _ProductListPageState extends State<ProductListPage> {
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final sub = list[index];
-          final query =
-              'categoryId=${sub.id}&title=${Uri.encodeComponent(sub.name)}&categoryType=${Uri.encodeComponent(widget.categoryType)}';
           return _SubcategoryCard(
             item: sub,
-            onTap: () => context.push('/products?$query'),
+            isSelected: _activeChipId == sub.id,
+            onTap: () => _onPrimaryCategoryTap(sub),
           );
         },
       ),
     );
+  }
+
+  Widget _buildSecondarySubcategoriesStrip() {
+    return SizedBox(
+      height: 100,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        itemCount: _secondarySubcategories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final sub = _secondarySubcategories[index];
+          final isSelected = _activeCardId == sub.id;
+          return _SubcategoryCard(
+            item: sub,
+            isSelected: isSelected,
+            onTap: () => _onSecondaryCategoryTap(sub),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _onPrimaryCategoryTap(SubcategoryItem sub) async {
+    if (_activeChipId == sub.id) {
+      setState(() {
+        _activeChipId = null;
+        _activeCardId = null;
+        _secondarySubcategories = [];
+        _loading = true;
+      });
+    } else {
+      setState(() {
+        _activeChipId = sub.id;
+        _activeCardId = null;
+        _secondarySubcategories = [];
+        _loading = true;
+      });
+
+      final result = await getIt<GetSubcategoriesByCategoryId>()(
+        GetSubcategoriesByCategoryIdParams(
+          categoryId: sub.id,
+          categoryType: widget.categoryType,
+        ),
+      );
+      if (mounted && result is Right<Failure, List<SubcategoryItem>>) {
+        setState(() => _secondarySubcategories = result.right);
+      }
+    }
+    _load();
+  }
+
+  Future<void> _onSecondaryCategoryTap(SubcategoryItem sub) async {
+    setState(() => _loading = true);
+
+    final result = await getIt<GetSubcategoriesByCategoryId>()(
+      GetSubcategoriesByCategoryIdParams(
+        categoryId: sub.id,
+        categoryType: widget.categoryType,
+      ),
+    );
+
+    if (mounted &&
+        result is Right<Failure, List<SubcategoryItem>> &&
+        result.right.isNotEmpty) {
+      // DRILL DOWN
+      setState(() {
+        // Find current active chip name for the new title
+        final parentChip = _primarySubcategories.firstWhere(
+          (c) => c.id == _activeChipId,
+          orElse: () => sub,
+        );
+
+        _navigationStack.add(
+          CategoryBreadcrumb(
+            title: _currentTitle,
+            primarySubcategories: List.from(_primarySubcategories),
+            activeChipId: _activeChipId,
+            secondarySubcategories: List.from(_secondarySubcategories),
+          ),
+        );
+
+        _currentTitle = parentChip.name;
+        _primarySubcategories = List.from(_secondarySubcategories);
+        _activeChipId = sub.id;
+        _activeCardId = null;
+        _secondarySubcategories = result.right;
+      });
+    } else {
+      // LEAF / FILTER
+      setState(() {
+        _activeCardId = (_activeCardId == sub.id) ? null : sub.id;
+      });
+    }
+    _load();
+  }
+
+  void _onBackTap() {
+    if (_navigationStack.isNotEmpty) {
+      setState(() {
+        final last = _navigationStack.removeLast();
+        _currentTitle = last.title;
+        _primarySubcategories = last.primarySubcategories;
+        _activeChipId = last.activeChipId;
+        _secondarySubcategories = last.secondarySubcategories;
+        _activeCardId = null;
+        _loading = true;
+      });
+      _load();
+    } else {
+      context.pop();
+    }
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -405,26 +741,7 @@ class _ProductListPageState extends State<ProductListPage> {
       onMenuTap: () {},
       actions: [
         GestureDetector(
-          onTap: () async {
-            final result = await showProductFilterSheet(
-              context,
-              initial: _activeFilter,
-            );
-            if (result != null) {
-              // Check if result is effectively empty (Tozalash was pressed)
-              final isEmpty =
-                  result.minPrice == null &&
-                  result.maxPrice == null &&
-                  !result.hasDiscount &&
-                  !result.hasServices &&
-                  result.selectedConditionIndex == null &&
-                  result.selectedSellerTypeIndex == null &&
-                  result.selectedColorIndex == null &&
-                  result.selectedSizeIndex == null;
-              setState(() => _activeFilter = isEmpty ? null : result);
-              _load(); // Reload (with or without filters)
-            }
-          },
+          onTap: _openFilterSheet,
           child: Container(
             width: 40,
             height: 40,
@@ -457,7 +774,7 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
-  Widget _buildErrorBody(AppLocalizations l10n) {
+  Widget _buildErrorBody(AppLocalizations l) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppDimens.paddingLarge),
@@ -470,7 +787,7 @@ class _ProductListPageState extends State<ProductListPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            TextButton(onPressed: _load, child: Text(l10n.actionRetry)),
+            TextButton(onPressed: _load, child: Text(l.actionRetry)),
           ],
         ),
       ),
@@ -479,55 +796,54 @@ class _ProductListPageState extends State<ProductListPage> {
 
   Widget _buildCard(BuildContext context, ProductListItemEntity item) {
     return BlocBuilder<FavoritesBloc, FavoritesState>(
-      buildWhen: (prev, curr) =>
-          prev.isLiked(item.slug) != curr.isLiked(item.slug),
-      builder: (context, likeState) {
-        return ProductCard(
-          slug: item.slug,
-          title: item.title,
-          color: context.cardSurface,
-          height: 300,
-          mainImage: item.mainImage,
-          price: item.price,
-          finalPrice: item.finalPrice,
-          currency: item.currency,
-          rating: item.rating,
-          reviewCount: item.reviewCount,
-          isLiked: likeState.isLiked(item.slug),
-          onLikeTap: () {
-            context.read<FavoritesBloc>().add(
-              FavoritesToggleRequested(
-                adSlug: item.slug,
-                adForLocal: FavoriteItemEntity(
-                  slug: item.slug,
-                  title: item.title,
-                  mainImage: item.mainImage,
-                  price: item.price,
-                  finalPrice: item.finalPrice,
-                  currency: item.currency,
-                  rating: item.rating,
-                  reviewCount: item.reviewCount,
-                  isLiked: true,
-                ),
-              ),
-            );
-          },
-        );
-      },
+      buildWhen: (p, c) => p.isLiked(item.slug) != c.isLiked(item.slug),
+      builder: (context, s) => ProductCard(
+        slug: item.slug,
+        title: item.title,
+        color: context.cardSurface,
+        height: 300,
+        mainImage: item.mainImage,
+        price: item.price,
+        finalPrice: item.finalPrice,
+        currency: item.currency,
+        rating: item.rating,
+        reviewCount: item.reviewCount,
+        isLiked: s.isLiked(item.slug),
+        onLikeTap: () => context.read<FavoritesBloc>().add(
+          FavoritesToggleRequested(
+            adSlug: item.slug,
+            adForLocal: FavoriteItemEntity(
+              slug: item.slug,
+              title: item.title,
+              mainImage: item.mainImage,
+              price: item.price,
+              finalPrice: item.finalPrice,
+              currency: item.currency,
+              rating: item.rating,
+              reviewCount: item.reviewCount,
+              isLiked: true,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
 class _SubcategoryCard extends StatelessWidget {
-  const _SubcategoryCard({required this.item, required this.onTap});
-
+  const _SubcategoryCard({
+    required this.item,
+    required this.onTap,
+    this.isSelected = false,
+  });
   final SubcategoryItem item;
   final VoidCallback onTap;
-
+  final bool isSelected;
   @override
   Widget build(BuildContext context) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     return Material(
-      color: context.cardSurface,
+      color: isSelected ? primaryColor : context.cardSurface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -536,7 +852,10 @@ class _SubcategoryCard extends StatelessWidget {
           width: 100,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.borderColor),
+            border: Border.all(
+              color: isSelected ? primaryColor : context.borderColor,
+              width: isSelected ? 2 : 1,
+            ),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -552,7 +871,9 @@ class _SubcategoryCard extends StatelessWidget {
                           child: Icon(
                             Icons.category_outlined,
                             size: 32,
-                            color: context.textSecondary,
+                            color: isSelected
+                                ? Colors.white
+                                : context.textSecondary,
                           ),
                         ),
                 ),
@@ -571,7 +892,7 @@ class _SubcategoryCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: context.textPrimary,
+                      color: isSelected ? Colors.white : context.textPrimary,
                     ),
                   ),
                 ),

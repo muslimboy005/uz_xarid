@@ -20,7 +20,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeRequested event,
     Emitter<HomeState> emit,
   ) async {
-    emit(state.copyWith(status: HomeStatus.loading, error: null));
+    emit(
+      state.copyWith(
+        status: HomeStatus.loading,
+        error: null,
+        recommendations: const [],
+        gifts: const [],
+        services: const [],
+      ),
+    );
     final result = await getHome(
       HomeParams(
         categoryType: event.categoryType,
@@ -58,10 +66,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) {
     emit(state.copyWith(selectedIndex: event.index));
-    add(HomeRequested(
-      categoryType: event.categoryType,
-      adType: state.lastAdType,
-      pageSize: 16,
-    ));
+    add(
+      HomeRequested(
+        categoryType: event.categoryType,
+        adType: state.lastAdType,
+        pageSize: 16,
+      ),
+    );
   }
 }

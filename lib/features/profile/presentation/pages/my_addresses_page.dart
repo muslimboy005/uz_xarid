@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/address/address_event.dart';
@@ -30,6 +31,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
   Widget build(BuildContext context) {
     final isDark = context.isDark;
     final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
+    final l10n = AppLocalizations.of(context)!;
     // final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
     final textColor = context.textPrimary;
@@ -37,7 +39,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
 
     return Scaffold(
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      
+
       body: Container(
         color: isDark ? AppColors.darkBackground : AppColors.black50,
         child: SafeArea(
@@ -68,7 +70,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     ),
                     const SizedBox(width: 12),
                     AppText(
-                      text: 'Мои адреса',
+                      text: l10n.addressMyAddressesTitle,
                       fontSize: 20,
                       fontWeight: 700,
                       color: textColor,
@@ -87,9 +89,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                       if (state.status == AddressStatus.loading &&
                           state.addresses.isEmpty) {
                         return Center(
-                          child: CircularProgressIndicator(
-                            color: primaryColor,
-                          ),
+                          child: CircularProgressIndicator(color: primaryColor),
                         );
                       }
 
@@ -145,7 +145,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                   ),
                                   const SizedBox(width: 8),
                                   AppText(
-                                    text: 'Добавить',
+                                    text: l10n.addressAdd,
                                     fontSize: 16,
                                     fontWeight: 500,
                                     color: AppColors.white,
@@ -166,9 +166,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                     index == 0; // Mock selection logic
                                 return ContainerW(
                                   color: isSelected
-                                      ? primaryColor.withValues(
-                                          alpha: 0.04,
-                                        )
+                                      ? primaryColor.withValues(alpha: 0.04)
                                       : cardColor,
                                   radius: 12,
                                   border: Border.all(
@@ -206,7 +204,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                                     text:
                                                         address.name.isNotEmpty
                                                         ? address.name
-                                                        : 'Адрес ${index + 1}',
+                                                        : l10n.addressIndexLabel(index + 1),
                                                     fontSize: 16,
                                                     fontWeight: 600,
                                                     color: textColor,
@@ -332,7 +330,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                                       ),
                                                       const SizedBox(width: 8),
                                                       AppText(
-                                                        text: 'Редактировать',
+                                                        text: l10n.addressEdit,
                                                         color: AppColors.white,
                                                         fontSize: 14,
                                                         fontWeight: 500,
@@ -372,6 +370,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
     Color textColor,
     Color textSecondary,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return ContainerW(
       width: double.infinity,
       color: cardColor,
@@ -393,14 +392,14 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
           ),
           const SizedBox(height: 24),
           AppText(
-            text: 'Добавить свой адрес',
+            text: l10n.addressAddOwn,
             fontSize: 20,
             fontWeight: 700,
             color: textColor,
           ),
           const SizedBox(height: 8),
           AppText(
-            text: 'Сохраняйте адреса для быстрого\nоформления заказов.',
+            text: l10n.addressAddOwnSub,
             fontSize: 14,
             fontWeight: 400,
             color: textSecondary,
@@ -425,7 +424,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                   const Icon(Icons.add, color: AppColors.white, size: 20),
                   const SizedBox(width: 8),
                   AppText(
-                    text: 'Добавить',
+                    text: l10n.addressAdd,
                     fontSize: 16,
                     fontWeight: 500,
                     color: AppColors.white,

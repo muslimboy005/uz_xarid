@@ -1,4 +1,3 @@
-
 part of 'favorites_bloc.dart';
 
 enum FavoritesStatus { initial, loading, success, failure }

@@ -54,5 +54,11 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Kamera orqali rasmga olish uchun ruxsat bering</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Galereyadan rasm tanlash uchun ruxsat bering</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Mikrofondan foydalanish uchun ruxsat bering</string>
 </dict>
 </plist>

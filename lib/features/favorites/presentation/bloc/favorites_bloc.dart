@@ -11,8 +11,7 @@ part 'favorites_event.dart';
 part 'favorites_state.dart';
 
 class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
-  FavoritesBloc(this._getList, this._toggle)
-      : super(const FavoritesState()) {
+  FavoritesBloc(this._getList, this._toggle) : super(const FavoritesState()) {
     on<FavoritesLoadListRequested>(_onLoadList);
     on<FavoritesToggleRequested>(_onToggle);
   }
@@ -29,17 +28,22 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     if (result is Right<Failure, List<FavoriteItemEntity>>) {
       final list = result.right;
       final slugs = list.map((e) => e.slug).toSet();
-      emit(state.copyWith(
-        list: list,
-        likedSlugs: slugs,
-        status: FavoritesStatus.success,
-        error: null,
-      ));
+      emit(
+        state.copyWith(
+          list: list,
+          likedSlugs: slugs,
+          status: FavoritesStatus.success,
+          error: null,
+        ),
+      );
     } else {
-      emit(state.copyWith(
-        status: FavoritesStatus.failure,
-        error: (result as Left<Failure, List<FavoriteItemEntity>>).left.message,
-      ));
+      emit(
+        state.copyWith(
+          status: FavoritesStatus.failure,
+          error:
+              (result as Left<Failure, List<FavoriteItemEntity>>).left.message,
+        ),
+      );
     }
   }
 
@@ -61,16 +65,14 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
           if (!newList.any((e) => e.slug == event.adSlug)) {
             newList.add(event.adForLocal!);
           }
-          emit(state.copyWith(
-            likedSlugs: newSlugs,
-            list: newList,
-          ));
+          emit(state.copyWith(likedSlugs: newSlugs, list: newList));
           return;
         }
       } else {
         newSlugs.remove(event.adSlug);
-        final newList =
-            state.list.where((e) => e.slug != event.adSlug).toList();
+        final newList = state.list
+            .where((e) => e.slug != event.adSlug)
+            .toList();
         emit(state.copyWith(likedSlugs: newSlugs, list: newList));
         return;
       }

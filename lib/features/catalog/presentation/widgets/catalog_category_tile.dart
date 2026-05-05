@@ -40,18 +40,36 @@ class CatalogCategoryTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              if (category.image != null && category.image!.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
-                  child: AppImage(
-                    path: category.image!,
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              if (category.image != null && category.image!.isNotEmpty)
-                const SizedBox(width: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
+                child: (category.image != null && category.image!.isNotEmpty)
+                    ? AppImage(
+                        path: category.image!,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: context.cardSurface,
+                          border: Border.all(
+                            color: context.borderColor,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.radiusSmall,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.category_outlined,
+                          color: context.textSecondary,
+                          size: 28,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   category.displayName,

@@ -1,3 +1,5 @@
+import 'package:uz_xarid/core/utils/image_parser.dart';
+
 class ProfileModel {
   final bool status;
   final ProfileData data;
@@ -91,6 +93,7 @@ class User {
   final String username;
   final DateTime? validatedAt;
   final bool isVerify;
+  final bool isFaceVerified;
   final String accountType;
   final String role;
   final String avatar;
@@ -110,6 +113,7 @@ class User {
     this.username = '',
     this.validatedAt,
     this.isVerify = false,
+    this.isFaceVerified = false,
     this.accountType = 'basic',
     this.role = 'user',
     this.avatar = '',
@@ -137,9 +141,14 @@ class User {
           ? DateTime.tryParse(json['validated_at'])
           : null,
       isVerify: json['is_verify'] ?? false,
+      isFaceVerified:
+          json['is_face_verified'] ??
+          json['isFaceVerified'] ??
+          json['is_verify'] ??
+          false,
       accountType: json['account_type'] ?? 'basic',
       role: json['role'] ?? 'user',
-      avatar: json['avatar'] ?? '',
+      avatar: ImageParser.parse(json['avatar']) ?? '',
     );
   }
 
@@ -159,6 +168,7 @@ class User {
       'username': username,
       if (validatedAt != null) 'validated_at': validatedAt!.toIso8601String(),
       'is_verify': isVerify,
+      'is_face_verified': isFaceVerified,
       'account_type': accountType,
       'role': role,
       'avatar': avatar,

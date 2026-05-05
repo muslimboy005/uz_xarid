@@ -23,6 +23,7 @@ class GetProductList
     listSource: params.listSource,
     pageSize: params.pageSize,
     adType: params.adType,
+    categoryType: params.categoryType,
     filterParams: params.filterParams,
     sort: params.sort,
   );
@@ -35,6 +36,7 @@ class GetProductListParams {
     this.listSource = 'recommendations',
     this.pageSize = 100,
     this.adType = 'Sell',
+    this.categoryType,
     this.filterParams,
     this.sort, // 'popular' | 'cheap' | 'expensive' | 'high-ranking' | null
   });
@@ -47,6 +49,7 @@ class GetProductListParams {
   final String listSource;
   final int pageSize;
   final String adType;
+  final String? categoryType;
   final Map<String, dynamic>? filterParams;
   final String? sort;
 }

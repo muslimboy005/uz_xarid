@@ -83,21 +83,21 @@ class AddListingState extends Equatable {
 
   @override
   List<Object?> get props => [
-        colors,
-        colorsLoading,
-        colorsError,
-        sizes,
-        sizesLoading,
-        sizesError,
-        categories,
-        categoriesLoading,
-        categoriesError,
-        createAdLoading,
-        createAdError,
-        createAdSlug,
-        editSlug,
-        adDetailForEdit,
-        loadAdForEditLoading,
-        loadAdForEditError,
-      ];
+    colors,
+    colorsLoading,
+    colorsError,
+    sizes,
+    sizesLoading,
+    sizesError,
+    categories,
+    categoriesLoading,
+    categoriesError,
+    createAdLoading,
+    createAdError,
+    createAdSlug,
+    editSlug,
+    adDetailForEdit,
+    loadAdForEditLoading,
+    loadAdForEditError,
+  ];
 }

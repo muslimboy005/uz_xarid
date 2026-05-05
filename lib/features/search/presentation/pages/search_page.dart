@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:uz_xarid/core/app_config.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -132,13 +133,17 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             _buildHeader(context, l10n),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.paddingMedium,
+              ),
               child: _buildSearchField(context, l10n),
             ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.paddingMedium,
+                ),
                 children: [
                   Text(
                     l10n.searchFrequentlySearched,
@@ -226,21 +231,21 @@ class _SearchPageState extends State<SearchPage> {
                     isLiked: likeState.isLiked(item.slug),
                     onLikeTap: () {
                       context.read<FavoritesBloc>().add(
-                            FavoritesToggleRequested(
-                              adSlug: item.slug,
-                              adForLocal: FavoriteItemEntity(
-                                slug: item.slug,
-                                title: item.title,
-                                mainImage: item.mainImage,
-                                price: item.price,
-                                finalPrice: item.finalPrice,
-                                currency: item.currency,
-                                rating: item.rating,
-                                reviewCount: item.reviewCount,
-                                isLiked: true,
-                              ),
-                            ),
-                          );
+                        FavoritesToggleRequested(
+                          adSlug: item.slug,
+                          adForLocal: FavoriteItemEntity(
+                            slug: item.slug,
+                            title: item.title,
+                            mainImage: item.mainImage,
+                            price: item.price,
+                            finalPrice: item.finalPrice,
+                            currency: item.currency,
+                            rating: item.rating,
+                            reviewCount: item.reviewCount,
+                            isLiked: true,
+                          ),
+                        ),
+                      );
                     },
                   );
                 },
@@ -295,21 +300,21 @@ class _SearchPageState extends State<SearchPage> {
               isLiked: likeState.isLiked(item.slug),
               onLikeTap: () {
                 context.read<FavoritesBloc>().add(
-                      FavoritesToggleRequested(
-                        adSlug: item.slug,
-                        adForLocal: FavoriteItemEntity(
-                          slug: item.slug,
-                          title: item.title,
-                          mainImage: item.mainImage,
-                          price: item.price,
-                          finalPrice: item.finalPrice,
-                          currency: item.currency,
-                          rating: item.rating,
-                          reviewCount: item.reviewCount,
-                          isLiked: true,
-                        ),
-                      ),
-                    );
+                  FavoritesToggleRequested(
+                    adSlug: item.slug,
+                    adForLocal: FavoriteItemEntity(
+                      slug: item.slug,
+                      title: item.title,
+                      mainImage: item.mainImage,
+                      price: item.price,
+                      finalPrice: item.finalPrice,
+                      currency: item.currency,
+                      rating: item.rating,
+                      reviewCount: item.reviewCount,
+                      isLiked: true,
+                    ),
+                  ),
+                );
               },
             );
           },
@@ -374,6 +379,7 @@ class _SearchPageState extends State<SearchPage> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: SvgPicture.asset(
               'assets/svg/search.svg',
+              package: AppConfig.packageName,
               width: 20,
               height: 20,
             ),

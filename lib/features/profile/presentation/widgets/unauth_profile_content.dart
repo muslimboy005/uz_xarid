@@ -82,11 +82,7 @@ class UnauthProfileContent extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.settings_outlined,
-                    size: 20,
-                    color: primaryColor,
-                  ),
+                  Icon(Icons.settings_outlined, size: 20, color: primaryColor),
                   const SizedBox(width: 8),
                   AppText(
                     text: l10n.profileMenuSettings,

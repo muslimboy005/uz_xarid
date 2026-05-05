@@ -12,7 +12,7 @@ part of 'profile_datasource.dart';
 
 class _ProfileApi implements ProfileApi {
   _ProfileApi(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://uzxarid.felixits.uz/api/v1/';
+    baseUrl ??= 'https://api.uzxarid.uz/api/v1/';
   }
 
   final Dio _dio;

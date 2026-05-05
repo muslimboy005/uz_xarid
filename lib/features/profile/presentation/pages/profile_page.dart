@@ -28,7 +28,6 @@ class _ProfilePageState extends State<ProfilePage> {
     final bodyBg = context.bodyBackground;
     final containerBg = context.surfaceContainer;
     return Scaffold(
-      
       appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
       body: Container(
         height: MediaQuery.of(context).size.height,

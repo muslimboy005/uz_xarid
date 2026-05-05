@@ -30,6 +30,13 @@ class AuthorizedProfileContent extends StatelessWidget {
     final textSecondary = context.textSecondary;
     final cardColor = context.cardSurface;
 
+    Future<void> logout() async {
+      await getIt<SecureStorageService>().clearAll();
+      if (context.mounted) {
+        context.read<ProfileBloc>().add(const ProfileLogoutEvent());
+      }
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +94,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                               '',
                             );
                             if (url.startsWith('/')) {
-                              return 'https://uzxarid.felixits.uz$url';
+                              return 'https://api.uzxarid.uz$url';
                             }
                             return url;
                           }())
@@ -150,6 +157,11 @@ class AuthorizedProfileContent extends StatelessWidget {
                     icon: AppAssets.shoppingCart,
                     title: l10n.profileMenuMyOrders,
                     onTap: () => context.push('/profile/my-orders'),
+                  ),
+                  _ProfileMenuItem(
+                    icon: AppAssets.eventNote,
+                    title: 'Shartnomalar',
+                    onTap: () => context.push('/profile/contracts'),
                   ),
                   // _ProfileMenuItem(
                   //   icon: AppAssets.favorite1,
@@ -237,8 +249,8 @@ class AuthorizedProfileContent extends StatelessWidget {
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.chat,
-                    title: l10n.profileMenuSupport,
-                    onTap: () => context.push('/profile/support'),
+                    title: 'Taklif va shikoyatlar',
+                    onTap: () => context.push('/profile/feedback'),
                   ),
                   _ProfileMenuItem(
                     icon: AppAssets.accessTimeFilled,
@@ -268,12 +280,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                         );
 
                         if (confirmed == true && context.mounted) {
-                          await getIt<SecureStorageService>().clearAll();
-                          if (context.mounted) {
-                            context.read<ProfileBloc>().add(
-                              const ProfileLogoutEvent(),
-                            );
-                          }
+                          await logout();
                         }
                       },
                       child: Row(
@@ -282,6 +289,30 @@ class AuthorizedProfileContent extends StatelessWidget {
                           SizedBox(width: 8),
                           AppText(
                             text: l10n.actionLogout,
+                            fontSize: 16,
+                            fontWeight: 600,
+                            color: AppColors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 14,
+                    ),
+                    child: GestureDetector(
+                      onTap: () async => logout(),
+                      child: Row(
+                        children: [
+                          AppImage(
+                            path: AppAssets.delete,
+                            color: AppColors.red,
+                          ),
+                          SizedBox(width: 8),
+                          AppText(
+                            text: l10n.profileDeleteAccount,
                             fontSize: 16,
                             fontWeight: 600,
                             color: AppColors.red,

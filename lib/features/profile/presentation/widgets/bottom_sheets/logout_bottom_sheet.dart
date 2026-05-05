@@ -5,6 +5,7 @@ import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class LogoutBottomSheet extends StatelessWidget {
   const LogoutBottomSheet({super.key});
@@ -12,6 +13,7 @@ class LogoutBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: context.cardSurface,
@@ -66,7 +68,7 @@ class LogoutBottomSheet extends StatelessWidget {
 
               // Title
               AppText(
-                text: 'Вы уверены, что\nхотите выйти?',
+                text: l10n.profileLogoutBottomTitle,
                 fontSize: 22,
                 fontWeight: 700,
                 color: context.textPrimary,
@@ -76,8 +78,7 @@ class LogoutBottomSheet extends StatelessWidget {
 
               // Subtitle
               AppText(
-                text:
-                    'Вы всегда сможете войти обратно,\nкогда это будет удобно',
+                text: l10n.profileLogoutBottomSubtitle,
                 fontSize: 14,
                 fontWeight: 400,
                 color: context.textSecondary,
@@ -98,7 +99,7 @@ class LogoutBottomSheet extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         child: Center(
                           child: AppText(
-                            text: 'Отменить',
+                            text: l10n.actionCancel,
                             fontSize: 16,
                             fontWeight: 500,
                             color: context.textPrimary,
@@ -118,7 +119,7 @@ class LogoutBottomSheet extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           child: Center(
                             child: AppText(
-                              text: 'Выйти',
+                              text: l10n.actionLogout,
                               fontSize: 16,
                               fontWeight: 500,
                               color: AppColors.white,

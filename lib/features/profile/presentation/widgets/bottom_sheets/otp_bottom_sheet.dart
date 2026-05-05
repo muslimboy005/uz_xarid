@@ -237,7 +237,10 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     decoration: BoxDecoration(
                       color: cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: context.watch<AppModeCubit>().state.primaryColor, width: 2),
+                      border: Border.all(
+                        color: context.watch<AppModeCubit>().state.primaryColor,
+                        width: 2,
+                      ),
                     ),
                   ),
                   submittedPinTheme: PinTheme(
@@ -331,7 +334,10 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                               style: TextStyle(
                                 color: (isLoading || !resendEnabled)
                                     ? textSecondary
-                                    : context.watch<AppModeCubit>().state.primaryColor,
+                                    : context
+                                          .watch<AppModeCubit>()
+                                          .state
+                                          .primaryColor,
                               ),
                             ),
                           ),

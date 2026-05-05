@@ -134,7 +134,11 @@ class _AuthorPageState extends State<AuthorPage>
     );
   }
 
-  Widget _buildAuthorHeader(BuildContext context, AuthorEntity author, Color primaryColor) {
+  Widget _buildAuthorHeader(
+    BuildContext context,
+    AuthorEntity author,
+    Color primaryColor,
+  ) {
     return Container(
       color: context.surfaceContainer,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -242,7 +246,11 @@ class _AuthorPageState extends State<AuthorPage>
     }
   }
 
-  Widget _buildCallButton(BuildContext context, AuthorEntity author, Color primaryColor) {
+  Widget _buildCallButton(
+    BuildContext context,
+    AuthorEntity author,
+    Color primaryColor,
+  ) {
     return GestureDetector(
       onTap: () {
         if (author.phone != null && author.phone!.isNotEmpty) {
@@ -304,7 +312,11 @@ class _AuthorPageState extends State<AuthorPage>
     );
   }
 
-  Widget _buildContacts(BuildContext context, AuthorEntity author, Color primaryColor) {
+  Widget _buildContacts(
+    BuildContext context,
+    AuthorEntity author,
+    Color primaryColor,
+  ) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -396,18 +408,14 @@ class _AuthorPageState extends State<AuthorPage>
                 Text(
                   actionText,
                   style: TextStyle(
-                    color: onTap != null
-                        ? primaryColor
-                        : context.textSecondary,
+                    color: onTap != null ? primaryColor : context.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
                   Icons.arrow_forward_rounded,
-                  color: onTap != null
-                      ? primaryColor
-                      : context.textSecondary,
+                  color: onTap != null ? primaryColor : context.textSecondary,
                   size: 16,
                 ),
               ],

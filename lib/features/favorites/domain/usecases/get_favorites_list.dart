@@ -11,6 +11,5 @@ class GetFavoritesList {
   Future<Either<Failure, List<FavoriteItemEntity>>> call({
     int page = 1,
     int pageSize = 8,
-  }) =>
-      _repository.getList(page: page, pageSize: pageSize);
+  }) => _repository.getList(page: page, pageSize: pageSize);
 }

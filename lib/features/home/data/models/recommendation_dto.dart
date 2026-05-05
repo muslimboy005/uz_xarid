@@ -1,3 +1,4 @@
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
 
 class RecommendationDto {
@@ -27,7 +28,7 @@ class RecommendationDto {
     return RecommendationDto(
       slug: json['slug'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      mainImage: json['main_image'] as String?,
+      mainImage: ImageParser.parse(json['main_image']),
       price: json['price']?.toString(),
       finalPrice: json['final_price']?.toString(),
       currency: json['currency'] as String? ?? 'uzs',

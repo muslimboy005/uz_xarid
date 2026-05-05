@@ -7,8 +7,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final ProfileRepository _repository;
 
   PaymentBloc({required ProfileRepository repository})
-      : _repository = repository,
-        super(const PaymentState()) {
+    : _repository = repository,
+      super(const PaymentState()) {
     on<GetPaymentPlansEvent>(_onGetPaymentPlans);
     on<GetPaymentHistoryEvent>(_onGetPaymentHistory);
   }
@@ -22,15 +22,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     final result = await _repository.getPlans();
 
     if (result.isRight) {
-      emit(state.copyWith(
-        status: PaymentStatus.success,
-        plans: result.right,
-      ));
+      emit(state.copyWith(status: PaymentStatus.success, plans: result.right));
     } else {
-      emit(state.copyWith(
-        status: PaymentStatus.failure,
-        errorMessage: result.left.message,
-      ));
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage: result.left.message,
+        ),
+      );
     }
   }
 
@@ -46,15 +45,16 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     final result = await _repository.getPlanHistory(event.page, event.pageSize);
 
     if (result.isRight) {
-      emit(state.copyWith(
-        status: PaymentStatus.success,
-        history: result.right,
-      ));
+      emit(
+        state.copyWith(status: PaymentStatus.success, history: result.right),
+      );
     } else {
-      emit(state.copyWith(
-        status: PaymentStatus.failure,
-        errorMessage: result.left.message,
-      ));
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage: result.left.message,
+        ),
+      );
     }
   }
 }

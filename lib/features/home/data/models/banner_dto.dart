@@ -1,3 +1,4 @@
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
 
 class BannerDto {
@@ -26,8 +27,8 @@ class BannerDto {
       id: (json['id'] as num?)?.toInt() ?? 0,
       title: (json['title'] as String?) ?? '',
       description: json['description'] as String?,
-      mobileImage: json['mobile_image'] as String?,
-      desktopImage: json['desktop_image'] as String?,
+      mobileImage: ImageParser.parse(json['mobile_image']),
+      desktopImage: ImageParser.parse(json['desktop_image']),
       link: json['link'] as String?,
       textColor: json['text_color'] as String?,
       backgroundColor: json['background_color'] as String?,

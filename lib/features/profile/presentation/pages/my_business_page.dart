@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
@@ -84,6 +85,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final containerBg = context.surfaceContainer;
     final cardColor = context.cardSurface;
     final textPrimary = context.textPrimary;
@@ -99,7 +101,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-          
+
           body: Container(
             color: isDark ? AppColors.darkBackground : AppColors.black50,
             child: SafeArea(
@@ -127,7 +129,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                         ),
                         const SizedBox(width: 12),
                         AppText(
-                          text: 'Мой бизнес',
+                          text: l10n.businessMyBusiness,
                           fontSize: 20,
                           fontWeight: 700,
                           color: textPrimary,
@@ -152,7 +154,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 vertical: 19,
                               ),
                               child: AppText(
-                                text: 'Информация о компании',
+                                text: l10n.businessCompanyInfo,
                                 fontSize: 16,
                                 fontWeight: 600,
                                 color: textPrimary,
@@ -215,7 +217,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                                 ),
                                                 const SizedBox(width: 6),
                                                 AppText(
-                                                  text: 'Изменить аватар',
+                                                  text: l10n.businessChangeAvatar,
                                                   fontSize: 14,
                                                   fontWeight: 500,
                                                   color: textPrimary,
@@ -229,14 +231,14 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   ),
                                   const SizedBox(height: 16),
                                   WTextField(
-                                    title: 'Название компании',
-                                    hintText: 'Введите название компании',
+                                    title: l10n.businessCompanyName,
+                                    hintText: l10n.businessCompanyNameHint,
                                     controller: _companyNameController,
                                   ),
                                   const SizedBox(height: 16),
                                   WTextField(
-                                    title: 'Отзыв',
-                                    hintText: 'Описание',
+                                    title: l10n.businessDescription,
+                                    hintText: l10n.businessDescriptionHint,
                                     controller: _descriptionController,
                                     maxLines: 4,
                                     minLines: 4,
@@ -276,7 +278,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                                   ),
                                                   const SizedBox(height: 8),
                                                   AppText(
-                                                    text: 'Загрузить обложку',
+                                                    text: l10n.businessUploadCover,
                                                     fontSize: 14,
                                                     fontWeight: 500,
                                                     color: textSecondary,
@@ -304,7 +306,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 children: [
                                   Expanded(
                                     child: AppText(
-                                      text: 'Контактные данные',
+                                      text: l10n.businessContactData,
                                       fontSize: 15,
                                       fontWeight: 600,
                                       color: textPrimary,
@@ -355,7 +357,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                             : 12,
                                       ),
                                       child: WTextField(
-                                        title: 'Телефон ${index + 1}',
+                                        title: l10n.businessPhoneIndex(index + 1),
                                         hintText: '+998 ** *** ** **',
                                         controller: _phoneControllers[index],
                                         keyboardType: TextInputType.phone,
@@ -399,7 +401,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 vertical: 19,
                               ),
                               child: AppText(
-                                text: 'Рабочее время',
+                                text: l10n.businessWorkingHours,
                                 fontSize: 16,
                                 fontWeight: 600,
                                 color: textPrimary,
@@ -416,7 +418,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AppText(
-                                    text: 'Рабочие дни и время',
+                                    text: l10n.businessWorkingDaysHours,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: textPrimary,
@@ -424,18 +426,18 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   const SizedBox(height: 6),
                                   _DropdownField(
                                     value: _workingHours,
-                                    hint: 'Например: Пн.–Пя. с 9:00 до 18:00',
-                                    items: const [
-                                      'Пн.–Пя. с 9:00 до 18:00',
-                                      'Пн.–Сб. с 9:00 до 18:00',
-                                      'Ежедневно с 9:00 до 22:00',
+                                    hint: l10n.businessWorkingDaysHoursHint,
+                                    items: [
+                                      l10n.businessWorkingExample1,
+                                      l10n.businessWorkingExample2,
+                                      l10n.businessWorkingExample3Alt,
                                     ],
                                     onChanged: (v) =>
                                         setState(() => _workingHours = v),
                                   ),
                                   const SizedBox(height: 12),
                                   AppText(
-                                    text: 'Перерыв (обед)',
+                                    text: l10n.businessLunchBreak,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: textPrimary,
@@ -443,7 +445,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   const SizedBox(height: 6),
                                   _DropdownField(
                                     value: _lunchBreak,
-                                    hint: 'Например: 13:00–14:00',
+                                    hint: l10n.businessLunchBreakHint,
                                     items: const [
                                       '13:00–14:00',
                                       '12:00–13:00',
@@ -468,7 +470,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 vertical: 19,
                               ),
                               child: AppText(
-                                text: 'Адрес',
+                                text: l10n.businessAddress,
                                 fontSize: 16,
                                 fontWeight: 600,
                                 color: textPrimary,
@@ -484,8 +486,8 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               child: Column(
                                 children: [
                                   WTextField(
-                                    title: 'Город',
-                                    hintText: 'Введите город',
+                                    title: l10n.businessCity,
+                                    hintText: l10n.businessCityHint,
                                     controller: _cityController,
                                   ),
                                   const SizedBox(height: 12),
@@ -495,16 +497,16 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     children: [
                                       Expanded(
                                         child: WTextField(
-                                          title: 'Улица',
-                                          hintText: 'Введите улицу',
+                                          title: l10n.businessStreet,
+                                          hintText: l10n.businessStreetHint,
                                           controller: _streetController,
                                         ),
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: WTextField(
-                                          title: 'Дом / Квартира',
-                                          hintText: 'Дом / Квартира',
+                                          title: l10n.businessHouseApt,
+                                          hintText: l10n.businessHouseApt,
                                           controller: _houseController,
                                         ),
                                       ),
@@ -512,8 +514,8 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   ),
                                   const SizedBox(height: 12),
                                   WTextField(
-                                    title: 'Ориентир',
-                                    hintText: 'Укажите ближайший ориентир',
+                                    title: l10n.businessLandmark,
+                                    hintText: l10n.businessLandmarkHint,
                                     controller: _landmarkController,
                                   ),
                                 ],
@@ -531,7 +533,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 vertical: 19,
                               ),
                               child: AppText(
-                                text: 'Социальные сети',
+                                text: l10n.businessSocialMedia,
                                 fontSize: 16,
                                 fontWeight: 600,
                                 color: textPrimary,
@@ -548,7 +550,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                 children: [
                                   WTextField(
                                     title: 'Instagram',
-                                    hintText: 'Введите ссылку на Instagram',
+                                    hintText: l10n.businessInstagramHint,
                                     controller: _instagramController,
                                     prefixIcon: Icon(
                                       Icons.camera_alt_outlined,
@@ -559,7 +561,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   const SizedBox(height: 12),
                                   WTextField(
                                     title: 'Facebook',
-                                    hintText: 'Введите ссылку на Facebook',
+                                    hintText: l10n.businessFacebookHint,
                                     controller: _facebookController,
                                     prefixIcon: Icon(
                                       Icons.facebook_rounded,
@@ -570,7 +572,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   const SizedBox(height: 12),
                                   WTextField(
                                     title: 'Telegram',
-                                    hintText: 'Введите ссылку на Telegram',
+                                    hintText: l10n.businessTelegramHint,
                                     controller: _telegramController,
                                     prefixIcon: Icon(
                                       Icons.send_rounded,
@@ -581,7 +583,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                   const SizedBox(height: 12),
                                   WTextField(
                                     title: 'YouTube',
-                                    hintText: 'Введите ссылку на YouTube',
+                                    hintText: l10n.businessYoutubeHint,
                                     controller: _youtubeController,
                                     prefixIcon: Icon(
                                       Icons.play_circle_outline_rounded,
@@ -610,7 +612,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     ),
                                     child: Center(
                                       child: AppText(
-                                        text: 'Отмена',
+                                        text: l10n.actionCancel,
                                         fontSize: 15,
                                         fontWeight: 600,
                                         color: textPrimary,
@@ -666,7 +668,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                               color: AppColors.white,
                                             )
                                           : AppText(
-                                              text: 'Сохранить',
+                                              text: l10n.addressSave,
                                               fontSize: 15,
                                               fontWeight: 600,
                                               color: AppColors.white,

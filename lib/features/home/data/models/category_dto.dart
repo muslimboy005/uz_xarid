@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
 
 part 'category_dto.g.dart';
@@ -7,6 +8,7 @@ part 'category_dto.g.dart';
 class CategoryDto {
   final int id;
   final String name;
+  @JsonKey(fromJson: ImageParser.parse)
   final String? image;
   final List<CategoryDto> children;
   @JsonKey(name: 'show_home')

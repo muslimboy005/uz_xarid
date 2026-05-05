@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uz_xarid/l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
@@ -151,9 +152,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                           },
                     )
                   : Center(
-                      child: CircularProgressIndicator(
-                        color: primaryColor,
-                      ),
+                      child: CircularProgressIndicator(color: primaryColor),
                     );
             },
           ),
@@ -177,7 +176,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: AppText(
-                      text: 'Tanlangan manzil',
+                      text: AppLocalizations.of(context)!.addressAddMapSelectedSub,
                       color: AppColors.white,
                       fontSize: 14,
                       fontWeight: 500,
@@ -338,7 +337,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Center(
                     child: AppText(
-                      text: 'Сохранить',
+                      text: AppLocalizations.of(context)!.addressSave,
                       color: AppColors.white,
                       fontSize: 16,
                       fontWeight: 600,

@@ -23,42 +23,42 @@ AdDetailDataDto _$AdDetailDataDtoFromJson(Map<String, dynamic> json) =>
     AdDetailDataDto(
       slug: json['slug'] as String,
       title: json['title'] as String,
-      adType: json['ad_type'] as String?,
-      listingType: json['listing_type'] as String?,
+      adType: parseString(json['ad_type']),
+      listingType: parseString(json['listing_type']),
       category: json['category'] == null
           ? null
           : AdCategoryDto.fromJson(json['category'] as Map<String, dynamic>),
-      price: json['price'] as String?,
-      finalPrice: json['final_price'] as String?,
-      discount: json['discount'] as String?,
+      price: parseString(json['price']),
+      finalPrice: parseString(json['final_price']),
+      discount: parseString(json['discount']),
       isPhysical: json['is_physical'] as bool?,
       isTop: json['is_top'] as bool?,
       isActive: json['is_active'] as bool?,
-      status: json['status'] as String?,
-      likesCount: (json['likes_count'] as num?)?.toInt(),
+      status: parseString(json['status']),
+      likesCount: parseInt(json['likes_count']),
       isLikes: json['is_likes'] as bool?,
-      viewsCount: (json['views_count'] as num?)?.toInt(),
-      callCount: (json['call_count'] as num?)?.toInt(),
-      mainImage: json['main_image'] as String?,
-      currency: json['currency'] as String?,
+      viewsCount: parseInt(json['views_count']),
+      callCount: parseInt(json['call_count']),
+      mainImage: ImageParser.parse(json['main_image']),
+      currency: parseString(json['currency']),
       user: json['user'] == null
           ? null
           : AdUserDto.fromJson(json['user'] as Map<String, dynamic>),
       business: json['business'],
-      totalAds: (json['total_ads'] as num?)?.toInt(),
-      totalCommentsAuthor: (json['total_comments_author'] as num?)?.toInt(),
-      averageRatingAuthor: (json['average_rating_author'] as num?)?.toDouble(),
-      description: json['description'] as String?,
-      dimensionUnit: json['dimension_unit'] as String?,
-      weightUnit: json['weight_unit'] as String?,
-      weight: json['weight'] as num?,
-      width: json['width'] as num?,
-      height: json['height'] as num?,
-      length: json['length'] as num?,
-      rating: (json['rating'] as num?)?.toDouble(),
-      reviewCount: (json['review_count'] as num?)?.toInt(),
-      totalComments: (json['total_comments'] as num?)?.toInt(),
-      averageRating: (json['average_rating'] as num?)?.toDouble(),
+      totalAds: parseInt(json['total_ads']),
+      totalCommentsAuthor: parseInt(json['total_comments_author']),
+      averageRatingAuthor: parseDouble(json['average_rating_author']),
+      description: parseString(json['description']),
+      dimensionUnit: parseString(json['dimension_unit']),
+      weightUnit: parseString(json['weight_unit']),
+      weight: parseNum(json['weight']),
+      width: parseNum(json['width']),
+      height: parseNum(json['height']),
+      length: parseNum(json['length']),
+      rating: parseDouble(json['rating']),
+      reviewCount: parseInt(json['review_count']),
+      totalComments: parseInt(json['total_comments']),
+      averageRating: parseDouble(json['average_rating']),
       variants: (json['variants'] as List<dynamic>?)
           ?.map((e) => AdVariantDto.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -75,6 +75,10 @@ AdDetailDataDto _$AdDetailDataDtoFromJson(Map<String, dynamic> json) =>
       sizes: (json['sizes'] as List<dynamic>?)
           ?.map((e) => AdSizeDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      attributes: adAttributesFromJson(json['attributes']),
+      latitude: parseDouble(json['latitude']),
+      longitude: parseDouble(json['longitude']),
+      address: parseString(json['address']),
     );
 
 Map<String, dynamic> _$AdDetailDataDtoToJson(AdDetailDataDto instance) =>
@@ -119,17 +123,20 @@ Map<String, dynamic> _$AdDetailDataDtoToJson(AdDetailDataDto instance) =>
       'images': instance.images?.map((e) => e.toJson()).toList(),
       'colors': instance.colors?.map((e) => e.toJson()).toList(),
       'sizes': instance.sizes?.map((e) => e.toJson()).toList(),
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'address': instance.address,
     };
 
 AdCategoryDto _$AdCategoryDtoFromJson(Map<String, dynamic> json) =>
     AdCategoryDto(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
-      parent: (json['parent'] as num?)?.toInt(),
-      level: (json['level'] as num?)?.toInt(),
+      parent: parseInt(json['parent']),
+      level: parseInt(json['level']),
       showHome: json['show_home'] as bool?,
       categoryType: json['category_type'] as String?,
-      image: json['image'] as String?,
+      image: ImageParser.parse(json['image']),
       children: json['children'] as List<dynamic>?,
       parents: json['parents'],
     );
@@ -149,13 +156,13 @@ Map<String, dynamic> _$AdCategoryDtoToJson(AdCategoryDto instance) =>
 
 AdUserDto _$AdUserDtoFromJson(Map<String, dynamic> json) => AdUserDto(
   id: (json['id'] as num).toInt(),
-  firstName: json['first_name'] as String?,
-  lastName: json['last_name'] as String?,
-  username: json['username'] as String?,
-  phone: json['phone'] as String?,
-  avatar: json['avatar'] as String?,
-  dateJoined: json['date_joined'] as String?,
-  adCount: (json['ad_count'] as num?)?.toInt(),
+  firstName: parseString(json['first_name']),
+  lastName: parseString(json['last_name']),
+  username: parseString(json['username']),
+  phone: parseString(json['phone']),
+  avatar: ImageParser.parse(json['avatar']),
+  dateJoined: parseString(json['date_joined']),
+  adCount: parseInt(json['ad_count']),
 );
 
 Map<String, dynamic> _$AdUserDtoToJson(AdUserDto instance) => <String, dynamic>{
@@ -179,9 +186,9 @@ AdVariantDto _$AdVariantDtoFromJson(Map<String, dynamic> json) => AdVariantDto(
       ? null
       : AdSizeDto.fromJson(json['size'] as Map<String, dynamic>),
   isAvailable: json['is_available'] as bool?,
-  price: json['price'] as String?,
-  discount: json['discount'] as String?,
-  finalPrice: json['final_price'] as String?,
+  price: parseString(json['price']),
+  discount: parseString(json['discount']),
+  finalPrice: parseString(json['final_price']),
 );
 
 Map<String, dynamic> _$AdVariantDtoToJson(AdVariantDto instance) =>
@@ -199,8 +206,8 @@ Map<String, dynamic> _$AdVariantDtoToJson(AdVariantDto instance) =>
 AdOptionDto _$AdOptionDtoFromJson(Map<String, dynamic> json) => AdOptionDto(
   id: (json['id'] as num).toInt(),
   ad: (json['ad'] as num).toInt(),
-  name: json['name'] as String,
-  value: json['value'] as String,
+  name: parseRequiredString(json['name']),
+  value: parseRequiredString(json['value']),
 );
 
 Map<String, dynamic> _$AdOptionDtoToJson(AdOptionDto instance) =>
@@ -211,16 +218,18 @@ Map<String, dynamic> _$AdOptionDtoToJson(AdOptionDto instance) =>
       'value': instance.value,
     };
 
-AdImageDto _$AdImageDtoFromJson(Map<String, dynamic> json) =>
-    AdImageDto(id: (json['id'] as num).toInt(), image: json['image'] as String);
+AdImageDto _$AdImageDtoFromJson(Map<String, dynamic> json) => AdImageDto(
+  id: (json['id'] as num).toInt(),
+  image: ImageParser.parse(json['image']),
+);
 
 Map<String, dynamic> _$AdImageDtoToJson(AdImageDto instance) =>
     <String, dynamic>{'id': instance.id, 'image': instance.image};
 
 AdColorDto _$AdColorDtoFromJson(Map<String, dynamic> json) => AdColorDto(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
-  color: json['color'] as String,
+  name: parseRequiredString(json['name']),
+  color: parseRequiredString(json['color']),
 );
 
 Map<String, dynamic> _$AdColorDtoToJson(AdColorDto instance) =>
@@ -230,8 +239,10 @@ Map<String, dynamic> _$AdColorDtoToJson(AdColorDto instance) =>
       'color': instance.color,
     };
 
-AdSizeDto _$AdSizeDtoFromJson(Map<String, dynamic> json) =>
-    AdSizeDto(id: (json['id'] as num).toInt(), name: json['name'] as String);
+AdSizeDto _$AdSizeDtoFromJson(Map<String, dynamic> json) => AdSizeDto(
+  id: (json['id'] as num).toInt(),
+  name: parseRequiredString(json['name']),
+);
 
 Map<String, dynamic> _$AdSizeDtoToJson(AdSizeDto instance) => <String, dynamic>{
   'id': instance.id,
@@ -258,10 +269,10 @@ AdSimilarDataDto _$AdSimilarDataDtoFromJson(Map<String, dynamic> json) =>
           ?.map((e) => AdSimilarItemDto.fromJson(e as Map<String, dynamic>))
           .toList(),
       links: json['links'],
-      totalItems: (json['total_items'] as num?)?.toInt(),
-      totalPages: (json['total_pages'] as num?)?.toInt(),
-      pageSize: (json['page_size'] as num?)?.toInt(),
-      currentPage: (json['current_page'] as num?)?.toInt(),
+      totalItems: parseInt(json['total_items']),
+      totalPages: parseInt(json['total_pages']),
+      pageSize: parseInt(json['page_size']),
+      currentPage: parseInt(json['current_page']),
     );
 
 Map<String, dynamic> _$AdSimilarDataDtoToJson(AdSimilarDataDto instance) =>
@@ -277,13 +288,14 @@ Map<String, dynamic> _$AdSimilarDataDtoToJson(AdSimilarDataDto instance) =>
 AdSimilarItemDto _$AdSimilarItemDtoFromJson(Map<String, dynamic> json) =>
     AdSimilarItemDto(
       slug: json['slug'] as String,
-      title: json['title'] as String,
-      mainImage: json['main_image'] as String?,
-      price: json['price'] as String?,
-      finalPrice: json['final_price'] as String?,
-      currency: json['currency'] as String?,
-      rating: (json['rating'] as num?)?.toDouble(),
-      reviewCount: (json['review_count'] as num?)?.toInt(),
+      title: parseRequiredString(json['title']),
+      mainImage: ImageParser.parse(json['main_image']),
+      price: parseString(json['price']),
+      finalPrice: parseString(json['final_price']),
+      currency: parseString(json['currency']),
+      rating: parseDouble(json['rating']),
+      reviewCount: parseInt(json['review_count']),
+      address: parseString(json['address']),
     );
 
 Map<String, dynamic> _$AdSimilarItemDtoToJson(AdSimilarItemDto instance) =>
@@ -296,6 +308,7 @@ Map<String, dynamic> _$AdSimilarItemDtoToJson(AdSimilarItemDto instance) =>
       'currency': instance.currency,
       'rating': instance.rating,
       'review_count': instance.reviewCount,
+      'address': instance.address,
     };
 
 ColorListResponseDto _$ColorListResponseDtoFromJson(

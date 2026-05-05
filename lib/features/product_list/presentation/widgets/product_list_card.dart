@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/widgets/cart_counter.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 class ProductListCard extends StatelessWidget {
@@ -26,53 +27,64 @@ class ProductListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currency = item.currency == 'uzs' ? 'so\'m' : item.currency;
-    return GestureDetector(
-      onTap: () => context.push('/ad/${item.slug}'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.cardSurface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.borderColor),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImage(),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: context.textPrimary,
-                          height: 1.2,
+    return Container(
+      decoration: BoxDecoration(
+        color: context.cardSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.borderColor),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () => context.push('/ad/${item.slug}'),
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildImage(),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: 40,
+                        child: Text(
+                          item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: context.textPrimary,
+                                height: 1.2,
+                              ),
                         ),
                       ),
-                    ),
-                    if (item.finalPrice != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        '${_formatPrice(item.finalPrice)} $currency',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.orange,
+                      if (item.finalPrice != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '${_formatPrice(item.finalPrice)} $currency',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.orange,
+                              ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+            child: CartCounter(adSlug: item.slug, height: 36),
+          ),
+        ],
       ),
     );
   }

@@ -24,6 +24,15 @@ class FavoriteItemEntity extends Equatable {
   final bool isLiked;
 
   @override
-  List<Object?> get props =>
-      [slug, title, mainImage, price, finalPrice, currency, rating, reviewCount, isLiked];
+  List<Object?> get props => [
+    slug,
+    title,
+    mainImage,
+    price,
+    finalPrice,
+    currency,
+    rating,
+    reviewCount,
+    isLiked,
+  ];
 }

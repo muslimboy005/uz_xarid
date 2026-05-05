@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB7Fbsa-m5vM_fRkw-nfkVY1SY1u7uTvpE',
-    appId: '1:1019241871142:android:18d72f712316c70f1c73e7',
+    appId: '1:1019241871142:android:63d09fa98701ae971c73e7',
     messagingSenderId: '1019241871142',
     projectId: 'uzxarid2',
     storageBucket: 'uzxarid2.firebasestorage.app',
@@ -60,11 +60,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyC94WcewTI1wkQ2gQHmaRN4VR2UkbMs4vM',
-    appId: '1:1019241871142:ios:7f7fdf9674168a531c73e7',
+    appId: '1:1019241871142:ios:83180e4da04391c91c73e7',
     messagingSenderId: '1019241871142',
     projectId: 'uzxarid2',
     storageBucket: 'uzxarid2.firebasestorage.app',
-    iosBundleId: 'com.example.uzXarid',
+    iosBundleId: 'uz.uzxarid.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

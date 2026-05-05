@@ -34,6 +34,10 @@ class SecureStorageService {
     return token != null && token.isNotEmpty;
   }
 
+  bool hasTokenSync() {
+    return _cachedAccessToken != null && _cachedAccessToken!.isNotEmpty;
+  }
+
   Future<void> deleteToken() async {
     _cachedAccessToken = null;
     await _storage.delete(key: _accessTokenKey);
