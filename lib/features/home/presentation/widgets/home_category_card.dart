@@ -68,21 +68,23 @@ class HomeCategoryCard extends StatelessWidget {
             clipBehavior: Clip.hardEdge,
             children: [
               Positioned(
-                right: -12,
+                right: category.asset.contains('car') ? 0 : -12,
                 bottom: -12,
                 child: SizedBox(
                   width: 100,
                   height: category.asset.contains('apartment') ? 115 : 100,
-                  child: category.asset.contains('car')
-                      ? Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.rotationY(pi),
-                          child: AppImage(
-                            path: category.asset,
-                            fit: BoxFit.contain,
-                          ),
-                        )
-                      : AppImage(path: category.asset, fit: BoxFit.contain),
+                  child:
+                      // category.asset.contains('car')
+                      //     ? Transform(
+                      //         alignment: Alignment.center,
+                      //         transform: Matrix4.rotationY(pi),
+                      //         child: AppImage(
+                      //           path: category.asset,
+                      //           fit: BoxFit.contain,
+                      //         ),
+                      //       )
+                      //     :
+                      AppImage(path: category.asset, fit: BoxFit.contain),
                 ),
               ),
               Positioned(

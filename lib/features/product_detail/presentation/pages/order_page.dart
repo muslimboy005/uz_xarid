@@ -61,7 +61,6 @@ class _OrderPageState extends State<OrderPage> {
     final ad = widget.ad!;
     final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final AppLocalizations l = AppLocalizations.of(context)!;
-    final bool isDark = context.isDark;
     final bg = context.bodyBackground;
     final card = context.cardSurface;
     final txt = context.textPrimary;

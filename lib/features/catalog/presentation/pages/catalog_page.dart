@@ -174,7 +174,7 @@ class _CatalogPageState extends State<CatalogPage> {
     'Home': 'assets/images/apartment.png',
     'Auto': 'assets/images/car.png',
     'Service': 'assets/images/service.png',
-    'Equipment': 'assets/images/service.png',
+    'Equipment': 'assets/images/equipments.png',
   };
 
   Widget _buildTypeTilesSliver(

@@ -25,7 +25,6 @@ class UnauthProfileContent extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final textColor = context.textPrimary;
-    final textSecondary = context.textSecondary;
 
     return SingleChildScrollView(
       child: Column(

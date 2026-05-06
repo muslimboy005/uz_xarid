@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
       ),
       HomeCategory(
         title: l10n.categoryEquipment,
-        asset: 'assets/images/service.png',
+        asset: 'assets/images/equipments.png',
         categoryType: 'Equipment',
       ),
     ];
