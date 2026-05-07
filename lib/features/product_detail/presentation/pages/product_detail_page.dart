@@ -20,6 +20,7 @@ import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entit
 import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detail_bloc.dart';
+import 'package:uz_xarid/features/product_detail/presentation/pages/image_viewer_page.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/core/widgets/product_card.dart';
@@ -347,6 +348,21 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   Color get _primaryColor => context.watch<AppModeCubit>().state.primaryColor;
 
+  void _openImageViewer(List<String> images, int index) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.transparent,
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 200),
+        pageBuilder: (_, animation, _) => FadeTransition(
+          opacity: animation,
+          child: ImageViewerPage(images: images, initialIndex: index),
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -457,18 +473,18 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     controller: _imagePageController,
                     itemCount: images.length,
                     onPageChanged: (i) => _currentImage.value = i,
-                    itemBuilder: (_, i) => AppImage(
-                      path: images[i],
-                      fit: BoxFit.cover,
-                      borderRadius: BorderRadius.circular(8),
-                      // placeholder: (_, __) => const Center(
-                      //   child: CircularProgressIndicator(strokeWidth: 2),
-                      // ),
-                      errorWidget: Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 48,
-                          color: mutedColor,
+                    itemBuilder: (_, i) => GestureDetector(
+                      onTap: () => _openImageViewer(images, i),
+                      child: AppImage(
+                        path: images[i],
+                        fit: BoxFit.cover,
+                        borderRadius: BorderRadius.circular(8),
+                        errorWidget: Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: mutedColor,
+                          ),
                         ),
                       ),
                     ),
