@@ -9,5 +9,8 @@ class AppKeys {
   /// Sotaman / Sotib olaman — 'selling' | 'buying'
   static const String appModeKey = 'app_mode';
 
+  /// Tanlangan valyuta — har bir API so'rovida x-currency header bilan ketadi.
+  static const String selectedCurrencyKey = 'selected_currency_ccy';
+
   static const String yandexGeocoderKey = '47861109-87ce-4a57-b8aa-bbc93cb5ef7d';
 }

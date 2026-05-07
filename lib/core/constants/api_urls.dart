@@ -23,6 +23,9 @@ class ApiUrls {
 
   static const String categories = 'category/';
   static const String categoryFields = 'category-fields/';
+
+  /// Filtr varag'i uchun: faqat ishlatilayotgan qiymatlarni qaytaradi.
+  static const String categoryFieldsUsed = 'category-fields/used-fields/';
   static const String banner = 'banner/';
   static const String recommendations = 'ad/recommendations/';
   static const String gifts = 'ad/gift/';

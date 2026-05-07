@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/widgets/shimmer_box.dart';
 
 /// Banner uchun shimmer (balandlik bilan).
@@ -15,7 +15,7 @@ class ShimmerBanner extends StatelessWidget {
       child: Container(
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -43,9 +43,9 @@ class ShimmerCategoryCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
       ),
     );
@@ -72,9 +72,9 @@ class ShimmerProductCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
       ),
     );
@@ -101,9 +101,9 @@ class ShimmerProductCardSmall extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
       ),
     );
@@ -121,9 +121,9 @@ class ShimmerGridProductCard extends StatelessWidget {
     return ShimmerBox(
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
       ),
     );
@@ -141,9 +141,9 @@ class ShimmerServiceCard extends StatelessWidget {
     return ShimmerBox(
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: AppColors.cardBorderColor),
+          border: Border.all(color: context.borderColor),
         ),
       ),
     );
@@ -164,7 +164,7 @@ class ShimmerListTile extends StatelessWidget {
         height: height,
         margin: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -181,7 +181,7 @@ class ShimmerDetailImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShimmerBox(
-      child: Container(height: height, color: AppColors.white),
+      child: Container(height: height, color: context.cardSurface),
     );
   }
 }
@@ -199,7 +199,7 @@ class ShimmerDetailBlock extends StatelessWidget {
         height: height,
         margin: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardSurface,
           borderRadius: BorderRadius.circular(12),
         ),
       ),

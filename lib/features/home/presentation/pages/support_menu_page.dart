@@ -7,6 +7,7 @@ import 'package:uz_xarid/core/app_config.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/features/currency/presentation/widgets/currency_selector.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class SupportMenuPage extends StatelessWidget {
@@ -30,6 +31,34 @@ class SupportMenuPage extends StatelessWidget {
     final card = context.surfaceContainer;
     final l10n = AppLocalizations.of(context)!;
 
+    return _buildScaffold(
+      context,
+      mode: mode,
+      appBarColor: appBarColor,
+      onBar: onBar,
+      bg: bg,
+      textPrimary: textPrimary,
+      textSecondary: textSecondary,
+      border: border,
+      card: card,
+      isBuying: isBuying,
+      l10n: l10n,
+    );
+  }
+
+  Widget _buildScaffold(
+    BuildContext context, {
+    required AppMode mode,
+    required Color appBarColor,
+    required Color onBar,
+    required Color bg,
+    required Color textPrimary,
+    required Color textSecondary,
+    required Color border,
+    required Color card,
+    required bool isBuying,
+    required AppLocalizations l10n,
+  }) {
     return Scaffold(
       backgroundColor: appBarColor,
       appBar: PreferredSize(
@@ -72,9 +101,11 @@ class SupportMenuPage extends StatelessWidget {
         color: bg,
         child: Column(
           children: [
+            // Currency selector + UZS rate display
+            const CurrencySelectorSection(),
             // Tabs row — stays fixed at top
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(

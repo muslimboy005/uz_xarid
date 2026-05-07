@@ -107,7 +107,7 @@ class ListingRepositoryImpl implements ListingRepository {
         ApiUrls.categoryFields,
         queryParameters: {
           'listing_type': listingType,
-          'category': categoryId,
+          'category_id': ?categoryId,
         },
       );
       final data = response.data;

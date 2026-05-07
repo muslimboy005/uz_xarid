@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/features/chat/domain/entities/chat_room_entity.dart';
 import 'package:intl/intl.dart';
 
@@ -41,7 +42,7 @@ class ChatRoomListItem extends StatelessWidget {
               radius: 28,
               backgroundColor: AppColors.blue50,
               backgroundImage: participant?.avatarUrl != null
-                  ? NetworkImage(participant!.avatarUrl!)
+                  ? NetworkImage(participant!.avatarUrl!.cdnUrl)
                   : null,
               child: participant?.avatarUrl == null
                   ? const Icon(Icons.person, color: AppColors.blue500)

@@ -15,6 +15,7 @@ import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
 import 'package:uz_xarid/features/home/data/repositories/home_repository_impl.dart';
 import 'package:uz_xarid/features/home/domain/usecases/get_home.dart';
 import 'package:uz_xarid/features/home/presentation/bloc/home_bloc.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/home_category_card.dart';
 import 'package:uz_xarid/features/home/presentation/widgets/recommendation_card.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
@@ -117,13 +118,28 @@ class _HomePageState extends State<HomePage> {
         return HomeBloc(useCase)
           ..add(HomeRequested(adType: adType, pageSize: 16));
       },
-      child: BlocListener<AppModeCubit, AppMode>(
-        listener: (context, mode) {
-          final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
-          context.read<HomeBloc>().add(
-            HomeRequested(adType: adType, pageSize: 16),
-          );
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AppModeCubit, AppMode>(
+            listener: (context, mode) {
+              final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
+              context.read<HomeBloc>().add(
+                HomeRequested(adType: adType, pageSize: 16),
+              );
+            },
+          ),
+          BlocListener<CurrencyCubit, CurrencyState>(
+            listenWhen: (prev, curr) => prev.selectedCcy != curr.selectedCcy,
+            listener: (context, _) {
+              final adType = context.read<AppModeCubit>().state == AppMode.buying
+                  ? 'Buy'
+                  : 'Sell';
+              context.read<HomeBloc>().add(
+                HomeRequested(adType: adType, pageSize: 16),
+              );
+            },
+          ),
+        ],
         child: Scaffold(
           appBar: UzXaridAppBar(
             onSearchTap: () => context.push('/search'),

@@ -29,4 +29,12 @@ extension ThemeColors on BuildContext {
 
   Color get tabUnselected =>
       isDark ? AppColors.darkBackground : AppColors.black50;
+
+  /// Shimmer animatsiyasi uchun "asos" rang — gradientning to'q tomoni.
+  Color get shimmerBase =>
+      isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE6E7E8);
+
+  /// Shimmer animatsiyasi uchun "porlash" rangi — gradientning yorug' tomoni.
+  Color get shimmerHighlight =>
+      isDark ? const Color(0xFF3D3D3D) : const Color(0xFFF7F8F9);
 }

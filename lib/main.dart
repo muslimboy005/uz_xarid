@@ -13,4 +13,5 @@ Future<void> main() async {
   await setupDependencies();
   AppConfig.packageName = null; // Standalone mode
   runApp(const UzXaridApp());
+  
 }

@@ -56,6 +56,7 @@ Future<void> registerRepositories(GetIt getIt) async {
         homeApi: getIt<HomeApi>(),
         catalogApi: getIt<CatalogApi>(),
         categoryChildrenApi: getIt<CategoryChildrenApi>(),
+        dio: getIt<DioClient>().dio,
       ),
     )
     ..registerLazySingleton<ProductDetailRepository>(

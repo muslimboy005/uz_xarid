@@ -8,8 +8,11 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/network/yandex_map_coverage.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/price_formatter.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
+import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
@@ -311,19 +314,6 @@ class _ListingsBottomSheet extends StatelessWidget {
   const _ListingsBottomSheet({required this.items});
   final List<ProductListItemEntity> items;
 
-  static String _formatPrice(String? value) {
-    if (value == null || value.isEmpty) return '';
-    final intPart = value.split('.').first;
-    final buf = StringBuffer();
-    var count = 0;
-    for (var i = intPart.length - 1; i >= 0; i--) {
-      buf.write(intPart[i]);
-      count++;
-      if (count % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -336,6 +326,8 @@ class _ListingsBottomSheet extends StatelessWidget {
         ? l10n.adTypeBuy
         : l10n.supportMenuSotaman;
     final primaryColor = appMode.primaryColor;
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final selectedCurrencyLabel = currencyDisplayLabel(selectedCcy);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.38,
@@ -396,11 +388,10 @@ class _ListingsBottomSheet extends StatelessWidget {
                       separatorBuilder: (_, __) => Divider(color: border),
                       itemBuilder: (context, index) {
                         final item = items[index];
-                        final priceStr = _formatPrice(
+                        final priceStr = formatPrice(
                           item.finalPrice ?? item.price,
                         );
-                        final currency =
-                            item.currency == 'uzs' ? 'so\'m' : item.currency;
+                        final currency = selectedCurrencyLabel;
 
                         return InkWell(
                           onTap: () {

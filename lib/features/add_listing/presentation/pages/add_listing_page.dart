@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
 
@@ -561,6 +562,7 @@ class _AddListingPageState extends State<AddListingPage> {
     final result = await getIt<CatalogRepository>().getCategoryChildren(
       parentCategoryId: parentId,
       pageSize: _categoryChildrenPageSize,
+      categoryType: _categoryTypeForListingType(_listingType),
     );
     if (!mounted) return;
     if (_selectedCategory?.id != parentId) return;
@@ -588,6 +590,7 @@ class _AddListingPageState extends State<AddListingPage> {
     final result = await getIt<CatalogRepository>().getCategoryChildren(
       parentCategoryId: parentId,
       pageSize: _categoryChildrenPageSize,
+      categoryType: _categoryTypeForListingType(_listingType),
     );
     if (!mounted) return;
     if (_selectedSubcategory?.id != parentId) return;
@@ -1064,29 +1067,70 @@ class _AddListingPageState extends State<AddListingPage> {
     final dynamicPayload = <String, dynamic>{};
     for (final field in visibleDynamicFields) {
       final type = field.type.toLowerCase();
-      dynamic value;
-      if (type == 'text' || type == 'number') {
-        final c = _dynamicTextControllers[field.name];
-        value = c?.text.trim();
-      } else {
-        value = _dynamicValues[field.name];
+      void showError(String message) {
+        ScaffoldMessenger.of(formContext).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.red),
+        );
       }
-      if (field.required) {
-        final missing =
-            value == null ||
-            (value is String && value.isEmpty) ||
-            (type == 'checkbox' && value != true);
-        if (missing) {
-          ScaffoldMessenger.of(formContext).showSnackBar(
-            SnackBar(
-              content: Text('${field.label} to\'ldirilishi shart'),
-              backgroundColor: AppColors.red,
-            ),
-          );
+
+      bool validateNumericRange(String raw) {
+        final parsed = double.tryParse(raw.replaceAll(',', '.'));
+        if (parsed == null) return true;
+        if (field.minValue != null && parsed < field.minValue!) return false;
+        if (field.maxValue != null && parsed > field.maxValue!) return false;
+        return true;
+      }
+
+      if (type == 'text' || type == 'number' || type == 'range') {
+        final c = _dynamicTextControllers[field.name];
+        final value = c?.text.trim() ?? '';
+        if (field.required && value.isEmpty) {
+          showError('${field.label} to\'ldirilishi shart');
           return;
         }
+        if (value.isNotEmpty &&
+            (field.minValue != null || field.maxValue != null)) {
+          if (!validateNumericRange(value)) {
+            showError(
+              '${field.label}: ${_rangeHintText(field.minValue, field.maxValue)} oralig\'ida bo\'lsin',
+            );
+            return;
+          }
+        }
+        if (value.isNotEmpty) dynamicPayload[field.name] = value;
+        continue;
       }
-      if (value != null && (value is! String || value.isNotEmpty)) {
+
+      if (type == 'multiselect') {
+        final raw = _dynamicValues[field.name];
+        final list = raw is List
+            ? raw.map((e) => e.toString()).where((e) => e.isNotEmpty).toList()
+            : <String>[];
+        if (field.required && list.isEmpty) {
+          showError('${field.label}: kamida bittasini tanlang');
+          return;
+        }
+        if (list.isNotEmpty) dynamicPayload[field.name] = list;
+        continue;
+      }
+
+      if (type == 'checkbox') {
+        final value = _dynamicValues[field.name] == true;
+        if (field.required && !value) {
+          showError('${field.label}: belgilang');
+          return;
+        }
+        dynamicPayload[field.name] = value;
+        continue;
+      }
+
+      // select va boshqalar
+      final value = _dynamicValues[field.name];
+      if (field.required && (value == null || value.toString().isEmpty)) {
+        showError('${field.label}: tanlang');
+        return;
+      }
+      if (value != null && value.toString().isNotEmpty) {
         dynamicPayload[field.name] = value;
       }
     }
@@ -1342,7 +1386,7 @@ class _AddListingPageState extends State<AddListingPage> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: types.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final e = types[i];
           final selected = _listingType == e.$1;
@@ -1395,61 +1439,59 @@ class _AddListingPageState extends State<AddListingPage> {
     Color borderColor,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    return _card(
+    return _cardWithHeader(
       cardColor: cardColor,
       borderColor: borderColor,
-      child: Column(
+      title: l10n.addListingPrice,
+      subtitle: 'Summa va valyutani tanlang',
+      textColor: textColor,
+      textSecondary: textSecondary,
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: AppText(
-                  text: l10n.addListingPrice,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: textColor,
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _fieldLabel(
+                  l10n.addListingPrice,
+                  true,
+                  textColor,
+                  textSecondary,
                 ),
-              ),
-              AppText(
-                text: '${l10n.addListingCurrency} ',
-                fontSize: 14,
-                fontWeight: 600,
-                color: textColor,
-              ),
-              AppText(
-                text: '*',
-                fontSize: 14,
-                fontWeight: 600,
-                color: AppColors.red,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: _inputField(
-                  hint: l10n.addListingPrice,
+                const SizedBox(height: 8),
+                _dynamicTextField(
                   controller: _amountController,
-                  keyboardType: TextInputType.number,
+                  hint: l10n.addListingPrice,
+                  isNumber: true,
+                  borderColor: borderColor,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  onTap: () => _showCurrencyPicker(),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _fieldLabel(
+                  l10n.addListingCurrency,
+                  true,
+                  textColor,
+                  textSecondary,
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: _showCurrencyPicker,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 14,
-                    ),
+                    height: _kInputHeight,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
                       color: context.surfaceContainer,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: context.borderColor),
+                      border: Border.all(color: borderColor),
                     ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
@@ -1460,7 +1502,7 @@ class _AddListingPageState extends State<AddListingPage> {
                           AppText(
                             text: _currency,
                             fontSize: 14,
-                            fontWeight: 500,
+                            fontWeight: 600,
                             color: textColor,
                           ),
                           const SizedBox(width: 2),
@@ -1474,8 +1516,8 @@ class _AddListingPageState extends State<AddListingPage> {
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -1518,30 +1560,23 @@ class _AddListingPageState extends State<AddListingPage> {
             _selectedSubcategory != null &&
             (_loadingSubSubcategories || subSubcategories.isNotEmpty);
 
-        return _card(
+        return _cardWithHeader(
           cardColor: cardColor,
           borderColor: borderColor,
+          title: l10n.addListingCategory,
+          subtitle: 'Kategoriya tanlang',
+          textColor: textColor,
+          textSecondary: textSecondary,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  AppText(
-                    text: l10n.addListingCategory,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: textColor,
-                  ),
-                  const SizedBox(width: 4),
-                  AppText(
-                    text: '*',
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: AppColors.red,
-                  ),
-                ],
+              _fieldLabel(
+                l10n.addListingCategory,
+                true,
+                textColor,
+                textSecondary,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               if (isLoading)
                 Container(
                   height: 48,
@@ -1565,6 +1600,7 @@ class _AddListingPageState extends State<AddListingPage> {
                   textColor: textColor,
                   textSecondary: textSecondary,
                   borderColor: borderColor,
+                  enableSearch: true,
                   onSelected: (cat) {
                     setState(() {
                       _selectedCategory = cat;
@@ -1577,7 +1613,14 @@ class _AddListingPageState extends State<AddListingPage> {
                   },
                 ),
               if (showSubcategoryRow) ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
+                _fieldLabel(
+                  l10n.addListingSelectSubcategory,
+                  false,
+                  textColor,
+                  textSecondary,
+                ),
+                const SizedBox(height: 8),
                 if (_loadingSubcategories)
                   Container(
                     height: 48,
@@ -1615,7 +1658,14 @@ class _AddListingPageState extends State<AddListingPage> {
                   ),
               ],
               if (showSubSubcategoryRow) ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
+                _fieldLabel(
+                  l10n.addListingSelectType,
+                  false,
+                  textColor,
+                  textSecondary,
+                ),
+                const SizedBox(height: 8),
                 if (_loadingSubSubcategories)
                   Container(
                     height: 48,
@@ -1663,6 +1713,7 @@ class _AddListingPageState extends State<AddListingPage> {
     required Color textSecondary,
     required Color borderColor,
     required void Function(CategoryEntity) onSelected,
+    bool enableSearch = false,
   }) {
     final primaryColor = context.read<AppModeCubit>().state.primaryColor;
     return GestureDetector(
@@ -1674,6 +1725,7 @@ class _AddListingPageState extends State<AddListingPage> {
         textSecondary: textSecondary,
         borderColor: borderColor,
         onSelected: onSelected,
+        enableSearch: enableSearch,
       ),
       child: Container(
         height: _kInputHeight,
@@ -1715,9 +1767,353 @@ class _AddListingPageState extends State<AddListingPage> {
     required Color textSecondary,
     required Color borderColor,
     required void Function(CategoryEntity) onSelected,
+    bool enableSearch = false,
   }) {
     final pageContext = context;
     final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    final categoryType = _categoryTypeForListingType(_listingType);
+    showModalBottomSheet<void>(
+      context: pageContext,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (sheetContext, scrollController) {
+            return _CategorySheetContent(
+              hint: hint,
+              items: items,
+              selected: selected,
+              textColor: textColor,
+              textSecondary: textSecondary,
+              borderColor: borderColor,
+              cardSurface: sheetContext.cardSurface,
+              surfaceContainer: sheetContext.surfaceContainer,
+              primaryColor: primaryColor,
+              scrollController: scrollController,
+              enableSearch: enableSearch,
+              categoryType: categoryType,
+              onSelected: (item) {
+                Navigator.pop(sheetContext);
+                onSelected(item);
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ─── MAHSULOT NOMI CARD ─────────────────────────────────────────
+
+  Widget _buildDynamicFieldsCard(
+    Color cardColor,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    if (_dynamicFieldsLoading) {
+      return _cardWithHeader(
+        cardColor: cardColor,
+        borderColor: borderColor,
+        title: "Qo'shimcha ma'lumotlar",
+        subtitle: "Yuklanmoqda...",
+        textColor: textColor,
+        textSecondary: textSecondary,
+        child: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        ),
+      );
+    }
+
+    final visible = _dynamicFields.where(_isDynamicFieldVisible).toList();
+    if (visible.isEmpty) return const SizedBox.shrink();
+
+    return _cardWithHeader(
+      cardColor: cardColor,
+      borderColor: borderColor,
+      title: "Qo'shimcha ma'lumotlar",
+      subtitle: "Ushbu ma'lumotlarni to'ldiring",
+      textColor: textColor,
+      textSecondary: textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < visible.length; i++) ...[
+            _buildDynamicField(
+              visible[i],
+              textColor,
+              textSecondary,
+              borderColor,
+            ),
+            if (i < visible.length - 1) const SizedBox(height: 16),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDynamicField(
+    CategoryFieldEntity field,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    final type = field.type.toLowerCase();
+    if (type == 'checkbox') {
+      final checked = _dynamicValues[field.name] == true;
+      return InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () =>
+            setState(() => _dynamicValues[field.name] = !checked),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Checkbox(
+                value: checked,
+                onChanged: (v) =>
+                    setState(() => _dynamicValues[field.name] = v == true),
+              ),
+              Expanded(
+                child: _fieldLabel(
+                  field.label,
+                  field.required,
+                  textColor,
+                  textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (type == 'select') {
+      return _buildSelectField(field, textColor, textSecondary, borderColor);
+    }
+    if (type == 'multiselect') {
+      return _buildMultiselectField(
+        field,
+        textColor,
+        textSecondary,
+        borderColor,
+      );
+    }
+    // text / number / range — barchasi bitta input.
+    // range uchun min_value/max_value faqat validation uchun.
+    final controller = _controllerForDynamicField(field.name);
+    if (_dynamicValues[field.name] != null && controller.text.isEmpty) {
+      controller.text = _dynamicValues[field.name].toString();
+    }
+    final isNumeric = type == 'number' || type == 'range';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel(field.label, field.required, textColor, textSecondary),
+        const SizedBox(height: 8),
+        _dynamicTextField(
+          controller: controller,
+          hint: field.placeholder?.isNotEmpty == true
+              ? field.placeholder!
+              : field.label,
+          isNumber: isNumeric,
+          borderColor: borderColor,
+          suffix: field.suffix,
+        ),
+        if (field.minValue != null || field.maxValue != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: AppText(
+              text: _rangeHintText(field.minValue, field.maxValue),
+              fontSize: 11,
+              fontWeight: 400,
+              color: textSecondary,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSelectField(
+    CategoryFieldEntity field,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    final selected = _dynamicValues[field.name]?.toString();
+    final selectedOption = field.options.firstWhere(
+      (o) => o.value == selected,
+      orElse: () => const CategoryFieldOptionEntity(label: '', value: ''),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel(field.label, field.required, textColor, textSecondary),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _showSelectSheet(
+            title: field.label,
+            options: field.options,
+            selected: selected,
+            onSelected: (v) {
+              setState(() {
+                _dynamicValues[field.name] = v;
+                // Conditional fields kepip ketishi mumkin; tegishli range
+                // controllerlarini tozalab qo'yamiz.
+                _resetDependentFieldValues();
+              });
+            },
+          ),
+          child: Container(
+            height: _kInputHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: context.surfaceContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppText(
+                    text: selectedOption.label.isNotEmpty
+                        ? selectedOption.label
+                        : (field.placeholder?.isNotEmpty == true
+                              ? field.placeholder!
+                              : 'Tanlang'),
+                    fontSize: 14,
+                    fontWeight: selectedOption.label.isNotEmpty ? 500 : 400,
+                    color: selectedOption.label.isNotEmpty
+                        ? textColor
+                        : textSecondary,
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMultiselectField(
+    CategoryFieldEntity field,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    final raw = _dynamicValues[field.name];
+    final selected = <String>{
+      if (raw is List) ...raw.map((e) => e.toString()),
+    };
+    final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    final selectedLabels = field.options
+        .where((o) => selected.contains(o.value))
+        .map((o) => o.label)
+        .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel(field.label, field.required, textColor, textSecondary),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _showMultiselectSheet(
+            title: field.label,
+            options: field.options,
+            initiallySelected: selected,
+            onApply: (values) {
+              setState(() {
+                _dynamicValues[field.name] = values.toList();
+              });
+            },
+          ),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: _kInputHeight),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 10,
+            ),
+            decoration: BoxDecoration(
+              color: context.surfaceContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selectedLabels.isNotEmpty ? primaryColor : borderColor,
+                width: selectedLabels.isNotEmpty ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: selectedLabels.isEmpty
+                      ? AppText(
+                          text: field.placeholder?.isNotEmpty == true
+                              ? field.placeholder!
+                              : 'Tanlang',
+                          fontSize: 14,
+                          fontWeight: 400,
+                          color: textSecondary,
+                        )
+                      : Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: selectedLabels
+                              .map(
+                                (l) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: primaryColor.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: AppText(
+                                    text: l,
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showMultiselectSheet({
+    required String title,
+    required List<CategoryFieldOptionEntity> options,
+    required Set<String> initiallySelected,
+    required ValueChanged<Set<String>> onApply,
+  }) {
+    final pageContext = context;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+    final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    final draft = Set<String>.from(initiallySelected);
     showModalBottomSheet<void>(
       context: pageContext,
       isScrollControlled: true,
@@ -1727,6 +2123,253 @@ class _AddListingPageState extends State<AddListingPage> {
           initialChildSize: 0.6,
           minChildSize: 0.4,
           maxChildSize: 0.9,
+          expand: false,
+          builder: (sheetContext, scrollController) {
+            return StatefulBuilder(
+              builder: (sbContext, setSheetState) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: sheetContext.cardSurface,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: borderColor,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: AppText(
+                                text: title,
+                                fontSize: 16,
+                                fontWeight: 600,
+                                color: textColor,
+                              ),
+                            ),
+                            if (draft.isNotEmpty)
+                              GestureDetector(
+                                onTap: () =>
+                                    setSheetState(() => draft.clear()),
+                                child: AppText(
+                                  text: 'Tozalash',
+                                  fontSize: 13,
+                                  fontWeight: 500,
+                                  color: textSecondary,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: ListView.separated(
+                          controller: scrollController,
+                          itemCount: options.length,
+                          separatorBuilder: (_, _) =>
+                              Divider(height: 1, color: borderColor),
+                          itemBuilder: (_, i) {
+                            final opt = options[i];
+                            final isOn = draft.contains(opt.value);
+                            return InkWell(
+                              onTap: () => setSheetState(() {
+                                if (isOn) {
+                                  draft.remove(opt.value);
+                                } else {
+                                  draft.add(opt.value);
+                                }
+                              }),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: isOn,
+                                      activeColor: primaryColor,
+                                      onChanged: (v) =>
+                                          setSheetState(() {
+                                            if (v == true) {
+                                              draft.add(opt.value);
+                                            } else {
+                                              draft.remove(opt.value);
+                                            }
+                                          }),
+                                    ),
+                                    Expanded(
+                                      child: AppText(
+                                        text: opt.label,
+                                        fontSize: 15,
+                                        fontWeight: isOn ? 600 : 400,
+                                        color: isOn ? primaryColor : textColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          8,
+                          16,
+                          MediaQuery.of(sheetContext).padding.bottom + 12,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ContainerW(
+                            color: primaryColor,
+                            radius: 12,
+                            onTap: () {
+                              Navigator.pop(sheetContext);
+                              onApply(draft);
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Center(
+                                child: AppText(
+                                  text: 'Tasdiqlash',
+                                  fontSize: 15,
+                                  fontWeight: 600,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _dynamicTextField({
+    required TextEditingController controller,
+    required String hint,
+    required Color borderColor,
+    bool isNumber = false,
+    String? suffix,
+  }) {
+    return SizedBox(
+      height: _kInputHeight,
+      child: TextField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : null,
+        style: TextStyle(fontSize: 14, color: context.textPrimary),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(fontSize: 14, color: context.textSecondary),
+          filled: true,
+          fillColor: context.surfaceContainer,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
+          suffixText: (suffix != null && suffix.isNotEmpty) ? suffix : null,
+          suffixStyle: TextStyle(fontSize: 13, color: context.textSecondary),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _fieldLabel(
+    String label,
+    bool isRequired,
+    Color textColor,
+    Color textSecondary,
+  ) {
+    return RichText(
+      text: TextSpan(
+        text: label.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+          letterSpacing: 0.3,
+        ),
+        children: [
+          if (isRequired)
+            const TextSpan(
+              text: ' *',
+              style: TextStyle(
+                color: AppColors.red,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _rangeHintText(double? min, double? max) {
+    String fmt(double v) =>
+        v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+    if (min != null && max != null) return '${fmt(min)} – ${fmt(max)}';
+    if (min != null) return '≥ ${fmt(min)}';
+    if (max != null) return '≤ ${fmt(max)}';
+    return '';
+  }
+
+  void _resetDependentFieldValues() {
+    // Conditionga bog‘liq maydonlar yashirilsa, qiymatlari foydalanuvchini
+    // chalg‘itmasligi uchun tozalanadi.
+    for (final field in _dynamicFields) {
+      if (field.condition == null) continue;
+      if (_isDynamicFieldVisible(field)) continue;
+      _dynamicValues.remove(field.name);
+      _dynamicTextControllers[field.name]?.clear();
+    }
+  }
+
+  void _showSelectSheet({
+    required String title,
+    required List<CategoryFieldOptionEntity> options,
+    required String? selected,
+    required ValueChanged<String> onSelected,
+  }) {
+    final pageContext = context;
+    final textColor = context.textPrimary;
+    final borderColor = context.borderColor;
+    final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    showModalBottomSheet<void>(
+      context: pageContext,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
           expand: false,
           builder: (sheetContext, scrollController) {
             return Container(
@@ -1747,61 +2390,29 @@ class _AddListingPageState extends State<AddListingPage> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: AppText(
-                      text: hint,
+                      text: title,
                       fontSize: 16,
                       fontWeight: 600,
                       color: textColor,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Expanded(
                     child: ListView.separated(
                       controller: scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: items.length,
+                      itemCount: options.length,
                       separatorBuilder: (_, _) =>
                           Divider(height: 1, color: borderColor),
                       itemBuilder: (_, i) {
-                        final item = items[i];
-                        final isSelected = selected?.id == item.id;
+                        final opt = options[i];
+                        final isSelected = selected == opt.value;
                         return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          leading: item.image != null && item.image!.isNotEmpty
-                              ? Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: context.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: AppImage(
-                                    path: item.image!,
-                                    size: 40,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                )
-                              : Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: context.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    Icons.category_outlined,
-                                    color: textSecondary,
-                                    size: 20,
-                                  ),
-                                ),
                           title: AppText(
-                            text: item.displayName,
+                            text: opt.label,
                             fontSize: 15,
                             fontWeight: isSelected ? 600 : 400,
                             color: isSelected ? primaryColor : textColor,
@@ -1815,147 +2426,21 @@ class _AddListingPageState extends State<AddListingPage> {
                               : null,
                           onTap: () {
                             Navigator.pop(sheetContext);
-                            onSelected(item);
+                            onSelected(opt.value);
                           },
                         );
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: MediaQuery.of(sheetContext).padding.bottom + 12,
+                  ),
                 ],
               ),
             );
           },
         );
       },
-    );
-  }
-
-  // ─── MAHSULOT NOMI CARD ─────────────────────────────────────────
-
-  Widget _buildDynamicFieldsCard(
-    Color cardColor,
-    Color textColor,
-    Color textSecondary,
-    Color borderColor,
-  ) {
-    if (_dynamicFieldsLoading) {
-      return _card(
-        cardColor: cardColor,
-        borderColor: borderColor,
-        child: const Center(
-          child: Padding(
-            padding: EdgeInsets.all(8),
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    }
-
-    final visible = _dynamicFields.where(_isDynamicFieldVisible).toList();
-    if (visible.isEmpty) return const SizedBox.shrink();
-
-    return _card(
-      cardColor: cardColor,
-      borderColor: borderColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionHeader("Qo'shimcha maydonlar", textColor, textSecondary),
-          const SizedBox(height: 12),
-          ...visible.map((field) {
-            final isRequired = field.required;
-            final label = isRequired ? '${field.label} *' : field.label;
-            final type = field.type.toLowerCase();
-            if (type == 'checkbox') {
-              final checked = _dynamicValues[field.name] == true;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: CheckboxListTile(
-                  value: checked,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(label, style: TextStyle(color: textColor)),
-                  onChanged: (v) {
-                    setState(() => _dynamicValues[field.name] = v == true);
-                  },
-                ),
-              );
-            }
-            if (type == 'select') {
-              final options = field.options;
-              final selected = _dynamicValues[field.name]?.toString();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText(
-                      text: label,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: textColor,
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: _kInputHeight,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: context.surfaceContainer,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: selected,
-                          isExpanded: true,
-                          hint: Text(
-                            field.placeholder?.isNotEmpty == true
-                                ? field.placeholder!
-                                : 'Tanlang',
-                            style: TextStyle(color: textSecondary),
-                          ),
-                          items: options
-                              .map(
-                                (e) => DropdownMenuItem<String>(
-                                  value: e.value,
-                                  child: Text(
-                                    e.label,
-                                    style: TextStyle(color: textColor),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (v) {
-                            setState(() => _dynamicValues[field.name] = v);
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final controller = _controllerForDynamicField(field.name);
-            if (_dynamicValues[field.name] != null && controller.text.isEmpty) {
-              controller.text = _dynamicValues[field.name].toString();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _labeledInput(
-                label,
-                field.placeholder?.isNotEmpty == true
-                    ? field.placeholder!
-                    : field.label,
-                controller,
-                context.surfaceContainer,
-                borderColor,
-                isNumber: type == 'number',
-              ),
-            );
-          }),
-        ],
-      ),
     );
   }
 
@@ -1966,38 +2451,54 @@ class _AddListingPageState extends State<AddListingPage> {
     Color borderColor,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    return _card(
+    final langCode = switch (_nameLang) {
+      _NameLang.uz => 'Uz',
+      _NameLang.ru => 'Ru',
+      _NameLang.en => 'En',
+    };
+    return _cardWithHeader(
       cardColor: cardColor,
       borderColor: borderColor,
+      title: l10n.addListingProductName,
+      subtitle: 'Tilni tanlab, nom va tavsifni kiriting',
+      textColor: textColor,
+      textSecondary: textSecondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText(
-            text: l10n.addListingProductName,
-            fontSize: 16,
-            fontWeight: 600,
-            color: textColor,
-          ),
-          const SizedBox(height: 12),
           _buildLangTabs(cardColor, textColor, borderColor),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          _fieldLabel(
+            'Nomi ($langCode)',
+            true,
+            textColor,
+            textSecondary,
+          ),
+          const SizedBox(height: 8),
           _inputField(
-            hint: l10n.addListingProductName,
+            hint: 'Mahsulot nomini kiriting',
             controller: switch (_nameLang) {
               _NameLang.uz => _nameUzController,
               _NameLang.ru => _nameRuController,
               _NameLang.en => _nameEnController,
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          _fieldLabel(
+            'Tavsif ($langCode)',
+            true,
+            textColor,
+            textSecondary,
+          ),
+          const SizedBox(height: 8),
           _inputField(
-            hint: l10n.addListingDescription,
+            hint: 'Mahsulot tavsifini kiriting',
             controller: switch (_nameLang) {
               _NameLang.uz => _descUzController,
               _NameLang.ru => _descRuController,
               _NameLang.en => _descEnController,
             },
-            maxLines: 4,
+            maxLines: 5,
             minLines: 3,
           ),
         ],
@@ -2083,71 +2584,125 @@ class _AddListingPageState extends State<AddListingPage> {
       l10n.addListingImageUpload,
       l10n.addListingImageUpload,
     ];
-    return _card(
+    final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    return _cardWithHeader(
       cardColor: cardColor,
       borderColor: borderColor,
-      child: Column(
-        children: [
-          _sectionHeader(l10n.addListingImageUpload, textColor, textSecondary),
-          const SizedBox(height: 16),
-          Row(
-            children: List.generate(4, (i) {
-              final path = _imagePaths[i];
-              return Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: i < 3 ? 10 : 0),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: GestureDetector(
-                      onTap: () => _pickImage(i),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: context.surfaceContainer,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: borderColor),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: path != null && path.isNotEmpty
-                            ? Image.file(
-                                File(path),
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.file_upload_outlined,
-                                    size: 26,
-                                    color: textSecondary,
+      title: l10n.addListingImageUpload,
+      subtitle:
+          'Mahsulotning real rasmlarini yuklang. Maksimal 4 ta, har biri 5MB',
+      textColor: textColor,
+      textSecondary: textSecondary,
+      child: Row(
+        children: List.generate(4, (i) {
+          final path = _imagePaths[i];
+          final hasImage = path != null && path.isNotEmpty;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: i < 3 ? 10 : 0),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: GestureDetector(
+                  onTap: () => _pickImage(i),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: context.surfaceContainer,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: hasImage ? primaryColor : borderColor,
+                        width: hasImage ? 1.5 : 1,
+                        style: hasImage
+                            ? BorderStyle.solid
+                            : BorderStyle.solid,
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: hasImage
+                        ? Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.file(File(path), fit: BoxFit.cover),
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: GestureDetector(
+                                  onTap: () => setState(
+                                    () => _imagePaths[i] = null,
                                   ),
-                                  const SizedBox(height: 6),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 2,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.black54,
                                     ),
-                                    child: Text(
-                                      labels[i],
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
+                                    child: const Icon(
+                                      Icons.close_rounded,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (i == 0)
+                                Positioned(
+                                  bottom: 4,
+                                  left: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: primaryColor,
+                                      borderRadius:
+                                          BorderRadius.circular(4),
+                                    ),
+                                    child: const Text(
+                                      'Asosiy',
                                       style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w400,
-                                        color: textSecondary,
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
-                                ],
+                                ),
+                            ],
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                i == 0
+                                    ? Icons.image_outlined
+                                    : Icons.add_photo_alternate_outlined,
+                                size: 26,
+                                color: textSecondary,
                               ),
-                      ),
-                    ),
+                              const SizedBox(height: 6),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                ),
+                                child: Text(
+                                  labels[i],
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w400,
+                                    color: textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
-              );
-            }),
-          ),
-        ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -2470,19 +3025,16 @@ class _AddListingPageState extends State<AddListingPage> {
   ) {
     final l10n = AppLocalizations.of(context)!;
     final surface = context.surfaceContainer;
-    return _card(
+    return _cardWithHeader(
       cardColor: cardColor,
       borderColor: borderColor,
+      title: l10n.addListingLocation,
+      subtitle: 'Mahsulot joylashgan manzilni tanlang',
+      textColor: textColor,
+      textSecondary: textSecondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText(
-            text: l10n.addListingLocation,
-            fontSize: 14,
-            fontWeight: 600,
-            color: textColor,
-          ),
-          const SizedBox(height: 12),
           _locationCascadeDropdown(
             labelText: l10n.addListingViloyat,
             isRequiredField: true,
@@ -3211,6 +3763,43 @@ class _AddListingPageState extends State<AddListingPage> {
     );
   }
 
+  Widget _cardWithHeader({
+    required Color cardColor,
+    required Color borderColor,
+    required String title,
+    String? subtitle,
+    required Color textColor,
+    required Color textSecondary,
+    required Widget child,
+  }) {
+    return _card(
+      cardColor: cardColor,
+      borderColor: borderColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            text: title,
+            fontSize: 17,
+            fontWeight: 700,
+            color: textColor,
+          ),
+          if (subtitle != null && subtitle.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            AppText(
+              text: subtitle,
+              fontSize: 13,
+              fontWeight: 400,
+              color: textSecondary,
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
   Widget _sectionHeader(String title, Color textColor, Color textSecondary) {
     return Row(
       children: [
@@ -3349,6 +3938,264 @@ class _AddListingPageState extends State<AddListingPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class _CategorySheetContent extends StatefulWidget {
+  const _CategorySheetContent({
+    required this.hint,
+    required this.items,
+    required this.selected,
+    required this.textColor,
+    required this.textSecondary,
+    required this.borderColor,
+    required this.cardSurface,
+    required this.surfaceContainer,
+    required this.primaryColor,
+    required this.scrollController,
+    required this.enableSearch,
+    required this.categoryType,
+    required this.onSelected,
+  });
+
+  final String hint;
+  final List<CategoryEntity> items;
+  final CategoryEntity? selected;
+  final Color textColor;
+  final Color textSecondary;
+  final Color borderColor;
+  final Color cardSurface;
+  final Color surfaceContainer;
+  final Color primaryColor;
+  final ScrollController scrollController;
+  final bool enableSearch;
+  final String categoryType;
+  final ValueChanged<CategoryEntity> onSelected;
+
+  @override
+  State<_CategorySheetContent> createState() => _CategorySheetContentState();
+}
+
+class _CategorySheetContentState extends State<_CategorySheetContent> {
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  List<CategoryEntity> _searchResults = [];
+  bool _isSearching = false;
+  String _activeQuery = '';
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onQueryChanged(String value) {
+    _debounce?.cancel();
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+        _activeQuery = '';
+      });
+      return;
+    }
+    setState(() {
+      _isSearching = true;
+      _activeQuery = trimmed;
+    });
+    _debounce = Timer(const Duration(milliseconds: 350), () async {
+      final result = await getIt<CatalogRepository>().searchCategories(
+        query: trimmed,
+        categoryType: widget.categoryType,
+      );
+      if (!mounted || trimmed != _activeQuery) return;
+      result.either(
+        (_) => setState(() {
+          _isSearching = false;
+          _searchResults = [];
+        }),
+        (list) => setState(() {
+          _isSearching = false;
+          _searchResults = list;
+        }),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = _searchController.text.trim();
+    final showResults = query.isNotEmpty;
+    final list = showResults ? _searchResults : widget.items;
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.cardSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: widget.borderColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: AppText(
+              text: widget.hint,
+              fontSize: 16,
+              fontWeight: 600,
+              color: widget.textColor,
+            ),
+          ),
+          if (widget.enableSearch) ...[
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onQueryChanged,
+                style: TextStyle(fontSize: 14, color: widget.textColor),
+                decoration: InputDecoration(
+                  hintText: 'Kategoriya qidirish',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    color: widget.textSecondary,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: widget.textSecondary,
+                    size: 20,
+                  ),
+                  suffixIcon: query.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: widget.textSecondary,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            _onQueryChanged('');
+                          },
+                        ),
+                  filled: true,
+                  fillColor: widget.surfaceContainer,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: widget.borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: widget.borderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: widget.primaryColor,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Expanded(
+            child: _isSearching
+                ? const Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : (list.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: AppText(
+                              text: showResults
+                                  ? 'Hech narsa topilmadi'
+                                  : 'Ro\'yxat bo\'sh',
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: widget.textSecondary,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          controller: widget.scrollController,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: list.length,
+                          separatorBuilder: (_, _) =>
+                              Divider(height: 1, color: widget.borderColor),
+                          itemBuilder: (_, i) {
+                            final item = list[i];
+                            final isSelected = widget.selected?.id == item.id;
+                            return ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              leading: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: widget.surfaceContainer,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child:
+                                    item.image != null && item.image!.isNotEmpty
+                                    ? AppImage(
+                                        path: item.image!,
+                                        size: 40,
+                                        borderRadius: BorderRadius.circular(8),
+                                      )
+                                    : Icon(
+                                        Icons.category_outlined,
+                                        color: widget.textSecondary,
+                                        size: 20,
+                                      ),
+                              ),
+                              title: AppText(
+                                text: item.displayName,
+                                fontSize: 15,
+                                fontWeight: isSelected ? 600 : 400,
+                                color: isSelected
+                                    ? widget.primaryColor
+                                    : widget.textColor,
+                              ),
+                              trailing: isSelected
+                                  ? Icon(
+                                      Icons.check_circle_rounded,
+                                      color: widget.primaryColor,
+                                      size: 20,
+                                    )
+                                  : null,
+                              onTap: () => widget.onSelected(item),
+                            );
+                          },
+                        )),
+          ),
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 12),
+        ],
+      ),
     );
   }
 }

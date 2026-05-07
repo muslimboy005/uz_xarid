@@ -1,9 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uz_xarid/core/utils/price_formatter.dart';
 import 'package:uz_xarid/core/widgets/cart_counter.dart';
+import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 class ProductListCard extends StatelessWidget {
@@ -11,22 +16,10 @@ class ProductListCard extends StatelessWidget {
 
   final ProductListItemEntity item;
 
-  static String _formatPrice(String? value) {
-    if (value == null || value.isEmpty) return '';
-    final intPart = value.split('.').first;
-    final buf = StringBuffer();
-    var count = 0;
-    for (var i = intPart.length - 1; i >= 0; i--) {
-      buf.write(intPart[i]);
-      count++;
-      if (count % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final currency = item.currency == 'uzs' ? 'so\'m' : item.currency;
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final currency = currencyDisplayLabel(selectedCcy);
     return Container(
       decoration: BoxDecoration(
         color: context.cardSurface,
@@ -66,7 +59,7 @@ class ProductListCard extends StatelessWidget {
                       if (item.finalPrice != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          '${_formatPrice(item.finalPrice)} $currency',
+                          '${formatPrice(item.finalPrice)} $currency',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.orange,
@@ -96,7 +89,7 @@ class ProductListCard extends StatelessWidget {
       width: double.infinity,
       child: hasImage
           ? CachedNetworkImage(
-              imageUrl: item.mainImage!,
+              imageUrl: item.mainImage!.cdnUrl,
               fit: BoxFit.cover,
               errorWidget: (BuildContext context, String url, Object? error) =>
                   _placeholderImage(),

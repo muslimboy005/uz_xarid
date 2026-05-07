@@ -39,9 +39,11 @@ import 'package:uz_xarid/features/cart/domain/usecases/cart_operations.dart';
 import 'package:uz_xarid/features/cart/domain/usecases/get_cart.dart';
 import 'package:uz_xarid/features/cart/domain/usecases/update_cart_quantity.dart';
 import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 
 Future<void> registerBlocs(GetIt getIt) async {
   getIt
+    ..registerLazySingleton<CurrencyCubit>(() => CurrencyCubit())
     ..registerLazySingleton<CartBloc>(
       () => CartBloc(
         getCartItemsUseCase: getIt<GetCartItemsUseCase>(),

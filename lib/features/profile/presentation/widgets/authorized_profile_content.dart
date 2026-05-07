@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,8 @@ import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
@@ -82,27 +85,10 @@ class AuthorizedProfileContent extends StatelessWidget {
               padding: EdgeInsets.all(12),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: context.isDark
-                        ? primaryColor.withValues(alpha: 0.25)
-                        : AppColors.blue50,
-                    backgroundImage: user.avatar.isNotEmpty
-                        ? NetworkImage(() {
-                            String url = user.avatar.replaceFirst(
-                              'file://',
-                              '',
-                            );
-                            if (url.startsWith('/')) {
-                              return 'https://api.uzxarid.uz$url';
-                            }
-                            return url;
-                          }())
-                        : null,
-                    onBackgroundImageError: (exception, stackTrace) {},
-                    child: user.avatar.isEmpty
-                        ? Icon(Icons.person, color: AppColors.blue500, size: 24)
-                        : null,
+                  _ProfileAvatar(
+                    avatarUrl: user.avatar,
+                    isFaceVerified: user.isFaceVerified,
+                    primaryColor: primaryColor,
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -116,7 +102,7 @@ class AuthorizedProfileContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       AppText(
-                        text: user.phone,
+                        text: formatUzbekPhone(user.phone),
                         fontSize: 12,
                         fontWeight: 400,
                         color: textSecondary,
@@ -326,6 +312,89 @@ class AuthorizedProfileContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppDimens.paddingMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar({
+    required this.avatarUrl,
+    required this.isFaceVerified,
+    required this.primaryColor,
+  });
+
+  final String avatarUrl;
+  final bool isFaceVerified;
+  final Color primaryColor;
+
+  static const double _radius = 24;
+  static const double _badgeSize = 18;
+
+  String? _resolvedUrl() {
+    if (avatarUrl.isEmpty) return null;
+    final url = avatarUrl.replaceFirst('file://', '');
+    if (url.startsWith('/')) return 'https://api.uzxarid.uz$url';
+    return url;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = context.isDark
+        ? primaryColor.withValues(alpha: 0.25)
+        : AppColors.blue50;
+    final url = _resolvedUrl();
+
+    final placeholder = Icon(
+      Icons.person,
+      color: AppColors.blue500,
+      size: _radius,
+    );
+
+    Widget avatar = Container(
+      width: _radius * 2,
+      height: _radius * 2,
+      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+      clipBehavior: Clip.antiAlias,
+      child: url == null
+          ? Center(child: placeholder)
+          : CachedNetworkImage(
+              imageUrl: url.cdnUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, _) => Center(child: placeholder),
+              errorWidget: (_, _, _) => Center(child: placeholder),
+            ),
+    );
+
+    if (!isFaceVerified) return avatar;
+
+    return SizedBox(
+      width: _radius * 2 + 4,
+      height: _radius * 2 + 4,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(left: 0, top: 0, child: avatar),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              width: _badgeSize,
+              height: _badgeSize,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.check_circle,
+                size: _badgeSize,
+                color: AppColors.green,
+              ),
+            ),
+          ),
         ],
       ),
     );

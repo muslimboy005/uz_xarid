@@ -8,6 +8,8 @@ class CategoryFieldEntity {
     required this.suffix,
     required this.options,
     required this.condition,
+    this.minValue,
+    this.maxValue,
   });
 
   final String name;
@@ -18,6 +20,8 @@ class CategoryFieldEntity {
   final String? suffix;
   final List<CategoryFieldOptionEntity> options;
   final CategoryFieldConditionEntity? condition;
+  final double? minValue;
+  final double? maxValue;
 
   factory CategoryFieldEntity.fromJson(Map<String, dynamic> json) {
     final optionsRaw = json['options'];
@@ -53,7 +57,17 @@ class CategoryFieldEntity {
       suffix: json['suffix']?.toString(),
       options: options,
       condition: condition,
+      minValue: _parseNum(json['min_value']),
+      maxValue: _parseNum(json['max_value']),
     );
+  }
+
+  static double? _parseNum(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is num) return raw.toDouble();
+    final s = raw.toString().trim();
+    if (s.isEmpty) return null;
+    return double.tryParse(s);
   }
 }
 

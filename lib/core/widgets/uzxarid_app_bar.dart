@@ -22,6 +22,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onMenuTap,
     this.isMenuOpen = false,
     this.actions,
+    this.searchHint,
   });
 
   /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
@@ -33,6 +34,9 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onMenuTap;
   final bool isMenuOpen;
   final List<Widget>? actions;
+
+  /// Search input hint (berilmasa l10n.searchHint ishlatiladi).
+  final String? searchHint;
 
   static const double _height = 112;
 
@@ -51,7 +55,7 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
       toolbarHeight: _height,
       flexibleSpace: _UzXaridAppBarContent(
         locale: locale,
-        hintText: l10n.searchHint,
+        hintText: searchHint ?? l10n.searchHint,
         leading: leading,
         onSearchChanged: onSearchChanged,
         onSearchTap: onSearchTap,

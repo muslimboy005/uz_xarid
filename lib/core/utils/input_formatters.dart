@@ -51,3 +51,26 @@ String formatPhone(String phone) {
   final last4 = digits.substring(digits.length - 4);
   return '(**$last4)';
 }
+
+/// Xom telefon raqamini "+998 XX XXX-XX-XX" formatiga keltiradi.
+/// Servisdan kelgan raqam ("998901234567" yoki "+998901234567") ham,
+/// 9 xonali lokal raqam ("901234567") ham mos formatga keltiriladi.
+/// Format etib bo'lmasa — kiruvchi qiymat o'zgarmasdan qaytariladi.
+String formatUzbekPhone(String raw) {
+  if (raw.isEmpty) return raw;
+  var digits = raw.replaceAll(RegExp(r'\D'), '');
+  if (digits.startsWith('998')) {
+    digits = digits.substring(3);
+  }
+  if (digits.length > 9) digits = digits.substring(0, 9);
+  if (digits.isEmpty) return raw;
+
+  final buffer = StringBuffer('+998 ');
+  for (var i = 0; i < digits.length; i++) {
+    if (i == 2) buffer.write(' ');
+    if (i == 5) buffer.write('-');
+    if (i == 7) buffer.write('-');
+    buffer.write(digits[i]);
+  }
+  return buffer.toString();
+}

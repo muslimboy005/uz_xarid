@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uz_xarid/core/utils/price_formatter.dart';
 import 'package:uz_xarid/core/widgets/cart_counter.dart';
 import 'package:uz_xarid/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:uz_xarid/features/cart/presentation/bloc/cart_event.dart';
 import 'package:uz_xarid/features/cart/presentation/bloc/cart_state.dart';
+import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 class CartPage extends StatelessWidget {
@@ -81,7 +86,7 @@ class CartPage extends StatelessWidget {
           Icon(
             Icons.shopping_cart_outlined,
             size: 80,
-            color: context.textSecondary.withOpacity(0.3),
+            color: context.textSecondary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -100,7 +105,7 @@ class CartPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () => context.pop(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: context.watch<AppModeCubit>().state.primaryColor,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -151,6 +156,8 @@ class _CartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final itemCurrency = currencyDisplayLabel(selectedCcy);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -164,7 +171,7 @@ class _CartItemTile extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: CachedNetworkImage(
-              imageUrl: item.adImage ?? '',
+              imageUrl: (item.adImage ?? '').cdnUrl,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
@@ -205,7 +212,7 @@ class _CartItemTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${item.unitPrice} ${item.currency == 'uzs' ? 'so\'m' : item.currency}',
+                      '${item.unitPrice} $itemCurrency',
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: AppColors.orange,
@@ -238,8 +245,10 @@ class _CartSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final total = cartItems.fold<double>(0, (sum, item) => sum + (double.tryParse(item.subtotal) ?? 0));
-    final currency = cartItems.isNotEmpty ? (cartItems.first.currency == 'uzs' ? 'so\'m' : cartItems.first.currency) : '';
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final currency = currencyDisplayLabel(selectedCcy);
 
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -247,7 +256,7 @@ class _CartSummary extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -263,17 +272,18 @@ class _CartSummary extends StatelessWidget {
               children: [
             Text(
               l10n.cartTotal,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
+                color: context.textPrimary,
               ),
             ),
                 Text(
-                  '${_formatPrice(total.toString())} $currency',
-                  style: const TextStyle(
+                  '${formatPrice(total.toString())} $currency',
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: primaryColor,
                   ),
                 ),
               ],
@@ -291,7 +301,7 @@ class _CartSummary extends StatelessWidget {
                             context.read<CartBloc>().add(CartCheckoutRequested());
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -317,15 +327,4 @@ class _CartSummary extends StatelessWidget {
     );
   }
 
-  String _formatPrice(String value) {
-    final intPart = value.split('.').first;
-    final buf = StringBuffer();
-    var count = 0;
-    for (var i = intPart.length - 1; i >= 0; i--) {
-      buf.write(intPart[i]);
-      count++;
-      if (count % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
 }

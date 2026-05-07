@@ -5,7 +5,9 @@ import 'package:get_it/get_it.dart';
 import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
 import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 import 'package:uz_xarid/core/localization/app_locale_holder.dart';
+import 'package:uz_xarid/core/localization/currency_holder.dart';
 import 'package:uz_xarid/core/network/auth_interseptor.dart';
+import 'package:uz_xarid/core/network/currency_interceptor.dart';
 import 'package:uz_xarid/core/network/language_interceptor.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import '../constants/api_urls.dart';
@@ -29,6 +31,8 @@ class DioClient {
 
     // Til — vebda bo'lgani kabi har so'rovda Accept-Language yuboriladi
     _dio.interceptors.add(LanguageInterceptor(GetIt.I<AppLocaleHolder>()));
+    // Valyuta — har so'rovda x-currency header bilan tanlangan Ccy yuboriladi
+    _dio.interceptors.add(CurrencyInterceptor(GetIt.I<CurrencyHolder>()));
     // ✅ Auth Interceptor
     _dio.interceptors.add(AuthInterceptor(GetIt.I<SecureStorageService>()));
 

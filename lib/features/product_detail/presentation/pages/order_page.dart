@@ -6,9 +6,13 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uz_xarid/core/utils/price_formatter.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uz_xarid/features/order/data/models/order_create_dto.dart';
 import 'package:uz_xarid/features/order/presentation/bloc/order_create/order_create_cubit.dart';
@@ -41,18 +45,6 @@ class _OrderPageState extends State<OrderPage> {
     super.dispose();
   }
 
-  String _fmtPrice(String? val) {
-    if (val == null || val.isEmpty) return '';
-    final s = val.split('.').first;
-    final buf = StringBuffer();
-    var c = 0;
-    for (var i = s.length - 1; i >= 0; i--) {
-      buf.write(s[i]);
-      if (++c % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.ad == null) {
@@ -67,8 +59,9 @@ class _OrderPageState extends State<OrderPage> {
     final txtSec = context.textSecondary;
     final border = context.borderColor;
 
-    final curr = (ad.currency ?? 'uzs') == 'uzs' ? "so'm" : ad.currency!;
-    final price = _fmtPrice(ad.finalPrice ?? ad.price);
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final curr = currencyDisplayLabel(selectedCcy);
+    final price = formatPrice(ad.finalPrice ?? ad.price);
 
     return BlocProvider(
       create: (context) => getIt<OrderCreateCubit>(), // Fixed locator call
@@ -246,7 +239,7 @@ class _OrderPageState extends State<OrderPage> {
     const size = 76.0;
     if (url != null && url.isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: url,
+        imageUrl: url.cdnUrl,
         width: size,
         height: size,
         fit: BoxFit.cover,

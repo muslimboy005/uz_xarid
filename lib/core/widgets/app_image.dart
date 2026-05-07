@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:uz_xarid/core/app_config.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 
 enum ImageType { svg, png, jpg, jpeg, gif, webp, network }
 
@@ -70,7 +71,7 @@ class GlobalImageWidget extends StatelessWidget {
 
       case ImageType.network:
         return CachedNetworkImage(
-          imageUrl: imagePath,
+          imageUrl: rewriteImageHost(imagePath) ?? imagePath,
           width: width,
           height: height,
           fit: fit,

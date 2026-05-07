@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,7 @@ import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
 import 'package:uz_xarid/features/catalog/presentation/bloc/catalog_bloc.dart';
 import 'package:uz_xarid/features/catalog/presentation/widgets/catalog_category_tile.dart';
 import 'package:uz_xarid/features/catalog/presentation/widgets/catalog_nav_bar.dart';
@@ -33,6 +36,55 @@ class _CatalogPageState extends State<CatalogPage> {
   /// Har bir ota uchida faqat bitta bola ochiq: parentId -> ochiq bolaning id si. Root uchun key: null.
   final Map<int?, int?> _expandedByParentId = {};
 
+  Timer? _searchDebounce;
+  String _searchQuery = '';
+  String _activeQuery = '';
+  List<CategoryEntity> _searchResults = [];
+  bool _isSearching = false;
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value, String categoryType) {
+    final trimmed = value.trim();
+    setState(() {
+      _searchQuery = trimmed;
+    });
+    _searchDebounce?.cancel();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+        _activeQuery = '';
+      });
+      return;
+    }
+    setState(() {
+      _isSearching = true;
+      _activeQuery = trimmed;
+    });
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () async {
+      final result = await getIt<CatalogRepository>().searchCategories(
+        query: trimmed,
+        categoryType: categoryType.isEmpty ? null : categoryType,
+      );
+      if (!mounted || _activeQuery != trimmed) return;
+      result.either(
+        (_) => setState(() {
+          _isSearching = false;
+          _searchResults = [];
+        }),
+        (list) => setState(() {
+          _isSearching = false;
+          _searchResults = list;
+        }),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -53,61 +105,164 @@ class _CatalogPageState extends State<CatalogPage> {
         }
         return bloc;
       },
-      child: Scaffold(
-        appBar: UzXaridAppBar(
-          onSearchTap: () => context.push('/search'),
-          onSearchChanged: (query) {
-            // TODO: implement real search logic
-          },
-          onMenuTap: () {
-            // TODO: open drawer or menu sheet
-          },
-        ),
-        body: Container(
-          color: bodyBg,
-          height: MediaQuery.of(context).size.height,
+      child: Builder(
+        builder: (innerContext) {
+          final categoryType = innerContext
+              .select<CatalogBloc, String>((b) => b.state.categoryType);
+          return Scaffold(
+            appBar: UzXaridAppBar(
+              searchHint: 'Kategoriya qidirish...',
+              onSearchChanged: (query) =>
+                  _onSearchChanged(query, categoryType),
+              onMenuTap: () {
+                // TODO: open drawer or menu sheet
+              },
+            ),
+            body: Container(
+              color: bodyBg,
+              height: MediaQuery.of(context).size.height,
 
-          child: BlocBuilder<CatalogBloc, CatalogState>(
-            builder: (context, state) {
-              final slivers = <Widget>[];
-              if (!state.showTypeTiles) {
-                final entryCategoryName = _entryCategoryDisplayName(
-                  state,
-                  l10n,
-                );
-                final pathParts = [entryCategoryName];
-                final trailingImagePath = _entryCategoryImagePath(state);
-                final catalogBloc = context.read<CatalogBloc>();
-                slivers.add(
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: CatalogNavBarDelegate(
-                      pathParts: pathParts,
-                      trailingImagePath: trailingImagePath,
-                      onSegmentTap: (index) {
-                        catalogBloc.add(CatalogPathSegmentTapped(index));
-                      },
-                      showBack: state.canGoBack,
-                      onBack: state.canGoBack
-                          ? () {
-                              catalogBloc.add(const CatalogBackPressed());
-                            }
-                          : null,
-                    ),
-                  ),
-                );
-                slivers.add(
-                  SliverToBoxAdapter(
-                    child: Divider(height: 1, color: dividerColor),
-                  ),
-                );
-              }
-              slivers.addAll(_buildBodySlivers(context, state, l10n));
-              return CustomScrollView(slivers: slivers);
-            },
+              child: BlocBuilder<CatalogBloc, CatalogState>(
+                builder: (context, state) {
+                  if (_searchQuery.isNotEmpty) {
+                    return _buildSearchResults(context, state, l10n);
+                  }
+                  final slivers = <Widget>[];
+                  if (!state.showTypeTiles) {
+                    final entryCategoryName = _entryCategoryDisplayName(
+                      state,
+                      l10n,
+                    );
+                    final pathParts = [entryCategoryName];
+                    final trailingImagePath = _entryCategoryImagePath(state);
+                    final catalogBloc = context.read<CatalogBloc>();
+                    slivers.add(
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: CatalogNavBarDelegate(
+                          pathParts: pathParts,
+                          trailingImagePath: trailingImagePath,
+                          onSegmentTap: (index) {
+                            catalogBloc.add(CatalogPathSegmentTapped(index));
+                          },
+                          showBack: state.canGoBack,
+                          onBack: state.canGoBack
+                              ? () {
+                                  catalogBloc.add(const CatalogBackPressed());
+                                }
+                              : null,
+                        ),
+                      ),
+                    );
+                    slivers.add(
+                      SliverToBoxAdapter(
+                        child: Divider(height: 1, color: dividerColor),
+                      ),
+                    );
+                  }
+                  slivers.addAll(_buildBodySlivers(context, state, l10n));
+                  return CustomScrollView(slivers: slivers);
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchResults(
+    BuildContext context,
+    CatalogState state,
+    AppLocalizations l10n,
+  ) {
+    if (_isSearching) {
+      return ListView.builder(
+        padding: const EdgeInsets.only(top: 16),
+        itemCount: 8,
+        itemBuilder: (_, _) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: const ShimmerListTile(height: 64),
+        ),
+      );
+    }
+    if (_searchResults.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.search_off_rounded,
+                size: 56,
+                color: context.textSecondary,
+              ),
+              const SizedBox(height: 12),
+              AppText(
+                text: 'Hech narsa topilmadi',
+                fontSize: 15,
+                fontWeight: 600,
+                color: context.textPrimary,
+              ),
+              const SizedBox(height: 4),
+              AppText(
+                text: '"$_searchQuery" bo\'yicha kategoriya yo\'q',
+                fontSize: 13,
+                fontWeight: 400,
+                color: context.textSecondary,
+              ),
+            ],
           ),
         ),
-      ),
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: _searchResults.length,
+      separatorBuilder: (_, _) =>
+          Divider(height: 1, color: context.borderColor),
+      itemBuilder: (_, i) {
+        final cat = _searchResults[i];
+        return ListTile(
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: context.surfaceContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: cat.image != null && cat.image!.isNotEmpty
+                ? AppImage(
+                    path: cat.image!,
+                    size: 44,
+                    borderRadius: BorderRadius.circular(8),
+                  )
+                : Icon(
+                    Icons.category_outlined,
+                    color: context.textSecondary,
+                  ),
+          ),
+          title: AppText(
+            text: cat.displayName,
+            fontSize: 15,
+            fontWeight: 500,
+            color: context.textPrimary,
+          ),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: context.textSecondary,
+          ),
+          onTap: () {
+            context.push(
+              '/products?categoryId=${cat.id}'
+              '&title=${Uri.encodeComponent(cat.displayName)}'
+              '&categoryType=${Uri.encodeComponent(state.categoryType)}',
+            );
+          },
+        );
+      },
     );
   }
 

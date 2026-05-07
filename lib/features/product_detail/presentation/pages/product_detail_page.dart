@@ -8,6 +8,8 @@ import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/constants/app_dimens.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uz_xarid/core/utils/price_formatter.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -21,6 +23,8 @@ import 'package:uz_xarid/features/product_detail/presentation/bloc/product_detai
 import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uz_xarid/core/widgets/product_card.dart';
+import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_bloc.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_event.dart';
 import 'package:uz_xarid/features/product_detail/presentation/bloc/product_feedback_state.dart';
@@ -369,19 +373,6 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     super.dispose();
   }
 
-  String _formatPrice(String? value) {
-    if (value == null || value.isEmpty) return '';
-    final intPart = value.split('.').first;
-    final buf = StringBuffer();
-    var count = 0;
-    for (var i = intPart.length - 1; i >= 0; i--) {
-      buf.write(intPart[i]);
-      count++;
-      if (count % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
-
   Color _parseHexColor(String hex, BuildContext context) {
     try {
       final h = hex.replaceAll('#', '');
@@ -551,7 +542,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                     ),
                     child: CachedNetworkImage(
-                      imageUrl: images[index],
+                      imageUrl: images[index].cdnUrl,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -801,20 +792,23 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
   Widget _buildPriceSection() {
     final hasDiscount =
         ad.price != null && ad.finalPrice != null && ad.price != ad.finalPrice;
-    final curr = (ad.currency ?? 'uzs') == 'uzs' ? AppLocalizations.of(context)!.currencySom : ad.currency!;
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final curr = selectedCcy.toUpperCase() == 'UZS'
+        ? AppLocalizations.of(context)!.currencySom
+        : currencyDisplayLabel(selectedCcy);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (hasDiscount)
           Text(
-            '${_formatPrice(ad.price)} $curr',
+            '${formatPrice(ad.price)} $curr',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: context.textSecondary,
               decoration: TextDecoration.lineThrough,
             ),
           ),
         Text(
-          '${_formatPrice(ad.finalPrice ?? ad.price)} $curr',
+          '${formatPrice(ad.finalPrice ?? ad.price)} $curr',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w800,
             color: AppColors.orange,
@@ -1039,7 +1033,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         clipBehavior: Clip.antiAlias,
                         child: hasAvatar
                             ? CachedNetworkImage(
-                                imageUrl: avatarUrl,
+                                imageUrl: avatarUrl.cdnUrl,
                                 fit: BoxFit.cover,
                                 errorWidget: (_, __, ___) => Icon(
                                   Icons.person_outline,
@@ -1132,7 +1126,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   clipBehavior: Clip.antiAlias,
                   child: ad.userAvatar != null && ad.userAvatar!.isNotEmpty
                       ? CachedNetworkImage(
-                          imageUrl: ad.userAvatar!,
+                          imageUrl: ad.userAvatar!.cdnUrl,
                           fit: BoxFit.cover,
                           errorWidget: (_, __, ___) => Icon(
                             Icons.person_outline,

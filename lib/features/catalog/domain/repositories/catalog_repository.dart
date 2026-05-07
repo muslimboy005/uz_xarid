@@ -19,10 +19,21 @@ abstract class CatalogRepository {
     int pageSize = 10,
   });
 
-  /// Berilgan turkum ostidagi podturkumlar (API v2, sahifalangan).
+  /// Berilgan turkum ostidagi podturkumlar.
+  /// [categoryType] berilsa, v1 (`category/?parent=...&category_type=...`) ishlatiladi —
+  /// ayrim turkumlar uchun v2 children endpoint to'liq javob qaytarmagani uchun.
   Future<Either<Failure, List<CategoryEntity>>> getCategoryChildren({
     required int parentCategoryId,
     int pageSize = 12,
     int page = 1,
+    String? categoryType,
+  });
+
+  /// Turkum nomi bo'yicha qidirish (`/api/v1/category/search/?q=...`).
+  /// Agar [categoryType] berilsa, faqat shu turdagi natijalar qaytariladi.
+  Future<Either<Failure, List<CategoryEntity>>> searchCategories({
+    required String query,
+    String? categoryType,
+    int pageSize = 20,
   });
 }

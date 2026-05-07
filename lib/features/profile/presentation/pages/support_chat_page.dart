@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/w__container.dart';
 import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
@@ -599,7 +600,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
               CircleAvatar(
                 radius: 16,
                 backgroundImage: message.senderInfo.avatar != null
-                    ? NetworkImage(message.senderInfo.avatar!)
+                    ? NetworkImage(message.senderInfo.avatar!.cdnUrl)
                     : null,
                 child: message.senderInfo.avatar == null
                     ? const Icon(Icons.person, size: 16)

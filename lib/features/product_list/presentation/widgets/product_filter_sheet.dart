@@ -11,7 +11,7 @@ import 'package:uz_xarid/features/add_listing/domain/entities/category_field_ent
 import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-/// Narx maydonlari: minglik bo‘shliq bilan (masalan 10 000 000).
+/// Narx maydonlari: minglik bo'shliq bilan (masalan 10 000 000).
 String _formatSumInt(int n) {
   if (n < 0) n = 0;
   final s = n.toString();
@@ -41,6 +41,7 @@ class ProductFilterData {
     this.maxPrice,
     this.hasDiscount = false,
     this.hasServices = false,
+    this.onlyTop = false,
     this.selectedCategoryIndex = 0,
     this.selectedConditionIndex,
     this.selectedSellerTypeIndex,
@@ -64,7 +65,6 @@ class ProductFilterData {
     this.vehicleExteriorColor,
     this.vehicleConfiguration,
     this.vehiclePaymentType,
-    this.onlyTop = false,
     this.dynamicFields = const {},
   });
 
@@ -72,14 +72,19 @@ class ProductFilterData {
   double? maxPrice;
   bool hasDiscount;
   bool hasServices;
+  bool onlyTop;
+
   int selectedCategoryIndex;
   int? selectedConditionIndex;
   int? selectedSellerTypeIndex;
   int? selectedColorIndex;
   int? selectedSizeIndex;
 
-  /// Avto ro‘yxatida asosiy turkum (chip) — `null` «Barcha turkumlar».
+  /// Avto ro'yxatida asosiy turkum (chip) — `null` «Barcha turkumlar».
   int? vehiclePrimaryCategoryId;
+
+  // Quyidagi maydonlar — orqaga moslik uchun saqlanadi (ko'pincha null bo'ladi).
+  // Yangi filtr UI dynamicFields orqali ishlaydi.
   String? vehicleMark;
   String? vehicleModel;
   int? yearFrom;
@@ -97,7 +102,10 @@ class ProductFilterData {
   String? vehicleExteriorColor;
   String? vehicleConfiguration;
   String? vehiclePaymentType;
-  bool onlyTop;
+
+  /// API dan kelgan field nomlari bilan kalitlanadigan filtr qiymatlari.
+  /// select → String, multiselect → `List<String>`, range → `{name}_min`/`{name}_max`,
+  /// text/number → String, checkbox → bool.
   Map<String, dynamic> dynamicFields;
 
   ProductFilterData copyWith({
@@ -105,30 +113,13 @@ class ProductFilterData {
     double? maxPrice,
     bool? hasDiscount,
     bool? hasServices,
+    bool? onlyTop,
     int? selectedCategoryIndex,
     int? selectedConditionIndex,
     int? selectedSellerTypeIndex,
     int? selectedColorIndex,
     int? selectedSizeIndex,
     int? vehiclePrimaryCategoryId,
-    String? vehicleMark,
-    String? vehicleModel,
-    int? yearFrom,
-    int? yearTo,
-    int? probegFrom,
-    int? probegTo,
-    int? engineCcFrom,
-    int? engineCcTo,
-    int? enginePowerFrom,
-    int? enginePowerTo,
-    String? vehicleFuelType,
-    String? vehicleTransmission,
-    String? vehiclePrivod,
-    String? vehicleBody,
-    String? vehicleExteriorColor,
-    String? vehicleConfiguration,
-    String? vehiclePaymentType,
-    bool? onlyTop,
     Map<String, dynamic>? dynamicFields,
   }) {
     return ProductFilterData(
@@ -136,6 +127,7 @@ class ProductFilterData {
       maxPrice: maxPrice ?? this.maxPrice,
       hasDiscount: hasDiscount ?? this.hasDiscount,
       hasServices: hasServices ?? this.hasServices,
+      onlyTop: onlyTop ?? this.onlyTop,
       selectedCategoryIndex:
           selectedCategoryIndex ?? this.selectedCategoryIndex,
       selectedConditionIndex:
@@ -146,30 +138,12 @@ class ProductFilterData {
       selectedSizeIndex: selectedSizeIndex ?? this.selectedSizeIndex,
       vehiclePrimaryCategoryId:
           vehiclePrimaryCategoryId ?? this.vehiclePrimaryCategoryId,
-      vehicleMark: vehicleMark ?? this.vehicleMark,
-      vehicleModel: vehicleModel ?? this.vehicleModel,
-      yearFrom: yearFrom ?? this.yearFrom,
-      yearTo: yearTo ?? this.yearTo,
-      probegFrom: probegFrom ?? this.probegFrom,
-      probegTo: probegTo ?? this.probegTo,
-      engineCcFrom: engineCcFrom ?? this.engineCcFrom,
-      engineCcTo: engineCcTo ?? this.engineCcTo,
-      enginePowerFrom: enginePowerFrom ?? this.enginePowerFrom,
-      enginePowerTo: enginePowerTo ?? this.enginePowerTo,
-      vehicleFuelType: vehicleFuelType ?? this.vehicleFuelType,
-      vehicleTransmission: vehicleTransmission ?? this.vehicleTransmission,
-      vehiclePrivod: vehiclePrivod ?? this.vehiclePrivod,
-      vehicleBody: vehicleBody ?? this.vehicleBody,
-      vehicleExteriorColor: vehicleExteriorColor ?? this.vehicleExteriorColor,
-      vehicleConfiguration: vehicleConfiguration ?? this.vehicleConfiguration,
-      vehiclePaymentType: vehiclePaymentType ?? this.vehiclePaymentType,
-      onlyTop: onlyTop ?? this.onlyTop,
       dynamicFields: dynamicFields ?? this.dynamicFields,
     );
   }
 }
 
-/// Filtr varag‘i yopilganda: qo‘llash, tozalash yoki xarita rejimi.
+/// Filtr varag'i yopilganda: qo'llash, tozalash yoki xarita rejimi.
 class ProductFilterSheetResult {
   const ProductFilterSheetResult({
     this.filter,
@@ -177,13 +151,12 @@ class ProductFilterSheetResult {
     this.clearedFilters = false,
   });
 
-  /// «Qo‘llash» yoki «Xaritada ko‘rsatish» dagi joriy filtr holati.
   final ProductFilterData? filter;
   final bool openMapView;
   final bool clearedFilters;
 }
 
-/// Filtr varag‘i. [null] — yopildi (surib tashlash).
+/// Filtr varag'i. [null] — yopildi (surib tashlash).
 Future<ProductFilterSheetResult?> showProductFilterSheet(
   BuildContext context, {
   ProductFilterData? initial,
@@ -235,100 +208,30 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
   late ProductFilterData _data;
   List<CategoryFieldEntity> _dynamicFields = [];
   bool _dynamicFieldsLoading = false;
-  final Map<String, TextEditingController> _dynamicControllers = {};
+  String? _dynamicFieldsError;
 
-  final _minCtrl = TextEditingController();
-  final _maxCtrl = TextEditingController();
+  /// Har bir field uchun dropdown/section ochilgan-yopilgan holati.
+  final Map<String, bool> _sectionExpanded = {};
+  final Map<String, TextEditingController> _textControllers = {};
 
-  RangeValues _priceRange = const RangeValues(0, 10000000);
-  static const double _maxSlider = 10000000;
-  // Prevents text-field onChanged from firing when slider updates the controllers
+  /// Range fieldlar uchun lokal slayder qiymatlari.
+  final Map<String, RangeValues> _rangeValues = {};
+  final Map<String, double> _rangeMax = {};
+  final Map<String, TextEditingController> _rangeMinCtrl = {};
+  final Map<String, TextEditingController> _rangeMaxCtrl = {};
   bool _updatingFromSlider = false;
 
-  bool _categoryExpanded = true;
-  bool _conditionExpanded = false;
-  bool _sellerExpanded = false;
-  bool _colorExpanded = true;
-  bool _sizeExpanded = true;
+  // ── Narx ──────────────────────────────────────────────────────────────────
+  final _minCtrl = TextEditingController();
+  final _maxCtrl = TextEditingController();
+  RangeValues _priceRange = const RangeValues(0, 10000000);
+  static const double _maxSlider = 10000000;
+  bool _updatingPriceFromSlider = false;
+  bool _priceExpanded = true;
 
-  // ── Avto / mototexnika ────────────────────────────────────────────────────
+  // ── Avto: asosiy turkum (Auto kategoriyasi uchun chiplar) ─────────────────
   int? _vehiclePrimaryCategoryId;
   bool _vehicleCategoryExpanded = true;
-  bool _vehicleMarkExpanded = true;
-  bool _vehicleTechExpanded = true;
-  bool _vehicleBodyExpanded = true;
-  bool _vehicleConditionExpanded = true;
-
-  final _vehicleModelCtrl = TextEditingController();
-  final _yearFromCtrl = TextEditingController();
-  final _yearToCtrl = TextEditingController();
-  final _probegFromCtrl = TextEditingController();
-  final _probegToCtrl = TextEditingController();
-  final _engineCcFromCtrl = TextEditingController();
-  final _engineCcToCtrl = TextEditingController();
-  final _enginePowerFromCtrl = TextEditingController();
-  final _enginePowerToCtrl = TextEditingController();
-  final _vehicleConfigCtrl = TextEditingController();
-
-  static const _vehicleMarks = ['CHEVROLET', 'HYUNDAI', 'KIA'];
-  static const _fuelTypes = [
-    ('BENZIN', 'benzin'),
-    ('DIZEL', 'dizel'),
-    ('GAZ', 'gaz'),
-    ('ELEKTR', 'elektr'),
-    ('GIBRID', 'gibrid'),
-  ];
-  static const _transmissions = [
-    ('MEXANIKA', 'mexanika'),
-    ('AVTOMAT', 'avtomat'),
-    ('VARIATOR', 'variator'),
-    ('ROBOT', 'robot'),
-  ];
-  static const _privods = [
-    ('OLDINGI', 'oldingi'),
-    ('ORQA', 'orqa'),
-    ("TO'LIQ", 'tolik'),
-  ];
-  static const _bodies = [
-    ('SEDAN', 'sedan'),
-    ('XETCHBEK', 'xetchbek'),
-    ('SUV', 'suv'),
-    ('PIKAP', 'pikap'),
-    ('KUPE', 'kupe'),
-  ];
-  static const _payments = [('NAQD', 'naqd'), ('KREDIT', 'kredit')];
-  static const _vehicleConditions = ['Yangi', 'Ishlatilgan', 'Ta\'mir talab'];
-
-  final _categories = const [
-    'Barcha kategoriyalar',
-    'Qurilish',
-    'Mebel va jihozlar',
-    'Sanitariya',
-    'Mevali o\'simliklar',
-    'Kimyoviy mahsulotlar',
-    'Oziq-ovqat',
-  ];
-
-  final _conditions = const ['Yangi', 'Ishlatilgan', 'Remont kerak'];
-  final _sellerTypes = const ['Jismoniy shaxs', 'Biznes'];
-
-  final _colors = const [
-    Color(0xFF9C27B0),
-    Color(0xFFE53935),
-    Color(0xFFEC407A),
-    Color(0xFFF4A460),
-    Color(0xFFFFEB3B),
-    Color(0xFF2196F3),
-    Color(0xFF64B5F6),
-    Color(0xFF4CAF50),
-    Color(0xFF795548),
-    Color(0xFF212121),
-    Color(0xFF212121),
-    Color(0xFF9E9E9E),
-    Color(0xFFFFFFFF),
-  ];
-
-  final _sizes = const ['2XS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 
   @override
   void initState() {
@@ -337,7 +240,6 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
     final min = _data.minPrice ?? 0;
     final max = _data.maxPrice ?? _maxSlider;
     _priceRange = RangeValues(min, max);
-
     _minCtrl.text = _formatSumInt(min > 0 ? min.toInt() : 0);
     _maxCtrl.text = _formatSumInt(
       max < _maxSlider ? max.toInt() : _maxSlider.toInt(),
@@ -347,105 +249,10 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
       _vehiclePrimaryCategoryId =
           _data.vehiclePrimaryCategoryId ??
           widget.currentVehiclePrimaryCategoryId;
-      if (_data.vehicleModel != null) {
-        _vehicleModelCtrl.text = _data.vehicleModel!;
-      }
-      if (_data.yearFrom != null) {
-        _yearFromCtrl.text = _data.yearFrom!.toString();
-      }
-      if (_data.yearTo != null) {
-        _yearToCtrl.text = _data.yearTo!.toString();
-      }
-      if (_data.probegFrom != null) {
-        _probegFromCtrl.text = _data.probegFrom!.toString();
-      }
-      if (_data.probegTo != null) {
-        _probegToCtrl.text = _data.probegTo!.toString();
-      }
-      if (_data.engineCcFrom != null) {
-        _engineCcFromCtrl.text = _data.engineCcFrom!.toString();
-      }
-      if (_data.engineCcTo != null) {
-        _engineCcToCtrl.text = _data.engineCcTo!.toString();
-      }
-      if (_data.enginePowerFrom != null) {
-        _enginePowerFromCtrl.text = _data.enginePowerFrom!.toString();
-      }
-      if (_data.enginePowerTo != null) {
-        _enginePowerToCtrl.text = _data.enginePowerTo!.toString();
-      }
-      if (_data.vehicleConfiguration != null) {
-        _vehicleConfigCtrl.text = _data.vehicleConfiguration!;
-      }
     }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _loadDynamicFields();
-    });
-  }
-
-  Future<void> _loadDynamicFields() async {
-    setState(() => _dynamicFieldsLoading = true);
-    try {
-      final dio = getIt<DioClient>().dio;
-      final response = await dio.get(
-        ApiUrls.categoryFields,
-        queryParameters: {
-          'listing_type': widget.listingType,
-          if (widget.categoryId != null) 'category': widget.categoryId,
-        },
-      );
-      final raw = response.data;
-      if (raw is! Map) {
-        setState(() {
-          _dynamicFields = [];
-          _dynamicFieldsLoading = false;
-        });
-        return;
-      }
-      final map = raw.cast<String, dynamic>();
-      final listRaw = map['data'];
-      if (listRaw is! List) {
-        setState(() {
-          _dynamicFields = [];
-          _dynamicFieldsLoading = false;
-        });
-        return;
-      }
-      final parsed = <CategoryFieldEntity>[];
-      for (final e in listRaw) {
-        if (e is Map<String, dynamic>) {
-          parsed.add(CategoryFieldEntity.fromJson(e));
-        } else if (e is Map) {
-          parsed.add(CategoryFieldEntity.fromJson(e.cast<String, dynamic>()));
-        }
-      }
-      if (!mounted) return;
-      setState(() {
-        _dynamicFields = parsed;
-        _dynamicFieldsLoading = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _dynamicFields = [];
-        _dynamicFieldsLoading = false;
-      });
-    }
-  }
-
-  bool _isDynamicVisible(CategoryFieldEntity field) {
-    final cond = field.condition;
-    if (cond == null) return true;
-    final current = _data.dynamicFields[cond.field];
-    return current?.toString() == cond.equals;
-  }
-
-  TextEditingController _controllerForField(String key) {
-    return _dynamicControllers.putIfAbsent(key, () {
-      final c = TextEditingController();
-      final initial = _data.dynamicFields[key];
-      if (initial != null) c.text = initial.toString();
-      return c;
     });
   }
 
@@ -453,20 +260,115 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
   void dispose() {
     _minCtrl.dispose();
     _maxCtrl.dispose();
-    _vehicleModelCtrl.dispose();
-    _yearFromCtrl.dispose();
-    _yearToCtrl.dispose();
-    _probegFromCtrl.dispose();
-    _probegToCtrl.dispose();
-    _engineCcFromCtrl.dispose();
-    _engineCcToCtrl.dispose();
-    _enginePowerFromCtrl.dispose();
-    _enginePowerToCtrl.dispose();
-    _vehicleConfigCtrl.dispose();
-    for (final c in _dynamicControllers.values) {
+    for (final c in _textControllers.values) {
+      c.dispose();
+    }
+    for (final c in _rangeMinCtrl.values) {
+      c.dispose();
+    }
+    for (final c in _rangeMaxCtrl.values) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _loadDynamicFields() async {
+    setState(() {
+      _dynamicFieldsLoading = true;
+      _dynamicFieldsError = null;
+    });
+    try {
+      final dio = getIt<DioClient>().dio;
+      final response = await dio.get(
+        ApiUrls.categoryFieldsUsed,
+        queryParameters: {
+          'listing_type': widget.listingType,
+          if (widget.categoryId != null) 'category': widget.categoryId,
+        },
+      );
+      final raw = response.data;
+      final listRaw = raw is Map ? raw['data'] : null;
+      final parsed = <CategoryFieldEntity>[];
+      if (listRaw is List) {
+        for (final e in listRaw) {
+          if (e is Map<String, dynamic>) {
+            parsed.add(CategoryFieldEntity.fromJson(e));
+          } else if (e is Map) {
+            parsed.add(CategoryFieldEntity.fromJson(e.cast<String, dynamic>()));
+          }
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _dynamicFields = parsed;
+        _dynamicFieldsLoading = false;
+        for (final f in parsed) {
+          _sectionExpanded.putIfAbsent(f.name, () => true);
+          if (f.type.toLowerCase() == 'range') {
+            _ensureRangeState(f);
+          } else if (_isTextLike(f.type)) {
+            _ensureTextController(f);
+          }
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _dynamicFields = [];
+        _dynamicFieldsLoading = false;
+        _dynamicFieldsError = e.toString();
+      });
+    }
+  }
+
+  bool _isTextLike(String type) {
+    final t = type.toLowerCase();
+    return t == 'text' || t == 'number';
+  }
+
+  void _ensureTextController(CategoryFieldEntity field) {
+    _textControllers.putIfAbsent(field.name, () {
+      final c = TextEditingController();
+      final initial = _data.dynamicFields[field.name];
+      if (initial != null) c.text = initial.toString();
+      return c;
+    });
+  }
+
+  void _ensureRangeState(CategoryFieldEntity field) {
+    if (_rangeMinCtrl.containsKey(field.name)) return;
+    final maxVal = _rangeMaxFor(field);
+    final initMin = (_data.dynamicFields['${field.name}_min'] as num?)
+            ?.toDouble() ??
+        0;
+    final initMax = (_data.dynamicFields['${field.name}_max'] as num?)
+            ?.toDouble() ??
+        maxVal;
+    _rangeMax[field.name] = maxVal;
+    _rangeValues[field.name] =
+        RangeValues(initMin.clamp(0, maxVal), initMax.clamp(0, maxVal));
+    _rangeMinCtrl[field.name] =
+        TextEditingController(text: _formatSumInt(initMin.toInt()));
+    _rangeMaxCtrl[field.name] =
+        TextEditingController(text: _formatSumInt(initMax.toInt()));
+  }
+
+  double _rangeMaxFor(CategoryFieldEntity field) {
+    final m = field.name.toLowerCase();
+    if (m.contains('probeg')) return 1000000;
+    if (m.contains('year') || m.contains('manufacture')) return 2025;
+    if (m.contains('engine') && m.contains('power')) return 1000;
+    if (m.contains('engine')) return 10000;
+    return 1000000;
+  }
+
+  bool _isVisible(CategoryFieldEntity field) {
+    final cond = field.condition;
+    if (cond == null) return true;
+    final current = _data.dynamicFields[cond.field];
+    if (current == null) return false;
+    if (current is List) return current.contains(cond.equals);
+    return current.toString() == cond.equals;
   }
 
   void _reset() {
@@ -475,144 +377,631 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
     ).pop(const ProductFilterSheetResult(clearedFilters: true));
   }
 
-  int? _parseIntCtrl(TextEditingController c) {
-    final t = c.text.trim();
-    if (t.isEmpty) return null;
-    return int.tryParse(t);
-  }
-
-  ProductFilterData _snapshotFilter() {
+  ProductFilterData _snapshot() {
     final dynamicMap = <String, dynamic>{};
-    for (final field in _dynamicFields.where(_isDynamicVisible)) {
-      final type = field.type.toLowerCase();
-      dynamic val;
-      if (type == 'text' || type == 'number') {
-        val = _dynamicControllers[field.name]?.text.trim();
-      } else {
-        val = _data.dynamicFields[field.name];
+    for (final f in _dynamicFields.where(_isVisible)) {
+      final type = f.type.toLowerCase();
+      if (type == 'select') {
+        final v = _data.dynamicFields[f.name];
+        if (v is String && v.isNotEmpty) dynamicMap[f.name] = v;
+      } else if (type == 'multiselect') {
+        final v = _data.dynamicFields[f.name];
+        if (v is List && v.isNotEmpty) {
+          dynamicMap[f.name] = v.join(',');
+        }
+      } else if (type == 'range') {
+        final r = _rangeValues[f.name];
+        final maxVal = _rangeMax[f.name] ?? 0;
+        if (r != null) {
+          if (r.start > 0) dynamicMap['${f.name}_min'] = r.start.toInt();
+          if (r.end < maxVal) dynamicMap['${f.name}_max'] = r.end.toInt();
+        }
+      } else if (type == 'checkbox') {
+        if (_data.dynamicFields[f.name] == true) {
+          dynamicMap[f.name] = true;
+        }
+      } else if (_isTextLike(type)) {
+        final v = _textControllers[f.name]?.text.trim() ?? '';
+        if (v.isNotEmpty) dynamicMap[f.name] = v;
       }
-      if (val != null && (val is! String || val.isNotEmpty)) {
-        dynamicMap[field.name] = val;
-      }
-    }
-    if (widget.vehicleListing) {
-      return ProductFilterData(
-        minPrice: _priceRange.start > 0 ? _priceRange.start : null,
-        maxPrice: _priceRange.end < _maxSlider ? _priceRange.end : null,
-        hasDiscount: _data.hasDiscount,
-        hasServices: false,
-        selectedConditionIndex: _data.selectedConditionIndex,
-        vehiclePrimaryCategoryId: _vehiclePrimaryCategoryId,
-        vehicleMark: _data.vehicleMark,
-        vehicleModel: _vehicleModelCtrl.text.trim().isEmpty
-            ? null
-            : _vehicleModelCtrl.text.trim(),
-        yearFrom: _parseIntCtrl(_yearFromCtrl),
-        yearTo: _parseIntCtrl(_yearToCtrl),
-        probegFrom: _parseIntCtrl(_probegFromCtrl),
-        probegTo: _parseIntCtrl(_probegToCtrl),
-        engineCcFrom: _parseIntCtrl(_engineCcFromCtrl),
-        engineCcTo: _parseIntCtrl(_engineCcToCtrl),
-        enginePowerFrom: _parseIntCtrl(_enginePowerFromCtrl),
-        enginePowerTo: _parseIntCtrl(_enginePowerToCtrl),
-        vehicleFuelType: _data.vehicleFuelType,
-        vehicleTransmission: _data.vehicleTransmission,
-        vehiclePrivod: _data.vehiclePrivod,
-        vehicleBody: _data.vehicleBody,
-        selectedColorIndex: _data.selectedColorIndex,
-        vehicleConfiguration: _vehicleConfigCtrl.text.trim().isEmpty
-            ? null
-            : _vehicleConfigCtrl.text.trim(),
-        vehiclePaymentType: _data.vehiclePaymentType,
-        onlyTop: _data.onlyTop,
-        dynamicFields: dynamicMap,
-      );
     }
     return ProductFilterData(
       minPrice: _priceRange.start > 0 ? _priceRange.start : null,
       maxPrice: _priceRange.end < _maxSlider ? _priceRange.end : null,
       hasDiscount: _data.hasDiscount,
       hasServices: _data.hasServices,
+      onlyTop: _data.onlyTop,
       selectedCategoryIndex: _data.selectedCategoryIndex,
       selectedConditionIndex: _data.selectedConditionIndex,
       selectedSellerTypeIndex: _data.selectedSellerTypeIndex,
       selectedColorIndex: _data.selectedColorIndex,
       selectedSizeIndex: _data.selectedSizeIndex,
+      vehiclePrimaryCategoryId:
+          widget.vehicleListing ? _vehiclePrimaryCategoryId : null,
       dynamicFields: dynamicMap,
     );
   }
 
-  /// Matn chip emas — dumaloq rang namunalari (mahsulot va avto filtrlarda bir xil).
-  List<Widget> _buildRangFilterSection({
-    required Color border,
-    required Color textSecondary,
-  }) {
-    return [
-      _SectionHeader(
-        title: 'Rang',
-        expanded: _colorExpanded,
-        trailing: _data.selectedColorIndex != null
-            ? _ColorLabel(
-                color: _colors[_data.selectedColorIndex!],
-                textColor: textSecondary,
-              )
-            : null,
-        onToggle: () => setState(() => _colorExpanded = !_colorExpanded),
-      ),
-      if (_colorExpanded) ...[
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: _colors.asMap().entries.map((e) {
-            final sel = _data.selectedColorIndex == e.key;
-            final isWhite = e.value == const Color(0xFFFFFFFF);
-            return GestureDetector(
-              onTap: () =>
-                  setState(() => _data.selectedColorIndex = sel ? null : e.key),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: e.value,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: sel
-                        ? AppColors.primary
-                        : isWhite
-                        ? border
-                        : Colors.transparent,
-                    width: sel ? 2.5 : 1,
+  void _apply() => Navigator.of(
+        context,
+      ).pop(ProductFilterSheetResult(filter: _snapshot()));
+
+  // ── UI ────────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bg = theme.scaffoldBackgroundColor;
+    final textPrimary = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final border = context.borderColor;
+    final card = context.surfaceContainer;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.92,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (_, controller) => Container(
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Text(
+                    'Filtrlar',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: _reset,
+                    child: Text(
+                      'Tozalash',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Icon(Icons.close, color: textSecondary, size: 22),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Divider(color: border, height: 1),
+            Expanded(
+              child: ListView(
+                controller: controller,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  const SizedBox(height: 16),
+                  _FilterMapPreviewCard(
+                    textPrimary: textPrimary,
+                    onShowOnMap: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop(
+                        ProductFilterSheetResult(
+                          filter: _snapshot(),
+                          openMapView: true,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Divider(color: border),
+                  // ── Always-on: Summa ──────────────────────────────────────
+                  _SectionHeader(
+                    title: 'Summa',
+                    expanded: _priceExpanded,
+                    onToggle: () =>
+                        setState(() => _priceExpanded = !_priceExpanded),
+                  ),
+                  if (_priceExpanded) ...[
+                    const SizedBox(height: 12),
+                    _buildPriceInputs(border, textPrimary),
+                    const SizedBox(height: 8),
+                    _buildPriceSlider(border),
+                    const SizedBox(height: 4),
+                  ],
+                  Divider(color: border),
+                  // ── Always-on: Toggles ────────────────────────────────────
+                  _ToggleRow(
+                    title: 'Chegirma va aksiyalar',
+                    value: _data.hasDiscount,
+                    textColor: textPrimary,
+                    onChanged: (v) => setState(() => _data.hasDiscount = v),
+                  ),
+                  Divider(color: border),
+                  _ToggleRow(
+                    title: 'Faqat TOP',
+                    value: _data.onlyTop,
+                    textColor: textPrimary,
+                    onChanged: (v) => setState(() => _data.onlyTop = v),
+                  ),
+                  Divider(color: border),
+                  // ── Avto kategoriyasi (Auto holatida) ─────────────────────
+                  if (widget.vehicleListing &&
+                      widget.vehiclePrimaryCategories.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: 'Kategoriya',
+                      expanded: _vehicleCategoryExpanded,
+                      onToggle: () => setState(() =>
+                          _vehicleCategoryExpanded = !_vehicleCategoryExpanded),
+                    ),
+                    if (_vehicleCategoryExpanded) ...[
+                      const SizedBox(height: 8),
+                      _categoryRadioRow(
+                        border: border,
+                        textPrimary: textPrimary,
+                        label: 'Barcha turkumlar',
+                        selected: _vehiclePrimaryCategoryId == null,
+                        onTap: () =>
+                            setState(() => _vehiclePrimaryCategoryId = null),
+                      ),
+                      ...widget.vehiclePrimaryCategories.map(
+                        (s) => _categoryRadioRow(
+                          border: border,
+                          textPrimary: textPrimary,
+                          label: s.name,
+                          selected: _vehiclePrimaryCategoryId == s.id,
+                          onTap: () => setState(
+                              () => _vehiclePrimaryCategoryId = s.id),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    Divider(color: border),
+                  ],
+                  // ── API dan kelgan dynamic fieldlar ───────────────────────
+                  if (_dynamicFieldsLoading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (_dynamicFieldsError != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Text(
+                        'Filtr maydonlarini yuklashda xatolik',
+                        style: TextStyle(color: AppColors.red, fontSize: 13),
+                      ),
+                    )
+                  else
+                    ..._buildDynamicSections(
+                      border: border,
+                      card: card,
+                      textPrimary: textPrimary,
+                      textSecondary: textSecondary,
+                    ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            ),
+            // ── Apply Button ──────────────────────────────────────────────
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                12,
+                20,
+                20 + MediaQuery.of(context).viewPadding.bottom,
+              ),
+              decoration: BoxDecoration(
+                color: bg,
+                border: Border(top: BorderSide(color: border)),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _apply,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    "Qo'llash",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
-                child: sel
-                    ? Icon(
-                        Icons.check,
-                        size: 18,
-                        color: isWhite ? Colors.black : Colors.white,
-                      )
-                    : null,
               ),
-            );
-          }).toList(),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-      ],
-    ];
+      ),
+    );
   }
 
-  Widget _vehiclePlainField({
-    required TextEditingController controller,
-    required String hint,
+  Widget _buildPriceInputs(Color border, Color textPrimary) {
+    return Row(
+      children: [
+        Expanded(
+          child: _SumPriceField(
+            controller: _minCtrl,
+            hint: 'Dan',
+            borderColor: border,
+            textColor: textPrimary,
+            maxValue: _maxSlider.toInt(),
+            onChanged: (v) {
+              if (_updatingPriceFromSlider) return;
+              final parsed = _parseDigitsOnly(v) ?? 0;
+              final val = parsed
+                  .toDouble()
+                  .clamp(0.0, _priceRange.end)
+                  .toDouble();
+              setState(() {
+                _priceRange = RangeValues(val, _priceRange.end);
+              });
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _SumPriceField(
+            controller: _maxCtrl,
+            hint: 'Gacha',
+            borderColor: border,
+            textColor: textPrimary,
+            maxValue: _maxSlider.toInt(),
+            onChanged: (v) {
+              if (_updatingPriceFromSlider) return;
+              final parsed = _parseDigitsOnly(v);
+              final val = (parsed ?? _maxSlider.toInt())
+                  .toDouble()
+                  .clamp(_priceRange.start, _maxSlider)
+                  .toDouble();
+              setState(() {
+                _priceRange = RangeValues(_priceRange.start, val);
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceSlider(Color border) {
+    return SliderTheme(
+      data: SliderThemeData(
+        activeTrackColor: AppColors.primary,
+        inactiveTrackColor: border,
+        thumbColor: AppColors.primary,
+        overlayColor: AppColors.primary.withValues(alpha: 0.12),
+        trackHeight: 4,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
+      ),
+      child: RangeSlider(
+        values: _priceRange,
+        min: 0,
+        max: _maxSlider,
+        onChanged: (v) {
+          _updatingPriceFromSlider = true;
+          setState(() {
+            _priceRange = v;
+            _minCtrl.text = _formatSumInt(v.start > 0 ? v.start.toInt() : 0);
+            _maxCtrl.text = _formatSumInt(
+              v.end < _maxSlider ? v.end.toInt() : _maxSlider.toInt(),
+            );
+          });
+          _updatingPriceFromSlider = false;
+        },
+      ),
+    );
+  }
+
+  List<Widget> _buildDynamicSections({
+    required Color border,
+    required Color card,
+    required Color textPrimary,
+    required Color textSecondary,
+  }) {
+    final widgets = <Widget>[];
+    final visible = _dynamicFields.where(_isVisible).toList();
+    for (var i = 0; i < visible.length; i++) {
+      final f = visible[i];
+      widgets.add(_buildField(
+        f,
+        border: border,
+        card: card,
+        textPrimary: textPrimary,
+        textSecondary: textSecondary,
+      ));
+      widgets.add(Divider(color: border));
+    }
+    return widgets;
+  }
+
+  Widget _buildField(
+    CategoryFieldEntity field, {
+    required Color border,
+    required Color card,
+    required Color textPrimary,
+    required Color textSecondary,
+  }) {
+    final type = field.type.toLowerCase();
+    final expanded = _sectionExpanded[field.name] ?? true;
+    Widget? body;
+
+    switch (type) {
+      case 'select':
+        body = _buildSelectChips(field, card: card, textPrimary: textPrimary,
+            border: border);
+        break;
+      case 'multiselect':
+        body = _buildMultiSelectChips(field, card: card,
+            textPrimary: textPrimary, border: border);
+        break;
+      case 'range':
+        body = _buildRangeBody(field, border: border, textPrimary: textPrimary);
+        break;
+      case 'checkbox':
+        // Checkbox — to'g'ridan-to'g'ri toggle, header yo'q.
+        return _ToggleRow(
+          title: _capitalize(field.label),
+          value: _data.dynamicFields[field.name] == true,
+          textColor: textPrimary,
+          onChanged: (v) =>
+              setState(() => _data.dynamicFields[field.name] = v),
+        );
+      case 'text':
+      case 'number':
+        body = _buildTextField(field, border: border, textPrimary: textPrimary);
+        break;
+      default:
+        body = const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SectionHeader(
+          title: _capitalize(field.label),
+          expanded: expanded,
+          trailing: _selectionSummary(field, textSecondary),
+          onToggle: () => setState(() {
+            _sectionExpanded[field.name] = !expanded;
+          }),
+        ),
+        if (expanded) ...[
+          const SizedBox(height: 8),
+          body,
+          const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
+  Widget? _selectionSummary(CategoryFieldEntity field, Color textSecondary) {
+    final type = field.type.toLowerCase();
+    if (type == 'select') {
+      final v = _data.dynamicFields[field.name];
+      if (v == null) return null;
+      final opt = field.options.firstWhere(
+        (o) => o.value == v.toString(),
+        orElse: () => CategoryFieldOptionEntity(label: v.toString(), value: ''),
+      );
+      return _Pill(text: opt.label);
+    }
+    if (type == 'multiselect') {
+      final v = _data.dynamicFields[field.name];
+      if (v is! List || v.isEmpty) return null;
+      return _Pill(text: '${v.length} ta');
+    }
+    if (type == 'range') {
+      final r = _rangeValues[field.name];
+      final maxVal = _rangeMax[field.name] ?? 0;
+      if (r == null) return null;
+      if (r.start <= 0 && r.end >= maxVal) return null;
+      return _Pill(
+        text:
+            '${_formatSumInt(r.start.toInt())} – ${_formatSumInt(r.end.toInt())}',
+      );
+    }
+    return null;
+  }
+
+  Widget _buildSelectChips(
+    CategoryFieldEntity field, {
+    required Color card,
+    required Color textPrimary,
+    required Color border,
+  }) {
+    final selected = _data.dynamicFields[field.name]?.toString();
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: field.options.map((o) {
+        final sel = selected == o.value;
+        return _ChipButton(
+          label: o.label,
+          selected: sel,
+          card: card,
+          border: border,
+          textColor: textPrimary,
+          onTap: () => setState(() {
+            if (sel) {
+              _data.dynamicFields.remove(field.name);
+            } else {
+              _data.dynamicFields[field.name] = o.value;
+            }
+          }),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMultiSelectChips(
+    CategoryFieldEntity field, {
+    required Color card,
+    required Color textPrimary,
+    required Color border,
+  }) {
+    final raw = _data.dynamicFields[field.name];
+    final selected = <String>{};
+    if (raw is List) {
+      for (final v in raw) {
+        selected.add(v.toString());
+      }
+    }
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: field.options.map((o) {
+        final sel = selected.contains(o.value);
+        return _ChipButton(
+          label: o.label,
+          selected: sel,
+          card: card,
+          border: border,
+          textColor: textPrimary,
+          onTap: () => setState(() {
+            if (sel) {
+              selected.remove(o.value);
+            } else {
+              selected.add(o.value);
+            }
+            if (selected.isEmpty) {
+              _data.dynamicFields.remove(field.name);
+            } else {
+              _data.dynamicFields[field.name] = selected.toList();
+            }
+          }),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildRangeBody(
+    CategoryFieldEntity field, {
     required Color border,
     required Color textPrimary,
   }) {
+    _ensureRangeState(field);
+    final maxVal = _rangeMax[field.name]!;
+    final values = _rangeValues[field.name]!;
+    final minCtrl = _rangeMinCtrl[field.name]!;
+    final maxCtrl = _rangeMaxCtrl[field.name]!;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _SumPriceField(
+                controller: minCtrl,
+                hint: '0',
+                borderColor: border,
+                textColor: textPrimary,
+                maxValue: maxVal.toInt(),
+                onChanged: (v) {
+                  if (_updatingFromSlider) return;
+                  final parsed = _parseDigitsOnly(v) ?? 0;
+                  final val = parsed
+                      .toDouble()
+                      .clamp(0.0, values.end)
+                      .toDouble();
+                  setState(() {
+                    _rangeValues[field.name] = RangeValues(val, values.end);
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _SumPriceField(
+                controller: maxCtrl,
+                hint: _formatSumInt(maxVal.toInt()),
+                borderColor: border,
+                textColor: textPrimary,
+                maxValue: maxVal.toInt(),
+                onChanged: (v) {
+                  if (_updatingFromSlider) return;
+                  final parsed = _parseDigitsOnly(v);
+                  final val = (parsed ?? maxVal.toInt())
+                      .toDouble()
+                      .clamp(values.start, maxVal)
+                      .toDouble();
+                  setState(() {
+                    _rangeValues[field.name] = RangeValues(values.start, val);
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SliderTheme(
+          data: SliderThemeData(
+            activeTrackColor: AppColors.primary,
+            inactiveTrackColor: border,
+            thumbColor: AppColors.primary,
+            overlayColor: AppColors.primary.withValues(alpha: 0.12),
+            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
+          ),
+          child: RangeSlider(
+            values: values,
+            min: 0,
+            max: maxVal,
+            onChanged: (v) {
+              _updatingFromSlider = true;
+              setState(() {
+                _rangeValues[field.name] = v;
+                minCtrl.text =
+                    _formatSumInt(v.start > 0 ? v.start.toInt() : 0);
+                maxCtrl.text = _formatSumInt(
+                    v.end < maxVal ? v.end.toInt() : maxVal.toInt());
+              });
+              _updatingFromSlider = false;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(
+    CategoryFieldEntity field, {
+    required Color border,
+    required Color textPrimary,
+  }) {
+    _ensureTextController(field);
+    final c = _textControllers[field.name]!;
+    final isNumber = field.type.toLowerCase() == 'number';
     return TextField(
-      controller: controller,
+      controller: c,
+      keyboardType:
+          isNumber ? TextInputType.number : TextInputType.text,
       onChanged: (_) => setState(() {}),
       style: TextStyle(color: textPrimary, fontSize: 15),
       decoration: InputDecoration(
-        hintText: hint,
+        hintText: field.placeholder?.isNotEmpty == true
+            ? field.placeholder
+            : field.label,
         hintStyle: TextStyle(color: textPrimary.withValues(alpha: 0.4)),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
@@ -630,468 +1019,7 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
     );
   }
 
-  Widget _vehicleDualNum({
-    required Color border,
-    required Color textPrimary,
-    required TextEditingController a,
-    required TextEditingController b,
-    String hintA = 'dan',
-    String hintB = 'gacha',
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: _PriceField(
-            controller: a,
-            hint: hintA,
-            borderColor: border,
-            textColor: textPrimary,
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _PriceField(
-            controller: b,
-            hint: hintB,
-            borderColor: border,
-            textColor: textPrimary,
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildVehicleFilterBody({
-    required Color border,
-    required Color card,
-    required Color textPrimary,
-    required Color textSecondary,
-  }) {
-    return [
-      _SectionHeader(title: 'Summa', expanded: true, onToggle: null),
-      const SizedBox(height: 12),
-      Row(
-        children: [
-          Expanded(
-            child: _SumPriceField(
-              controller: _minCtrl,
-              hint: 'Dan',
-              borderColor: border,
-              textColor: textPrimary,
-              maxValue: _maxSlider.toInt(),
-              onChanged: (v) {
-                if (_updatingFromSlider) return;
-                final parsed = _parseDigitsOnly(v) ?? 0;
-                final val = parsed
-                    .toDouble()
-                    .clamp(0.0, _priceRange.end)
-                    .toDouble();
-                setState(() {
-                  _priceRange = RangeValues(val, _priceRange.end);
-                });
-              },
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _SumPriceField(
-              controller: _maxCtrl,
-              hint: 'Gacha',
-              borderColor: border,
-              textColor: textPrimary,
-              maxValue: _maxSlider.toInt(),
-              onChanged: (v) {
-                if (_updatingFromSlider) return;
-                final parsed = _parseDigitsOnly(v);
-                final val = (parsed ?? _maxSlider.toInt())
-                    .toDouble()
-                    .clamp(_priceRange.start, _maxSlider)
-                    .toDouble();
-                setState(() {
-                  _priceRange = RangeValues(_priceRange.start, val);
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      SliderTheme(
-        data: SliderThemeData(
-          activeTrackColor: AppColors.primary,
-          inactiveTrackColor: border,
-          thumbColor: AppColors.primary,
-          overlayColor: AppColors.primary.withValues(alpha: 0.12),
-          trackHeight: 4,
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
-        ),
-        child: RangeSlider(
-          values: _priceRange,
-          min: 0,
-          max: _maxSlider,
-          onChanged: (v) {
-            _updatingFromSlider = true;
-            setState(() {
-              _priceRange = v;
-              _minCtrl.text = _formatSumInt(v.start > 0 ? v.start.toInt() : 0);
-              _maxCtrl.text = _formatSumInt(
-                v.end < _maxSlider ? v.end.toInt() : _maxSlider.toInt(),
-              );
-            });
-            _updatingFromSlider = false;
-          },
-        ),
-      ),
-      const SizedBox(height: 4),
-      Divider(color: border),
-      _ToggleRow(
-        title: 'Chegirmalar va aksiyalar',
-        value: _data.hasDiscount,
-        textColor: textPrimary,
-        onChanged: (v) => setState(() => _data.hasDiscount = v),
-      ),
-      Divider(color: border),
-      _ToggleRow(
-        title: 'Faqat TOP',
-        value: _data.onlyTop,
-        textColor: textPrimary,
-        onChanged: (v) => setState(() => _data.onlyTop = v),
-      ),
-      Divider(color: border),
-      _SectionHeader(
-        title: 'Kategoriya',
-        expanded: _vehicleCategoryExpanded,
-        onToggle: () => setState(
-          () => _vehicleCategoryExpanded = !_vehicleCategoryExpanded,
-        ),
-      ),
-      if (_vehicleCategoryExpanded) ...[
-        const SizedBox(height: 8),
-        if (widget.vehiclePrimaryCategories.isEmpty)
-          Text(
-            'Kategoriyani tanlang',
-            style: TextStyle(color: textSecondary, fontSize: 14),
-          )
-        else ...[
-          _vehicleCategoryRadioRow(
-            border: border,
-            textPrimary: textPrimary,
-            label: 'Barcha turkumlar',
-            selected: _vehiclePrimaryCategoryId == null,
-            onTap: () => setState(() => _vehiclePrimaryCategoryId = null),
-          ),
-          ...widget.vehiclePrimaryCategories.map(
-            (s) => _vehicleCategoryRadioRow(
-              border: border,
-              textPrimary: textPrimary,
-              label: s.name,
-              selected: _vehiclePrimaryCategoryId == s.id,
-              onTap: () => setState(() => _vehiclePrimaryCategoryId = s.id),
-            ),
-          ),
-        ],
-        const SizedBox(height: 4),
-      ],
-      Divider(color: border),
-      _SectionHeader(
-        title: 'MARKA',
-        expanded: _vehicleMarkExpanded,
-        onToggle: () =>
-            setState(() => _vehicleMarkExpanded = !_vehicleMarkExpanded),
-      ),
-      if (_vehicleMarkExpanded) ...[
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _vehicleMarks.map((m) {
-            final sel = _data.vehicleMark == m;
-            return _ChipButton(
-              label: m,
-              selected: sel,
-              card: card,
-              border: border,
-              textColor: textPrimary,
-              onTap: () => setState(() => _data.vehicleMark = sel ? null : m),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 8),
-      ],
-      Divider(color: border),
-      Text(
-        'MODEL',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      _vehiclePlainField(
-        controller: _vehicleModelCtrl,
-        hint: 'MODEL',
-        border: border,
-        textPrimary: textPrimary,
-      ),
-      const SizedBox(height: 12),
-      Divider(color: border),
-      Text(
-        'ISHLAB CHIQARILGAN YIL',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      _vehicleDualNum(
-        border: border,
-        textPrimary: textPrimary,
-        a: _yearFromCtrl,
-        b: _yearToCtrl,
-        hintA: 'dan',
-        hintB: 'gacha',
-      ),
-      const SizedBox(height: 12),
-      Divider(color: border),
-      Text(
-        'PROBEG (KM)',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      _vehicleDualNum(
-        border: border,
-        textPrimary: textPrimary,
-        a: _probegFromCtrl,
-        b: _probegToCtrl,
-      ),
-      const SizedBox(height: 12),
-      Divider(color: border),
-      Text(
-        'DVIGATEL HAJMI (SM³)',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      _vehicleDualNum(
-        border: border,
-        textPrimary: textPrimary,
-        a: _engineCcFromCtrl,
-        b: _engineCcToCtrl,
-      ),
-      const SizedBox(height: 12),
-      Divider(color: border),
-      Text(
-        'DVIGATEL QUVVATI',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      _vehicleDualNum(
-        border: border,
-        textPrimary: textPrimary,
-        a: _enginePowerFromCtrl,
-        b: _enginePowerToCtrl,
-      ),
-      const SizedBox(height: 12),
-      Divider(color: border),
-      _SectionHeader(
-        title: 'YOQULGI TURI',
-        expanded: _vehicleTechExpanded,
-        onToggle: () =>
-            setState(() => _vehicleTechExpanded = !_vehicleTechExpanded),
-      ),
-      if (_vehicleTechExpanded) ...[
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _fuelTypes.map((e) {
-            final sel = _data.vehicleFuelType == e.$2;
-            return _ChipButton(
-              label: e.$1,
-              selected: sel,
-              card: card,
-              border: border,
-              textColor: textPrimary,
-              onTap: () =>
-                  setState(() => _data.vehicleFuelType = sel ? null : e.$2),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'TRANSMISSIYA TURI',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: textSecondary,
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _transmissions.map((e) {
-            final sel = _data.vehicleTransmission == e.$2;
-            return _ChipButton(
-              label: e.$1,
-              selected: sel,
-              card: card,
-              border: border,
-              textColor: textPrimary,
-              onTap: () =>
-                  setState(() => _data.vehicleTransmission = sel ? null : e.$2),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'PRIVOD',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: textSecondary,
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _privods.map((e) {
-            final sel = _data.vehiclePrivod == e.$2;
-            return _ChipButton(
-              label: e.$1,
-              selected: sel,
-              card: card,
-              border: border,
-              textColor: textPrimary,
-              onTap: () =>
-                  setState(() => _data.vehiclePrivod = sel ? null : e.$2),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 8),
-      ],
-      Divider(color: border),
-      _SectionHeader(
-        title: 'KUZOV TURI',
-        expanded: _vehicleBodyExpanded,
-        onToggle: () =>
-            setState(() => _vehicleBodyExpanded = !_vehicleBodyExpanded),
-      ),
-      if (_vehicleBodyExpanded) ...[
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _bodies.map((e) {
-            final sel = _data.vehicleBody == e.$2;
-            return _ChipButton(
-              label: e.$1,
-              selected: sel,
-              card: card,
-              border: border,
-              textColor: textPrimary,
-              onTap: () =>
-                  setState(() => _data.vehicleBody = sel ? null : e.$2),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 8),
-      ],
-      Divider(color: border),
-      ..._buildRangFilterSection(border: border, textSecondary: textSecondary),
-      Divider(color: border),
-      _SectionHeader(
-        title: 'HOLATI',
-        expanded: _vehicleConditionExpanded,
-        onToggle: () => setState(
-          () => _vehicleConditionExpanded = !_vehicleConditionExpanded,
-        ),
-      ),
-      if (_vehicleConditionExpanded) ...[
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _vehicleConditions.asMap().entries.map((e) {
-            final sel = _data.selectedConditionIndex == e.key;
-            return _ChipButton(
-              label: e.value,
-              selected: sel,
-              card: card,
-              border: border,
-              textColor: textPrimary,
-              onTap: () => setState(
-                () => _data.selectedConditionIndex = sel ? null : e.key,
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 12),
-      ],
-      Divider(color: border),
-      Text(
-        'KOMPLEKTATSIYA',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      _vehiclePlainField(
-        controller: _vehicleConfigCtrl,
-        hint: 'KOMPLEKTATSIYA',
-        border: border,
-        textPrimary: textPrimary,
-      ),
-      const SizedBox(height: 12),
-      Divider(color: border),
-      Text(
-        "TO'LOV TURI",
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: textPrimary,
-          fontSize: 15,
-        ),
-      ),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: _payments.map((e) {
-          final sel = _data.vehiclePaymentType == e.$2;
-          return _ChipButton(
-            label: e.$1,
-            selected: sel,
-            card: card,
-            border: border,
-            textColor: textPrimary,
-            onTap: () =>
-                setState(() => _data.vehiclePaymentType = sel ? null : e.$2),
-          );
-        }).toList(),
-      ),
-      const SizedBox(height: 20),
-    ];
-  }
-
-  Widget _vehicleCategoryRadioRow({
+  Widget _categoryRadioRow({
     required Color border,
     required Color textPrimary,
     required String label,
@@ -1137,487 +1065,10 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
     );
   }
 
-  void _apply() => Navigator.of(
-    context,
-  ).pop(ProductFilterSheetResult(filter: _snapshotFilter()));
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bg = theme.scaffoldBackgroundColor;
-    final textPrimary = context.textPrimary;
-    final textSecondary = context.textSecondary;
-    final border = context.borderColor;
-    final card = context.surfaceContainer;
-
-    return DraggableScrollableSheet(
-      initialChildSize: 0.92,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      builder: (_, controller) => Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            // Handle bar
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Text(
-                    'Filtrlar',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: _reset,
-                    child: Text(
-                      'Tozalash',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 4),
-            Divider(color: border, height: 1),
-            // Scrollable content
-            Expanded(
-              child: ListView(
-                controller: controller,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  const SizedBox(height: 16),
-                  _FilterMapPreviewCard(
-                    textPrimary: textPrimary,
-                    onShowOnMap: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.of(context).pop(
-                        ProductFilterSheetResult(
-                          filter: _snapshotFilter(),
-                          openMapView: true,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Divider(color: border),
-                  if (widget.vehicleListing)
-                    ..._buildVehicleFilterBody(
-                      border: border,
-                      card: card,
-                      textPrimary: textPrimary,
-                      textSecondary: textSecondary,
-                    )
-                  else ...[
-                    // ── Price Range ──────────────────────────────────────────
-                    _SectionHeader(
-                      title: 'Narx oralig\'i',
-                      expanded: true,
-                      onToggle: null,
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _SumPriceField(
-                            controller: _minCtrl,
-                            hint: 'Dan',
-                            borderColor: border,
-                            textColor: textPrimary,
-                            maxValue: _maxSlider.toInt(),
-                            onChanged: (v) {
-                              if (_updatingFromSlider) return;
-                              final parsed = _parseDigitsOnly(v) ?? 0;
-                              final val = parsed
-                                  .toDouble()
-                                  .clamp(0.0, _priceRange.end)
-                                  .toDouble();
-                              setState(() {
-                                _priceRange = RangeValues(val, _priceRange.end);
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _SumPriceField(
-                            controller: _maxCtrl,
-                            hint: 'Gacha',
-                            borderColor: border,
-                            textColor: textPrimary,
-                            maxValue: _maxSlider.toInt(),
-                            onChanged: (v) {
-                              if (_updatingFromSlider) return;
-                              final parsed = _parseDigitsOnly(v);
-                              final val = (parsed ?? _maxSlider.toInt())
-                                  .toDouble()
-                                  .clamp(_priceRange.start, _maxSlider)
-                                  .toDouble();
-                              setState(() {
-                                _priceRange = RangeValues(
-                                  _priceRange.start,
-                                  val,
-                                );
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    SliderTheme(
-                      data: SliderThemeData(
-                        activeTrackColor: AppColors.primary,
-                        inactiveTrackColor: border,
-                        thumbColor: AppColors.primary,
-                        overlayColor: AppColors.primary.withValues(alpha: 0.12),
-                        trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 9,
-                        ),
-                      ),
-                      child: RangeSlider(
-                        values: _priceRange,
-                        min: 0,
-                        max: _maxSlider,
-                        onChanged: (v) {
-                          _updatingFromSlider = true;
-                          setState(() {
-                            _priceRange = v;
-                            _minCtrl.text = _formatSumInt(
-                              v.start > 0 ? v.start.toInt() : 0,
-                            );
-                            _maxCtrl.text = _formatSumInt(
-                              v.end < _maxSlider
-                                  ? v.end.toInt()
-                                  : _maxSlider.toInt(),
-                            );
-                          });
-                          _updatingFromSlider = false;
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Divider(color: border),
-                    // ── Toggles ──────────────────────────────────────────────
-                    _ToggleRow(
-                      title: 'Chegirma va aksiyalar',
-                      value: _data.hasDiscount,
-                      textColor: textPrimary,
-                      onChanged: (v) => setState(() => _data.hasDiscount = v),
-                    ),
-                    Divider(color: border),
-                    _ToggleRow(
-                      title: 'Tegishli xizmatlar',
-                      value: _data.hasServices,
-                      textColor: textPrimary,
-                      onChanged: (v) => setState(() => _data.hasServices = v),
-                    ),
-                    Divider(color: border),
-                    // ── Category ─────────────────────────────────────────────
-                    _SectionHeader(
-                      title: 'Kategoriya',
-                      expanded: _categoryExpanded,
-                      onToggle: () => setState(
-                        () => _categoryExpanded = !_categoryExpanded,
-                      ),
-                    ),
-                    if (_categoryExpanded) ...[
-                      const SizedBox(height: 8),
-                      ..._categories.asMap().entries.map((e) {
-                        final selected = _data.selectedCategoryIndex == e.key;
-                        return InkWell(
-                          onTap: () => setState(
-                            () => _data.selectedCategoryIndex = e.key,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: selected
-                                        ? AppColors.primary
-                                        : Colors.transparent,
-                                    border: Border.all(
-                                      color: selected
-                                          ? AppColors.primary
-                                          : border,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: selected
-                                      ? const Icon(
-                                          Icons.check,
-                                          size: 14,
-                                          color: Colors.white,
-                                        )
-                                      : null,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  e.value,
-                                  style: TextStyle(
-                                    color: textPrimary,
-                                    fontSize: 15,
-                                    fontWeight: selected
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                      const SizedBox(height: 4),
-                    ],
-                    Divider(color: border),
-                    // ── Condition ────────────────────────────────────────────
-                    _SectionHeader(
-                      title: 'Holat',
-                      expanded: _conditionExpanded,
-                      onToggle: () => setState(
-                        () => _conditionExpanded = !_conditionExpanded,
-                      ),
-                    ),
-                    if (_conditionExpanded) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _conditions.asMap().entries.map((e) {
-                          final sel = _data.selectedConditionIndex == e.key;
-                          return _ChipButton(
-                            label: e.value,
-                            selected: sel,
-                            card: card,
-                            border: border,
-                            textColor: textPrimary,
-                            onTap: () => setState(
-                              () => _data.selectedConditionIndex = sel
-                                  ? null
-                                  : e.key,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    Divider(color: border),
-                    // ── Seller Type ──────────────────────────────────────────
-                    _SectionHeader(
-                      title: 'Sotuvchi turi',
-                      expanded: _sellerExpanded,
-                      onToggle: () =>
-                          setState(() => _sellerExpanded = !_sellerExpanded),
-                    ),
-                    if (_sellerExpanded) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _sellerTypes.asMap().entries.map((e) {
-                          final sel = _data.selectedSellerTypeIndex == e.key;
-                          return _ChipButton(
-                            label: e.value,
-                            selected: sel,
-                            card: card,
-                            border: border,
-                            textColor: textPrimary,
-                            onTap: () => setState(
-                              () => _data.selectedSellerTypeIndex = sel
-                                  ? null
-                                  : e.key,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    Divider(color: border),
-                    // ── Color (dumaloq namunalar) ───────────────────────────
-                    ..._buildRangFilterSection(
-                      border: border,
-                      textSecondary: textSecondary,
-                    ),
-                    Divider(color: border),
-                    // ── Size ─────────────────────────────────────────────────
-                    _SectionHeader(
-                      title: 'O\'lcham',
-                      expanded: _sizeExpanded,
-                      onToggle: () =>
-                          setState(() => _sizeExpanded = !_sizeExpanded),
-                    ),
-                    if (_sizeExpanded) ...[
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _sizes.asMap().entries.map((e) {
-                          final sel = _data.selectedSizeIndex == e.key;
-                          return _ChipButton(
-                            label: e.value,
-                            selected: sel,
-                            card: card,
-                            border: border,
-                            textColor: textPrimary,
-                            onTap: () => setState(
-                              () =>
-                                  _data.selectedSizeIndex = sel ? null : e.key,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ],
-                  if (_dynamicFieldsLoading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (_dynamicFields.isNotEmpty) ...[
-                    Divider(color: border),
-                    _SectionHeader(
-                      title: "Qo'shimcha filtrlar",
-                      expanded: true,
-                      onToggle: null,
-                    ),
-                    const SizedBox(height: 8),
-                    ..._dynamicFields.where(_isDynamicVisible).map((field) {
-                      final type = field.type.toLowerCase();
-                      if (type == 'checkbox') {
-                        final checked = _data.dynamicFields[field.name] == true;
-                        return CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            field.label,
-                            style: TextStyle(color: textPrimary),
-                          ),
-                          value: checked,
-                          onChanged: (v) {
-                            setState(
-                              () => _data.dynamicFields[field.name] = v == true,
-                            );
-                          },
-                        );
-                      }
-                      if (type == 'select') {
-                        final selected = _data.dynamicFields[field.name]
-                            ?.toString();
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: DropdownButtonFormField<String>(
-                            initialValue: selected,
-                            decoration: InputDecoration(
-                              labelText: field.label,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            items: field.options
-                                .map(
-                                  (e) => DropdownMenuItem<String>(
-                                    value: e.value,
-                                    child: Text(e.label),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (v) {
-                              setState(
-                                () => _data.dynamicFields[field.name] = v,
-                              );
-                            },
-                          ),
-                        );
-                      }
-                      final c = _controllerForField(field.name);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: TextField(
-                          controller: c,
-                          keyboardType: type == 'number'
-                              ? TextInputType.number
-                              : TextInputType.text,
-                          onChanged: (v) {
-                            _data.dynamicFields[field.name] = v;
-                          },
-                          decoration: InputDecoration(
-                            labelText: field.label,
-                            hintText: field.placeholder,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-            // ── Apply Button ─────────────────────────────────────────────
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                12,
-                20,
-                20 + MediaQuery.of(context).viewPadding.bottom,
-              ),
-              decoration: BoxDecoration(
-                color: bg,
-                border: Border(top: BorderSide(color: border)),
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _apply,
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Qo\'llash',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    final lower = s.toLowerCase();
+    return lower[0].toUpperCase() + lower.substring(1);
   }
 }
 
@@ -1644,24 +1095,50 @@ class _SectionHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: context.textPrimary,
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: context.textPrimary,
+                    ),
               ),
             ),
-            const Spacer(),
-            ?trailing,
-            if (onToggle != null) ...[
+            if (trailing != null) ...[
+              trailing!,
               const SizedBox(width: 8),
+            ],
+            if (onToggle != null)
               Icon(
                 expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                 color: context.textSecondary,
                 size: 22,
               ),
-            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
       ),
     );
@@ -1686,19 +1163,20 @@ class _ToggleRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: textColor,
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: textColor,
+              ),
             ),
           ),
-          const Spacer(),
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),
@@ -1706,7 +1184,7 @@ class _ToggleRow extends StatelessWidget {
   }
 }
 
-/// Narx: faqat raqam, ko‘rinishda minglik bo‘shliq.
+/// Narx: faqat raqam, ko'rinishda minglik bo'shliq.
 class _SumThousandsFormatter extends TextInputFormatter {
   _SumThousandsFormatter({required this.maxValue});
   final int maxValue;
@@ -1777,47 +1255,6 @@ class _SumPriceField extends StatelessWidget {
   }
 }
 
-class _PriceField extends StatelessWidget {
-  const _PriceField({
-    required this.controller,
-    required this.hint,
-    required this.borderColor,
-    required this.textColor,
-    required this.onChanged,
-  });
-  final TextEditingController controller;
-  final String hint;
-  final Color borderColor;
-  final Color textColor;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      onChanged: onChanged,
-      style: TextStyle(color: textColor, fontSize: 15),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: textColor.withValues(alpha: 0.4)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
-    );
-  }
-}
-
 class _ChipButton extends StatelessWidget {
   const _ChipButton({
     required this.label,
@@ -1858,50 +1295,7 @@ class _ChipButton extends StatelessWidget {
   }
 }
 
-class _ColorLabel extends StatelessWidget {
-  const _ColorLabel({required this.color, required this.textColor});
-  final Color color;
-  final Color textColor;
-
-  String _colorName(Color c) {
-    const names = {
-      0xFF9C27B0: 'Binafsha',
-      0xFFE53935: 'Qizil',
-      0xFFEC407A: 'Pushti',
-      0xFFF4A460: 'To\'q sariq',
-      0xFFFFEB3B: 'Sariq',
-      0xFF2196F3: 'Ko\'k',
-      0xFF64B5F6: 'Och ko\'k',
-      0xFF4CAF50: 'Yashil',
-      0xFF795548: 'Jigarrang',
-      0xFF212121: 'Qora',
-      0xFF9E9E9E: 'Kulrang',
-      0xFFFFFFFF: 'Oq',
-    };
-    return names[c.toARGB32()] ?? 'Rang';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        _colorName(color),
-        style: TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
-        ),
-      ),
-    );
-  }
-}
-
-/// Filtr varag‘ida Yandex xarita preview (chizma emas).
+/// Filtr varag'ida Yandex xarita preview (chizma emas).
 class _FilterMapPreviewCard extends StatefulWidget {
   const _FilterMapPreviewCard({
     required this.textPrimary,
@@ -1915,12 +1309,10 @@ class _FilterMapPreviewCard extends StatefulWidget {
 }
 
 class _FilterMapPreviewCardState extends State<_FilterMapPreviewCard> {
-  /// Yandex coverage so‘rovi bilan mos boshlang‘ich nuqta (ll, z=14).
   static const Point _kCenter = Point(
     latitude: 41.32178969,
     longitude: 69.24735733,
   );
-
   static const double _kInitialZoom = 14;
 
   bool _mapVisible = false;
@@ -2001,7 +1393,7 @@ class _FilterMapPreviewCardState extends State<_FilterMapPreviewCard> {
                       vertical: 10,
                     ),
                     child: Text(
-                      'Xaritada ko\'rsatish',
+                      "Xaritada ko'rsatish",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

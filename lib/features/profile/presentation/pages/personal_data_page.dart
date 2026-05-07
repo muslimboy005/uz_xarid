@@ -9,6 +9,7 @@ import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/core/utils/input_formatters.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
@@ -55,7 +56,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     _filledFromServer = true;
     _firstNameController.text = profile.firstName;
     _lastNameController.text = profile.lastName;
-    _phoneController.text = profile.phone;
+    _phoneController.text = formatUzbekPhone(profile.phone);
     _emailController.text = profile.email;
     final g = profile.gender;
     if (g == 'male' || g == 'female') {
@@ -130,7 +131,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       ProfileUpdateEvent(
         firstName: firstName,
         lastName: lastName,
-        phone: _phoneController.text.trim(),
+        phone: _phoneController.text.replaceAll(RegExp(r'\D'), ''),
         email: _emailController.text.trim(),
         city: _cityController.text.trim(),
         street: _streetController.text.trim(),
@@ -360,7 +361,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           if (url.startsWith('/')) {
             url = 'https://api.uzxarid.uz$url';
           }
-          imageProvider = NetworkImage(url);
+          imageProvider = NetworkImage(url.cdnUrl);
         }
 
         final primaryColor = context.watch<AppModeCubit>().state.primaryColor;

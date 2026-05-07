@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
 import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
@@ -479,7 +480,7 @@ class _MyAdCard extends StatelessWidget {
                 aspectRatio: 1.35,
                 child: item.mainImage != null && item.mainImage!.isNotEmpty
                     ? CachedNetworkImage(
-                        imageUrl: item.mainImage!,
+                        imageUrl: item.mainImage!.cdnUrl,
                         fit: BoxFit.cover,
                       )
                     : Container(

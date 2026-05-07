@@ -5,9 +5,12 @@ import 'package:uz_xarid/core/constants/app_assets.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uz_xarid/core/utils/price_formatter.dart';
 import 'package:uz_xarid/core/widgets/app_image.dart';
 import 'package:uz_xarid/core/widgets/app_text.dart';
 import 'package:uz_xarid/core/widgets/cart_counter.dart';
+import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uz_xarid/l10n/app_localizations.dart';
 
 /// Rasmdagi mahsulot kartasi: rasm, yulduz/sharh, sarlavha, narxlar, "Ko'rish".
@@ -46,31 +49,18 @@ class ProductCard extends StatelessWidget {
   final bool isLiked;
   final VoidCallback? onLikeTap;
 
-  static String _formatPrice(String? value) {
-    if (value == null || value.isEmpty) return '';
-    final intPart = value.split('.').first;
-    final buf = StringBuffer();
-    var count = 0;
-    for (var i = intPart.length - 1; i >= 0; i--) {
-      buf.write(intPart[i]);
-      count++;
-      if (count % 3 == 0 && i != 0) buf.write(' ');
-    }
-    return buf.toString().split('').reversed.join();
-  }
-
   void _openDetail(BuildContext context) {
     if (slug.isNotEmpty) context.push('/ad/$slug');
   }
-
-  String get _displayCurrency => currency == 'uzs' ? 'so\'m' : currency;
 
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
     final l10n = AppLocalizations.of(context)!;
-    final currentPrice = _formatPrice(finalPrice ?? price);
-    final oldPrice = finalPrice != null ? _formatPrice(price) : '';
+    final currentPrice = formatPrice(finalPrice ?? price);
+    final oldPrice = finalPrice != null ? formatPrice(price) : '';
+    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
+    final displayCurrency = currencyDisplayLabel(selectedCcy);
 
     return Container(
       width: width,
@@ -198,7 +188,7 @@ class ProductCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: AppText(
-                                text: '$oldPrice $_displayCurrency',
+                                text: '$oldPrice $displayCurrency',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -214,7 +204,7 @@ class ProductCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              currentPrice.isNotEmpty ? '$currentPrice $_displayCurrency' : '',
+                              currentPrice.isNotEmpty ? '$currentPrice $displayCurrency' : '',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
