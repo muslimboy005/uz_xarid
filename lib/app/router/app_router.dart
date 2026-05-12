@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
 import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
@@ -560,29 +559,6 @@ class ScaffoldWithNavBar extends StatefulWidget {
 }
 
 class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
-  late NotchBottomBarController _controller;
-  int? _lastColorArgb;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = NotchBottomBarController(index: widget.currentIndex);
-  }
-
-  @override
-  void didUpdateWidget(covariant ScaffoldWithNavBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentIndex != widget.currentIndex) {
-      _controller.jumpTo(widget.currentIndex);
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -595,72 +571,152 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
 
-    if (_lastColorArgb != null && _lastColorArgb != selectedColor.toARGB32()) {
-      final oldController = _controller;
-      _controller = NotchBottomBarController(index: widget.currentIndex);
-      oldController.dispose();
-    }
-    _lastColorArgb = selectedColor.toARGB32();
+    final items = <_NavItem>[
+      _NavItem(Icons.home_outlined, Icons.home_rounded, l10n.navHome),
+      _NavItem(Icons.grid_view_outlined, Icons.grid_view_rounded, l10n.navCatalog),
+      _NavItem(Icons.add_box_outlined, Icons.add_box_rounded, 'Qo\'shish'),
+      _NavItem(Icons.star_border_rounded, Icons.star_rounded, 'Keraklilar'),
+      _NavItem(Icons.person_outline_rounded, Icons.person_rounded, l10n.navProfile),
+    ];
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: widget.child,
       extendBody: false,
-      bottomNavigationBar: SafeArea(
-        child: AnimatedNotchBottomBar(
-          key: ValueKey(selectedColor.toARGB32()),
-          notchBottomBarController: _controller,
+      bottomNavigationBar: _PillBottomNav(
+        items: items,
+        currentIndex: widget.currentIndex,
+        barColor: barColor,
+        selectedColor: selectedColor,
+        unselectedColor: unselectedColor,
+        onTap: (i) => AppRouter._onItemTapped(context, i),
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  const _NavItem(this.iconOff, this.iconOn, this.label);
+  final IconData iconOff;
+  final IconData iconOn;
+  final String label;
+}
+
+class _PillBottomNav extends StatelessWidget {
+  const _PillBottomNav({
+    required this.items,
+    required this.currentIndex,
+    required this.barColor,
+    required this.selectedColor,
+    required this.unselectedColor,
+    required this.onTap,
+  });
+
+  final List<_NavItem> items;
+  final int currentIndex;
+  final Color barColor;
+  final Color selectedColor;
+  final Color unselectedColor;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        decoration: BoxDecoration(
           color: barColor,
-          showLabel: true,
-          notchColor: selectedColor,
-          removeMargins: true,
-          showBottomRadius: false,
-          showTopRadius: false,
-          bottomBarWidth: 500.0,
-          showShadow: true,
-          durationInMilliSeconds: 300,
-          elevation: 8,
-          kBottomRadius: 28.0,
-          kIconSize: 24.0,
-          itemLabelStyle: TextStyle(
-            color: unselectedColor,
-            fontSize: 10.0,
-            fontWeight: FontWeight.w500,
-          ),
-          bottomBarItems: [
-            BottomBarItem(
-              inActiveItem: Icon(Icons.home_outlined, color: unselectedColor),
-              activeItem: const Icon(Icons.home_filled, color: Colors.white),
-              itemLabel: l10n.navHome,
-            ),
-            BottomBarItem(
-              inActiveItem: Icon(Icons.menu, color: unselectedColor),
-              activeItem: const Icon(Icons.menu, color: Colors.white),
-              itemLabel: l10n.navCatalog,
-            ),
-            // Add Listing - markazda
-            BottomBarItem(
-              inActiveItem: Icon(
-                Icons.add_circle_outline,
-                color: unselectedColor,
-              ),
-              activeItem: const Icon(Icons.add, color: Colors.white),
-              itemLabel: 'Qo\'shish',
-            ),
-            BottomBarItem(
-              inActiveItem: Icon(Icons.star_border, color: unselectedColor),
-              activeItem: const Icon(Icons.star, color: Colors.white),
-              itemLabel: 'Keraklilar',
-            ),
-            BottomBarItem(
-              inActiveItem: Icon(Icons.person_outline, color: unselectedColor),
-              activeItem: const Icon(Icons.person, color: Colors.white),
-              itemLabel: l10n.navProfile,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, -2),
             ),
           ],
-          onTap: (index) {
-            AppRouter._onItemTapped(context, index);
-          },
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(items.length, (i) {
+            final isSelected = currentIndex == i;
+            return _PillNavTab(
+              item: items[i],
+              isSelected: isSelected,
+              selectedColor: selectedColor,
+              unselectedColor: unselectedColor,
+              onTap: () => onTap(i),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}
+
+class _PillNavTab extends StatelessWidget {
+  const _PillNavTab({
+    required this.item,
+    required this.isSelected,
+    required this.selectedColor,
+    required this.unselectedColor,
+    required this.onTap,
+  });
+
+  final _NavItem item;
+  final bool isSelected;
+  final Color selectedColor;
+  final Color unselectedColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.symmetric(
+            horizontal: isSelected ? 14 : 12,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? selectedColor.withValues(alpha: 0.14)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isSelected ? item.iconOn : item.iconOff,
+                color: isSelected ? selectedColor : unselectedColor,
+                size: 22,
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                child: isSelected
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: selectedColor,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
         ),
       ),
     );

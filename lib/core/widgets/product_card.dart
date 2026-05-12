@@ -172,7 +172,7 @@ class ProductCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       SizedBox(
-                        height: 38,
+                        height: 36,
                         child: AppText(
                           text: title,
                           maxLines: 2,
@@ -209,9 +209,7 @@ class ProductCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: context.watch<AppModeCubit>().state == AppMode.buying
-                                        ? AppColors.primary
-                                        : AppColors.primaryBuying,
+                                    color: context.watch<AppModeCubit>().state.primaryColor,
                                   ),
                             ),
                           ),

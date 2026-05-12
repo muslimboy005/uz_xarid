@@ -88,6 +88,28 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
     }
   }
 
+  Future<void> _zoomIn() async {
+    if (!_isMapReady.value) return;
+    await _mapController.moveCamera(
+      CameraUpdate.zoomIn(),
+      animation: const MapAnimation(
+        type: MapAnimationType.smooth,
+        duration: 0.3,
+      ),
+    );
+  }
+
+  Future<void> _zoomOut() async {
+    if (!_isMapReady.value) return;
+    await _mapController.moveCamera(
+      CameraUpdate.zoomOut(),
+      animation: const MapAnimation(
+        type: MapAnimationType.smooth,
+        duration: 0.3,
+      ),
+    );
+  }
+
   Future<void> _searchAddress(Point point) async {
     final sessionId = ++_searchSessionId;
     try {
@@ -213,6 +235,56 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
                     ),
                   ),
                   Container(width: 2, height: 20, color: AppColors.white),
+                ],
+              ),
+            ),
+          ),
+          // Zoom +/- controls
+          Positioned(
+            right: 16,
+            bottom: 220,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: textColor.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: _zoomIn,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Icon(Icons.add, color: textColor, size: 22),
+                    ),
+                  ),
+                  Container(
+                    width: 28,
+                    height: 1,
+                    color: textColor.withValues(alpha: 0.12),
+                  ),
+                  InkWell(
+                    onTap: _zoomOut,
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(12),
+                    ),
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Icon(Icons.remove, color: textColor, size: 22),
+                    ),
+                  ),
                 ],
               ),
             ),

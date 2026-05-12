@@ -213,9 +213,9 @@ class _CartItemTile extends StatelessWidget {
                   children: [
                     Text(
                       '${item.unitPrice} $itemCurrency',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.orange,
+                        color: context.watch<AppModeCubit>().state.primaryColor,
                         fontSize: 14,
                       ),
                     ),

@@ -9,6 +9,7 @@ import 'package:uz_xarid/core/localization/currency_holder.dart';
 import 'package:uz_xarid/core/network/auth_interseptor.dart';
 import 'package:uz_xarid/core/network/currency_interceptor.dart';
 import 'package:uz_xarid/core/network/language_interceptor.dart';
+import 'package:uz_xarid/core/network/payload_interceptor.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import '../constants/api_urls.dart';
 import 'main_model.dart';
@@ -29,6 +30,8 @@ class DioClient {
       ),
     );
 
+    // Payload — har so'rovga X-Nonce/X-IV/X-TS/X-MAC headerlarini qo'shadi
+    _dio.interceptors.add(PayloadInterceptor());
     // Til — vebda bo'lgani kabi har so'rovda Accept-Language yuboriladi
     _dio.interceptors.add(LanguageInterceptor(GetIt.I<AppLocaleHolder>()));
     // Valyuta — har so'rovda x-currency header bilan tanlangan Ccy yuboriladi

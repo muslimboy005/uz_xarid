@@ -827,7 +827,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           '${formatPrice(ad.finalPrice ?? ad.price)} $curr',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w800,
-            color: AppColors.orange,
+            color: _primaryColor,
           ),
         ),
       ],

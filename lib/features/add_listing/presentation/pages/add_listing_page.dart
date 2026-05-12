@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -148,6 +150,14 @@ class _AddListingPageState extends State<AddListingPage> {
   final Map<String, TextEditingController> _dynamicTextControllers = {};
   final Map<String, dynamic> _dynamicValues = {};
 
+  // ─── Avtomobil tech-data izlash (gross.uz / IIV YHXBB) ──────────
+  final TextEditingController _carPlateController = TextEditingController();
+  final TextEditingController _carTechSeriesController = TextEditingController();
+  final TextEditingController _carTechNumberController = TextEditingController();
+  bool _carTechSearching = false;
+  String? _carTechError;
+  Map<String, dynamic>? _carTechData;
+
   @override
   void initState() {
     super.initState();
@@ -190,6 +200,9 @@ class _AddListingPageState extends State<AddListingPage> {
     for (final c in _dynamicTextControllers.values) {
       c.dispose();
     }
+    _carPlateController.dispose();
+    _carTechSeriesController.dispose();
+    _carTechNumberController.dispose();
     super.dispose();
   }
 
@@ -1815,6 +1828,8 @@ class _AddListingPageState extends State<AddListingPage> {
     Color textSecondary,
     Color borderColor,
   ) {
+    final isCar = _listingType == _ListingType.car;
+
     if (_dynamicFieldsLoading) {
       return _cardWithHeader(
         cardColor: cardColor,
@@ -1823,26 +1838,53 @@ class _AddListingPageState extends State<AddListingPage> {
         subtitle: "Yuklanmoqda...",
         textColor: textColor,
         textSecondary: textSecondary,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isCar) ...[
+              _buildCarTechSearchSection(
+                textColor,
+                textSecondary,
+                borderColor,
+              ),
+              const SizedBox(height: 16),
+            ],
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+          ],
         ),
       );
     }
 
     final visible = _dynamicFields.where(_isDynamicFieldVisible).toList();
-    if (visible.isEmpty) return const SizedBox.shrink();
+    if (visible.isEmpty && !isCar) return const SizedBox.shrink();
 
     return _cardWithHeader(
       cardColor: cardColor,
       borderColor: borderColor,
       title: "Qo'shimcha ma'lumotlar",
-      subtitle: "Ushbu ma'lumotlarni to'ldiring",
+      subtitle: isCar
+          ? "Tex passport orqali avtomatik to'ldiring yoki qo'lda kiriting"
+          : "Ushbu ma'lumotlarni to'ldiring",
       textColor: textColor,
       textSecondary: textSecondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (isCar) ...[
+            _buildCarTechSearchSection(
+              textColor,
+              textSecondary,
+              borderColor,
+            ),
+            if (visible.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
+              const SizedBox(height: 20),
+            ],
+          ],
           for (var i = 0; i < visible.length; i++) ...[
             _buildDynamicField(
               visible[i],
@@ -1855,6 +1897,554 @@ class _AddListingPageState extends State<AddListingPage> {
         ],
       ),
     );
+  }
+
+  // ─── AVTOMOBIL TECH-DATA IZLASH ─────────────────────────────────
+
+  Widget _buildCarTechSearchSection(
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel('Avto raqami', true, textColor, textSecondary),
+        const SizedBox(height: 8),
+        _carTechInput(
+          controller: _carPlateController,
+          hint: '01A123BC',
+          borderColor: borderColor,
+          uppercase: true,
+          maxLength: 10,
+        ),
+        const SizedBox(height: 14),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _fieldLabel(
+                    'Tex passport seriyasi',
+                    true,
+                    textColor,
+                    textSecondary,
+                  ),
+                  const SizedBox(height: 8),
+                  _carTechInput(
+                    controller: _carTechSeriesController,
+                    hint: 'AAG',
+                    borderColor: borderColor,
+                    uppercase: true,
+                    maxLength: 5,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _fieldLabel(
+                    'Tex passport raqami',
+                    true,
+                    textColor,
+                    textSecondary,
+                  ),
+                  const SizedBox(height: 8),
+                  _carTechInput(
+                    controller: _carTechNumberController,
+                    hint: '5791098',
+                    borderColor: borderColor,
+                    isNumber: true,
+                    maxLength: 10,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          width: double.infinity,
+          child: ContainerW(
+            color: AppColors.primary,
+            radius: 12,
+            onTap: _carTechSearching ? () {} : _searchCarTechData,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Center(
+                child: _carTechSearching
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.search_rounded,
+                            color: AppColors.white,
+                            size: 20,
+                          ),
+                          SizedBox(width: 8),
+                          AppText(
+                            text: 'Qidirish',
+                            fontSize: 15,
+                            fontWeight: 600,
+                            color: AppColors.white,
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.blue50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: AppColors.blue500.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: AppColors.blue600,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText(
+                      text: "Rasmiy Ma'lumotlar Manbai",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: AppColors.blue600,
+                    ),
+                    const SizedBox(height: 2),
+                    AppText(
+                      text:
+                          "Avtomobil ma'lumotlari O'zbekiston Respublikasi IIV (YHXBB) dan rasmiy ravishda olinadi",
+                      fontSize: 12,
+                      fontWeight: 400,
+                      color: textSecondary,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_carTechError != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.red.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.red.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_outline_rounded,
+                  color: AppColors.red,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppText(
+                    text: _carTechError!,
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: AppColors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (_carTechData != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppText(
+                    text:
+                        "Ma'lumotlar topildi va dynamik maydonlarga kiritildi",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _carTechInput({
+    required TextEditingController controller,
+    required String hint,
+    required Color borderColor,
+    bool isNumber = false,
+    bool uppercase = false,
+    int? maxLength,
+  }) {
+    return SizedBox(
+      height: _kInputHeight,
+      child: TextField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        textCapitalization:
+            uppercase ? TextCapitalization.characters : TextCapitalization.none,
+        inputFormatters: [
+          if (isNumber) FilteringTextInputFormatter.digitsOnly,
+          if (uppercase) _UpperCaseTextFormatter(),
+          if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+        ],
+        style: TextStyle(
+          fontSize: 14,
+          color: context.textPrimary,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(fontSize: 14, color: context.textSecondary),
+          filled: true,
+          fillColor: context.surfaceContainer,
+          counterText: '',
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _searchCarTechData() async {
+    final plate = _carPlateController.text.trim().toUpperCase();
+    final series = _carTechSeriesController.text.trim().toUpperCase();
+    final number = _carTechNumberController.text.trim();
+
+    if (plate.isEmpty || series.isEmpty || number.isEmpty) {
+      setState(() {
+        _carTechError = "Avto raqami, seriya va raqamni to'liq kiriting";
+        _carTechData = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _carTechSearching = true;
+      _carTechError = null;
+    });
+
+    try {
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      final response = await dio.post(
+        'https://api-prod.gross.uz/api/v1/osago/check-tech-data',
+        data: {
+          'tech_data': {
+            'autonumber': plate,
+            'tech_pass_number': number,
+            'tech_pass_series': series,
+          },
+          'payload': {
+            'promo': '',
+            'autotype': 1,
+            'citizen': 1,
+            'number': 1,
+            'period': 1,
+            'region': 1,
+            'coeff': 1,
+          },
+        },
+      );
+
+      if (!mounted) return;
+
+      final body = response.data;
+      if (body is! Map) {
+        setState(() {
+          _carTechSearching = false;
+          _carTechError = "Server javobi noto'g'ri formatda";
+          _carTechData = null;
+        });
+        return;
+      }
+      final errorCode = body['error'];
+      if (errorCode != null && errorCode != 0) {
+        setState(() {
+          _carTechSearching = false;
+          _carTechError =
+              (body['message']?.toString().isNotEmpty == true)
+              ? body['message'].toString()
+              : "Ma'lumot topilmadi";
+          _carTechData = null;
+        });
+        return;
+      }
+      final data = body['data'];
+      if (data is! Map) {
+        setState(() {
+          _carTechSearching = false;
+          _carTechError = "Ma'lumot topilmadi";
+          _carTechData = null;
+        });
+        return;
+      }
+      final tech = data['techPassport'];
+      final techMap = tech is Map ? Map<String, dynamic>.from(tech) : null;
+      if (techMap == null) {
+        setState(() {
+          _carTechSearching = false;
+          _carTechError = "Tex passport ma'lumotlari topilmadi";
+          _carTechData = null;
+        });
+        return;
+      }
+
+      _applyTechDataToDynamicFields(techMap);
+
+      setState(() {
+        _carTechSearching = false;
+        _carTechError = null;
+        _carTechData = techMap;
+      });
+    } on DioException catch (e) {
+      if (!mounted) return;
+      final msg = e.response?.statusCode == 404
+          ? "Ma'lumot topilmadi"
+          : (e.message ?? "Tarmoq xatosi");
+      setState(() {
+        _carTechSearching = false;
+        _carTechError = msg;
+        _carTechData = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _carTechSearching = false;
+        _carTechError = "Kutilmagan xato: $e";
+        _carTechData = null;
+      });
+    }
+  }
+
+  // Tex passport javobidagi qiymatlarni dinamik maydonlarga moslash uchun
+  // har bir API kalitiga ehtimoliy field nomlari ro'yxati. Mos field topilsa,
+  // qiymat (text/number/range uchun controllerga, select uchun esa value yoki
+  // label bo'yicha mos optionga) yoziladi.
+  static const Map<String, List<String>> _techDataFieldAliases = {
+    'modelName': ['model', 'model_name', 'model_nomi'],
+    // Ko'p mahsulotlar uchun marka alohida emas — modelName ham marka,
+    // ham model maydoniga yozilishi mumkin (foydalanuvchi tasdiqlasa boshqa
+    // optionni tanlay oladi).
+    'marka': ['brand', 'marka', 'make', 'manufacturer'],
+    'issueYear': [
+      'year',
+      'issue_year',
+      'manufacture_year',
+      'release_year',
+      'production_year',
+      'ishlab_chiqarilgan_yil',
+      'yil',
+    ],
+    'vehicleColor': ['color', 'rangi', 'rang', 'cvet', 'colour'],
+    'horsePowers': [
+      'horse_power',
+      'horse_powers',
+      'engine_power',
+      'power',
+      'dvigatel_quvvati',
+      'quvvat',
+    ],
+    'bodyNumber': [
+      'body_number',
+      'vin',
+      'vin_number',
+      'vin_kod',
+      'kuzov_raqami',
+    ],
+    'engineNumber': [
+      'engine_number',
+      'dvigatel_raqami',
+      'motor_number',
+    ],
+    'govNumber': [
+      'gov_number',
+      'davlat_raqami',
+      'plate',
+      'plate_number',
+      'avto_raqami',
+    ],
+    'fullWeight': ['full_weight', 'gross_weight', 'umumiy_vazn'],
+    'emptyWeight': [
+      'empty_weight',
+      'curb_weight',
+      'tare_weight',
+      'bosh_vazn',
+    ],
+    'seats': ['seats', 'seat_count', 'orindiqlar', 'orindiqlar_soni'],
+    'fuelType': [
+      'fuel_type',
+      'fuel',
+      'yoqulgi_turi',
+      'yonilgi_turi',
+    ],
+  };
+
+  // Tex passportda qaytadigan fuelType id (string) -> oddiy nom.
+  static const Map<String, String> _fuelTypeIdToName = {
+    '1': 'BENZIN',
+    '2': 'DIZEL',
+    '3': 'GAZ',
+    '4': 'BENZIN',
+    '5': 'GIBRID',
+    '6': 'ELEKTR',
+  };
+
+  void _applyTechDataToDynamicFields(Map<String, dynamic> tech) {
+    final modelName = tech['modelName']?.toString();
+    final fields = _dynamicFields;
+    if (fields.isEmpty) return;
+
+    String norm(String s) =>
+        s.toLowerCase().replaceAll(RegExp(r'[\s_\-]+'), '');
+
+    bool isMatch(String fieldName, List<String> aliases) {
+      final n = norm(fieldName);
+      for (final a in aliases) {
+        if (n == norm(a)) return true;
+      }
+      for (final a in aliases) {
+        if (n.contains(norm(a))) return true;
+      }
+      return false;
+    }
+
+    void setForField(CategoryFieldEntity field, String rawValue) {
+      final type = field.type.toLowerCase();
+      final value = rawValue.trim();
+      if (value.isEmpty) return;
+      if (type == 'text' || type == 'number' || type == 'range') {
+        final c = _controllerForDynamicField(field.name);
+        c.text = value;
+        _dynamicValues[field.name] = value;
+        return;
+      }
+      if (type == 'select' || type == 'multiselect') {
+        final lowerVal = value.toLowerCase();
+        // Avval value bo'yicha aniq moslik, so'ng label bo'yicha aniq, so'ng
+        // qisman moslikni qidiramiz.
+        CategoryFieldOptionEntity? best;
+        for (final o in field.options) {
+          if (o.value.toLowerCase() == lowerVal ||
+              o.label.toLowerCase() == lowerVal) {
+            best = o;
+            break;
+          }
+        }
+        best ??= () {
+          for (final o in field.options) {
+            final v = o.value.toLowerCase();
+            final l = o.label.toLowerCase();
+            if (v.contains(lowerVal) ||
+                lowerVal.contains(v) ||
+                l.contains(lowerVal) ||
+                lowerVal.contains(l)) {
+              return o;
+            }
+          }
+          return null;
+        }();
+        if (best != null) {
+          if (type == 'multiselect') {
+            _dynamicValues[field.name] = [best.value];
+          } else {
+            _dynamicValues[field.name] = best.value;
+          }
+        }
+      }
+    }
+
+    for (final entry in _techDataFieldAliases.entries) {
+      final apiKey = entry.key;
+      final aliases = entry.value;
+      // marka uchun maxsus: modelName ham marka, ham model fieldlariga.
+      String? raw;
+      if (apiKey == 'marka') {
+        raw = modelName;
+      } else if (apiKey == 'fuelType') {
+        final fuelRaw = tech['fuelType']?.toString();
+        raw = fuelRaw == null
+            ? null
+            : (_fuelTypeIdToName[fuelRaw] ?? fuelRaw);
+      } else {
+        raw = tech[apiKey]?.toString();
+      }
+      if (raw == null || raw.isEmpty) continue;
+      for (final field in fields) {
+        if (isMatch(field.name, aliases) ||
+            isMatch(field.label, aliases)) {
+          setForField(field, raw);
+        }
+      }
+    }
   }
 
   Widget _buildDynamicField(
@@ -3938,6 +4528,19 @@ class _AddListingPageState extends State<AddListingPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class _UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

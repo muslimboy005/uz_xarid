@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:uz_xarid/app/app.dart';
 import 'package:uz_xarid/core/app_config.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
@@ -8,10 +9,10 @@ import 'package:uz_xarid/core/service/firebase_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   await Firebase.initializeApp();
   await FirebaseService.init();
   await setupDependencies();
   AppConfig.packageName = null; // Standalone mode
   runApp(const UzXaridApp());
-  
 }

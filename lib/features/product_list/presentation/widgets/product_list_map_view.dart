@@ -87,6 +87,7 @@ class _ProductListMapViewState extends State<ProductListMapView> {
     final center = ProductListMapView.kMapCenter;
     if (widget.items.isEmpty) return [];
     const maxPins = 48;
+    final pinColor = context.read<AppModeCubit>().state.primaryColor;
     return widget.items.take(maxPins).toList().asMap().entries.map((e) {
       final idx = e.key;
       final item = e.value;
@@ -94,7 +95,7 @@ class _ProductListMapViewState extends State<ProductListMapView> {
       return CircleMapObject(
         mapId: MapObjectId('pin_$idx'),
         circle: Circle(center: p, radius: 42),
-        fillColor: AppColors.primary,
+        fillColor: pinColor,
         strokeColor: Colors.white,
         strokeWidth: 2,
         consumeTapEvents: true,
@@ -501,7 +502,7 @@ class _ListingsBottomSheet extends StatelessWidget {
                                             : '$priceStr $currency',
                                         fontSize: 16,
                                         fontWeight: 700,
-                                        color: AppColors.orange,
+                                        color: primaryColor,
                                       ),
                                     ],
                                   ),

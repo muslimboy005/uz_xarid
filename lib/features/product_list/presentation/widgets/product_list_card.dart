@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
 import 'package:uz_xarid/core/theme/theme_colors.dart';
 import 'package:uz_xarid/core/utils/image_parser.dart';
 import 'package:uz_xarid/core/utils/price_formatter.dart';
@@ -62,7 +63,7 @@ class ProductListCard extends StatelessWidget {
                           '${formatPrice(item.finalPrice)} $currency',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.orange,
+                                color: context.watch<AppModeCubit>().state.primaryColor,
                               ),
                         ),
                       ],

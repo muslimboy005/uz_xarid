@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:uz_xarid/core/network/payload_interceptor.dart';
 import 'package:uz_xarid/core/service/local_service.dart';
 import 'package:uz_xarid/core/dp/infection.dart';
 import 'package:uz_xarid/core/service/auth_action_service.dart';
@@ -49,6 +50,10 @@ class AuthInterceptor extends Interceptor {
         receiveTimeout: const Duration(seconds: 30),
       ),
     );
+
+    // Refresh/retry Dio'lar ham har bir requestga yangi signed payload qo'shadi.
+    _refreshDio.interceptors.add(PayloadInterceptor());
+    _retryDio.interceptors.add(PayloadInterceptor());
   }
 
   bool _isPublic(String path) => _publicEndpoints.any((e) => path.contains(e));

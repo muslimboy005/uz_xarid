@@ -287,10 +287,9 @@ class _HomePageState extends State<HomePage> {
                                      margin: const EdgeInsets.symmetric(horizontal: 2.0),
                                      decoration: BoxDecoration(
                                        borderRadius: BorderRadius.circular(4),
-                                       color: (mode == AppMode.buying
-                                               ? AppColors.primary
-                                               : AppColors.primaryBuying)
-                                           .withValues(alpha: isSelected ? 1.0 : 0.3),
+                                       color: mode.primaryColor.withValues(
+                                         alpha: isSelected ? 1.0 : 0.3,
+                                       ),
                                      ),
                                    ),
                                  ),
