@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/color_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/color_entity.dart';
 
 part 'color_dto.g.dart';
 

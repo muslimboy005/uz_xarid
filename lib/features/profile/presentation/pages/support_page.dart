@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:uz_xarid/core/app_config.dart';
+import 'package:uzxarid/core/app_config.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_assets.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});

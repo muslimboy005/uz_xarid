@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/author/domain/repositories/author_repository.dart';
-import 'package:uz_xarid/features/author/presentation/bloc/author/author_event.dart';
-import 'package:uz_xarid/features/author/presentation/bloc/author/author_state.dart';
-import 'package:uz_xarid/features/author/domain/entities/author_entity.dart';
+import 'package:uzxarid/features/author/domain/repositories/author_repository.dart';
+import 'package:uzxarid/features/author/presentation/bloc/author/author_event.dart';
+import 'package:uzxarid/features/author/presentation/bloc/author/author_state.dart';
+import 'package:uzxarid/features/author/domain/entities/author_entity.dart';
 
 class AuthorBloc extends Bloc<AuthorEvent, AuthorState> {
   final AuthorRepository repository;

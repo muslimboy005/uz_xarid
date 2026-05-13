@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/localization/locale_cubit.dart';
-import 'package:uz_xarid/core/theme/theme_cubit.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/localization/locale_cubit.dart';
+import 'package:uzxarid/core/theme/theme_cubit.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

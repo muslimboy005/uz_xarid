@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
 
 /// A reusable breadcrumb row for profile section pages.
 /// Usage: ProfileBreadcrumb(labels: [...], onTaps: [...])

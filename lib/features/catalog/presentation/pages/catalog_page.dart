@@ -3,20 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
-import 'package:uz_xarid/features/catalog/presentation/bloc/catalog_bloc.dart';
-import 'package:uz_xarid/features/catalog/presentation/widgets/catalog_category_tile.dart';
-import 'package:uz_xarid/features/catalog/presentation/widgets/catalog_nav_bar.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:uzxarid/features/catalog/presentation/bloc/catalog_bloc.dart';
+import 'package:uzxarid/features/catalog/presentation/widgets/catalog_category_tile.dart';
+import 'package:uzxarid/features/catalog/presentation/widgets/catalog_nav_bar.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({

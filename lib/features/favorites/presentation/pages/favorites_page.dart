@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/product_card.dart';
-import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
-import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/product_card.dart';
+import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});

@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/product_detail/domain/repositories/product_detail_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/product_detail/domain/repositories/product_detail_repository.dart';
 
 class GetProductFeedbacks
     implements UseCase<dynamic, GetProductFeedbacksParams> {

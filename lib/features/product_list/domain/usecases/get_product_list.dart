@@ -1,8 +1,8 @@
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
-import 'package:uz_xarid/features/product_list/domain/repositories/product_list_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/features/product_list/domain/repositories/product_list_repository.dart';
 
 class GetProductList
     extends

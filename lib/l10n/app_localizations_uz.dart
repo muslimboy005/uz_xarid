@@ -311,7 +311,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get allProducts => 'Barcha tovarlar';
 
   @override
-  String get appName => 'Uz Xarid';
+  String get appName => 'uzxarid';
 
   @override
   String get appsTitle => 'Ilovalar';
@@ -631,7 +631,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get homeSubtitle => 'Mahsulotlarni qulay va tez toping';
 
   @override
-  String get homeTitle => 'Uz Xarid';
+  String get homeTitle => 'uzxarid';
 
   @override
   String get houseHint => 'Uy / Xonadon';

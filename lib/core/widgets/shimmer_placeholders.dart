@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/shimmer_box.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/shimmer_box.dart';
 
 /// Banner uchun shimmer (balandlik bilan).
 class ShimmerBanner extends StatelessWidget {

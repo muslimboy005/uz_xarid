@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/order/domain/repositories/order_repository.dart';
+import 'package:uzxarid/features/order/domain/repositories/order_repository.dart';
 import 'my_orders_event.dart';
 import 'my_orders_state.dart';
 

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'package:uz_xarid/core/localization/app_locale_holder.dart';
+import 'package:uzxarid/core/localization/app_locale_holder.dart';
 
 /// Har bir API so'roviga tanlangan ilova tilini Accept-Language sarlavhasida qo'shadi
 /// (vebda bo'lgani kabi mobil da ham backend tilga qarab javob qaytaradi).

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_state.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_state.dart';
 
-import 'package:uz_xarid/app/router/app_router.dart';
-import 'package:uz_xarid/core/app_config.dart';
-import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/localization/locale_cubit.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/app/router/app_router.dart';
+import 'package:uzxarid/core/app_config.dart';
+import 'package:uzxarid/core/constants/app_assets.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/localization/locale_cubit.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
   const UzXaridAppBar({
@@ -23,6 +23,8 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.isMenuOpen = false,
     this.actions,
     this.searchHint,
+    this.onClose,
+    this.showLanguageSelector = false,
   });
 
   /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
@@ -37,6 +39,13 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// Search input hint (berilmasa l10n.searchHint ishlatiladi).
   final String? searchHint;
+
+  /// Modal/menu rejimi: berilsa, apps/cart/menu o'rniga X close ko'rsatiladi va
+  /// til selektor avtomatik yoqiladi.
+  final VoidCallback? onClose;
+
+  /// Header da til selektorni ko'rsatish (default: yashirin).
+  final bool showLanguageSelector;
 
   static const double _height = 112;
 
@@ -62,6 +71,8 @@ class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
         onMenuTap: () => context.push('/support-menu'),
         isMenuOpen: isMenuOpen,
         actions: actions,
+        onClose: onClose,
+        showLanguageSelector: showLanguageSelector || onClose != null,
       ),
     );
   }
@@ -131,6 +142,8 @@ class _UzXaridAppBarContent extends StatelessWidget {
     this.onMenuTap,
     this.isMenuOpen = false,
     this.actions,
+    this.onClose,
+    this.showLanguageSelector = false,
   });
 
   final Locale locale;
@@ -141,6 +154,8 @@ class _UzXaridAppBarContent extends StatelessWidget {
   final VoidCallback? onMenuTap;
   final bool isMenuOpen;
   final List<Widget>? actions;
+  final VoidCallback? onClose;
+  final bool showLanguageSelector;
 
   static const double _height = 112;
 
@@ -269,70 +284,88 @@ class _UzXaridAppBarContent extends StatelessWidget {
                           height: 42,
                         ),
                         const Spacer(),
-                        // _LanguageSelector(currentLocale: locale),
-                        // const SizedBox(width: 12),
-                        _AppBarButton(
-                          onTap: onAppsIconTapped,
-                          icon: Icon(
-                            Icons.apps_outlined,
-                            color: onHeader,
-                            size: 22,
+                        if (showLanguageSelector) ...[
+                          _LanguageSelector(
+                            currentLocale: locale,
+                            iconColor: onHeader,
                           ),
-                          color: onHeader,
-                        ),
-                        const SizedBox(width: 8),
-                        BlocBuilder<CartBloc, CartState>(
-                          builder: (context, state) {
-                            final count = state.totalItems;
-                            return Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                _AppBarButton(
-                                  onTap: () => context.push('/cart'),
-                                  icon: Icon(
-                                    Icons.shopping_cart_outlined,
+                          const SizedBox(width: 8),
+                        ],
+                        if (onClose != null)
+                          _AppBarButton(
+                            onTap: onClose,
+                            icon: Icon(
+                              Icons.close,
+                              color: onHeader,
+                              size: 22,
+                            ),
+                            color: onHeader,
+                            alpha: 0.18,
+                          )
+                        else ...[
+                          _AppBarButton(
+                            onTap: onAppsIconTapped,
+                            icon: Icon(
+                              Icons.apps_outlined,
+                              color: onHeader,
+                              size: 22,
+                            ),
+                            color: onHeader,
+                          ),
+                          const SizedBox(width: 8),
+                          BlocBuilder<CartBloc, CartState>(
+                            builder: (context, state) {
+                              final count = state.totalItems;
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  _AppBarButton(
+                                    onTap: () => context.push('/cart'),
+                                    icon: Icon(
+                                      Icons.shopping_cart_outlined,
+                                      color: onHeader,
+                                      size: 22,
+                                    ),
                                     color: onHeader,
-                                    size: 22,
                                   ),
-                                  color: onHeader,
-                                ),
-                                if (count > 0)
-                                  Positioned(
-                                    right: -4,
-                                    top: -4,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 16,
-                                        minHeight: 16,
-                                      ),
-                                      child: Text(
-                                        '$count',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
+                                  if (count > 0)
+                                    Positioned(
+                                      right: -4,
+                                      top: -4,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.red,
+                                          shape: BoxShape.circle,
                                         ),
-                                        textAlign: TextAlign.center,
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Text(
+                                          '$count',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        if (actions != null) ...actions!,
-                        if (actions != null) const SizedBox(width: 8),
-                        _MenuButton(
-                          onTap: onMenuTap,
-                          isOpen: isMenuOpen,
-                          iconColor: onHeader,
-                        ),
+                                ],
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          if (actions != null) ...actions!,
+                          if (actions != null) const SizedBox(width: 8),
+                          _MenuButton(
+                            onTap: onMenuTap,
+                            isOpen: isMenuOpen,
+                            iconColor: onHeader,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -357,11 +390,14 @@ class _UzXaridAppBarContent extends StatelessWidget {
   }
 }
 
-// ignore: unused_element
 class _LanguageSelector extends StatelessWidget {
-  const _LanguageSelector({required this.currentLocale});
+  const _LanguageSelector({
+    required this.currentLocale,
+    this.iconColor = Colors.white,
+  });
 
   final Locale currentLocale;
+  final Color iconColor;
 
   String _flagAssetFor(String code) {
     switch (code) {
@@ -375,47 +411,63 @@ class _LanguageSelector extends StatelessWidget {
     }
   }
 
+  String _shortLabel(String code) {
+    switch (code) {
+      case 'ru':
+        return 'Ру';
+      case 'en':
+        return 'En';
+      case 'uz':
+      default:
+        return 'Uz';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final languageCode = currentLocale.languageCode;
-    final displayCode = languageCode.toUpperCase();
 
     return PopupMenuButton<Locale>(
       elevation: 4,
-      offset: const Offset(0, 32),
+      offset: const Offset(0, 44),
       onSelected: (locale) {
         context.read<LocaleCubit>().change(locale);
       },
       itemBuilder: (context) => [
-        _buildItem(context, const Locale('ru'), 'RU', 'assets/svg/flag_ru.svg'),
-        _buildItem(context, const Locale('uz'), 'UZ', 'assets/svg/flag_uz.svg'),
-        _buildItem(context, const Locale('en'), 'EN', 'assets/svg/flag_en.svg'),
+        _buildItem(context, const Locale('uz'), 'Uz', 'assets/svg/flag_uz.svg'),
+        _buildItem(context, const Locale('ru'), 'Ру', 'assets/svg/flag_ru.svg'),
+        _buildItem(context, const Locale('en'), 'En', 'assets/svg/flag_en.svg'),
       ],
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(32)),
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset(
-              _flagAssetFor(languageCode),
-              package: AppConfig.packageName,
-              width: 28,
-              height: 28,
+            ClipOval(
+              child: SvgPicture.asset(
+                _flagAssetFor(languageCode),
+                package: AppConfig.packageName,
+                width: 22,
+                height: 22,
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(width: 6),
             Text(
-              displayCode,
-              style: const TextStyle(
-                color: Colors.white,
+              _shortLabel(languageCode),
+              style: TextStyle(
+                color: iconColor,
                 fontWeight: FontWeight.w600,
-                fontSize: 18,
+                fontSize: 16,
               ),
             ),
-            const SizedBox(width: 10),
-            const Icon(
+            const SizedBox(width: 2),
+            Icon(
               Icons.keyboard_arrow_down,
-              color: Colors.white,
-              size: 24,
+              color: iconColor,
+              size: 20,
             ),
           ],
         ),

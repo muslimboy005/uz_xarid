@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:uz_xarid/features/author/data/models/author_dto.dart';
+import 'package:uzxarid/features/author/data/models/author_dto.dart';
 
 part 'author_api.g.dart';
 

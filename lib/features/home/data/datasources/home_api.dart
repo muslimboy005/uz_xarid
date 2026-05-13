@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/features/home/data/models/banner_dto.dart';
-import 'package:uz_xarid/features/home/data/models/category_dto.dart';
-import 'package:uz_xarid/features/home/data/models/recommendation_dto.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/features/home/data/models/banner_dto.dart';
+import 'package:uzxarid/features/home/data/models/category_dto.dart';
+import 'package:uzxarid/features/home/data/models/recommendation_dto.dart';
 
 part 'home_api.g.dart';
 

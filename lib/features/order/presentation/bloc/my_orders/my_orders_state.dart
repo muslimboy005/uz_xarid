@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/order/data/models/order_response_dto.dart';
+import 'package:uzxarid/features/order/data/models/order_response_dto.dart';
 
 enum MyOrdersStatus { initial, loading, success, failure }
 

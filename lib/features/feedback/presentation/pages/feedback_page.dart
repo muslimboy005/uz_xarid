@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/feedback/data/feedback_repository.dart';
-import 'package:uz_xarid/features/feedback/data/models/feedback_reason.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/feedback/data/feedback_repository.dart';
+import 'package:uzxarid/features/feedback/data/models/feedback_reason.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key, required this.repository});

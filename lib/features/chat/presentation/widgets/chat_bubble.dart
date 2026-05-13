@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:uz_xarid/features/chat/domain/entities/message_entity.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/features/chat/domain/entities/message_entity.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
 
 class ChatBubble extends StatelessWidget {
   final MessageEntity message;

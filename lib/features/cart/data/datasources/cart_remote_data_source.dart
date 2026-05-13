@@ -1,5 +1,5 @@
-import 'package:uz_xarid/features/cart/data/datasources/cart_api.dart';
-import 'package:uz_xarid/features/cart/data/models/cart_item_model.dart';
+import 'package:uzxarid/features/cart/data/datasources/cart_api.dart';
+import 'package:uzxarid/features/cart/data/models/cart_item_model.dart';
 
 abstract class CartRemoteDataSource {
   Future<CartResponseModel> getCart({int? page, int? pageSize});

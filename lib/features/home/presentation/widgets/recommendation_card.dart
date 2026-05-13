@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/core/widgets/product_card.dart';
-import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
-import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
-import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uzxarid/core/widgets/product_card.dart';
+import 'package:uzxarid/features/home/domain/entities/home_entity.dart';
+import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 
 /// Bitta tavsiya mahsulot karti — ichida umumiy [ProductCard] ishlatiladi.
 class RecommendationCard extends StatelessWidget {

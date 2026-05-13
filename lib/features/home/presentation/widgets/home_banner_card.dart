@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/features/home/domain/entities/home_entity.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class HomeBannerCard extends StatelessWidget {
   const HomeBannerCard({super.key, required this.banner});

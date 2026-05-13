@@ -1,4 +1,4 @@
-import 'package:uz_xarid/core/error/failures.dart';
+import 'package:uzxarid/core/error/failures.dart';
 
 /// Base class for all use cases in Clean Architecture (DDD style).
 ///

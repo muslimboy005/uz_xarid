@@ -2,11 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uz_xarid/core/constants/app_keys.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/localization/currency_holder.dart';
+import 'package:uzxarid/core/constants/app_keys.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/localization/currency_holder.dart';
 
-import 'package:uz_xarid/features/currency/domain/currency.dart';
+import 'package:uzxarid/features/currency/domain/currency.dart';
 
 class CurrencyState extends Equatable {
   const CurrencyState({

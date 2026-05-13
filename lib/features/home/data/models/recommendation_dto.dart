@@ -1,5 +1,5 @@
-import 'package:uz_xarid/core/utils/image_parser.dart';
-import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/features/home/domain/entities/home_entity.dart';
 
 class RecommendationDto {
   final String slug;

@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
 import 'payment_event.dart';
 import 'payment_state.dart';
 

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
+import 'package:uzxarid/features/profile/data/model/chat/chat_model.dart';
 
 enum ChatStatus { initial, loading, success, failure }
 

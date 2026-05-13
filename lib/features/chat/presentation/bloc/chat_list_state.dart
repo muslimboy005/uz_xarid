@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/chat/domain/entities/chat_room_entity.dart';
+import 'package:uzxarid/features/chat/domain/entities/chat_room_entity.dart';
 
 enum ChatListStatus { initial, loading, success, failure }
 

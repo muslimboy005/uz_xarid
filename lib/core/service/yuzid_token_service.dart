@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/config/yuzid_config.dart';
+import 'package:uzxarid/core/config/yuzid_config.dart';
 
 /// `POST /auth/get-token` — Basic Auth (login:parol).
 class YuzIdTokenService {

@@ -1,21 +1,21 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/utils/input_formatters.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/core/widgets/w_text_form.dart';
+import 'package:uzxarid/core/constants/app_assets.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/input_formatters.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/core/widgets/w_text_form.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
+import 'package:uzxarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uzxarid/features/profile/domain/entity/business_entity.dart';
 
 class MyBusinessPage extends StatefulWidget {
   const MyBusinessPage({super.key});

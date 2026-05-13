@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
 
 /// Umumiy shimmer wrapper: [child] ga shimmer effektini qo‘llaydi.
 /// Ranglarni avtomatik tema (dark/light) bo'yicha tanlaydi —

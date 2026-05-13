@@ -1,12 +1,12 @@
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/product_detail/data/datasources/product_detail_api.dart';
-import 'package:uz_xarid/features/product_detail/data/models/ad_detail_dto.dart';
-import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
-import 'package:uz_xarid/features/product_detail/domain/repositories/product_detail_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/product_detail/data/datasources/product_detail_api.dart';
+import 'package:uzxarid/features/product_detail/data/models/ad_detail_dto.dart';
+import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uzxarid/features/product_detail/domain/repositories/product_detail_repository.dart';
 
 class ProductDetailRepositoryImpl implements ProductDetailRepository {
   ProductDetailRepositoryImpl({required this.api});

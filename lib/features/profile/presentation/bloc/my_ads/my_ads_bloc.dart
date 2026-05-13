@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
-import 'package:uz_xarid/features/profile/domain/usecases/delete_my_ad.dart';
-import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
+import 'package:uzxarid/features/profile/data/models/my_listing_item_dto.dart';
+import 'package:uzxarid/features/profile/domain/usecases/delete_my_ad.dart';
+import 'package:uzxarid/features/profile/domain/usecases/get_my_listings.dart';
 
 part 'my_ads_event.dart';
 part 'my_ads_state.dart';

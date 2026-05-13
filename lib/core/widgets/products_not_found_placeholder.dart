@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 /// Mahsulotlar topilmasa ko‘rsatiladigan blok: ko‘k kvadrat + kub ikonkasi, sarlavha va izoh.
 class ProductsNotFoundPlaceholder extends StatelessWidget {

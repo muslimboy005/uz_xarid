@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'package:uz_xarid/core/localization/currency_holder.dart';
+import 'package:uzxarid/core/localization/currency_holder.dart';
 
 /// Har bir API so'roviga tanlangan valyuta Ccy kodini x-currency sarlavhasida qo'shadi.
 class CurrencyInterceptor extends Interceptor {

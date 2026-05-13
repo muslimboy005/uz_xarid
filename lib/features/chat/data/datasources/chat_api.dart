@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/features/chat/data/models/chat_response_dto.dart';
-import 'package:uz_xarid/features/chat/data/models/chat_room_pagination_dto.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/features/chat/data/models/chat_response_dto.dart';
+import 'package:uzxarid/features/chat/data/models/chat_room_pagination_dto.dart';
 
 part 'chat_api.g.dart';
 

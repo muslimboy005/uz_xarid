@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/app/router/app_router.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/phone_bottom_sheet.dart';
-import 'package:uz_xarid/features/profile/presentation/widgets/bottom_sheets/otp_bottom_sheet.dart';
+import 'package:uzxarid/app/router/app_router.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uzxarid/features/profile/presentation/widgets/bottom_sheets/phone_bottom_sheet.dart';
+import 'package:uzxarid/features/profile/presentation/widgets/bottom_sheets/otp_bottom_sheet.dart';
 
 class AuthActionService {
   bool _isShowingLogin = false;

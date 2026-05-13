@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/service/local_service.dart';
-import 'package:uz_xarid/features/favorites/data/datasources/favorites_api.dart';
-import 'package:uz_xarid/features/favorites/data/datasources/favorites_local_datasource.dart';
-import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
-import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/service/local_service.dart';
+import 'package:uzxarid/features/favorites/data/datasources/favorites_api.dart';
+import 'package:uzxarid/features/favorites/data/datasources/favorites_local_datasource.dart';
+import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uzxarid/features/favorites/domain/repositories/favorites_repository.dart';
 
 class FavoritesRepositoryImpl implements FavoritesRepository {
   FavoritesRepositoryImpl({

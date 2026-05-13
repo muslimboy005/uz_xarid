@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:uz_xarid/features/product_detail/data/models/ad_detail_dto.dart';
+import 'package:uzxarid/features/product_detail/data/models/ad_detail_dto.dart';
 
 part 'author_dto.g.dart';
 

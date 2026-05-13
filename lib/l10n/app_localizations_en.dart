@@ -309,7 +309,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allProducts => 'All products';
 
   @override
-  String get appName => 'Uz Xarid';
+  String get appName => 'uzxarid';
 
   @override
   String get appsTitle => 'Apps';
@@ -628,7 +628,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSubtitle => 'Find products quickly and easily';
 
   @override
-  String get homeTitle => 'Uz Xarid';
+  String get homeTitle => 'uzxarid';
 
   @override
   String get houseHint => 'House / Apartment';

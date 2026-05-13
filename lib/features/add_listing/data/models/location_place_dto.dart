@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/location_place_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/location_place_entity.dart';
 
 part 'location_place_dto.g.dart';
 

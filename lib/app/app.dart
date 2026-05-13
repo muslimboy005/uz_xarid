@@ -4,17 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:uz_xarid/app/router/app_router.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/localization/locale_cubit.dart';
-import 'package:uz_xarid/core/theme/app_theme.dart';
-import 'package:uz_xarid/core/theme/theme_cubit.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_event.dart';
-import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
-import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/app/router/app_router.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/localization/locale_cubit.dart';
+import 'package:uzxarid/core/theme/app_theme.dart';
+import 'package:uzxarid/core/theme/theme_cubit.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
+import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
+import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class UzXaridApp extends StatelessWidget {
   const UzXaridApp({super.key});

@@ -2,17 +2,17 @@ import 'dart:developer' as developer;
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/color_entity.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/size_entity.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/get_colors.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_params.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/create_ad.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/update_ad.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/usecases/get_categories.dart';
-import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
-import 'package:uz_xarid/features/product_detail/domain/usecases/get_ad_detail.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/color_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/size_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/get_colors.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/get_sizes.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/create_ad_params.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/create_ad.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/update_ad.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/catalog/domain/usecases/get_categories.dart';
+import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uzxarid/features/product_detail/domain/usecases/get_ad_detail.dart';
 
 part 'add_listing_event.dart';
 part 'add_listing_state.dart';

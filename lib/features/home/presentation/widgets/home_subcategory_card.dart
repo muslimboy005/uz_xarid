@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/features/home/domain/entities/home_entity.dart';
 
 class HomeSubCategoryCard extends StatelessWidget {
   const HomeSubCategoryCard({super.key, required this.category});

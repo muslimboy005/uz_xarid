@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/features/chat/presentation/bloc/ad_chat_bloc.dart';
-import 'package:uz_xarid/features/chat/presentation/widgets/chat_bubble.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/features/chat/presentation/bloc/ad_chat_bloc.dart';
+import 'package:uzxarid/features/chat/presentation/widgets/chat_bubble.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final String adSlug;

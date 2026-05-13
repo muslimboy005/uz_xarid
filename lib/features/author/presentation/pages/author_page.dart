@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/core/widgets/product_card.dart';
-import 'package:uz_xarid/core/widgets/shimmer_placeholders.dart';
-import 'package:uz_xarid/features/author/domain/entities/author_entity.dart';
-import 'package:uz_xarid/features/author/presentation/bloc/author/author_bloc.dart';
-import 'package:uz_xarid/features/author/presentation/bloc/author/author_event.dart';
-import 'package:uz_xarid/features/author/presentation/bloc/author/author_state.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/widgets/product_card.dart';
+import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
+import 'package:uzxarid/features/author/domain/entities/author_entity.dart';
+import 'package:uzxarid/features/author/presentation/bloc/author/author_bloc.dart';
+import 'package:uzxarid/features/author/presentation/bloc/author/author_event.dart';
+import 'package:uzxarid/features/author/presentation/bloc/author/author_state.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class AuthorPage extends StatefulWidget {
   final int userId;

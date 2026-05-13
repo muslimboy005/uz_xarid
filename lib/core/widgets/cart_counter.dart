@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_bloc.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_event.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_state.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_state.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class CartCounter extends StatelessWidget {
   final String adSlug;

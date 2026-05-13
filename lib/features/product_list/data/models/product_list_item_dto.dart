@@ -1,5 +1,5 @@
-import 'package:uz_xarid/core/utils/image_parser.dart';
-import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 /// Mahsulot ro'yxati elementining DTO si (tavsiyalar yoki turkum API javobidan).
 class ProductListItemDto {

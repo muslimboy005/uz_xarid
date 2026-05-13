@@ -3,20 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:uz_xarid/core/app_config.dart';
-import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
-import 'package:uz_xarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uzxarid/core/app_config.dart';
+import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/product_card.dart';
-import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
-import 'package:uz_xarid/features/product_list/domain/usecases/get_product_list.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/product_card.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/features/product_list/domain/usecases/get_product_list.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 /// Qidiruv ekrani: har harfda qidiruv natijalari, pastda "Sizga tavsiya qilamiz".
 class SearchPage extends StatefulWidget {

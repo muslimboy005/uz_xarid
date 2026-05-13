@@ -1,7 +1,7 @@
-name: uz_xarid
+name: uzxarid
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.3+4
+version: 0.1.4+6
 
 environment:
   sdk: ^3.10.7

@@ -7,13 +7,13 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uz_xarid/core/config/yuzid_config.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/dio/dio_client.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/service/yuzid_token_service.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/config/yuzid_config.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/dio/dio_client.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/service/yuzid_token_service.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:yuz_id/yuz_id.dart';
 
 class UpperCaseTextFormatter extends TextInputFormatter {

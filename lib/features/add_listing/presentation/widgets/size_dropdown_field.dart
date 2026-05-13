@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/size_entity.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/size_entity.dart';
 
 /// O'lchamni tanlash dropdown – o'lchamlar ro'yxati va tanlangan id bilan.
 class SizeDropdownField extends StatelessWidget {

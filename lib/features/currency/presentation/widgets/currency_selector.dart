@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/features/currency/domain/currency.dart';
-import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/features/currency/domain/currency.dart';
+import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
 
 class CurrencySelectorSection extends StatelessWidget {
   const CurrencySelectorSection({super.key});

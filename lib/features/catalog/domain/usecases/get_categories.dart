@@ -1,8 +1,8 @@
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/catalog/domain/repositories/catalog_repository.dart';
 
 class GetCategories
     extends

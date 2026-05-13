@@ -1,35 +1,35 @@
 import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
-import 'package:uz_xarid/features/add_listing/domain/repositories/listing_repository.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/get_colors.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/create_ad.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/get_sizes.dart';
-import 'package:uz_xarid/features/add_listing/domain/usecases/update_ad.dart';
-import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
-import 'package:uz_xarid/features/catalog/domain/usecases/get_ads_by_category.dart';
-import 'package:uz_xarid/features/catalog/domain/usecases/get_categories.dart';
-import 'package:uz_xarid/features/product_detail/domain/repositories/product_detail_repository.dart';
-import 'package:uz_xarid/features/product_detail/domain/usecases/get_ad_detail.dart';
-import 'package:uz_xarid/features/product_list/domain/repositories/product_list_repository.dart';
-import 'package:uz_xarid/features/product_list/domain/usecases/get_product_list.dart';
-import 'package:uz_xarid/features/product_detail/domain/usecases/get_product_feedbacks.dart';
-import 'package:uz_xarid/features/product_detail/domain/usecases/leave_product_feedback.dart';
-import 'package:uz_xarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/my_listings_repository.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
-import 'package:uz_xarid/features/profile/domain/usecases/delete_my_ad.dart';
-import 'package:uz_xarid/features/profile/domain/usecases/get_my_listings.dart';
-import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
-import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
-import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
-import 'package:uz_xarid/features/favorites/domain/usecases/toggle_favorite.dart';
+import 'package:uzxarid/features/add_listing/domain/repositories/listing_repository.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/get_colors.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/create_ad.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/get_sizes.dart';
+import 'package:uzxarid/features/add_listing/domain/usecases/update_ad.dart';
+import 'package:uzxarid/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:uzxarid/features/catalog/domain/usecases/get_ads_by_category.dart';
+import 'package:uzxarid/features/catalog/domain/usecases/get_categories.dart';
+import 'package:uzxarid/features/product_detail/domain/repositories/product_detail_repository.dart';
+import 'package:uzxarid/features/product_detail/domain/usecases/get_ad_detail.dart';
+import 'package:uzxarid/features/product_list/domain/repositories/product_list_repository.dart';
+import 'package:uzxarid/features/product_list/domain/usecases/get_product_list.dart';
+import 'package:uzxarid/features/product_detail/domain/usecases/get_product_feedbacks.dart';
+import 'package:uzxarid/features/product_detail/domain/usecases/leave_product_feedback.dart';
+import 'package:uzxarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
+import 'package:uzxarid/features/profile/domain/repositories/my_listings_repository.dart';
+import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uzxarid/features/profile/domain/usecases/delete_my_ad.dart';
+import 'package:uzxarid/features/profile/domain/usecases/get_my_listings.dart';
+import 'package:uzxarid/features/profile/domain/usecase/profile_usecase.dart';
+import 'package:uzxarid/features/favorites/domain/repositories/favorites_repository.dart';
+import 'package:uzxarid/features/favorites/domain/usecases/get_favorites_list.dart';
+import 'package:uzxarid/features/favorites/domain/usecases/toggle_favorite.dart';
 
-import 'package:uz_xarid/features/cart/domain/repositories/cart_repository.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/add_to_cart.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/cart_operations.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/get_cart.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/update_cart_quantity.dart';
+import 'package:uzxarid/features/cart/domain/repositories/cart_repository.dart';
+import 'package:uzxarid/features/cart/domain/usecases/add_to_cart.dart';
+import 'package:uzxarid/features/cart/domain/usecases/cart_operations.dart';
+import 'package:uzxarid/features/cart/domain/usecases/get_cart.dart';
+import 'package:uzxarid/features/cart/domain/usecases/update_cart_quantity.dart';
 
 Future<void> registerUseCases(GetIt getIt) async {
   getIt

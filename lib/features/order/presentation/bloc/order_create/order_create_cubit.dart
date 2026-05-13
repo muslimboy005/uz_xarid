@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/order/data/models/order_create_dto.dart';
-import 'package:uz_xarid/features/order/domain/repositories/order_repository.dart';
+import 'package:uzxarid/features/order/data/models/order_create_dto.dart';
+import 'package:uzxarid/features/order/domain/repositories/order_repository.dart';
 
 import 'order_create_state.dart';
 

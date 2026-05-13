@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:uz_xarid/core/constants/app_keys.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/localization/app_locale_holder.dart';
+import 'package:uzxarid/core/constants/app_keys.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/localization/app_locale_holder.dart';
 
 /// Manages current locale with persistence.
 /// API so'rovlarida Accept-Language uchun [AppLocaleHolder] ni ham yangilaydi.

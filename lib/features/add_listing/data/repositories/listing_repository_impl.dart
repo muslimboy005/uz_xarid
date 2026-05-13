@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/add_listing/data/datasources/listing_api.dart';
-import 'package:uz_xarid/features/add_listing/data/models/location_place_dto.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/category_field_entity.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/color_entity.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_params.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/create_ad_result.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/location_place_entity.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/size_entity.dart';
-import 'package:uz_xarid/features/add_listing/domain/repositories/listing_repository.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/add_listing/data/datasources/listing_api.dart';
+import 'package:uzxarid/features/add_listing/data/models/location_place_dto.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/category_field_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/color_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/create_ad_params.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/create_ad_result.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/location_place_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/size_entity.dart';
+import 'package:uzxarid/features/add_listing/domain/repositories/listing_repository.dart';
 
 class ListingRepositoryImpl implements ListingRepository {
   ListingRepositoryImpl({required this.api, required this.dio});

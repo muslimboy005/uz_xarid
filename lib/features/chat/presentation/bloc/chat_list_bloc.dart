@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/chat/domain/repositories/chat_repository.dart';
+import 'package:uzxarid/features/chat/domain/repositories/chat_repository.dart';
 import 'chat_list_event.dart';
 import 'chat_list_state.dart';
 

@@ -2,15 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/utils/image_parser.dart';
-import 'package:uz_xarid/core/utils/price_formatter.dart';
-import 'package:uz_xarid/core/widgets/cart_counter.dart';
-import 'package:uz_xarid/features/currency/domain/currency.dart';
-import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
-import 'package:uz_xarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/utils/price_formatter.dart';
+import 'package:uzxarid/core/widgets/cart_counter.dart';
+import 'package:uzxarid/features/currency/domain/currency.dart';
+import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
 
 class ProductListCard extends StatelessWidget {
   const ProductListCard({super.key, required this.item});

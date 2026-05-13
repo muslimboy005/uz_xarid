@@ -1,5 +1,5 @@
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/cart/domain/repositories/cart_repository.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/cart/domain/repositories/cart_repository.dart';
 
 class RemoveFromCartItemUseCase extends UseCase<void, int> {
   final CartRepository repository;

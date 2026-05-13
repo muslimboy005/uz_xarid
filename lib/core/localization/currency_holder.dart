@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:uz_xarid/core/constants/app_keys.dart';
+import 'package:uzxarid/core/constants/app_keys.dart';
 
 /// Joriy tanlangan valyuta Ccy — har bir API so'rovida x-currency header uchun.
 /// CurrencyCubit load/select da yangilaydi; Dio interceptor har so'rovda o'qiydi.

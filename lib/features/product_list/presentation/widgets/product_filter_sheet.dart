@@ -2,13 +2,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/dio/dio_client.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/features/add_listing/domain/entities/category_field_entity.dart';
-import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/core/dio/dio_client.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/features/add_listing/domain/entities/category_field_entity.dart';
+import 'package:uzxarid/features/product_list/domain/entities/subcategory_item.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 /// Narx maydonlari: minglik bo'shliq bilan (masalan 10 000 000).

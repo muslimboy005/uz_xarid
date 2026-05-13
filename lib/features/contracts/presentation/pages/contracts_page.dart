@@ -6,14 +6,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/dio/dio_client.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
+import 'package:uzxarid/core/dio/dio_client.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
 
 class ContractsPage extends StatefulWidget {
   const ContractsPage({super.key});
@@ -97,7 +97,7 @@ class _ContractsPageState extends State<ContractsPage> {
   Directory _contractsDir() {
     // Offline bo‘lishi uchun app ichidagi vaqtinchalik katalogga saqlaymiz.
     // (systemTemp ba'zan OS tomonidan tozalanishi mumkin, ammo real caching uchun ishlaydi.)
-    return Directory('${Directory.systemTemp.path}/uz_xarid_contracts');
+    return Directory('${Directory.systemTemp.path}/uzxarid_contracts');
   }
 
   File _cachedPdfFile(int documentId) {

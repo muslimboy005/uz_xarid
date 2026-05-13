@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/order/data/datasources/order_api.dart';
-import 'package:uz_xarid/features/order/data/models/order_create_dto.dart';
-import 'package:uz_xarid/features/order/data/models/order_response_dto.dart';
-import 'package:uz_xarid/features/order/domain/repositories/order_repository.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/order/data/datasources/order_api.dart';
+import 'package:uzxarid/features/order/data/models/order_create_dto.dart';
+import 'package:uzxarid/features/order/data/models/order_response_dto.dart';
+import 'package:uzxarid/features/order/domain/repositories/order_repository.dart';
 
 class OrderRepositoryImpl implements OrderRepository {
   final OrderApi api;

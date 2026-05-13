@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import 'package:uz_xarid/core/app_config.dart';
+import 'package:uzxarid/core/app_config.dart';
 
 class PayloadHelper {
   final String masterSecret;

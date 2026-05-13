@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/profile/data/model/address_model.dart';
-import 'package:uz_xarid/features/profile/domain/entity/page.dart';
-import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
+import 'package:uzxarid/features/profile/data/model/address_model.dart';
+import 'package:uzxarid/features/profile/domain/entity/page.dart';
+import 'package:uzxarid/features/profile/domain/usecase/profile_usecase.dart';
 
 import 'address_event.dart';
 part 'address_state.dart';

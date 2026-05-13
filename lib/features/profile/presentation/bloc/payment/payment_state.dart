@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
-import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uzxarid/features/profile/data/model/plan_model.dart';
+import 'package:uzxarid/features/profile/data/model/plan_history_model.dart';
 
 enum PaymentStatus { initial, loading, success, failure }
 

@@ -679,7 +679,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'Uz Xarid'**
+  /// **'uzxarid'**
   String get appName;
 
   /// No description provided for @appsTitle.
@@ -1303,7 +1303,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Uz Xarid'**
+  /// **'uzxarid'**
   String get homeTitle;
 
   /// No description provided for @houseHint.

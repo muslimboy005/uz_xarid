@@ -1,6 +1,6 @@
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/cart/domain/entities/cart_item_entity.dart';
-import 'package:uz_xarid/features/cart/domain/repositories/cart_repository.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:uzxarid/features/cart/domain/repositories/cart_repository.dart';
 
 class GetCartItemsUseCase extends UseCase<CartEntity, GetCartParams> {
   final CartRepository repository;

@@ -1,8 +1,8 @@
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
-import 'package:uz_xarid/features/product_list/domain/entities/subcategory_item.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:uzxarid/features/product_list/domain/entities/subcategory_item.dart';
 
 /// [categoryId] berilganda: `GET /api/v2/category/{id}/children/?page_size=…` orqali podturkumlar.
 /// [categoryId] null bo‘lsa: ildiz turkumlar (v1 daraxt).

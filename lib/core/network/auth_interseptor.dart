@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/network/payload_interceptor.dart';
-import 'package:uz_xarid/core/service/local_service.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/service/auth_action_service.dart';
+import 'package:uzxarid/core/network/payload_interceptor.dart';
+import 'package:uzxarid/core/service/local_service.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/service/auth_action_service.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorageService secureStorageService;

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/features/cart/data/models/cart_item_model.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/features/cart/data/models/cart_item_model.dart';
 
 part 'cart_api.g.dart';
 

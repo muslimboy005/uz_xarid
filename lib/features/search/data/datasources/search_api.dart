@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/features/catalog/data/models/catalog_ad_item_dto.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/features/catalog/data/models/catalog_ad_item_dto.dart';
 
 /// Qidiruv API: GET ads/search/?search=...&page_size=...
 class SearchApi {

@@ -1,8 +1,8 @@
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
-import 'package:uz_xarid/features/product_detail/domain/repositories/product_detail_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uzxarid/features/product_detail/domain/repositories/product_detail_repository.dart';
 
 class GetAdDetail
     extends UseCase<Either<Failure, AdDetailEntity>, GetAdDetailParams> {

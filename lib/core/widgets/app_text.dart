@@ -1,7 +1,7 @@
 // import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:uz_xarid/core/theme/app_fonts.dart';
+import 'package:uzxarid/core/theme/app_fonts.dart';
 
 class AppText extends StatelessWidget {
   const AppText({

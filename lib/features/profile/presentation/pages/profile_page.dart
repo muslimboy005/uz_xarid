@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:uz_xarid/features/profile/presentation/widgets/authorized_profile_content.dart';
-import 'package:uz_xarid/features/profile/presentation/widgets/unauth_profile_content.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:uzxarid/features/profile/presentation/widgets/authorized_profile_content.dart';
+import 'package:uzxarid/features/profile/presentation/widgets/unauth_profile_content.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

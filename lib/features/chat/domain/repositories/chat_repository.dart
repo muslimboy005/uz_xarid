@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/chat/domain/entities/message_entity.dart';
-import 'package:uz_xarid/features/chat/domain/entities/chat_room_entity.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/chat/domain/entities/message_entity.dart';
+import 'package:uzxarid/features/chat/domain/entities/chat_room_entity.dart';
 
 abstract class ChatRepository {
   Future<Either<Failure, List<ChatRoomEntity>>> getRooms({int? page});

@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
-import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
-import 'package:uz_xarid/features/home/domain/repositories/home_repository.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/home/data/datasources/home_api.dart';
+import 'package:uzxarid/features/home/domain/entities/home_entity.dart';
+import 'package:uzxarid/features/home/domain/repositories/home_repository.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   HomeRepositoryImpl({required this.homeApi});

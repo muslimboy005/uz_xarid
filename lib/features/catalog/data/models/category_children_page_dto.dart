@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
 
 part 'category_children_page_dto.g.dart';
 

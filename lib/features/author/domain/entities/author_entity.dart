@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 
 class AuthorEntity extends Equatable {
   const AuthorEntity({

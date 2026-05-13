@@ -1,4 +1,4 @@
-import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
 
 class ProfileModel {
   final bool status;

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/constants/app_dimens.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/w_text_form.dart';
+import 'package:uzxarid/core/constants/app_assets.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/w_text_form.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/address/address_bloc.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/address/address_event.dart';
-import 'package:uz_xarid/features/profile/data/model/address_model.dart';
+import 'package:uzxarid/features/profile/presentation/bloc/address/address_bloc.dart';
+import 'package:uzxarid/features/profile/presentation/bloc/address/address_event.dart';
+import 'package:uzxarid/features/profile/data/model/address_model.dart';
 import 'package:latlong2/latlong.dart';
 
 class AddAddressPage extends StatefulWidget {

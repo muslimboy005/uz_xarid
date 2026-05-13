@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/product_detail/domain/usecases/get_product_feedbacks.dart';
-import 'package:uz_xarid/features/product_detail/domain/usecases/leave_product_feedback.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/product_detail/domain/usecases/get_product_feedbacks.dart';
+import 'package:uzxarid/features/product_detail/domain/usecases/leave_product_feedback.dart';
 
 import 'product_feedback_event.dart';
 import 'product_feedback_state.dart';

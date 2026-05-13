@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/usecases/get_categories.dart';
-import 'package:uz_xarid/features/feedback/data/models/feedback_reason.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/catalog/domain/usecases/get_categories.dart';
+import 'package:uzxarid/features/feedback/data/models/feedback_reason.dart';
 
 class FeedbackSubmitParams {
   const FeedbackSubmitParams({

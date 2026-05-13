@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:uzxarid/features/cart/domain/entities/cart_item_entity.dart';
 
 enum CartStatus { initial, loading, success, failure }
 

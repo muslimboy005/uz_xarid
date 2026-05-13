@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failure.dart';
-import 'package:uz_xarid/features/profile/data/datasource/profile_datasource.dart';
-import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
-import 'package:uz_xarid/features/profile/data/model/address_model.dart';
-import 'package:uz_xarid/features/profile/data/repositories/profile_repository_impl.dart';
-import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
-import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
-import 'package:uz_xarid/features/profile/data/model/plan_model.dart';
-import 'package:uz_xarid/features/profile/data/model/plan_history_model.dart';
-import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failure.dart';
+import 'package:uzxarid/features/profile/data/datasource/profile_datasource.dart';
+import 'package:uzxarid/features/profile/data/model/profile_model.dart';
+import 'package:uzxarid/features/profile/data/model/address_model.dart';
+import 'package:uzxarid/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:uzxarid/features/profile/domain/entity/business_entity.dart';
+import 'package:uzxarid/features/profile/domain/entity/full_name.dart';
+import 'package:uzxarid/features/profile/data/model/plan_model.dart';
+import 'package:uzxarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uzxarid/features/profile/data/model/chat/chat_model.dart';
 
 abstract class ProfileRepository {
   Future<Either<Failure, ProfileModel>> sendOtp(String phone);

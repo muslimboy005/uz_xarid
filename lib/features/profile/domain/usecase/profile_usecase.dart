@@ -1,13 +1,13 @@
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failure.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/profile/data/model/address_model.dart';
-import 'package:uz_xarid/features/profile/data/model/otp_model.dart';
-import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
-import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
-import 'package:uz_xarid/features/profile/domain/entity/page.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
-import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failure.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/profile/data/model/address_model.dart';
+import 'package:uzxarid/features/profile/data/model/otp_model.dart';
+import 'package:uzxarid/features/profile/data/model/profile_model.dart';
+import 'package:uzxarid/features/profile/domain/entity/full_name.dart';
+import 'package:uzxarid/features/profile/domain/entity/page.dart';
+import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uzxarid/features/profile/domain/entity/business_entity.dart';
 
 class ProfileSendOtpUsecase
     extends UseCase<Either<Failure, ProfileModel>, String> {

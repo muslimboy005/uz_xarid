@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/utils/image_parser.dart';
-import 'package:uz_xarid/features/chat/domain/entities/chat_room_entity.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/features/chat/domain/entities/chat_room_entity.dart';
 import 'package:intl/intl.dart';
 
 class ChatRoomListItem extends StatelessWidget {

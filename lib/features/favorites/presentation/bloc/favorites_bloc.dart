@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
-import 'package:uz_xarid/features/favorites/domain/repositories/favorites_repository.dart';
-import 'package:uz_xarid/features/favorites/domain/usecases/get_favorites_list.dart';
-import 'package:uz_xarid/features/favorites/domain/usecases/toggle_favorite.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uzxarid/features/favorites/domain/repositories/favorites_repository.dart';
+import 'package:uzxarid/features/favorites/domain/usecases/get_favorites_list.dart';
+import 'package:uzxarid/features/favorites/domain/usecases/toggle_favorite.dart';
 
 part 'favorites_event.dart';
 part 'favorites_state.dart';

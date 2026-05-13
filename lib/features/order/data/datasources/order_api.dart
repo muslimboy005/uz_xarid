@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/features/order/data/models/order_create_dto.dart';
-import 'package:uz_xarid/features/order/data/models/order_response_dto.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/features/order/data/models/order_create_dto.dart';
+import 'package:uzxarid/features/order/data/models/order_response_dto.dart';
 
 part 'order_api.g.dart';
 

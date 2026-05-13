@@ -1,4 +1,4 @@
-# uz_xarid
+# uzxarid
 
 A new Flutter project.
 # uzxarid

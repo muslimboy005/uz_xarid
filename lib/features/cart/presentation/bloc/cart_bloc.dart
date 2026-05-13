@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/cart/domain/entities/cart_item_entity.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/add_to_cart.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/cart_operations.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/get_cart.dart';
-import 'package:uz_xarid/features/cart/domain/usecases/update_cart_quantity.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_event.dart';
-import 'package:uz_xarid/features/cart/presentation/bloc/cart_state.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:uzxarid/features/cart/domain/usecases/add_to_cart.dart';
+import 'package:uzxarid/features/cart/domain/usecases/cart_operations.dart';
+import 'package:uzxarid/features/cart/domain/usecases/get_cart.dart';
+import 'package:uzxarid/features/cart/domain/usecases/update_cart_quantity.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
   final GetCartItemsUseCase _getCartItemsUseCase;

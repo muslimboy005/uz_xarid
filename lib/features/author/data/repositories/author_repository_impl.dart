@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/error/exceptions.dart';
-import 'package:uz_xarid/features/author/data/datasources/author_api.dart';
-import 'package:uz_xarid/features/author/domain/entities/author_entity.dart';
-import 'package:uz_xarid/features/author/domain/repositories/author_repository.dart';
-import 'package:uz_xarid/features/product_detail/domain/entities/ad_detail_entity.dart';
+import 'package:uzxarid/core/error/exceptions.dart';
+import 'package:uzxarid/features/author/data/datasources/author_api.dart';
+import 'package:uzxarid/features/author/domain/entities/author_entity.dart';
+import 'package:uzxarid/features/author/domain/repositories/author_repository.dart';
+import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 
 class AuthorRepositoryImpl implements AuthorRepository {
   final AuthorApi remoteDataSource;

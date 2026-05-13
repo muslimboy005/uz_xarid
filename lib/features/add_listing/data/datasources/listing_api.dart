@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/features/add_listing/data/models/color_dto.dart';
-import 'package:uz_xarid/features/add_listing/data/models/location_place_dto.dart';
-import 'package:uz_xarid/features/add_listing/data/models/size_dto.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/features/add_listing/data/models/color_dto.dart';
+import 'package:uzxarid/features/add_listing/data/models/location_place_dto.dart';
+import 'package:uzxarid/features/add_listing/data/models/size_dto.dart';
 
 part 'listing_api.g.dart';
 

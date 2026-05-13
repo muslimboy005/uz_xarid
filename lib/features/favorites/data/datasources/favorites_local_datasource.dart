@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uz_xarid/features/favorites/domain/entities/favorite_item_entity.dart';
+import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
 
 const String _keyLikedList = 'favorites_local_list';
 

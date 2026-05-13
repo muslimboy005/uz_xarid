@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/chat/data/datasources/chat_api.dart';
-import 'package:uz_xarid/features/chat/data/models/chat_room_dto.dart';
-import 'package:uz_xarid/features/chat/data/models/message_dto.dart';
-import 'package:uz_xarid/features/chat/domain/entities/chat_room_entity.dart';
-import 'package:uz_xarid/features/chat/domain/entities/message_entity.dart';
-import 'package:uz_xarid/features/chat/domain/repositories/chat_repository.dart';
-import 'package:uz_xarid/core/service/chat_socket_service.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/chat/data/datasources/chat_api.dart';
+import 'package:uzxarid/features/chat/data/models/chat_room_dto.dart';
+import 'package:uzxarid/features/chat/data/models/message_dto.dart';
+import 'package:uzxarid/features/chat/domain/entities/chat_room_entity.dart';
+import 'package:uzxarid/features/chat/domain/entities/message_entity.dart';
+import 'package:uzxarid/features/chat/domain/repositories/chat_repository.dart';
+import 'package:uzxarid/core/service/chat_socket_service.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatApi _api;

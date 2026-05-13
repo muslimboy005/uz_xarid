@@ -1,4 +1,4 @@
-import 'package:uz_xarid/features/product_list/data/models/product_list_item_dto.dart';
+import 'package:uzxarid/features/product_list/data/models/product_list_item_dto.dart';
 
 class ViewedAdsResponseModel {
   final bool status;

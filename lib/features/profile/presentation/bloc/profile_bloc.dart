@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/core/usecases/usecase.dart';
-import 'package:uz_xarid/features/profile/data/model/otp_model.dart';
-import 'package:uz_xarid/features/profile/data/model/profile_model.dart';
-import 'package:uz_xarid/features/profile/domain/entity/full_name.dart';
-import 'package:uz_xarid/features/profile/domain/usecase/profile_usecase.dart';
-import 'package:uz_xarid/features/profile/domain/entity/business_entity.dart';
+import 'package:uzxarid/core/usecases/usecase.dart';
+import 'package:uzxarid/features/profile/data/model/otp_model.dart';
+import 'package:uzxarid/features/profile/data/model/profile_model.dart';
+import 'package:uzxarid/features/profile/domain/entity/full_name.dart';
+import 'package:uzxarid/features/profile/domain/usecase/profile_usecase.dart';
+import 'package:uzxarid/features/profile/domain/entity/business_entity.dart';
 part 'profile_event.dart';
 part 'profile_state.dart';
 

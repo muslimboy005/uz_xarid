@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/profile/data/model/chat/chat_model.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uzxarid/features/profile/data/model/chat/chat_model.dart';
+import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 

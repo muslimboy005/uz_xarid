@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/chat/domain/entities/message_entity.dart';
-import 'package:uz_xarid/features/chat/domain/entities/chat_room_entity.dart';
-import 'package:uz_xarid/features/chat/domain/repositories/chat_repository.dart';
-import 'package:uz_xarid/core/service/local_service.dart';
+import 'package:uzxarid/features/chat/domain/entities/message_entity.dart';
+import 'package:uzxarid/features/chat/domain/entities/chat_room_entity.dart';
+import 'package:uzxarid/features/chat/domain/repositories/chat_repository.dart';
+import 'package:uzxarid/core/service/local_service.dart';
 
 part 'ad_chat_event.dart';
 part 'ad_chat_state.dart';

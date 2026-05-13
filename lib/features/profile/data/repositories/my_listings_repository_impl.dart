@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/my_listings_repository.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/profile/data/models/my_listing_item_dto.dart';
+import 'package:uzxarid/features/profile/domain/repositories/my_listings_repository.dart';
 
 class MyListingsRepositoryImpl implements MyListingsRepository {
   MyListingsRepositoryImpl({required this.dio});

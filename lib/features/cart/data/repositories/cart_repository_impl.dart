@@ -1,7 +1,7 @@
-import 'package:uz_xarid/features/cart/data/datasources/cart_remote_data_source.dart';
-import 'package:uz_xarid/features/cart/data/models/cart_item_model.dart';
-import 'package:uz_xarid/features/cart/domain/entities/cart_item_entity.dart';
-import 'package:uz_xarid/features/cart/domain/repositories/cart_repository.dart';
+import 'package:uzxarid/features/cart/data/datasources/cart_remote_data_source.dart';
+import 'package:uzxarid/features/cart/data/models/cart_item_model.dart';
+import 'package:uzxarid/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:uzxarid/features/cart/domain/repositories/cart_repository.dart';
 
 class CartRepositoryImpl implements CartRepository {
   final CartRemoteDataSource remoteDataSource;

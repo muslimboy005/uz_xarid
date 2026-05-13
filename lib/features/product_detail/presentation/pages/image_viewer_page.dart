@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:uz_xarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
 
 /// To'liq ekranli rasm ko'ruvchi: zoom + gorizontal swipe + pastga sirpaltirib chiqish.
 class ImageViewerPage extends StatefulWidget {

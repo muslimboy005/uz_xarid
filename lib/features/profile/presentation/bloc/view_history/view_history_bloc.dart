@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uz_xarid/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
 import 'view_history_event.dart';
 import 'view_history_state.dart';
 

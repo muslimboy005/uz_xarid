@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/dp/infection.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uz_xarid/core/widgets/w__container.dart';
-import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_bloc.dart';
-import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_event.dart';
-import 'package:uz_xarid/features/order/presentation/bloc/my_orders/my_orders_state.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/dp/infection.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
+import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/features/order/presentation/bloc/my_orders/my_orders_bloc.dart';
+import 'package:uzxarid/features/order/presentation/bloc/my_orders/my_orders_event.dart';
+import 'package:uzxarid/features/order/presentation/bloc/my_orders/my_orders_state.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({super.key});

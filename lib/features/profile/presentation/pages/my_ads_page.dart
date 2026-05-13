@@ -2,14 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/utils/image_parser.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/features/profile/data/models/my_listing_item_dto.dart';
-import 'package:uz_xarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/features/profile/data/models/my_listing_item_dto.dart';
+import 'package:uzxarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 /// status key -> label getter (l10n -> text)
 List<(String, String Function(AppLocalizations l))> _statusTabLabels() => [

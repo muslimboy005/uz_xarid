@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/home/domain/entities/home_entity.dart';
-import 'package:uz_xarid/features/home/domain/usecases/get_home.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/home/domain/entities/home_entity.dart';
+import 'package:uzxarid/features/home/domain/usecases/get_home.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';

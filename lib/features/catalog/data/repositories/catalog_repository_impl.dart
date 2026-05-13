@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/constants/api_urls.dart';
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/core/utils/image_parser.dart';
-import 'package:uz_xarid/features/catalog/data/datasources/catalog_api.dart';
-import 'package:uz_xarid/features/catalog/data/datasources/category_children_api.dart';
-import 'package:uz_xarid/features/catalog/data/models/category_children_page_dto.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/catalog_ad_item_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/repositories/catalog_repository.dart';
-import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
-import 'package:uz_xarid/features/home/data/models/category_dto.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/features/catalog/data/datasources/catalog_api.dart';
+import 'package:uzxarid/features/catalog/data/datasources/category_children_api.dart';
+import 'package:uzxarid/features/catalog/data/models/category_children_page_dto.dart';
+import 'package:uzxarid/features/catalog/domain/entities/catalog_ad_item_entity.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:uzxarid/features/home/data/datasources/home_api.dart';
+import 'package:uzxarid/features/home/data/models/category_dto.dart';
 
 class CatalogRepositoryImpl implements CatalogRepository {
   CatalogRepositoryImpl({

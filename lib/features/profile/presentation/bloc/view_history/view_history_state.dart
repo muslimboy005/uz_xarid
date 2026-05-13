@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/profile/data/model/viewed_ads_response_model.dart';
+import 'package:uzxarid/features/profile/data/model/viewed_ads_response_model.dart';
 
 enum ViewHistoryStatus { initial, loading, success, failure }
 

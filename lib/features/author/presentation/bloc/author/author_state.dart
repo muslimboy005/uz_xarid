@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/author/domain/entities/author_entity.dart';
+import 'package:uzxarid/features/author/domain/entities/author_entity.dart';
 
 abstract class AuthorState extends Equatable {
   const AuthorState();

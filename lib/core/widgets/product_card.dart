@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/constants/app_assets.dart';
-import 'package:uz_xarid/core/constants/app_colors.dart';
-import 'package:uz_xarid/core/cubit/app_mode_cubit.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/core/utils/price_formatter.dart';
-import 'package:uz_xarid/core/widgets/app_image.dart';
-import 'package:uz_xarid/core/widgets/app_text.dart';
-import 'package:uz_xarid/core/widgets/cart_counter.dart';
-import 'package:uz_xarid/features/currency/domain/currency.dart';
-import 'package:uz_xarid/features/currency/presentation/cubit/currency_cubit.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/constants/app_assets.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/price_formatter.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/cart_counter.dart';
+import 'package:uzxarid/features/currency/domain/currency.dart';
+import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 /// Rasmdagi mahsulot kartasi: rasm, yulduz/sharh, sarlavha, narxlar, "Ko'rish".
 /// Home (RecommendationCard) va ProductList sahifasida ishlatiladi.

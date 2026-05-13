@@ -1,7 +1,7 @@
-import 'package:uz_xarid/core/either/either.dart';
-import 'package:uz_xarid/core/error/failures.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/catalog_ad_item_entity.dart';
-import 'package:uz_xarid/features/catalog/domain/entities/category_entity.dart';
+import 'package:uzxarid/core/either/either.dart';
+import 'package:uzxarid/core/error/failures.dart';
+import 'package:uzxarid/features/catalog/domain/entities/catalog_ad_item_entity.dart';
+import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
 
 abstract class CatalogRepository {
   /// Fetches categories tree with optional [categoryType] filter.

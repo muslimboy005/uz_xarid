@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uz_xarid/features/chat/domain/entities/message_entity.dart';
+import 'package:uzxarid/features/chat/domain/entities/message_entity.dart';
 
 class ChatRoomEntity extends Equatable {
   final int id;

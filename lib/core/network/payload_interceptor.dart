@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:uz_xarid/core/network/payload_helper.dart';
+import 'package:uzxarid/core/network/payload_helper.dart';
 
 /// Signs every outbound request with the four `x-payload-*` headers the
 /// backend verifies via the shared `PAYLOAD_MASTER_SECRET`.

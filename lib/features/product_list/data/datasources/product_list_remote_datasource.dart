@@ -1,9 +1,9 @@
-import 'package:uz_xarid/features/catalog/data/datasources/catalog_api.dart';
-import 'package:uz_xarid/features/catalog/data/models/catalog_ad_item_dto.dart';
-import 'package:uz_xarid/features/home/data/datasources/home_api.dart';
-import 'package:uz_xarid/features/home/data/models/recommendation_dto.dart';
-import 'package:uz_xarid/features/product_list/data/models/product_list_item_dto.dart';
-import 'package:uz_xarid/features/search/data/datasources/search_api.dart';
+import 'package:uzxarid/features/catalog/data/datasources/catalog_api.dart';
+import 'package:uzxarid/features/catalog/data/models/catalog_ad_item_dto.dart';
+import 'package:uzxarid/features/home/data/datasources/home_api.dart';
+import 'package:uzxarid/features/home/data/models/recommendation_dto.dart';
+import 'package:uzxarid/features/product_list/data/models/product_list_item_dto.dart';
+import 'package:uzxarid/features/search/data/datasources/search_api.dart';
 
 /// Mahsulotlar ro'yxati: tavsiyalar, xizmatlar, qidiruv yoki turkum bo'yicha ad API.
 abstract class ProductListRemoteDatasource {

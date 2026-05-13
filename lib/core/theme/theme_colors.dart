@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:uz_xarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_colors.dart';
 
 /// Tema bo‘yicha fon/matn ranglari – statik rang qolmasligi uchun.
 extension ThemeColors on BuildContext {

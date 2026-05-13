@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uz_xarid/core/theme/theme_colors.dart';
-import 'package:uz_xarid/features/chat/presentation/bloc/chat_list_bloc.dart';
-import 'package:uz_xarid/features/chat/presentation/bloc/chat_list_event.dart';
-import 'package:uz_xarid/features/chat/presentation/bloc/chat_list_state.dart';
-import 'package:uz_xarid/features/chat/presentation/widgets/chat_room_list_item.dart';
-import 'package:uz_xarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/features/chat/presentation/bloc/chat_list_bloc.dart';
+import 'package:uzxarid/features/chat/presentation/bloc/chat_list_event.dart';
+import 'package:uzxarid/features/chat/presentation/bloc/chat_list_state.dart';
+import 'package:uzxarid/features/chat/presentation/widgets/chat_room_list_item.dart';
+import 'package:uzxarid/l10n/app_localizations.dart';
 
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key});
