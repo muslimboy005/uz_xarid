@@ -16,6 +16,7 @@ import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uzxarid/core/widgets/w__container.dart';
 import 'package:uzxarid/core/widgets/cart_counter.dart';
+import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uzxarid/features/profile/data/models/my_listing_item_dto.dart';
 import 'package:uzxarid/core/service/local_service.dart';
@@ -958,7 +959,19 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               const SizedBox(width: 12),
               Expanded(
                 child: ContainerW(
-                  onTap: () => context.push('/ad/${ad.slug}/order', extra: ad),
+                  onTap: () {
+                    final cartState = context.read<CartBloc>().state;
+                    final cartItem = cartState.items
+                        .where((e) => e.adSlug == ad.slug && e.variantId == null)
+                        .firstOrNull;
+                    final qty = (cartItem?.quantity ?? 0) > 0
+                        ? cartItem!.quantity
+                        : 1;
+                    context.push(
+                      '/ad/${ad.slug}/order',
+                      extra: {'ad': ad, 'quantity': qty},
+                    );
+                  },
                   color: _primaryColor,
                   radius: 12,
                   child: Center(

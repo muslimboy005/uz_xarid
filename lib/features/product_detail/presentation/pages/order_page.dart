@@ -25,16 +25,17 @@ import 'package:uzxarid/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
 class OrderPage extends StatefulWidget {
-  const OrderPage({super.key, required this.ad});
+  const OrderPage({super.key, required this.ad, this.initialQuantity = 1});
 
   final AdDetailEntity? ad;
+  final int initialQuantity;
 
   @override
   State<OrderPage> createState() => _OrderPageState();
 }
 
 class _OrderPageState extends State<OrderPage> {
-  int _quantity = 1;
+  late int _quantity = widget.initialQuantity > 0 ? widget.initialQuantity : 1;
   bool _sendToAll = false;
   final _commentCtrl = TextEditingController();
   AddressModel? _selectedAddress;
@@ -61,7 +62,10 @@ class _OrderPageState extends State<OrderPage> {
 
     final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
     final curr = currencyDisplayLabel(selectedCcy);
-    final price = formatPrice(ad.finalPrice ?? ad.price);
+    final rawPrice = ad.finalPrice ?? ad.price;
+    final price = formatPrice(rawPrice);
+    final unitPrice = double.tryParse((rawPrice ?? '').trim()) ?? 0;
+    final totalPrice = formatPrice((unitPrice * _quantity).toString());
 
     return BlocProvider(
       create: (context) => getIt<OrderCreateCubit>(), // Fixed locator call
@@ -109,12 +113,13 @@ class _OrderPageState extends State<OrderPage> {
               ),
             ),
             body: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
               child: Column(
                 children: [
                   _productCard(
                     ad,
                     price,
+                    totalPrice,
                     curr,
                     l,
                     card,
@@ -123,9 +128,9 @@ class _OrderPageState extends State<OrderPage> {
                     border,
                     primaryColor,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _deliveryCard(l, card, txt, txtSec, border, primaryColor),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _commentCard(l, card, txt, border, primaryColor),
                 ],
               ),
@@ -147,6 +152,7 @@ class _OrderPageState extends State<OrderPage> {
   Widget _productCard(
     AdDetailEntity ad,
     String price,
+    String totalPrice,
     String curr,
     AppLocalizations l,
     Color card,
@@ -204,6 +210,29 @@ class _OrderPageState extends State<OrderPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: _qtyRow(txt),
+          ),
+          Divider(color: border, height: 1, thickness: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Umumiy narx:',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: txt,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '$totalPrice $curr',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: primaryColor,
+                  ),
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -381,27 +410,27 @@ class _OrderPageState extends State<OrderPage> {
   ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
         color: context.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: primaryColor,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.location_on,
-              size: 26,
+              size: 22,
               color: AppColors.white,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           Text(
             l.orderAddressNotSelected,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -418,27 +447,37 @@ class _OrderPageState extends State<OrderPage> {
             ).textTheme.bodySmall?.copyWith(color: txtSec),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              final result = await context.push('/add-address');
-              if (result == true && context.mounted) {
-                context.read<AddressBloc>().add(LoadAddressesEvent());
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: AppColors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 0,
-            ),
-            child: Text(
-              l.orderSelectAddress,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                final result = await context.push('/add-address');
+                if (result == true && context.mounted) {
+                  context.read<AddressBloc>().add(LoadAddressesEvent());
+                }
+              },
+              icon: const Icon(
+                Icons.add_location_alt_outlined,
                 color: AppColors.white,
+                size: 18,
+              ),
+              label: Text(
+                l.orderSelectAddress,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: AppColors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                elevation: 0,
               ),
             ),
           ),
@@ -638,7 +677,7 @@ class _OrderPageState extends State<OrderPage> {
     Color primaryColor,
   ) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       decoration: BoxDecoration(
         color: card,
         border: Border(top: BorderSide(color: border, width: 0.5)),
@@ -653,21 +692,21 @@ class _OrderPageState extends State<OrderPage> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: txt,
                   side: BorderSide(color: border),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: Text(
                   l.actionCancel,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: txt,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               flex: 3,
               child: BlocBuilder<OrderCreateCubit, OrderCreateState>(
@@ -711,7 +750,7 @@ class _OrderPageState extends State<OrderPage> {
                       disabledBackgroundColor: primaryColor.withValues(
                         alpha: 0.5,
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -728,9 +767,9 @@ class _OrderPageState extends State<OrderPage> {
                           )
                         : Text(
                             l.orderSubmit,
-                            style: Theme.of(context).textTheme.bodyLarge
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                   color: AppColors.white,
                                 ),
                           ),

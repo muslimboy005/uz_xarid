@@ -14,6 +14,7 @@ import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_state.dart';
 import 'package:uzxarid/features/currency/domain/currency.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
+import 'package:uzxarid/features/product_detail/domain/entities/ad_detail_entity.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
 class CartPage extends StatelessWidget {
@@ -58,20 +59,13 @@ class CartPage extends StatelessWidget {
             return _buildEmptyCart(context, l10n);
           }
 
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    return _CartItemTile(item: state.items[index]);
-                  },
-                ),
-              ),
-              _CartSummary(cartItems: state.items),
-            ],
+          return ListView.separated(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+            itemCount: state.items.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              return _CartItemTile(item: state.items[index]);
+            },
           );
         },
       ),
@@ -156,8 +150,11 @@ class _CartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
     final itemCurrency = currencyDisplayLabel(selectedCcy);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -165,166 +162,119 @@ class _CartItemTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: context.borderColor),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: CachedNetworkImage(
-              imageUrl: (item.adImage ?? '').cdnUrl,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-              errorWidget: (_, __, ___) => Container(
-                width: 80,
-                height: 80,
-                color: context.surfaceContainer,
-                child: const Icon(Icons.image_outlined),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.adTitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: (item.adImage ?? '').cdnUrl,
+                  width: 72,
+                  height: 72,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, _, _) => Container(
+                    width: 72,
+                    height: 72,
+                    color: context.surfaceContainer,
+                    child: const Icon(Icons.image_outlined),
                   ),
                 ),
-                if (item.variantName != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    item.variantName!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: context.textSecondary,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${item.unitPrice} $itemCurrency',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: context.watch<AppModeCubit>().state.primaryColor,
+                      item.adTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),
-                    CartCounter(
-                      adSlug: item.adSlug,
-                      variantId: item.variantId,
-                      width: 100,
-                      height: 32,
+                    if (item.variantName != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        item.variantName!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: context.textSecondary,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '${formatPrice(item.subtotal)} $itemCurrency',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: primaryColor,
+                        fontSize: 14,
+                      ),
                     ),
+                    if (item.quantity > 1) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${formatPrice(item.unitPrice)} $itemCurrency × ${item.quantity}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: context.textSecondary,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CartSummary extends StatelessWidget {
-  final List<CartItemEntity> cartItems;
-
-  const _CartSummary({required this.cartItems});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final total = cartItems.fold<double>(0, (sum, item) => sum + (double.tryParse(item.subtotal) ?? 0));
-    final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
-    final currency = currencyDisplayLabel(selectedCcy);
-
-    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: context.cardSurface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-            Text(
-              l10n.cartTotal,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: context.textPrimary,
               ),
-            ),
-                Text(
-                  '${formatPrice(total.toString())} $currency',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: primaryColor,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            BlocBuilder<CartBloc, CartState>(
-              builder: (context, state) {
-                return SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: state.status == CartStatus.loading
-                        ? null
-                        : () {
-                            context.read<CartBloc>().add(CartCheckoutRequested());
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: state.status == CartStatus.loading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            l10n.productDetailPlaceOrder,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                  ),
+              CartCounter(
+                adSlug: item.adSlug,
+                variantId: item.variantId,
+                width: 100,
+                height: 32,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 42,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                final ad = AdDetailEntity(
+                  slug: item.adSlug,
+                  title: item.adTitle,
+                  mainImage: item.adImage,
+                  price: item.unitPrice,
+                  finalPrice: item.unitPrice,
+                  currency: item.currency,
+                );
+                context.push(
+                  '/ad/${item.adSlug}/order',
+                  extra: {'ad': ad, 'quantity': item.quantity},
                 );
               },
+              icon: const Icon(Icons.shopping_bag_outlined, size: 18),
+              label: Text(
+                l10n.adTypeBuy,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-
 }

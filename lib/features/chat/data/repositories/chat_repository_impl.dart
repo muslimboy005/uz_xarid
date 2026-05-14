@@ -129,7 +129,7 @@ class ChatRepositoryImpl implements ChatRepository {
       id: dto.id,
       senderId: _parseId(dto.senderId),
       content: dto.content,
-      createdAt: DateTime.tryParse(dto.createdAt) ?? DateTime.now(),
+      createdAt: (DateTime.tryParse(dto.createdAt)?.toLocal()) ?? DateTime.now(),
       isRead: dto.isRead,
       fileUrl: dto.fileUrl,
     );

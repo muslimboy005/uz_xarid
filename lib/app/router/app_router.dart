@@ -93,7 +93,16 @@ class AppRouter {
             path: 'order',
             name: 'order',
             builder: (context, state) {
-              final ad = state.extra as AdDetailEntity?;
+              final raw = state.extra;
+              AdDetailEntity? ad;
+              int initialQty = 1;
+              if (raw is AdDetailEntity) {
+                ad = raw;
+              } else if (raw is Map) {
+                ad = raw['ad'] as AdDetailEntity?;
+                final q = raw['quantity'];
+                if (q is int && q > 0) initialQty = q;
+              }
               if (ad == null) {
                 return const SizedBox.shrink();
               }
@@ -108,7 +117,7 @@ class AppRouter {
                         getIt<ProfileBloc>()..add(const ProfileLoadEvent()),
                   ),
                 ],
-                child: OrderPage(ad: ad),
+                child: OrderPage(ad: ad, initialQuantity: initialQty),
               );
             },
           ),

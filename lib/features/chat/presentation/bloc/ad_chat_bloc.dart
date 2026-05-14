@@ -85,7 +85,7 @@ class AdChatBloc extends Bloc<ChatEvent, ChatState> {
       id: data['id'] ?? 0,
       senderId: _parseId(data['sender_id']),
       content: data['content'] ?? '',
-      createdAt: DateTime.tryParse(data['created_at'] ?? '') ?? DateTime.now(),
+      createdAt: (DateTime.tryParse(data['created_at'] ?? '')?.toLocal()) ?? DateTime.now(),
       isRead: false,
     );
     
