@@ -11,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/dp/infection.dart';
-import 'package:uzxarid/core/soliq_id/soliq_id_flow.dart';
+import 'package:uzxarid/core/face_session/face_session_flow.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/service/local_service.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
@@ -1277,45 +1277,32 @@ class _AddListingPageState extends State<AddListingPage> {
     setState(() {
       _isFaceVerificationInProgress = true;
     });
-    final data = await showSoliqIdentityInputSheet(context);
-    if (data == null) {
-      if (mounted) {
-        setState(() {
-          _isFaceVerificationInProgress = false;
-        });
-      }
-      return false;
-    }
 
-    if (!mounted || !context.mounted) {
-      return false;
+    final result = await runFaceSessionVerification(context);
+
+    if (!result.isSuccess && mounted && context.mounted) {
+      final msg = result.message;
+      if (msg != null && msg.trim().isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
     }
-    final scan = await runSoliqIdFaceScan(context, identity: data);
-    if (!scan.isSuccess && mounted && context.mounted) {
-      debugPrint(
-        '[FACE_VERIFY][SNACKBAR] verification failed: '
-        '${scan.failureMessage ?? "Yuz ID tasdiqlanmadi."}',
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(scan.failureMessage ?? "Yuz ID tasdiqlanmadi."),
-          backgroundColor: AppColors.red,
-        ),
-      );
-    }
-    final ok = scan.isSuccess;
     if (mounted) {
       setState(() {
         _isFaceVerificationInProgress = false;
       });
     }
-    if (ok && mounted && context.mounted) {
+    if (result.isSuccess && mounted && context.mounted) {
       setState(() {
         _soliqSessionVerified = true;
       });
       context.read<ProfileBloc>().add(const ProfileLoadEvent());
     }
-    return ok;
+    return result.isSuccess;
   }
 
   // ─── AD TYPE TABS (Sell / Buy) ──────────────────────────────────

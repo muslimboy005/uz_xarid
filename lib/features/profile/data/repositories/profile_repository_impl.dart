@@ -29,10 +29,29 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final result = await _profileDataSource.sendOtp(body);
       return Right(result);
     } on DioException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Network error'));
+      return Left(
+        ServerFailure(
+          _extractDetail(e) ?? e.message ?? 'Network error',
+          statusCode: e.response?.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
     }
+  }
+
+  String? _extractDetail(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final detail = data['detail'];
+      if (detail is String && detail.isNotEmpty) return detail;
+      final inner = data['data'];
+      if (inner is Map) {
+        final innerDetail = inner['detail'];
+        if (innerDetail is String && innerDetail.isNotEmpty) return innerDetail;
+      }
+    }
+    return null;
   }
 
   @override
@@ -104,7 +123,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final result = await _profileDataSource.resendOtp(body);
       return Right(result);
     } on DioException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Network error'));
+      return Left(
+        ServerFailure(
+          _extractDetail(e) ?? e.message ?? 'Network error',
+          statusCode: e.response?.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
     }

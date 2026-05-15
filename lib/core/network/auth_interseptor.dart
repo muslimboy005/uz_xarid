@@ -65,8 +65,12 @@ class AuthInterceptor extends Interceptor {
   ) async {
     final token = await secureStorageService.getToken();
 
-    if (options.path.contains('chat/') && (token == null || token.isEmpty)) {
-      // Proactive login ONLY for chat endpoints if token is completely missing
+    final isChat = options.path.contains('chat/');
+    final isCartWrite = options.path.contains('cart/') &&
+        options.method.toUpperCase() != 'GET';
+    final needsProactiveAuth = isChat || isCartWrite;
+
+    if (needsProactiveAuth && (token == null || token.isEmpty)) {
       final success = await getIt<AuthActionService>().ensureAuthenticated();
       if (success) {
         final newToken = await secureStorageService.getToken();
@@ -78,7 +82,7 @@ class AuthInterceptor extends Interceptor {
         return handler.reject(
           DioException(
             requestOptions: options,
-            error: 'Authentication required for chat',
+            error: 'Authentication required',
           ),
         );
       }
@@ -119,6 +123,10 @@ class AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
+    final method = err.requestOptions.method.toUpperCase();
+    final needsInteractiveAuth =
+        path.contains('chat/') || (path.contains('cart/') && method != 'GET');
+
     // Allaqachon refresh qilinmoqda yoki login ko'rsatilmoqda — navbatga qo'shamiz
     if (_isRefreshing || _isAuthenticating) {
       _pendingRequests.add((options: err.requestOptions, handler: handler));
@@ -132,7 +140,7 @@ class AuthInterceptor extends Interceptor {
 
       if (refreshToken == null || refreshToken.isEmpty) {
         _isRefreshing = false;
-        if (path.contains('chat/')) {
+        if (needsInteractiveAuth) {
           await _handleUnauthorized(err, handler);
         } else {
           await secureStorageService.clearAll();
@@ -150,7 +158,7 @@ class AuthInterceptor extends Interceptor {
 
       if (newAccess == null || newAccess.isEmpty) {
         _isRefreshing = false;
-        if (path.contains('chat/')) {
+        if (needsInteractiveAuth) {
           await _handleUnauthorized(err, handler);
         } else {
           await secureStorageService.clearAll();
@@ -173,7 +181,7 @@ class AuthInterceptor extends Interceptor {
       return handler.resolve(retried);
     } catch (_) {
       _isRefreshing = false;
-      if (path.contains('chat/')) {
+      if (needsInteractiveAuth) {
         await _handleUnauthorized(err, handler);
       } else {
         await secureStorageService.clearAll();

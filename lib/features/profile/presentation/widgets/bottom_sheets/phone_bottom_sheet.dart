@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +56,13 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
   _ActiveOffer? _activeOffer;
   late final TapGestureRecognizer _offerTapRecognizer;
 
+  String? _errorMessage;
+  String? _errorPrefix;
+  int _cooldownSeconds = 0;
+  Timer? _cooldownTimer;
+
+  static final RegExp _cooldownRegex = RegExp(r'(\d{1,2}):(\d{2})');
+
   bool get _isPhoneValid {
     final digits = _phoneController.text.replaceAll(RegExp(r'\D'), '');
     return digits.length == 12 && digits.startsWith('998');
@@ -72,7 +81,13 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
   }
 
   void _onPhoneChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {
+      if (_cooldownSeconds == 0) {
+        _errorMessage = null;
+        _errorPrefix = null;
+      }
+    });
   }
 
   Future<void> _loadActiveOffer() async {
@@ -128,7 +143,51 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
     _phoneController.removeListener(_onPhoneChanged);
     _phoneController.dispose();
     _offerTapRecognizer.dispose();
+    _cooldownTimer?.cancel();
     super.dispose();
+  }
+
+  void _handleErrorMessage(String message) {
+    final match = _cooldownRegex.firstMatch(message);
+    _cooldownTimer?.cancel();
+    if (match != null) {
+      final minutes = int.tryParse(match.group(1) ?? '') ?? 0;
+      final seconds = int.tryParse(match.group(2) ?? '') ?? 0;
+      final total = minutes * 60 + seconds;
+      final prefix = message.substring(0, match.start).trim();
+      setState(() {
+        _errorPrefix = prefix.isEmpty ? null : prefix;
+        _cooldownSeconds = total;
+        _errorMessage = total > 0 ? null : message;
+      });
+      if (total > 0) {
+        _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          if (!mounted) {
+            timer.cancel();
+            return;
+          }
+          setState(() {
+            _cooldownSeconds--;
+            if (_cooldownSeconds <= 0) {
+              timer.cancel();
+              _errorPrefix = null;
+            }
+          });
+        });
+      }
+    } else {
+      setState(() {
+        _errorMessage = message;
+        _errorPrefix = null;
+        _cooldownSeconds = 0;
+      });
+    }
+  }
+
+  String _formatCooldown(int totalSeconds) {
+    final m = (totalSeconds ~/ 60).toString().padLeft(2, '0');
+    final s = (totalSeconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
   }
 
   @override
@@ -140,6 +199,11 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
         if (state.status == ProfileStatus.success) {
           Navigator.of(context).pop();
           widget.onCodeSent(_phoneController.text);
+        } else if (state.status == ProfileStatus.failure) {
+          final message = state.errorMessage;
+          if (message != null && message.isNotEmpty) {
+            _handleErrorMessage(message);
+          }
         }
       },
       builder: (context, state) {
@@ -154,7 +218,8 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
             !_isOfferLoading &&
             _activeOffer != null &&
             _offerAccepted &&
-            _isPhoneValid;
+            _isPhoneValid &&
+            _cooldownSeconds == 0;
 
         return Container(
           height:
@@ -172,20 +237,21 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
             color: cardColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: textSecondary,
-                    borderRadius: BorderRadius.circular(2),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: textSecondary,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -248,6 +314,66 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   ),
                 ),
               ),
+              if (_cooldownSeconds > 0 || _errorMessage != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 18,
+                        color: Colors.red.shade700,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _cooldownSeconds > 0
+                            ? Text.rich(
+                                TextSpan(
+                                  text: _errorPrefix != null
+                                      ? '$_errorPrefix '
+                                      : '',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.red.shade700,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: _formatCooldown(_cooldownSeconds),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontFeatures: [
+                                          FontFeature.tabularFigures(),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Text(
+                                _errorMessage ?? '',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.red.shade700,
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -360,8 +486,9 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                     style: TextStyle(color: primaryColor, fontSize: 12),
                   ),
                 ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         );
       },

@@ -139,14 +139,16 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
         final borderColor = context.borderColor;
 
         return Container(
-          height:
-              MediaQuery.of(context).size.height -
-              (MediaQuery.of(context).padding.top + 250),
+          constraints: BoxConstraints(
+            maxHeight:
+                MediaQuery.of(context).size.height -
+                (MediaQuery.of(context).padding.top + 100),
+          ),
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
+          child: SingleChildScrollView(
             padding: EdgeInsets.only(
               left: AppDimens.paddingMedium,
               right: AppDimens.paddingMedium,
@@ -156,6 +158,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                   AppDimens.paddingMedium,
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Center(

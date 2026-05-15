@@ -40,23 +40,25 @@ class DioClient {
     _dio.interceptors.add(AuthInterceptor(GetIt.I<SecureStorageService>()));
 
     // IKKINCHI - Log Interceptor
-    _dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-        requestHeader: true,
-        responseHeader: false,
-        error: true,
-      ),
-    );
+    // _dio.interceptors.add(
+    //   LogInterceptor(
+    //     requestBody: true,
+    //     responseBody: true,
+    //     requestHeader: true,
+    //     responseHeader: false,
+    //     error: true,
+    //   ),
+    // );
+
     _dio.interceptors.add(
       TalkerDioLogger(
         settings: const TalkerDioLoggerSettings(
           enabled: true,
           printRequestHeaders: true,
           printRequestExtra: true,
+          printRequestData: true,
           printResponseHeaders: true,
-          printResponseData: false,
+          printResponseData: true,
           //printResponseMessage: false,
         ),
       ),
