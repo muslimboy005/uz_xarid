@@ -36,6 +36,9 @@ class ApiUrls {
   static const String color = 'color/';
   static const String size = 'size/';
   static const String region = 'region/';
+  static const String carBrand = 'brand/';
+  static const String carBrandModel = 'brand-models/';
+  static const String carVehicleTrim = 'vehicle-trims/';
   static const String district = 'district/';
   static const String neighborhood = 'neighborhood/';
 

@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uzxarid/core/constants/api_urls.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
+import 'package:uzxarid/core/dio/dio_client.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/face_session/face_session_flow.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
@@ -157,6 +159,14 @@ class _AddListingPageState extends State<AddListingPage> {
   bool _carTechSearching = false;
   String? _carTechError;
   Map<String, dynamic>? _carTechData;
+
+  // ─── Avtomobil statik filed: marka / model / kompletatsiya ─────
+  int? _selectedCarBrandId;
+  String? _selectedCarBrandName;
+  int? _selectedCarModelId;
+  String? _selectedCarModelName;
+  int? _selectedCarTrimId;
+  String? _selectedCarTrimName;
 
   @override
   void initState() {
@@ -1147,6 +1157,17 @@ class _AddListingPageState extends State<AddListingPage> {
         dynamicPayload[field.name] = value;
       }
     }
+    if (_listingType == _ListingType.car) {
+      if (_selectedCarBrandId != null) {
+        dynamicPayload['brand'] = _selectedCarBrandId;
+      }
+      if (_selectedCarModelId != null) {
+        dynamicPayload['model'] = _selectedCarModelId;
+      }
+      if (_selectedCarTrimId != null) {
+        dynamicPayload['trim'] = _selectedCarTrimId;
+      }
+    }
     final isEdit = widget.editSlug != null && widget.editSlug!.isNotEmpty;
     final blocState = formContext.read<AddListingBloc>().state;
     final adDetail = blocState.adDetailForEdit;
@@ -1401,6 +1422,7 @@ class _AddListingPageState extends State<AddListingPage> {
                 _clearLoadedNestedCategories();
                 _dynamicFields = [];
                 _dynamicFieldsLoading = false;
+                _resetCarBrandModelTrim();
               });
               formContext.read<AddListingBloc>().add(
                 AddListingLoadCategoriesRequested(
@@ -1608,6 +1630,7 @@ class _AddListingPageState extends State<AddListingPage> {
                       _selectedSubSubcategory = null;
                       _dynamicValues.clear();
                       _clearLoadedNestedCategories();
+                      _resetCarBrandModelTrim();
                     });
                     _fetchSubcategoriesForCategory(cat.id);
                   },
@@ -1652,6 +1675,7 @@ class _AddListingPageState extends State<AddListingPage> {
                         _loadedSubSubcategoriesParentId = null;
                         _loadedSubSubcategories = [];
                         _loadingSubSubcategories = false;
+                        _resetCarBrandModelTrim();
                       });
                       _fetchSubSubcategoriesForSubcategory(cat.id);
                     },
@@ -1693,6 +1717,7 @@ class _AddListingPageState extends State<AddListingPage> {
                       setState(() {
                         _selectedSubSubcategory = cat;
                         _dynamicValues.clear();
+                        _resetCarBrandModelTrim();
                       });
                       _refreshDynamicFieldsAfterCategoryStep();
                     },
@@ -1834,6 +1859,14 @@ class _AddListingPageState extends State<AddListingPage> {
                 textSecondary,
                 borderColor,
               ),
+              const SizedBox(height: 20),
+              Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
+              const SizedBox(height: 20),
+              _buildCarBrandModelTrimSection(
+                textColor,
+                textSecondary,
+                borderColor,
+              ),
               const SizedBox(height: 16),
             ],
             const Padding(
@@ -1866,11 +1899,15 @@ class _AddListingPageState extends State<AddListingPage> {
               textSecondary,
               borderColor,
             ),
-            if (visible.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
-              const SizedBox(height: 20),
-            ],
+            const SizedBox(height: 20),
+            Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
+            const SizedBox(height: 20),
+            _buildCarBrandModelTrimSection(
+              textColor,
+              textSecondary,
+              borderColor,
+            ),
+            if (visible.isNotEmpty) const SizedBox(height: 16),
           ],
           for (var i = 0; i < visible.length; i++) ...[
             _buildDynamicField(
@@ -2102,6 +2139,268 @@ class _AddListingPageState extends State<AddListingPage> {
           ),
         ],
       ],
+    );
+  }
+
+  // ─── MARKA / MODEL / KOMPLEKTATSIYA STATIK MAYDONLARI ──────────
+
+  void _resetCarBrandModelTrim() {
+    _selectedCarBrandId = null;
+    _selectedCarBrandName = null;
+    _selectedCarModelId = null;
+    _selectedCarModelName = null;
+    _selectedCarTrimId = null;
+    _selectedCarTrimName = null;
+  }
+
+  Widget _buildCarBrandModelTrimSection(
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    final categoryId = _selectedCategory?.id;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildCarStaticDropdown(
+          label: 'Marka',
+          value: _selectedCarBrandName,
+          enabled: categoryId != null,
+          disabledHint: 'Avval kategoriya tanlang',
+          textColor: textColor,
+          textSecondary: textSecondary,
+          borderColor: borderColor,
+          onTap: () {
+            _showCarPagedSelectSheet(
+              title: 'Marka',
+              selectedId: _selectedCarBrandId,
+              loadPage: (page, search) => _fetchCarPagedList(
+                path: ApiUrls.carBrand,
+                page: page,
+                search: search,
+                extraQuery: {'category': categoryId},
+              ),
+              onSelected: (id, name) {
+                setState(() {
+                  if (_selectedCarBrandId != id) {
+                    _selectedCarModelId = null;
+                    _selectedCarModelName = null;
+                    _selectedCarTrimId = null;
+                    _selectedCarTrimName = null;
+                  }
+                  _selectedCarBrandId = id;
+                  _selectedCarBrandName = name;
+                });
+              },
+            );
+          },
+        ),
+        const SizedBox(height: 14),
+        _buildCarStaticDropdown(
+          label: 'Model',
+          value: _selectedCarModelName,
+          enabled: _selectedCarBrandId != null,
+          disabledHint: 'Avval markani tanlang',
+          textColor: textColor,
+          textSecondary: textSecondary,
+          borderColor: borderColor,
+          onTap: () {
+            _showCarPagedSelectSheet(
+              title: 'Model',
+              selectedId: _selectedCarModelId,
+              loadPage: (page, search) => _fetchCarPagedList(
+                path: ApiUrls.carBrandModel,
+                page: page,
+                search: search,
+                extraQuery: {'brand': _selectedCarBrandId},
+              ),
+              onSelected: (id, name) {
+                setState(() {
+                  if (_selectedCarModelId != id) {
+                    _selectedCarTrimId = null;
+                    _selectedCarTrimName = null;
+                  }
+                  _selectedCarModelId = id;
+                  _selectedCarModelName = name;
+                });
+              },
+            );
+          },
+        ),
+        const SizedBox(height: 14),
+        _buildCarStaticDropdown(
+          label: 'Komplektatsiya',
+          value: _selectedCarTrimName,
+          enabled: _selectedCarModelId != null,
+          disabledHint: 'Avval modelni tanlang',
+          textColor: textColor,
+          textSecondary: textSecondary,
+          borderColor: borderColor,
+          onTap: () {
+            _showCarPagedSelectSheet(
+              title: 'Komplektatsiya',
+              selectedId: _selectedCarTrimId,
+              loadPage: (page, search) => _fetchCarPagedList(
+                path: ApiUrls.carVehicleTrim,
+                page: page,
+                search: search,
+                extraQuery: {
+                  'brand': _selectedCarBrandId,
+                  'model': _selectedCarModelId,
+                },
+              ),
+              onSelected: (id, name) {
+                setState(() {
+                  _selectedCarTrimId = id;
+                  _selectedCarTrimName = name;
+                });
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCarStaticDropdown({
+    required String label,
+    required String? value,
+    required bool enabled,
+    required String disabledHint,
+    required Color textColor,
+    required Color textSecondary,
+    required Color borderColor,
+    required VoidCallback onTap,
+  }) {
+    final hasValue = value != null && value.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel(label, false, textColor, textSecondary),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: enabled ? onTap : null,
+          child: Container(
+            height: _kInputHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: context.surfaceContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppText(
+                    text: hasValue
+                        ? value
+                        : (enabled ? label : disabledHint),
+                    fontSize: 14,
+                    fontWeight: hasValue ? 500 : 400,
+                    color: hasValue ? textColor : textSecondary,
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<_CarPagedResult> _fetchCarPagedList({
+    required String path,
+    required int page,
+    required String search,
+    Map<String, dynamic> extraQuery = const {},
+  }) async {
+    try {
+      final dio = getIt<DioClient>().dio;
+      final query = <String, dynamic>{
+        'page': page,
+        'page_size': 20,
+        if (search.trim().isNotEmpty) 'search': search.trim(),
+      };
+      extraQuery.forEach((k, v) {
+        if (v != null) query[k] = v;
+      });
+      final response = await dio.get(path, queryParameters: query);
+      final body = response.data;
+      if (body is! Map) {
+        return _CarPagedResult(items: const [], hasNext: false);
+      }
+      final data = body['data'];
+      if (data is! Map) {
+        return _CarPagedResult(items: const [], hasNext: false);
+      }
+      final results = data['results'];
+      final items = <_CarLookupItem>[];
+      if (results is List) {
+        for (final raw in results) {
+          if (raw is Map) {
+            final id = raw['id'];
+            final name = raw['name']?.toString();
+            if (id is int && name != null && name.isNotEmpty) {
+              items.add(_CarLookupItem(id: id, name: name));
+            }
+          }
+        }
+      }
+      final links = data['links'];
+      final hasNext = links is Map && links['next'] != null;
+      return _CarPagedResult(items: items, hasNext: hasNext);
+    } catch (_) {
+      return _CarPagedResult(items: const [], hasNext: false);
+    }
+  }
+
+  void _showCarPagedSelectSheet({
+    required String title,
+    required int? selectedId,
+    required Future<_CarPagedResult> Function(int page, String search) loadPage,
+    required void Function(int id, String name) onSelected,
+  }) {
+    final pageContext = context;
+    final textColor = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+    final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    showModalBottomSheet<void>(
+      context: pageContext,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final screenHeight = MediaQuery.of(sheetContext).size.height;
+        final viewInsets = MediaQuery.of(sheetContext).viewInsets.bottom;
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(bottom: viewInsets),
+          child: SizedBox(
+            height: screenHeight * 0.85,
+            child: _CarPagedSelectSheetBody(
+              title: title,
+              selectedId: selectedId,
+              loadPage: loadPage,
+              onSelected: (id, name) {
+                Navigator.pop(sheetContext);
+                onSelected(id, name);
+              },
+              textColor: textColor,
+              textSecondary: textSecondary,
+              borderColor: borderColor,
+              primaryColor: primaryColor,
+              surfaceColor: sheetContext.cardSurface,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -4784,6 +5083,253 @@ class _CategorySheetContentState extends State<_CategorySheetContent> {
                         )),
           ),
           SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 12),
+        ],
+      ),
+    );
+  }
+}
+
+class _CarLookupItem {
+  const _CarLookupItem({required this.id, required this.name});
+  final int id;
+  final String name;
+}
+
+class _CarPagedResult {
+  const _CarPagedResult({required this.items, required this.hasNext});
+  final List<_CarLookupItem> items;
+  final bool hasNext;
+}
+
+class _CarPagedSelectSheetBody extends StatefulWidget {
+  const _CarPagedSelectSheetBody({
+    required this.title,
+    required this.selectedId,
+    required this.loadPage,
+    required this.onSelected,
+    required this.textColor,
+    required this.textSecondary,
+    required this.borderColor,
+    required this.primaryColor,
+    required this.surfaceColor,
+  });
+
+  final String title;
+  final int? selectedId;
+  final Future<_CarPagedResult> Function(int page, String search) loadPage;
+  final void Function(int id, String name) onSelected;
+  final Color textColor;
+  final Color textSecondary;
+  final Color borderColor;
+  final Color primaryColor;
+  final Color surfaceColor;
+
+  @override
+  State<_CarPagedSelectSheetBody> createState() =>
+      _CarPagedSelectSheetBodyState();
+}
+
+class _CarPagedSelectSheetBodyState extends State<_CarPagedSelectSheetBody> {
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final List<_CarLookupItem> _items = [];
+  int _page = 1;
+  bool _loading = false;
+  bool _loadingMore = false;
+  bool _hasNext = true;
+  String _search = '';
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    _loadFirst();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadFirst() async {
+    setState(() {
+      _loading = true;
+      _items.clear();
+      _page = 1;
+      _hasNext = true;
+    });
+    final res = await widget.loadPage(1, _search);
+    if (!mounted) return;
+    setState(() {
+      _items.addAll(res.items);
+      _hasNext = res.hasNext;
+      _loading = false;
+    });
+  }
+
+  Future<void> _loadMore() async {
+    if (_loadingMore || !_hasNext || _loading) return;
+    setState(() {
+      _loadingMore = true;
+    });
+    final next = _page + 1;
+    final res = await widget.loadPage(next, _search);
+    if (!mounted) return;
+    setState(() {
+      _items.addAll(res.items);
+      _hasNext = res.hasNext;
+      _page = next;
+      _loadingMore = false;
+    });
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 120) {
+      _loadMore();
+    }
+  }
+
+  void _onSearchChanged(String v) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+      if (v.trim() == _search) return;
+      _search = v.trim();
+      _loadFirst();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.surfaceColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: widget.borderColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: AppText(
+              text: widget.title,
+              fontSize: 16,
+              fontWeight: 600,
+              color: widget.textColor,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 44,
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
+                style: TextStyle(fontSize: 14, color: widget.textColor),
+                decoration: InputDecoration(
+                  hintText: 'Qidirish',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    color: widget.textSecondary,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: widget.textSecondary,
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: context.surfaceContainer,
+                  contentPadding: EdgeInsets.zero,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: widget.borderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: widget.borderColor),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: _loading
+                ? const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : _items.isEmpty
+                ? Center(
+                    child: AppText(
+                      text: 'Topilmadi',
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: widget.textSecondary,
+                    ),
+                  )
+                : ListView.separated(
+                    controller: _scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.zero,
+                    itemCount: _items.length + (_loadingMore ? 1 : 0),
+                    separatorBuilder: (_, _) =>
+                        Divider(height: 1, color: widget.borderColor),
+                    itemBuilder: (_, i) {
+                      if (i >= _items.length) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          child: Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        );
+                      }
+                      final item = _items[i];
+                      final isSelected = widget.selectedId == item.id;
+                      return ListTile(
+                        title: AppText(
+                          text: item.name,
+                          fontSize: 15,
+                          fontWeight: isSelected ? 600 : 400,
+                          color: isSelected
+                              ? widget.primaryColor
+                              : widget.textColor,
+                        ),
+                        trailing: isSelected
+                            ? Icon(
+                                Icons.check_circle_rounded,
+                                color: widget.primaryColor,
+                                size: 20,
+                              )
+                            : null,
+                        onTap: () => widget.onSelected(item.id, item.name),
+                      );
+                    },
+                  ),
+          ),
+          const SizedBox(height: 12),
         ],
       ),
     );
