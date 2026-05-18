@@ -58,7 +58,11 @@ class ProductCard extends StatelessWidget {
     final isDark = context.isDark;
     final l10n = AppLocalizations.of(context)!;
     final currentPrice = formatPrice(finalPrice ?? price);
-    final oldPrice = finalPrice != null ? formatPrice(price) : '';
+    final formattedOld = formatPrice(price);
+    // Eski narx faqat haqiqiy chegirma bo'lganda ko'rsatiladi (joriy narxdan farqli).
+    final oldPrice = (finalPrice != null && formattedOld != currentPrice)
+        ? formattedOld
+        : '';
     final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
     final displayCurrency = currencyDisplayLabel(selectedCcy);
 
@@ -77,19 +81,38 @@ class ProductCard extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => _openDetail(context),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cardWidth = constraints.maxWidth;
+          final cardHeight = constraints.maxHeight.isFinite ? constraints.maxHeight : 220.0;
+
+          // Responsive o'lchamlar: kart kengligi/balandligiga qarab moslashadi.
+          final isCompact = cardWidth < 170 || cardHeight < 240;
+          final cartHeight = isCompact ? 34.0 : 40.0;
+          final hPad = isCompact ? 8.0 : 10.0;
+          // Matn bloki uchun zarur joy: rating + title (2 satr) + price block + paddings.
+          final textBlockHeight = isCompact ? 95.0 : 108.0;
+          final reservedForContent = textBlockHeight + cartHeight + 10;
+          final imageHeight = (cardHeight - reservedForContent)
+              .clamp(70.0, cardHeight * 0.55);
+          final iconSize = isCompact ? 12.0 : 14.0;
+          final metaFontSize = isCompact ? 11.0 : 12.0;
+          final titleFontSize = isCompact ? 13.0 : 14.0;
+          final oldPriceFontSize = isCompact ? 10.5 : 11.5;
+          final priceFontSize = isCompact ? 16.0 : 18.0;
+          // Eski narx qatori uchun balandlik (chegirma yo'q bo'lsa ham joy saqlanadi).
+          final oldPriceLineHeight = oldPriceFontSize * 1.2;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () => _openDetail(context),
+                behavior: HitTestBehavior.opaque,
+                child: Stack(
                   children: [
                     SizedBox(
-                      height: 118,
+                      height: imageHeight,
                       width: double.infinity,
                       child: AppImage(
                         path: mainImage ?? '',
@@ -139,94 +162,105 @@ class ProductCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          AppImage(path: AppAssets.star),
-                          const SizedBox(width: 4),
-                          AppText(
-                            text: rating.toStringAsFixed(1),
-                            color: context.textPrimary,
-                            fontSize: 12,
-                            fontWeight: 500,
-                          ),
-                          const SizedBox(width: 17),
-                          AppImage(path: AppAssets.chat),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: AppText(
-                              text: '$reviewCount ${l10n.reviewsLabel}',
-                              color: context.textPrimary,
-                              fontSize: 12,
-                              fontWeight: 500,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        height: 36,
-                        child: AppText(
-                          text: title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: 600,
-                          height: 1.22,
-                          fontSize: 14,
-                          color: context.textPrimary,
-                        ),
-                      ),
-                      if (oldPrice.isNotEmpty)
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _openDetail(context),
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(hPad, 6, hPad, 2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Row(
                           children: [
-                            Expanded(
+                            AppImage(path: AppAssets.star, size: iconSize),
+                            const SizedBox(width: 4),
+                            AppText(
+                              text: rating.toStringAsFixed(1),
+                              color: context.textPrimary,
+                              fontSize: metaFontSize,
+                              fontWeight: 500,
+                            ),
+                            SizedBox(width: isCompact ? 10 : 14),
+                            AppImage(path: AppAssets.chat, size: iconSize),
+                            const SizedBox(width: 4),
+                            Flexible(
                               child: AppText(
-                                text: '$oldPrice $displayCurrency',
-                                maxLines: 1,
+                                text: '$reviewCount ${l10n.reviewsLabel}',
+                                color: context.textPrimary,
+                                fontSize: metaFontSize,
+                                fontWeight: 500,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: context.textSecondary,
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
+                                maxLines: 1,
                               ),
                             ),
                           ],
                         ),
-                      if (oldPrice.isNotEmpty) const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              currentPrice.isNotEmpty ? '$currentPrice $displayCurrency' : '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: context.watch<AppModeCubit>().state.primaryColor,
-                                  ),
-                            ),
+                        const SizedBox(height: 2),
+                        Flexible(
+                          child: AppText(
+                            text: title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            fontWeight: 600,
+                            height: 1.2,
+                            fontSize: titleFontSize,
+                            color: context.textPrimary,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 2),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              height: oldPriceLineHeight,
+                              child: oldPrice.isNotEmpty
+                                  ? AppText(
+                                      text: '$oldPrice $displayCurrency',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: oldPriceFontSize,
+                                      color: context.textSecondary,
+                                      decoration: TextDecoration.lineThrough,
+                                    )
+                                  : null,
+                            ),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                currentPrice.isNotEmpty
+                                    ? '$currentPrice $displayCurrency'
+                                    : '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: priceFontSize,
+                                  fontWeight: FontWeight.w800,
+                                  color: context
+                                      .watch<AppModeCubit>()
+                                      .state
+                                      .primaryColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-            child: CartCounter(adSlug: slug, height: 40),
-          ),
-        ],
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 8),
+                child: CartCounter(adSlug: slug, height: cartHeight),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

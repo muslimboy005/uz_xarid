@@ -7,6 +7,7 @@ import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 import 'package:uzxarid/core/localization/app_locale_holder.dart';
 import 'package:uzxarid/core/localization/currency_holder.dart';
 import 'package:uzxarid/core/network/auth_interseptor.dart';
+import 'package:uzxarid/core/network/cdn_host_rewrite_interceptor.dart';
 import 'package:uzxarid/core/network/currency_interceptor.dart';
 import 'package:uzxarid/core/network/language_interceptor.dart';
 import 'package:uzxarid/core/network/payload_interceptor.dart';
@@ -63,6 +64,12 @@ class DioClient {
         ),
       ),
     );
+
+    // Backend `api-minio.upgroup.uz` URL'larini mobile CDN
+    // `mob-minio.uzxarid.uz` ga rasmlar va hujjatlar uchun bir joyda
+    // almashtiramiz. Logger'dan keyin qo'shilgan — log'da asl URL ko'rinadi,
+    // chaqiruvchi kod esa CDN versiyasini oladi.
+    _dio.interceptors.add(CdnHostRewriteInterceptor());
   }
 
   Dio get dio => _dio;

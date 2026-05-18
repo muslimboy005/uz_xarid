@@ -29,7 +29,14 @@ class CreateAdParams {
     this.regionId,
     this.districtId,
     this.neighborhoodId,
+    this.street,
+    this.houseNumber,
+    this.apartment,
+    this.addressComment,
     this.dynamicFields = const {},
+    this.brand,
+    this.brandModel,
+    this.vehicleDetail,
   });
 
   final String title;
@@ -66,5 +73,20 @@ class CreateAdParams {
   final int? regionId;
   final int? districtId;
   final int? neighborhoodId;
+  final String? street;
+  final String? houseNumber;
+  final String? apartment;
+  final String? addressComment;
+  /// `attributes[<name>]` sifatida yuboriladigan dinamik fieldlar.
+  /// `vehicle_detail` ichiga ko'chgan kalitlar bu yerga kirmaydi.
   final Map<String, dynamic> dynamicFields;
+
+  /// Auto uchun top-level `brand` (id string).
+  final String? brand;
+
+  /// Auto uchun top-level `brand_model` (id string).
+  final String? brandModel;
+
+  /// Auto uchun `vehicle_detail` JSON object (repository jsonEncode qiladi).
+  final Map<String, dynamic>? vehicleDetail;
 }

@@ -1,3 +1,5 @@
+import 'package:uzxarid/core/utils/image_parser.dart';
+
 /// "Mening e'lonlarim" ro'yxati elementi (GET ad/me/ javobi).
 class MyListingItemDto {
   const MyListingItemDto({
@@ -50,10 +52,25 @@ class MyListingItemDto {
       categoryId = (category['id'] as num?)?.toInt();
       categoryName = category['name'] as String?;
     }
+
+    final rawAddress = json['address'];
+    String? addressText;
+    double? latitude;
+    double? longitude;
+    String? addressCreatedAt;
+    if (rawAddress is Map<String, dynamic>) {
+      addressText = rawAddress['address'] as String?;
+      latitude = (rawAddress['latitude'] as num?)?.toDouble();
+      longitude = (rawAddress['longitude'] as num?)?.toDouble();
+      addressCreatedAt = rawAddress['created_at'] as String?;
+    } else if (rawAddress is String) {
+      addressText = rawAddress;
+    }
+
     return MyListingItemDto(
       slug: json['slug'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      mainImage: json['main_image'] as String?,
+      mainImage: ImageParser.parse(json['main_image']),
       price: json['price']?.toString(),
       finalPrice: json['final_price']?.toString(),
       currency: json['currency'] as String? ?? 'uzs',
@@ -66,10 +83,10 @@ class MyListingItemDto {
       viewsCount: (json['views_count'] as num?)?.toInt() ?? 0,
       likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
       callCount: (json['call_count'] as num?)?.toInt() ?? 0,
-      createdAt: json['created_at'] as String?,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
-      address: json['address'] as String?,
+      createdAt: json['created_at'] as String? ?? addressCreatedAt,
+      latitude: (json['latitude'] as num?)?.toDouble() ?? latitude,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? longitude,
+      address: addressText,
     );
   }
 }

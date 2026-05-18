@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 import 'package:uzxarid/core/constants/api_urls.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
@@ -105,6 +107,19 @@ class _AddListingPageState extends State<AddListingPage> {
   final _lengthController = TextEditingController();
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
+
+  // ─── Video havola va telefon ─────────────────────────────────────
+  final _videoYoutubeController = TextEditingController();
+  final _videoTelegramController = TextEditingController();
+  final _videoInstagramController = TextEditingController();
+  final _videoOtherController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  // ─── Address qo'shimcha maydonlari ───────────────────────────────
+  final _streetController = TextEditingController();
+  final _houseNumberController = TextEditingController();
+  final _apartmentController = TextEditingController();
+  final _addressCommentController = TextEditingController();
 
   String _weightUnit = 'KG';
   String _dimensionUnit = 'cm';
@@ -213,6 +228,15 @@ class _AddListingPageState extends State<AddListingPage> {
     _carPlateController.dispose();
     _carTechSeriesController.dispose();
     _carTechNumberController.dispose();
+    _videoYoutubeController.dispose();
+    _videoTelegramController.dispose();
+    _videoInstagramController.dispose();
+    _videoOtherController.dispose();
+    _phoneController.dispose();
+    _streetController.dispose();
+    _houseNumberController.dispose();
+    _apartmentController.dispose();
+    _addressCommentController.dispose();
     super.dispose();
   }
 
@@ -972,13 +996,6 @@ class _AddListingPageState extends State<AddListingPage> {
                       borderColor,
                     ),
                     const SizedBox(height: 16),
-                    _buildSummaCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
                     _buildCategoryCard(
                       cardColor,
                       textColor,
@@ -994,6 +1011,27 @@ class _AddListingPageState extends State<AddListingPage> {
                     ),
                     const SizedBox(height: 16),
                     _buildProductNameCard(
+                      cardColor,
+                      textColor,
+                      textSecondary,
+                      borderColor,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildVideoLinksCard(
+                      cardColor,
+                      textColor,
+                      textSecondary,
+                      borderColor,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSummaCard(
+                      cardColor,
+                      textColor,
+                      textSecondary,
+                      borderColor,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPhoneCard(
                       cardColor,
                       textColor,
                       textSecondary,
@@ -1087,7 +1125,7 @@ class _AddListingPageState extends State<AddListingPage> {
     }
 
     final visibleDynamicFields = _dynamicFields.where(_isDynamicFieldVisible);
-    final dynamicPayload = <String, dynamic>{};
+    final attributesPayload = <String, dynamic>{};
     for (final field in visibleDynamicFields) {
       final type = field.type.toLowerCase();
       void showError(String message) {
@@ -1120,7 +1158,7 @@ class _AddListingPageState extends State<AddListingPage> {
             return;
           }
         }
-        if (value.isNotEmpty) dynamicPayload[field.name] = value;
+        if (value.isNotEmpty) attributesPayload[field.name] = value;
         continue;
       }
 
@@ -1133,7 +1171,7 @@ class _AddListingPageState extends State<AddListingPage> {
           showError('${field.label}: kamida bittasini tanlang');
           return;
         }
-        if (list.isNotEmpty) dynamicPayload[field.name] = list;
+        if (list.isNotEmpty) attributesPayload[field.name] = list;
         continue;
       }
 
@@ -1143,7 +1181,7 @@ class _AddListingPageState extends State<AddListingPage> {
           showError('${field.label}: belgilang');
           return;
         }
-        dynamicPayload[field.name] = value;
+        attributesPayload[field.name] = value;
         continue;
       }
 
@@ -1154,19 +1192,65 @@ class _AddListingPageState extends State<AddListingPage> {
         return;
       }
       if (value != null && value.toString().isNotEmpty) {
-        dynamicPayload[field.name] = value;
+        attributesPayload[field.name] = value;
       }
     }
+    String? brandValue;
+    String? brandModelValue;
+    Map<String, dynamic>? vehicleDetail;
     if (_listingType == _ListingType.car) {
-      if (_selectedCarBrandId != null) {
-        dynamicPayload['brand'] = _selectedCarBrandId;
+      brandValue = _selectedCarBrandId?.toString();
+      brandModelValue = _selectedCarModelId?.toString();
+
+      // Auto kategoriyasi field nomi -> vehicle_detail spec kaliti.
+      // Bu fieldlar attributes'dan olib tashlanib vehicle_detail ichiga ko'chiriladi.
+      const carDetailRenameMap = <String, String>{
+        'manufacture': 'year',
+        'fuel_type': 'fuel_type',
+        'engine_capacity': 'engine_volume',
+        'transmission_type': 'transmission',
+        'body': 'body_type',
+        'color': 'vehicle_color',
+      };
+      // year/year-like fieldlar uchun int qaytaramiz.
+      const intDetailKeys = <String>{'year', 'mileage'};
+
+      final detail = <String, dynamic>{};
+      for (final entry in carDetailRenameMap.entries) {
+        final raw = attributesPayload.remove(entry.key);
+        if (raw == null) continue;
+        // multiselect bo'lsa (masalan fuel_type) — birinchi qiymatni olamiz.
+        final scalar = raw is List ? (raw.isEmpty ? null : raw.first) : raw;
+        if (scalar == null) continue;
+        final asString = scalar.toString();
+        if (asString.isEmpty) continue;
+        if (intDetailKeys.contains(entry.value)) {
+          detail[entry.value] = int.tryParse(asString) ?? asString;
+        } else {
+          detail[entry.value] = asString;
+        }
       }
-      if (_selectedCarModelId != null) {
-        dynamicPayload['model'] = _selectedCarModelId;
+
+      // condition_changed slug -> vehicle_detail.condition qisqa slug.
+      // attributes ichida ham qoldiriladi (server ikkalasini ham kutadi).
+      const conditionChangedToSlug = <String, String>{
+        'condition_changed_new': 'yangi',
+        'condition_changed_good': 'yaxshi',
+        'condition_changed_average': 'ortacha',
+        'condition_changed_bad': 'yomon',
+        'condition_changed_accident': 'avtohalokat',
+        'condition_changed_repair': 'tamir',
+      };
+      final condChanged = attributesPayload['condition_changed'];
+      if (condChanged != null) {
+        final slug = conditionChangedToSlug[condChanged.toString()];
+        if (slug != null) detail['condition'] = slug;
       }
+
       if (_selectedCarTrimId != null) {
-        dynamicPayload['trim'] = _selectedCarTrimId;
+        detail['vehicle_trims'] = _selectedCarTrimId;
       }
+      if (detail.isNotEmpty) vehicleDetail = detail;
     }
     final isEdit = widget.editSlug != null && widget.editSlug!.isNotEmpty;
     final blocState = formContext.read<AddListingBloc>().state;
@@ -1264,7 +1348,22 @@ class _AddListingPageState extends State<AddListingPage> {
       regionId: _selectedRegionId,
       districtId: _selectedDistrictId,
       neighborhoodId: _selectedNeighborhoodId,
-      dynamicFields: dynamicPayload,
+      street: _streetController.text.trim().isEmpty
+          ? null
+          : _streetController.text.trim(),
+      houseNumber: _houseNumberController.text.trim().isEmpty
+          ? null
+          : _houseNumberController.text.trim(),
+      apartment: _apartmentController.text.trim().isEmpty
+          ? null
+          : _apartmentController.text.trim(),
+      addressComment: _addressCommentController.text.trim().isEmpty
+          ? null
+          : _addressCommentController.text.trim(),
+      dynamicFields: attributesPayload,
+      brand: brandValue,
+      brandModel: brandModelValue,
+      vehicleDetail: vehicleDetail,
     );
     if (!isEdit) {
       final user = formContext
@@ -2481,6 +2580,16 @@ class _AddListingPageState extends State<AddListingPage> {
           },
         ),
       );
+      dio.interceptors.add(
+        TalkerDioLogger(
+          settings: const TalkerDioLoggerSettings(
+            enabled: true,
+            printRequestHeaders: true,
+            printRequestData: true,
+            printResponseData: true,
+          ),
+        ),
+      );
       final response = await dio.post(
         'https://api-prod.gross.uz/api/v1/osago/check-tech-data',
         data: {
@@ -2544,7 +2653,20 @@ class _AddListingPageState extends State<AddListingPage> {
         return;
       }
 
-      _applyTechDataToDynamicFields(techMap);
+      // Osago javobini (`gross_response` kalit ostida to'liq holda) mobile-check
+      // ga yuborib brand/model id va boyitilgan qiymatlarni olishga harakat
+      // qilamiz. Muvaffaqiyatsiz bo'lsa, osago techPassport ustidan eski
+      // autofill ishlaydi.
+      final mobileCheckData = await _fetchVehicleMobileCheck(
+        Map<String, dynamic>.from(body),
+      );
+      if (!mounted) return;
+
+      if (mobileCheckData != null) {
+        _applyMobileCheckData(mobileCheckData);
+      } else {
+        _applyTechDataToDynamicFields(techMap);
+      }
 
       setState(() {
         _carTechSearching = false;
@@ -2730,6 +2852,85 @@ class _AddListingPageState extends State<AddListingPage> {
           setForField(field, raw);
         }
       }
+    }
+  }
+
+  // Osago javobidagi `data` ni `/api/v1/vehicle/mobile-check/` endpointiga
+  // yuborib, brand/model id va boyitilgan qiymatlarni qaytaradi. Tarmoq yoki
+  // server xatosi bo'lsa `null` qaytaradi — chaqiruvchi eski techPassport
+  // asosida fallback qilishi mumkin.
+  Future<Map<String, dynamic>?> _fetchVehicleMobileCheck(
+    Map<String, dynamic> osagoResponse,
+  ) async {
+    try {
+      final dio = getIt<DioClient>().dio;
+      final res = await dio.post(
+        'vehicle/mobile-check/',
+        data: {'gross_response': osagoResponse},
+      );
+      final body = res.data;
+      if (body is! Map) return null;
+      if (body['status'] != true) return null;
+      final data = body['data'];
+      if (data is Map) {
+        return Map<String, dynamic>.from(data);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // Mobile-check javobini formaga moslash: brand/model/trim cascade-ni id bilan
+  // to'ldiramiz, qolgan qiymatlarni esa techPassport bilan parallel xaritaga
+  // o'tkazib dinamik fieldlarga yo'naltiramiz.
+  void _applyMobileCheckData(Map<String, dynamic> data) {
+    final brand = data['brand'];
+    if (brand is Map) {
+      final id = brand['id'];
+      final name = brand['name']?.toString();
+      if (id is int && name != null && name.isNotEmpty) {
+        _selectedCarBrandId = id;
+        _selectedCarBrandName = name;
+      }
+    }
+    final model = data['brand_model'];
+    if (model is Map) {
+      final id = model['id'];
+      final name = model['name']?.toString();
+      if (id is int && name != null && name.isNotEmpty) {
+        _selectedCarModelId = id;
+        _selectedCarModelName = name;
+      }
+    }
+    final trim = data['vehicle_trim'];
+    if (trim is Map) {
+      final id = trim['id'];
+      final name = trim['name']?.toString();
+      if (id is int && name != null && name.isNotEmpty) {
+        _selectedCarTrimId = id;
+        _selectedCarTrimName = name;
+      }
+    } else {
+      _selectedCarTrimId = null;
+      _selectedCarTrimName = null;
+    }
+
+    final dynamicTech = <String, dynamic>{
+      if (data['model_name'] != null) 'modelName': data['model_name'],
+      if (data['vehicle_color'] != null) 'vehicleColor': data['vehicle_color'],
+      if (data['fuel_type'] != null) 'fuelType': data['fuel_type'],
+      if (data['horse_powers'] != null) 'horsePowers': data['horse_powers'],
+      if (data['body_number'] != null) 'bodyNumber': data['body_number'],
+      if (data['engine_number'] != null) 'engineNumber': data['engine_number'],
+      if (data['gov_number'] != null) 'govNumber': data['gov_number'],
+      if (data['full_weight'] != null) 'fullWeight': data['full_weight'],
+      if (data['empty_weight'] != null) 'emptyWeight': data['empty_weight'],
+      if (data['seats'] != null) 'seats': data['seats'],
+      if (data['issue_year'] != null) 'issueYear': data['issue_year'],
+    };
+    if (dynamicTech.isNotEmpty) {
+      _applyTechDataToDynamicFields(dynamicTech);
     }
   }
 
@@ -3433,6 +3634,82 @@ class _AddListingPageState extends State<AddListingPage> {
     );
   }
 
+  // ─── VIDEO HAVOLA CARD ──────────────────────────────────────────
+
+  Widget _buildVideoLinksCard(
+    Color cardColor,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    return _cardWithHeader(
+      cardColor: cardColor,
+      borderColor: borderColor,
+      title: 'Video havola',
+      subtitle: 'Mahsulot videosi havolasini ulang (ixtiyoriy)',
+      textColor: textColor,
+      textSecondary: textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _inputField(
+            hint: 'YouTube — https://...',
+            controller: _videoYoutubeController,
+            keyboardType: TextInputType.url,
+          ),
+          const SizedBox(height: 12),
+          _inputField(
+            hint: 'Telegram — https://...',
+            controller: _videoTelegramController,
+            keyboardType: TextInputType.url,
+          ),
+          const SizedBox(height: 12),
+          _inputField(
+            hint: 'Instagram — https://...',
+            controller: _videoInstagramController,
+            keyboardType: TextInputType.url,
+          ),
+          const SizedBox(height: 12),
+          _inputField(
+            hint: 'Boshqa manbaa — https://...',
+            controller: _videoOtherController,
+            keyboardType: TextInputType.url,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── TELEFON RAQAM CARD ─────────────────────────────────────────
+
+  Widget _buildPhoneCard(
+    Color cardColor,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    return _cardWithHeader(
+      cardColor: cardColor,
+      borderColor: borderColor,
+      title: 'Telefon raqam',
+      subtitle: 'Aloqa uchun raqamni kiriting',
+      textColor: textColor,
+      textSecondary: textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldLabel('Telefon raqam', true, textColor, textSecondary),
+          const SizedBox(height: 8),
+          _inputField(
+            hint: '+998 __ ___ __ __',
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+          ),
+        ],
+      ),
+    );
+  }
+
   // ─── RASM YUKLASH CARD ──────────────────────────────────────────
 
   Future<void> _pickImage(int index) async {
@@ -4053,7 +4330,78 @@ class _AddListingPageState extends State<AddListingPage> {
               ),
             ),
           ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: _addressTextField(
+                  controller: _streetController,
+                  hint: 'Ko\'cha',
+                  borderColor: borderColor,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _addressTextField(
+                  controller: _houseNumberController,
+                  hint: 'Uy raqami',
+                  borderColor: borderColor,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _addressTextField(
+                  controller: _apartmentController,
+                  hint: 'Kvartira',
+                  borderColor: borderColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _addressTextField(
+            controller: _addressCommentController,
+            hint: 'Izoh (ixtiyoriy)',
+            borderColor: borderColor,
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _addressTextField({
+    required TextEditingController controller,
+    required String hint,
+    required Color borderColor,
+  }) {
+    return SizedBox(
+      height: _kInputHeight,
+      child: TextField(
+        controller: controller,
+        style: TextStyle(
+          fontSize: 14,
+          color: context.textPrimary,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(fontSize: 14, color: context.textSecondary),
+          filled: true,
+          fillColor: context.surfaceContainer,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: borderColor),
+          ),
+        ),
       ),
     );
   }

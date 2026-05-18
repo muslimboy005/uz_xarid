@@ -10,6 +10,7 @@ class CategoryFieldEntity {
     required this.condition,
     this.minValue,
     this.maxValue,
+    this.valueSource = 'attributes',
   });
 
   final String name;
@@ -22,6 +23,9 @@ class CategoryFieldEntity {
   final CategoryFieldConditionEntity? condition;
   final double? minValue;
   final double? maxValue;
+
+  /// Backend `value_source`: `"attributes"` yoki `"vehicle_detail"`.
+  final String valueSource;
 
   factory CategoryFieldEntity.fromJson(Map<String, dynamic> json) {
     final optionsRaw = json['options'];
@@ -59,6 +63,9 @@ class CategoryFieldEntity {
       condition: condition,
       minValue: _parseNum(json['min_value']),
       maxValue: _parseNum(json['max_value']),
+      valueSource: (json['value_source'] ?? 'attributes').toString().isEmpty
+          ? 'attributes'
+          : (json['value_source'] ?? 'attributes').toString(),
     );
   }
 

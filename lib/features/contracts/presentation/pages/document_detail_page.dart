@@ -13,6 +13,7 @@ import 'package:uzxarid/core/dio/dio_client.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/image_parser.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/w__container.dart';
 
@@ -47,26 +48,12 @@ class _DocumentDetailPageState extends State<DocumentDetailPage> {
     });
 
     try {
-      final response = await _dio.get<dynamic>('document/${widget.documentId}/');
-      final raw = response.data;
-
-      if (raw is Map<String, dynamic>) {
-        setState(() {
-          _detail = DocumentDetail.fromJson(raw);
-          _isLoading = false;
-        });
-        return;
-      }
-
-      if (raw is Map) {
-        setState(() {
-          _detail = DocumentDetail.fromJson(raw.cast<String, dynamic>());
-          _isLoading = false;
-        });
-        return;
-      }
-
-      throw Exception('Document detail noto‘g‘ri formatda keldi.');
+      final detailJson = await _fetchDocumentDetail(widget.documentId);
+      setState(() {
+        _detail = DocumentDetail.fromJson(detailJson);
+        _isLoading = false;
+      });
+      return;
     } catch (e) {
       setState(() {
         _errorMessage = 'Tafsilot yuklanmadi: ${e.toString()}';
@@ -84,32 +71,52 @@ class _DocumentDetailPageState extends State<DocumentDetailPage> {
     return File('${dir.path}/$documentId.pdf');
   }
 
-  bool _isReadyForDownload(String? status) {
-    return status == 'generated' ||
-        status == 'sent' ||
-        status == 'signed';
+  static const String _logTag = '[DOC_DOWNLOAD]';
+
+  /// PDF mavjudligini status emas, balki `file`/`file_url` borligi belgilaydi.
+  /// Backend `status: "pending"` (= "Imzoga tayyor") holatida ham PDF tayyor
+  /// bo'lishi mumkin — shuning uchun fayl URL'i borligini tekshiramiz.
+  /// URL `api-minio.upgroup.uz` hostidan kelsa, mobile CDN `mob-minio.uzxarid.uz`
+  /// ga ko'chiriladi (rasm/hujjat farqsiz).
+  String? _extractFileUrl(Map<String, dynamic> detail) {
+    final raw = detail['file_url'] ?? detail['file'] ?? detail['signed_file'];
+    final url = raw?.toString();
+    if (url == null || url.isEmpty) return null;
+    return url.cdnUrl;
   }
 
   Future<Map<String, dynamic>> _fetchDocumentDetail(int documentId) async {
+    debugPrint('$_logTag GET document/$documentId/');
     final response = await _dio.get<dynamic>('document/$documentId/');
-    if (response.data is Map<String, dynamic>) {
-      return response.data as Map<String, dynamic>;
+    final raw = response.data;
+    Map<String, dynamic>? envelope;
+    if (raw is Map<String, dynamic>) {
+      envelope = raw;
+    } else if (raw is Map) {
+      envelope = raw.cast<String, dynamic>();
     }
-    if (response.data is Map) {
-      return (response.data as Map).cast<String, dynamic>();
+    if (envelope == null) {
+      throw Exception('Document detail noto‘g‘ri formatda keldi.');
     }
-    throw Exception('Document detail noto‘g‘ri formatda keldi.');
+
+    final data = envelope['data'];
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return data.cast<String, dynamic>();
+    return envelope;
   }
 
-  Future<void> _waitUntilReady(int documentId) async {
+  Future<String> _waitUntilFileReady(int documentId) async {
     const maxAttempts = 30;
     const interval = Duration(seconds: 2);
 
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      debugPrint('$_logTag poll attempt ${attempt + 1}/$maxAttempts');
       final detailJson = await _fetchDocumentDetail(documentId);
       final status = detailJson['status']?.toString();
+      final url = _extractFileUrl(detailJson);
+      debugPrint('$_logTag poll status=$status fileUrl=$url');
 
-      if (_isReadyForDownload(status)) return;
+      if (url != null) return url;
       if (status == 'cancelled') {
         throw Exception('Hujjat bekor qilingan.');
       }
@@ -120,40 +127,53 @@ class _DocumentDetailPageState extends State<DocumentDetailPage> {
     throw TimeoutException('Hujjat tayyor bo‘lish vaqti tugadi.');
   }
 
-  Future<Uint8List> _downloadPdfBytes(int documentId) async {
+  Future<Uint8List> _downloadPdfBytes(String fileUrl) async {
+    debugPrint('$_logTag downloading bytes from $fileUrl');
     final response = await _dio.get<List<int>>(
-      'document/$documentId/download/',
+      fileUrl,
       options: Options(responseType: ResponseType.bytes),
     );
 
     final data = response.data;
     if (data == null) throw Exception('PDF yuklab olinmadi.');
+    debugPrint('$_logTag downloaded ${data.length} bytes');
     return Uint8List.fromList(data);
   }
 
   Future<void> _ensureDownloaded(int documentId) async {
     final cached = _cachedPdfFile(documentId);
-    if (await cached.exists()) return;
+    if (await cached.exists()) {
+      debugPrint('$_logTag cache hit -> ${cached.path}');
+      return;
+    }
+    debugPrint('$_logTag cache miss, fetching detail for $documentId');
 
     final detailJson = await _fetchDocumentDetail(documentId);
-    final status = detailJson['status']?.toString();
+    var fileUrl = _extractFileUrl(detailJson);
+    debugPrint('$_logTag initial fileUrl=$fileUrl status=${detailJson['status']}');
 
-    if (!_isReadyForDownload(status)) {
+    if (fileUrl == null) {
+      debugPrint('$_logTag no file_url -> POST document/$documentId/generate/');
       await _dio.post('document/$documentId/generate/');
-      await _waitUntilReady(documentId);
+      fileUrl = await _waitUntilFileReady(documentId);
     }
 
-    final bytes = await _downloadPdfBytes(documentId);
+    final bytes = await _downloadPdfBytes(fileUrl);
 
     final dir = _contractsDir();
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
     await cached.writeAsBytes(bytes, flush: true);
+    debugPrint('$_logTag saved to ${cached.path}');
   }
 
   Future<void> _onDownloadPressed() async {
-    if (_isBusy) return;
+    if (_isBusy) {
+      debugPrint('$_logTag download tap ignored (busy)');
+      return;
+    }
+    debugPrint('$_logTag download tap');
     setState(() => _isBusy = true);
     try {
       await _ensureDownloaded(widget.documentId);
@@ -161,9 +181,6 @@ class _DocumentDetailPageState extends State<DocumentDetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Yuklab olindi (offline uchun saqlandi).')),
       );
-
-      // Status yangilansin
-      await _loadDetail();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -178,12 +195,17 @@ class _DocumentDetailPageState extends State<DocumentDetailPage> {
   }
 
   Future<void> _onOpenPressed() async {
-    if (_isBusy) return;
+    if (_isBusy) {
+      debugPrint('$_logTag open tap ignored (busy)');
+      return;
+    }
+    debugPrint('$_logTag open tap');
     setState(() => _isBusy = true);
     try {
       await _ensureDownloaded(widget.documentId);
       final file = _cachedPdfFile(widget.documentId);
       final uri = Uri.file(file.path);
+      debugPrint('$_logTag launchUrl ${uri.toString()}');
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
       if (!mounted) return;
@@ -199,7 +221,11 @@ class _DocumentDetailPageState extends State<DocumentDetailPage> {
   }
 
   Future<void> _onSharePressed() async {
-    if (_isBusy) return;
+    if (_isBusy) {
+      debugPrint('$_logTag share tap ignored (busy)');
+      return;
+    }
+    debugPrint('$_logTag share tap');
     setState(() => _isBusy = true);
     try {
       await _ensureDownloaded(widget.documentId);

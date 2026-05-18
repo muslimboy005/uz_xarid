@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:uzxarid/core/constants/api_urls.dart';
 import 'package:uzxarid/core/either/either.dart';
@@ -155,13 +157,17 @@ class ListingRepositoryImpl implements ListingRepository {
         'category': params.categoryId,
         'price': params.price,
         'currency': params.currency.toLowerCase(),
-        if (params.latitude != null) 'latitude': params.latitude,
-        if (params.longitude != null) 'longitude': params.longitude,
-        if (params.regionId != null) 'region': params.regionId,
-        if (params.districtId != null) 'district': params.districtId,
-        if (params.neighborhoodId != null)
-          'neighborhood': params.neighborhoodId,
-        ...params.dynamicFields,
+        ..._buildAddressMap(params),
+        if (params.brand != null && params.brand!.isNotEmpty)
+          'brand': params.brand,
+        if (params.brandModel != null && params.brandModel!.isNotEmpty)
+          'brand_model': params.brandModel,
+        if (params.vehicleDetail != null && params.vehicleDetail!.isNotEmpty)
+          'vehicle_detail': jsonEncode(params.vehicleDetail),
+        for (final entry in params.dynamicFields.entries)
+          'attributes[${entry.key}]': entry.value is List
+              ? jsonEncode(entry.value)
+              : entry.value,
       });
 
       if (params.mainImagePath != null && params.mainImagePath!.isNotEmpty) {
@@ -257,13 +263,17 @@ class ListingRepositoryImpl implements ListingRepository {
             'dimension_unit': params.dimensionUnit!.toLowerCase(),
           if (params.weightUnit != null && params.weightUnit!.isNotEmpty)
             'weight_unit': params.weightUnit!.toLowerCase(),
-          if (params.latitude != null) 'latitude': params.latitude,
-          if (params.longitude != null) 'longitude': params.longitude,
-          if (params.regionId != null) 'region': params.regionId,
-          if (params.districtId != null) 'district': params.districtId,
-          if (params.neighborhoodId != null)
-            'neighborhood': params.neighborhoodId,
-          ...params.dynamicFields,
+          ..._buildAddressMap(params),
+          if (params.brand != null && params.brand!.isNotEmpty)
+            'brand': params.brand,
+          if (params.brandModel != null && params.brandModel!.isNotEmpty)
+            'brand_model': params.brandModel,
+          if (params.vehicleDetail != null && params.vehicleDetail!.isNotEmpty)
+            'vehicle_detail': jsonEncode(params.vehicleDetail),
+          for (final entry in params.dynamicFields.entries)
+            'attributes[${entry.key}]': entry.value is List
+                ? jsonEncode(entry.value)
+                : entry.value,
         });
 
         if (params.mainImagePath != null && params.mainImagePath!.isNotEmpty) {
@@ -331,14 +341,17 @@ class ListingRepositoryImpl implements ListingRepository {
           'dimension_unit': params.dimensionUnit!.toLowerCase(),
         if (params.weightUnit != null && params.weightUnit!.isNotEmpty)
           'weight_unit': params.weightUnit!.toLowerCase(),
-        if (params.latitude != null) 'latitude': params.latitude,
-        if (params.longitude != null) 'longitude': params.longitude,
-        if (params.address != null) 'address': params.address,
-        if (params.regionId != null) 'region': params.regionId,
-        if (params.districtId != null) 'district': params.districtId,
-        if (params.neighborhoodId != null)
-          'neighborhood': params.neighborhoodId,
-        ...params.dynamicFields,
+        ..._buildAddressMap(params),
+        if (params.brand != null && params.brand!.isNotEmpty)
+          'brand': params.brand,
+        if (params.brandModel != null && params.brandModel!.isNotEmpty)
+          'brand_model': params.brandModel,
+        if (params.vehicleDetail != null && params.vehicleDetail!.isNotEmpty)
+          'vehicle_detail': jsonEncode(params.vehicleDetail),
+        for (final entry in params.dynamicFields.entries)
+          'attributes[${entry.key}]': entry.value is List
+              ? jsonEncode(entry.value)
+              : entry.value,
       };
 
       final response = await dio.put(
@@ -361,6 +374,67 @@ class ListingRepositoryImpl implements ListingRepository {
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
+  }
+
+  Map<String, dynamic> _buildAddressMap(CreateAdParams params) {
+    final map = <String, dynamic>{};
+    if (params.regionId != null) map['address[region]'] = params.regionId;
+    if (params.districtId != null) {
+      map['address[district]'] = params.districtId;
+    }
+    if (params.neighborhoodId != null) {
+      map['address[neighborhood]'] = params.neighborhoodId;
+    }
+    if (params.latitude != null) {
+      map['address[latitude]'] = params.latitude;
+    }
+    if (params.longitude != null) {
+      map['address[longitude]'] = params.longitude;
+    }
+    if (params.street != null && params.street!.isNotEmpty) {
+      map['address[street]'] = params.street;
+    }
+    if (params.houseNumber != null && params.houseNumber!.isNotEmpty) {
+      map['address[house_number]'] = params.houseNumber;
+    }
+    if (params.apartment != null && params.apartment!.isNotEmpty) {
+      map['address[apartment]'] = params.apartment;
+    }
+    if (params.addressComment != null && params.addressComment!.isNotEmpty) {
+      map['address[comment]'] = params.addressComment;
+    }
+    final addressText = (params.address != null && params.address!.isNotEmpty)
+        ? params.address!
+        : _composeFallbackAddress(params);
+    if (addressText.isNotEmpty) {
+      map['address[address]'] = addressText;
+    }
+    if (map.isNotEmpty) {
+      map['address[purpose]'] = 'ad';
+    }
+    return map;
+  }
+
+  String _composeFallbackAddress(CreateAdParams params) {
+    final parts = <String>[];
+    if (params.street != null && params.street!.isNotEmpty) {
+      parts.add(params.street!);
+    }
+    if (params.houseNumber != null && params.houseNumber!.isNotEmpty) {
+      parts.add('uy ${params.houseNumber}');
+    }
+    if (params.apartment != null && params.apartment!.isNotEmpty) {
+      parts.add('kv. ${params.apartment}');
+    }
+    if (parts.isEmpty &&
+        params.latitude != null &&
+        params.longitude != null) {
+      parts.add(
+        '${params.latitude!.toStringAsFixed(5)}, '
+        '${params.longitude!.toStringAsFixed(5)}',
+      );
+    }
+    return parts.join(', ');
   }
 
   Either<Failure, CreateAdResult> _parseAdResponse(

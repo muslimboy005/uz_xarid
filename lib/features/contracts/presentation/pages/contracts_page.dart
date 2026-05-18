@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uzxarid/core/dio/dio_client.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/dp/infection.dart';
@@ -106,32 +107,45 @@ class _ContractsPageState extends State<ContractsPage> {
     return File('${dir.path}/$safeId.pdf');
   }
 
-  bool _isReadyForDownload(String? status) {
-    return status == 'generated' ||
-        status == 'sent' ||
-        status == 'signed';
+  /// PDF mavjudligini status emas, `file`/`file_url` borligi belgilaydi.
+  /// Backend `status: "pending"` ("Imzoga tayyor") holatida ham fayl tayyor
+  /// bo'lishi mumkin — shuning uchun statusga emas, file_url'ga qaraymiz.
+  String? _extractFileUrl(Map<String, dynamic> detail) {
+    final raw = detail['file_url'] ?? detail['file'] ?? detail['signed_file'];
+    final url = raw?.toString();
+    if (url == null || url.isEmpty) return null;
+    return url;
   }
 
   Future<Map<String, dynamic>> _fetchDocumentDetail(int documentId) async {
     final response = await _dio.get<dynamic>('document/$documentId/');
-    if (response.data is Map<String, dynamic>) {
-      return response.data as Map<String, dynamic>;
+    final raw = response.data;
+    Map<String, dynamic>? envelope;
+    if (raw is Map<String, dynamic>) {
+      envelope = raw;
+    } else if (raw is Map) {
+      envelope = raw.cast<String, dynamic>();
     }
-    if (response.data is Map) {
-      return (response.data as Map).cast<String, dynamic>();
+    if (envelope == null) {
+      throw Exception('Document detail noto‘g‘ri formatda keldi.');
     }
-    throw Exception('Document detail noto‘g‘ri formatda keldi.');
+
+    final data = envelope['data'];
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return data.cast<String, dynamic>();
+    return envelope;
   }
 
-  Future<void> _waitUntilReady(int documentId) async {
+  Future<void> _waitUntilFileReady(int documentId) async {
     const maxAttempts = 30;
     const interval = Duration(seconds: 2);
 
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
       final detailJson = await _fetchDocumentDetail(documentId);
+      final fileUrl = _extractFileUrl(detailJson);
       final status = detailJson['status']?.toString();
 
-      if (_isReadyForDownload(status)) return;
+      if (fileUrl != null) return;
       if (status == 'cancelled') {
         throw Exception('Hujjat bekor qilingan.');
       }
@@ -158,13 +172,13 @@ class _ContractsPageState extends State<ContractsPage> {
     final exists = await cached.exists();
     if (exists) return;
 
-    // Statusni tekshirib, agar tayyor bo‘lmasa generate qilamiz.
+    // file_url bo'lmasa generate qilamiz va polling boshlaymiz.
+    // Backend `status: "pending"` bilan ham file_url'ni qaytarishi mumkin,
+    // shuning uchun statusga emas, file_url'ga qaraymiz.
     final detailJson = await _fetchDocumentDetail(documentId);
-    final status = detailJson['status']?.toString();
-
-    if (!_isReadyForDownload(status)) {
+    if (_extractFileUrl(detailJson) == null) {
       await _dio.post('document/$documentId/generate/');
-      await _waitUntilReady(documentId);
+      await _waitUntilFileReady(documentId);
     }
 
     final bytes = await _downloadPdfBytes(documentId);
@@ -174,6 +188,63 @@ class _ContractsPageState extends State<ContractsPage> {
       await dir.create(recursive: true);
     }
     await cached.writeAsBytes(bytes, flush: true);
+  }
+
+  Future<void> _onViewPressed(DocumentItem doc) async {
+    var fileUrl = doc.fileUrl;
+
+    // List javobida file_url ko'pincha bor, lekin pending yangi doc uchun
+    // bo'lmasligi mumkin — bunda detail GET va generate qilamiz.
+    if (fileUrl == null) {
+      if (_downloadingIds.contains(doc.id)) return;
+      setState(() => _downloadingIds.add(doc.id));
+      try {
+        final detailJson = await _fetchDocumentDetail(doc.id);
+        fileUrl = _extractFileUrl(detailJson);
+        if (fileUrl == null) {
+          await _dio.post('document/${doc.id}/generate/');
+          await _waitUntilFileReady(doc.id);
+          fileUrl = _extractFileUrl(await _fetchDocumentDetail(doc.id));
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ko‘rish xatolik: ${e.toString()}'),
+            backgroundColor: AppColors.red,
+          ),
+        );
+        return;
+      } finally {
+        if (mounted) setState(() => _downloadingIds.remove(doc.id));
+      }
+    }
+
+    if (fileUrl == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fayl tayyorlanmadi.')),
+      );
+      return;
+    }
+
+    try {
+      final uri = Uri.parse(fileUrl);
+      final opened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      if (!opened && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Faylni ochib bo‘lmadi.')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ko‘rish xatolik: ${e.toString()}'),
+          backgroundColor: AppColors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _onDownloadPressed(DocumentItem doc) async {
@@ -289,151 +360,19 @@ class _ContractsPageState extends State<ContractsPage> {
                                     const SizedBox(height: 12),
                                 itemBuilder: (context, index) {
                                   final doc = _documents[index];
-
                                   final primaryColor = context
                                       .watch<AppModeCubit>()
                                       .state
                                       .primaryColor;
-
-                                  final isDownloading =
+                                  final isBusy =
                                       _downloadingIds.contains(doc.id);
 
-                                  return Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: bodyBg,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: context.borderColor,
-                                      ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                '${doc.typeLabel} #${doc.id}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleSmall
-                                                    ?.copyWith(
-                                                      fontWeight: FontWeight.w700,
-                                                      color: context.textPrimary,
-                                                    ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: primaryColor.withValues(
-                                                    alpha: 0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: Text(
-                                                doc.status ?? '—',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
-                                                    ?.copyWith(
-                                                      color: primaryColor,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          '${doc.sellerName ?? '—'} → ${doc.buyerName ?? '—'}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: context.textSecondary,
-                                              ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          doc.dateLabel ?? '',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: context.textSecondary,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: ContainerW(
-                                                radius: 10,
-                                                height: 42,
-                                                color: cardColor,
-                                                borderColor:
-                                                    context.borderColor,
-                                                onTap: () {
-                                                  context.push(
-                                                    '/profile/contracts/${doc.id}',
-                                                  );
-                                                },
-                                                child: const Center(
-                                                  child: Text(
-                                                    'View',
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.w700,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: ContainerW(
-                                                radius: 10,
-                                                height: 42,
-                                                color: primaryColor,
-                                                onTap: () {
-                                                  _onDownloadPressed(doc);
-                                                },
-                                                child: Center(
-                                                  child: isDownloading
-                                                      ? const SizedBox(
-                                                          width: 22,
-                                                          height: 22,
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                            color: Colors.white,
-                                                          ),
-                                                        )
-                                                      : AppText(
-                                                          text: 'Download',
-                                                          fontSize: 14,
-                                                          fontWeight: 700,
-                                                          color:
-                                                              context.textWhite,
-                                                        ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                  return _DocumentCard(
+                                    doc: doc,
+                                    isBusy: isBusy,
+                                    primaryColor: primaryColor,
+                                    onView: () => _onViewPressed(doc),
+                                    onDownload: () => _onDownloadPressed(doc),
                                   );
                                 },
                               ),
@@ -449,42 +388,269 @@ class _ContractsPageState extends State<ContractsPage> {
   }
 }
 
+class _DocumentCard extends StatelessWidget {
+  const _DocumentCard({
+    required this.doc,
+    required this.isBusy,
+    required this.primaryColor,
+    required this.onView,
+    required this.onDownload,
+  });
+
+  final DocumentItem doc;
+  final bool isBusy;
+  final Color primaryColor;
+  final VoidCallback onView;
+  final VoidCallback onDownload;
+
+  static IconData _typeIcon(String type) {
+    final t = type.toLowerCase();
+    if (t.contains('invoice')) return Icons.receipt_long_outlined;
+    if (t.contains('reconciliation')) return Icons.fact_check_outlined;
+    if (t.contains('contract')) return Icons.description_outlined;
+    return Icons.insert_drive_file_outlined;
+  }
+
+  /// Status uchun semantik rang. `status_display` matni o'zgarmaydi, faqat rang.
+  static Color _statusColor(String? status, Color fallback) {
+    switch (status) {
+      case 'signed':
+        return const Color(0xFF16A34A);
+      case 'cancelled':
+        return const Color(0xFFDC2626);
+      case 'pending':
+        return const Color(0xFFD97706);
+      default:
+        return fallback;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textPrimary = context.textPrimary;
+    final textSecondary = context.textSecondary;
+    final borderColor = context.borderColor;
+    final cardSurface = context.cardSurface;
+
+    final typeText = doc.typeLabel;
+    final statusText = doc.statusDisplay ?? doc.status ?? '—';
+    final statusColor = _statusColor(doc.status, primaryColor);
+    final dateText = doc.dateLabel;
+    final docNumber = doc.documentNumber;
+    final title = (doc.name != null && doc.name!.isNotEmpty)
+        ? doc.name!
+        : '$typeText #${doc.id}';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _typeIcon(doc.type),
+                  color: primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  typeText,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statusText,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: textPrimary,
+                  height: 1.3,
+                ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              if (docNumber != null && docNumber.isNotEmpty) ...[
+                Icon(Icons.tag, size: 14, color: textSecondary),
+                const SizedBox(width: 4),
+                Text(
+                  docNumber,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              if (dateText != null) ...[
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 13,
+                  color: textSecondary,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  dateText,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: textSecondary,
+                      ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: ContainerW(
+                  radius: 10,
+                  height: 42,
+                  color: cardSurface,
+                  borderColor: borderColor,
+                  onTap: onView,
+                  child: Center(
+                    child: Text(
+                      'Ko‘rish',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: textPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ContainerW(
+                  radius: 10,
+                  height: 42,
+                  color: primaryColor,
+                  onTap: onDownload,
+                  child: Center(
+                    child: isBusy
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : AppText(
+                            text: 'Yuklab olish',
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: context.textWhite,
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class DocumentItem {
   DocumentItem({
     required this.id,
     required this.type,
     required this.status,
+    this.typeDisplay,
+    this.statusDisplay,
+    this.name,
+    this.documentNumber,
+    this.documentDate,
     this.createdAtRaw,
-    this.sellerName,
-    this.buyerName,
+    this.fileUrl,
   });
 
   final int id;
   final String type;
+  final String? typeDisplay;
   final String? status;
+  final String? statusDisplay;
+  final String? name;
+  final String? documentNumber;
+  final String? documentDate;
   final String? createdAtRaw;
-  final String? sellerName;
-  final String? buyerName;
+  final String? fileUrl;
 
   factory DocumentItem.fromJson(Map<String, dynamic> json) {
     final id = _toInt(json['id'] ?? json['document_id'] ?? json['pk']);
-    final typeRaw = (json['type'] ?? json['document_type'] ?? '').toString();
+    final type = (json['type'] ?? json['document_type'] ?? '').toString();
+    final typeDisplay = json['document_type_display']?.toString();
 
+    final status = (json['status'] ?? json['state'])?.toString();
+    final statusDisplay = json['status_display']?.toString();
+
+    final name = json['name']?.toString();
+    final documentNumber = json['document_number']?.toString();
+    final documentDate = json['document_date']?.toString();
     final createdAtRaw =
         (json['created_at'] ?? json['createdAt'] ?? json['date'])?.toString();
 
-    final status = (json['status'] ?? json['state'])?.toString();
-
-    final seller = json['seller'] ?? json['counterparty_seller'];
-    final buyer = json['buyer'] ?? json['counterparty_buyer'];
+    final fileUrlRaw =
+        (json['file_url'] ?? json['file'] ?? json['signed_file'])?.toString();
+    final fileUrl =
+        (fileUrlRaw == null || fileUrlRaw.isEmpty) ? null : fileUrlRaw;
 
     return DocumentItem(
       id: id,
-      type: typeRaw,
+      type: type,
+      typeDisplay: typeDisplay,
       status: status,
+      statusDisplay: statusDisplay,
+      name: name,
+      documentNumber: documentNumber,
+      documentDate: documentDate,
       createdAtRaw: createdAtRaw,
-      sellerName: _formatName(seller),
-      buyerName: _formatName(buyer),
+      fileUrl: fileUrl,
     );
   }
 
@@ -494,37 +660,28 @@ class DocumentItem {
     return int.tryParse(v?.toString() ?? '') ?? 0;
   }
 
-  static String? _formatName(dynamic obj) {
-    if (obj == null) return null;
-    if (obj is String) return obj;
-    if (obj is Map) {
-      final first = obj['first_name'] ?? obj['firstName'] ?? obj['given_name'];
-      final last = obj['last_name'] ?? obj['lastName'] ?? obj['family_name'];
-      final username = obj['username'] ?? obj['name'] ?? obj['full_name'];
-
-      final firstStr = first?.toString() ?? '';
-      final lastStr = last?.toString() ?? '';
-      final nameFromParts = ('$firstStr $lastStr').trim();
-      if (nameFromParts.isNotEmpty) return nameFromParts;
-      return username?.toString();
-    }
-    return obj.toString();
-  }
-
+  /// `document_type_display` mavjud bo'lsa shuni, aks holda lokalizatsiya qilingan
+  /// fallback yoki xom `type`'ni qaytaradi.
   String get typeLabel {
+    final display = typeDisplay;
+    if (display != null && display.isNotEmpty) return display;
     final t = type.toLowerCase();
     if (t.contains('reconciliation')) return 'Hisob-kitob akti';
     if (t.contains('invoice')) return 'Hisob-faktura';
     if (t.contains('contract')) return 'Shartnoma';
     if (t.isEmpty) return 'Hujjat';
-    // fallback: type qay darajada kelgan bo‘lsa shuni ko‘rsatamiz
     return type;
   }
 
+  /// `document_date` (YYYY-MM-DD) -> "DD.MM.YYYY". Fallback — `created_at` sanasi.
   String? get dateLabel {
-    final raw = createdAtRaw;
+    final raw = (documentDate != null && documentDate!.isNotEmpty)
+        ? documentDate
+        : createdAtRaw?.split('T').first;
     if (raw == null || raw.isEmpty) return null;
-    return raw.split('T').first;
+    final parts = raw.split('-');
+    if (parts.length != 3) return raw;
+    return '${parts[2]}.${parts[1]}.${parts[0]}';
   }
 }
 
