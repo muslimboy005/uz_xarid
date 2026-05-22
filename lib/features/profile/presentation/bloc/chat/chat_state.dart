@@ -13,6 +13,7 @@ class ChatState extends Equatable {
   final List<String> pickedFilePaths;
   final int? currentUserId;
   final int? chatRoomId;
+  final bool isInitializing;
 
   const ChatState({
     this.status = ChatStatus.initial,
@@ -24,6 +25,7 @@ class ChatState extends Equatable {
     this.pickedFilePaths = const [],
     this.currentUserId,
     this.chatRoomId,
+    this.isInitializing = false,
   });
 
   ChatState copyWith({
@@ -36,6 +38,7 @@ class ChatState extends Equatable {
     List<String>? pickedFilePaths,
     int? currentUserId,
     int? chatRoomId,
+    bool? isInitializing,
   }) {
     return ChatState(
       status: status ?? this.status,
@@ -47,6 +50,7 @@ class ChatState extends Equatable {
       pickedFilePaths: pickedFilePaths ?? this.pickedFilePaths,
       currentUserId: currentUserId ?? this.currentUserId,
       chatRoomId: chatRoomId ?? this.chatRoomId,
+      isInitializing: isInitializing ?? this.isInitializing,
     );
   }
 
@@ -61,5 +65,6 @@ class ChatState extends Equatable {
     pickedFilePaths,
     currentUserId,
     chatRoomId,
+    isInitializing,
   ];
 }

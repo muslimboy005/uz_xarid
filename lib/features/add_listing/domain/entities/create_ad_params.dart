@@ -37,6 +37,8 @@ class CreateAdParams {
     this.brand,
     this.brandModel,
     this.vehicleDetail,
+    this.contactPhone,
+    this.extraPhone,
   });
 
   final String title;
@@ -89,4 +91,10 @@ class CreateAdParams {
 
   /// Auto uchun `vehicle_detail` JSON object (repository jsonEncode qiladi).
   final Map<String, dynamic>? vehicleDetail;
+
+  /// Asosiy aloqa raqami (`contact_phone`), faqat raqamlar.
+  final String? contactPhone;
+
+  /// Qo‘shimcha aloqa raqami (`extra_phone`), faqat raqamlar.
+  final String? extraPhone;
 }

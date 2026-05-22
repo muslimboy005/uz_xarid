@@ -56,7 +56,8 @@ class AuthInterceptor extends Interceptor {
     _retryDio.interceptors.add(PayloadInterceptor());
   }
 
-  bool _isPublic(String path) => _publicEndpoints.any((e) => path.contains(e));
+  bool _isPublic(String path) =>
+      _publicEndpoints.any((e) => path.startsWith(e));
 
   @override
   Future<void> onRequest(

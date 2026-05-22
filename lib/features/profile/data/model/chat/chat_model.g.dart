@@ -98,7 +98,7 @@ Map<String, dynamic> _$ChatFileModelToJson(ChatFileModel instance) =>
 ChatSenderInfoModel _$ChatSenderInfoModelFromJson(Map<String, dynamic> json) =>
     ChatSenderInfoModel(
       firstName: json['first_name'] as String?,
-      avatar: json['avatar'] as String?,
+      avatar: json['avatar'],
       phone: json['phone'] as String?,
     );
 

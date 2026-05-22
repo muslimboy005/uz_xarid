@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uzxarid/core/app_config.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
@@ -14,13 +13,6 @@ import 'package:uzxarid/l10n/app_localizations.dart';
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -29,11 +21,9 @@ class SupportPage extends StatelessWidget {
     final textColor = context.textPrimary;
     final borderColor = context.borderColor;
 
-    return Scaffold(
-      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
+    return UzXaridScaffold(
       backgroundColor: bodyBg,
-      body: SafeArea(
-        child: Column(
+      body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -91,10 +81,9 @@ class SupportPage extends StatelessWidget {
                     ),
                     Divider(height: 1, color: borderColor, indent: 48),
                     _SupportItem(
-                      iconPath: AppAssets.call,
-                      title: l10n.supportPhone,
-                      trailingText: '1888',
-                      onTap: () => _makePhoneCall('1888'),
+                      icon: Icons.auto_awesome,
+                      title: l10n.aiAssistantTitle,
+                      onTap: () => context.pushNamed('ai-assistant'),
                     ),
                   ],
                 ),
@@ -102,23 +91,22 @@ class SupportPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
 
 class _SupportItem extends StatelessWidget {
-  final String iconPath;
+  final String? iconPath;
+  final IconData? icon;
   final String title;
-  final String? trailingText;
   final VoidCallback onTap;
 
   const _SupportItem({
-    required this.iconPath,
+    this.iconPath,
+    this.icon,
     required this.title,
-    this.trailingText,
     required this.onTap,
-  });
+  }) : assert(iconPath != null || icon != null);
 
   @override
   Widget build(BuildContext context) {
@@ -132,15 +120,18 @@ class _SupportItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Row(
           children: [
-            SvgPicture.asset(
-              iconPath,
-              package: AppConfig.packageName,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
-              height: 24,
-            ),
+            if (iconPath != null)
+              SvgPicture.asset(
+                iconPath!,
+                package: AppConfig.packageName,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary,
+                  BlendMode.srcIn,
+                ),
+                height: 24,
+              )
+            else
+              Icon(icon, color: AppColors.primary, size: 24),
             const SizedBox(width: 16),
             Expanded(
               child: AppText(
@@ -150,15 +141,6 @@ class _SupportItem extends StatelessWidget {
                 color: textColor,
               ),
             ),
-            if (trailingText != null) ...[
-              AppText(
-                text: trailingText!,
-                fontSize: 16,
-                fontWeight: 700,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: 8),
-            ],
             SvgPicture.asset(
               AppAssets.backDropright,
               package: AppConfig.packageName,

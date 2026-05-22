@@ -32,6 +32,7 @@ class ProductCard extends StatelessWidget {
     this.height,
     this.isLiked = false,
     this.onLikeTap,
+    this.showCartButton = true,
   });
 
   final String slug;
@@ -48,6 +49,7 @@ class ProductCard extends StatelessWidget {
   final double? height;
   final bool isLiked;
   final VoidCallback? onLikeTap;
+  final bool showCartButton;
 
   void _openDetail(BuildContext context) {
     if (slug.isNotEmpty) context.push('/ad/$slug');
@@ -92,7 +94,8 @@ class ProductCard extends StatelessWidget {
           final hPad = isCompact ? 8.0 : 10.0;
           // Matn bloki uchun zarur joy: rating + title (2 satr) + price block + paddings.
           final textBlockHeight = isCompact ? 95.0 : 108.0;
-          final reservedForContent = textBlockHeight + cartHeight + 10;
+          final reservedForContent =
+              textBlockHeight + (showCartButton ? cartHeight + 10 : 12);
           final imageHeight = (cardHeight - reservedForContent)
               .clamp(70.0, cardHeight * 0.55);
           final iconSize = isCompact ? 12.0 : 14.0;
@@ -254,10 +257,13 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 8),
-                child: CartCounter(adSlug: slug, height: cartHeight),
-              ),
+              if (showCartButton)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 8),
+                  child: CartCounter(adSlug: slug, height: cartHeight),
+                )
+              else
+                const SizedBox(height: 8),
             ],
           );
         },

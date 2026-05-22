@@ -7,9 +7,18 @@ import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart
 
 /// Bitta tavsiya mahsulot karti — ichida umumiy [ProductCard] ishlatiladi.
 class RecommendationCard extends StatelessWidget {
-  const RecommendationCard({super.key, required this.item});
+  const RecommendationCard({
+    super.key,
+    required this.item,
+    this.showCartButton = true,
+    this.width = 162,
+    this.height = 220,
+  });
 
   final HomeRecommendation item;
+  final bool showCartButton;
+  final double? width;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +35,9 @@ class RecommendationCard extends StatelessWidget {
           currency: item.currency,
           rating: item.rating,
           reviewCount: item.reviewCount,
-          width: 162,
-          height: 220,
+          width: width,
+          height: height,
+          showCartButton: showCartButton,
           isLiked: likeState.isLiked(item.slug),
           onLikeTap: () {
             context.read<FavoritesBloc>().add(

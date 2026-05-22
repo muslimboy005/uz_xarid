@@ -2,7 +2,12 @@ import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uzxarid/app/router/app_router.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_event.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -86,6 +91,7 @@ class FirebaseService {
       log('Body: ${message.notification?.body}');
       log('Data: ${message.data}');
 
+      _refreshNotificationBadge();
       if (message.notification != null) {
         showNotification(message);
       }
@@ -94,6 +100,7 @@ class FirebaseService {
     // Background listener (App open)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       log('App opened from background message');
+      _refreshNotificationBadge();
       _handleNavigation(message.data);
     });
 
@@ -102,8 +109,19 @@ class FirebaseService {
     if (initialMessage != null) {
       log('App opened from terminated message');
       Future.delayed(const Duration(milliseconds: 300), () {
+        _refreshNotificationBadge();
         _handleNavigation(initialMessage.data);
       });
+    }
+  }
+
+  static void _refreshNotificationBadge() {
+    final getIt = GetIt.instance;
+    if (!getIt.isRegistered<NotificationBloc>()) return;
+    try {
+      getIt<NotificationBloc>().add(const NotificationBadgeLoadRequested());
+    } catch (e) {
+      log('Failed to refresh notification badge: $e');
     }
   }
 
@@ -136,11 +154,22 @@ class FirebaseService {
   static void _onSelectNotification(NotificationResponse response) {
     if (response.payload != null) {
       log('Notification payload: ${response.payload}');
-      // Handle the payload
     }
+    _refreshNotificationBadge();
+    _openNotificationsScreen();
   }
 
   static void _handleNavigation(Map<String, dynamic> data) {
-    // Navigate based on data
+    _openNotificationsScreen();
+  }
+
+  static void _openNotificationsScreen() {
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
+    try {
+      context.push('/profile/notifications');
+    } catch (e) {
+      log('Failed to open notifications screen: $e');
+    }
   }
 }

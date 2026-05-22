@@ -52,6 +52,57 @@ String formatPhone(String phone) {
   return '(**$last4)';
 }
 
+/// Butun raqamlardan iborat satrni har 3 xona bo‘shliq bilan formatlaydi
+/// (masalan, "38000" -> "38 000"). Raqam bo‘lmagan belgilarni e'tiborsiz qoldiradi.
+String formatThousands(String value) {
+  final digits = value.replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) return '';
+  final buf = StringBuffer();
+  var count = 0;
+  for (var i = digits.length - 1; i >= 0; i--) {
+    buf.write(digits[i]);
+    count++;
+    if (count % 3 == 0 && i != 0) buf.write(' ');
+  }
+  return buf.toString().split('').reversed.join();
+}
+
+/// `formatThousands` natijasidan sof raqamlar satrini qaytaradi.
+String stripThousandsSpaces(String value) =>
+    value.replaceAll(RegExp(r'\s+'), '');
+
+/// Real vaqtda butun sonlarni 3 xonali bo‘shliq bilan formatlovchi
+/// `TextInputFormatter` (narx, probeg va shu kabi maydonlar uchun).
+class ThousandsSeparatorInputFormatter extends TextInputFormatter {
+  ThousandsSeparatorInputFormatter({this.maxValue});
+
+  /// Agar berilgan bo‘lsa, ushbu qiymatdan oshib ketgan kiritma kesiladi.
+  final int? maxValue;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+    if (maxValue != null) {
+      final parsed = int.tryParse(digits) ?? 0;
+      if (parsed > maxValue!) digits = maxValue!.toString();
+    }
+    final formatted = formatThousands(digits);
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
 /// Xom telefon raqamini "+998 XX XXX-XX-XX" formatiga keltiradi.
 /// Servisdan kelgan raqam ("998901234567" yoki "+998901234567") ham,
 /// 9 xonali lokal raqam ("901234567") ham mos formatga keltiriladi.

@@ -664,6 +664,48 @@ abstract class AppLocalizations {
   /// **'Address'**
   String get addressTitle;
 
+  /// No description provided for @aiAssistantError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again'**
+  String get aiAssistantError;
+
+  /// No description provided for @aiAssistantGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! I\'m the UZXARID AI assistant. How can I help you?'**
+  String get aiAssistantGreeting;
+
+  /// No description provided for @aiAssistantHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your question...'**
+  String get aiAssistantHint;
+
+  /// No description provided for @aiAssistantOpenPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Open page'**
+  String get aiAssistantOpenPage;
+
+  /// No description provided for @aiAssistantRouteNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get aiAssistantRouteNotFound;
+
+  /// No description provided for @aiAssistantSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your question — I\'ll guide you'**
+  String get aiAssistantSubtitle;
+
+  /// No description provided for @aiAssistantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get aiAssistantTitle;
+
   /// No description provided for @allCategories.
   ///
   /// In en, this message translates to:

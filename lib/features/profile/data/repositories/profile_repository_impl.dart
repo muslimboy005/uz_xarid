@@ -10,6 +10,7 @@ import 'package:uzxarid/features/profile/domain/repositories/profile_repository.
 import 'package:uzxarid/features/profile/domain/entity/business_entity.dart';
 import 'package:uzxarid/features/profile/data/model/plan_model.dart';
 import 'package:uzxarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uzxarid/features/profile/data/model/plan_order_model.dart';
 import 'package:uzxarid/features/profile/data/model/chat/chat_model.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
@@ -354,6 +355,38 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Right(result);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(ValidationFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, PlanOrderData>> createPlanOrder(
+    PlanOrderRequest request,
+  ) async {
+    try {
+      final response = await _dio.post(
+        ApiUrls.planOrder,
+        data: request.toJson(),
+      );
+      final raw = response.data;
+      if (raw is! Map) {
+        return Left(ValidationFailure('Invalid response'));
+      }
+      final parsed = PlanOrderResponse.fromJson(
+        raw.cast<String, dynamic>(),
+      );
+      if (!parsed.status || parsed.data.paymentLink.isEmpty) {
+        return Left(ServerFailure('Payment link not received'));
+      }
+      return Right(parsed.data);
+    } on DioException catch (e) {
+      return Left(
+        ServerFailure(
+          _extractDetail(e) ?? e.message ?? 'Network error',
+          statusCode: e.response?.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(ValidationFailure(e.toString()));
     }

@@ -109,23 +109,27 @@ class _CatalogPageState extends State<CatalogPage> {
         builder: (innerContext) {
           final categoryType = innerContext
               .select<CatalogBloc, String>((b) => b.state.categoryType);
-          return Scaffold(
-            appBar: UzXaridAppBar(
-              searchHint: 'Kategoriya qidirish...',
-              onSearchChanged: (query) =>
-                  _onSearchChanged(query, categoryType),
-              onMenuTap: () {
-                // TODO: open drawer or menu sheet
-              },
+          return UzXaridScaffold.slivers(
+            backgroundColor: bodyBg,
+            floatingHeader: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: UzXaridSearchField(
+                hintText: 'Kategoriya qidirish...',
+                onChanged: (query) =>
+                    _onSearchChanged(query, categoryType),
+              ),
             ),
-            body: Container(
-              color: bodyBg,
-              height: MediaQuery.of(context).size.height,
-
-              child: BlocBuilder<CatalogBloc, CatalogState>(
+            slivers: [
+              BlocBuilder<CatalogBloc, CatalogState>(
                 builder: (context, state) {
                   if (_searchQuery.isNotEmpty) {
-                    return _buildSearchResults(context, state, l10n);
+                    return SliverMainAxisGroup(
+                      slivers: _buildSearchResultSlivers(
+                        context,
+                        state,
+                        l10n,
+                      ),
+                    );
                   }
                   final slivers = <Widget>[];
                   if (!state.showTypeTiles) {
@@ -161,109 +165,122 @@ class _CatalogPageState extends State<CatalogPage> {
                     );
                   }
                   slivers.addAll(_buildBodySlivers(context, state, l10n));
-                  return CustomScrollView(slivers: slivers);
+                  return SliverMainAxisGroup(slivers: slivers);
                 },
               ),
-            ),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _buildSearchResults(
+  List<Widget> _buildSearchResultSlivers(
     BuildContext context,
     CatalogState state,
     AppLocalizations l10n,
   ) {
     if (_isSearching) {
-      return ListView.builder(
-        padding: const EdgeInsets.only(top: 16),
-        itemCount: 8,
-        itemBuilder: (_, _) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: const ShimmerListTile(height: 64),
+      return [
+        SliverPadding(
+          padding: const EdgeInsets.only(top: 16),
+          sliver: SliverList.builder(
+            itemCount: 8,
+            itemBuilder: (_, _) => const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: ShimmerListTile(height: 64),
+            ),
+          ),
         ),
-      );
+      ];
     }
     if (_searchResults.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.search_off_rounded,
-                size: 56,
-                color: context.textSecondary,
-              ),
-              const SizedBox(height: 12),
-              AppText(
-                text: 'Hech narsa topilmadi',
-                fontSize: 15,
-                fontWeight: 600,
-                color: context.textPrimary,
-              ),
-              const SizedBox(height: 4),
-              AppText(
-                text: '"$_searchQuery" bo\'yicha kategoriya yo\'q',
-                fontSize: 13,
-                fontWeight: 400,
-                color: context.textSecondary,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _searchResults.length,
-      separatorBuilder: (_, _) =>
-          Divider(height: 1, color: context.borderColor),
-      itemBuilder: (_, i) {
-        final cat = _searchResults[i];
-        return ListTile(
-          leading: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: context.surfaceContainer,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: cat.image != null && cat.image!.isNotEmpty
-                ? AppImage(
-                    path: cat.image!,
-                    size: 44,
-                    borderRadius: BorderRadius.circular(8),
-                  )
-                : Icon(
-                    Icons.category_outlined,
+      return [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.search_off_rounded,
+                    size: 56,
                     color: context.textSecondary,
                   ),
+                  const SizedBox(height: 12),
+                  AppText(
+                    text: 'Hech narsa topilmadi',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: context.textPrimary,
+                  ),
+                  const SizedBox(height: 4),
+                  AppText(
+                    text: '"$_searchQuery" bo\'yicha kategoriya yo\'q',
+                    fontSize: 13,
+                    fontWeight: 400,
+                    color: context.textSecondary,
+                  ),
+                ],
+              ),
+            ),
           ),
-          title: AppText(
-            text: cat.displayName,
-            fontSize: 15,
-            fontWeight: 500,
-            color: context.textPrimary,
-          ),
-          trailing: Icon(
-            Icons.chevron_right,
-            color: context.textSecondary,
-          ),
-          onTap: () {
-            context.push(
-              '/products?categoryId=${cat.id}'
-              '&title=${Uri.encodeComponent(cat.displayName)}'
-              '&categoryType=${Uri.encodeComponent(state.categoryType)}',
+        ),
+      ];
+    }
+    return [
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        sliver: SliverList.separated(
+          itemCount: _searchResults.length,
+          separatorBuilder: (_, _) =>
+              Divider(height: 1, color: context.borderColor),
+          itemBuilder: (_, i) {
+            final cat = _searchResults[i];
+            return ListTile(
+              leading: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: context.surfaceContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: cat.image != null && cat.image!.isNotEmpty
+                    ? AppImage(
+                        path: cat.image!,
+                        size: 44,
+                        borderRadius: BorderRadius.circular(8),
+                      )
+                    : Icon(
+                        Icons.category_outlined,
+                        color: context.textSecondary,
+                      ),
+              ),
+              title: AppText(
+                text: cat.displayName,
+                fontSize: 15,
+                fontWeight: 500,
+                color: context.textPrimary,
+              ),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: context.textSecondary,
+              ),
+              onTap: () {
+                context.push(
+                  '/products?categoryId=${cat.id}'
+                  '&title=${Uri.encodeComponent(cat.displayName)}'
+                  '&categoryType=${Uri.encodeComponent(state.categoryType)}',
+                );
+              },
             );
           },
-        );
-      },
-    );
+        ),
+      ),
+    ];
   }
 
   List<Widget> _buildBodySlivers(
@@ -272,12 +289,19 @@ class _CatalogPageState extends State<CatalogPage> {
     AppLocalizations l10n,
   ) {
     if (state.showTypeTiles) {
-      return [_buildTypeTilesSliver(context, state, l10n)];
+      return [
+        SliverPadding(
+          padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
+          sliver: _buildTypeTilesSliver(context, state, l10n),
+        ),
+      ];
     }
     if (state.stack.isNotEmpty) {
       return [
         SliverPadding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(
+            bottom: AppDimens.bottomNavClearance,
+          ),
           sliver: _buildCategoryListSliver(context, state, l10n),
         ),
       ];
@@ -288,7 +312,7 @@ class _CatalogPageState extends State<CatalogPage> {
     }
     return [
       SliverPadding(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
         sliver: content,
       ),
     ];

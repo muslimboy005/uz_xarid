@@ -39,6 +39,9 @@ import 'package:uzxarid/features/chat/data/datasources/chat_api.dart';
 import 'package:uzxarid/features/cart/data/datasources/cart_remote_data_source.dart';
 import 'package:uzxarid/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:uzxarid/features/cart/domain/repositories/cart_repository.dart';
+import 'package:uzxarid/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:uzxarid/features/notification/domain/repositories/notification_repository.dart';
+import 'package:uzxarid/features/ai_assistant/data/repositories/ai_assistant_repository.dart';
 
 Future<void> registerRepositories(GetIt getIt) async {
   getIt
@@ -86,6 +89,12 @@ Future<void> registerRepositories(GetIt getIt) async {
     )
     ..registerLazySingleton<ChatRepository>(
       () => ChatRepositoryImpl(getIt<ChatApi>(), getIt<ChatSocketService>()),
+    )
+    ..registerLazySingleton<NotificationRepository>(
+      () => NotificationRepositoryImpl(dio: getIt<DioClient>().dio),
+    )
+    ..registerLazySingleton<AiAssistantRepository>(
+      () => AiAssistantRepository(getIt<DioClient>()),
     );
   log("Register Repositories Complate For GetIT");
 }

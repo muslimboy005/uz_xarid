@@ -34,15 +34,11 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     // final surfaceContainer = context.surfaceContainer;
     final l10n = AppLocalizations.of(context)!;
     final bodyBg = context.bodyBackground;
-    return Scaffold(
-      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-
-      body: Container(
-        color: bodyBg,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Column(
+    return UzXaridScaffold(
+      backgroundColor: bodyBg,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -110,8 +106,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
               ],
             ),
           ),
-        ),
-      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
@@ -35,12 +36,55 @@ class PaymentPage extends StatelessWidget {
       create: (context) => GetIt.I<PaymentBloc>()
         ..add(const GetPaymentPlansEvent())
         ..add(const GetPaymentHistoryEvent()),
-      child: Scaffold(
-        appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-        body: Container(
-          color: isDark ? AppColors.darkBackground : AppColors.black50,
-          child: SafeArea(
-            child: BlocBuilder<PaymentBloc, PaymentState>(
+      child: UzXaridScaffold(
+        backgroundColor:
+            isDark ? AppColors.darkBackground : AppColors.black50,
+        body: BlocConsumer<PaymentBloc, PaymentState>(
+              listenWhen: (prev, curr) =>
+                  prev.orderStatus != curr.orderStatus,
+              listener: (context, state) async {
+                if (state.orderStatus == PlanOrderStatus.success &&
+                    state.paymentLink != null &&
+                    state.paymentLink!.isNotEmpty) {
+                  final link = state.paymentLink!;
+                  context.read<PaymentBloc>().add(
+                    const ClearPaymentLinkEvent(),
+                  );
+                  final uri = Uri.tryParse(link);
+                  if (uri == null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Noto‘g‘ri to‘lov havolasi')),
+                      );
+                    }
+                    return;
+                  }
+                  final opened = await launchUrl(
+                    uri,
+                    mode: LaunchMode.inAppWebView,
+                  );
+                  if (!opened && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('To‘lov sahifasini ochib bo‘lmadi'),
+                      ),
+                    );
+                  }
+                } else if (state.orderStatus == PlanOrderStatus.failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        state.orderErrorMessage ??
+                            l10n.dataLoadError,
+                      ),
+                      backgroundColor: AppColors.red,
+                    ),
+                  );
+                  context.read<PaymentBloc>().add(
+                    const ClearPaymentLinkEvent(),
+                  );
+                }
+              },
               builder: (context, state) {
                 if (state.status == PaymentStatus.loading &&
                     state.plans == null) {
@@ -100,6 +144,10 @@ class PaymentPage extends StatelessWidget {
                                   children: plans.asMap().entries.map((entry) {
                                     final index = entry.key;
                                     final plan = entry.value;
+                                    final isOrdering =
+                                        state.orderStatus ==
+                                            PlanOrderStatus.loading &&
+                                        state.orderingPlanId == plan.id;
                                     return Column(
                                       children: [
                                         _buildTariffCard(
@@ -110,6 +158,13 @@ class PaymentPage extends StatelessWidget {
                                           unit: "so'm, Oylik",
                                           isCurrentPlan: plan.isPurchased,
                                           features: plan.features,
+                                          isLoading: isOrdering,
+                                          onSelect: plan.isPurchased
+                                              ? null
+                                              : () => _onSelectPlan(
+                                                  context,
+                                                  plan.id,
+                                                ),
                                         ),
                                         if (index != plans.length - 1)
                                           const SizedBox(height: 16),
@@ -194,9 +249,13 @@ class PaymentPage extends StatelessWidget {
                 );
               },
             ),
-          ),
-        ),
       ),
+    );
+  }
+
+  void _onSelectPlan(BuildContext context, int planId) {
+    context.read<PaymentBloc>().add(
+      CreatePlanOrderEvent(userPlanId: planId, paymentMethod: 'rahmat'),
     );
   }
 
@@ -208,6 +267,8 @@ class PaymentPage extends StatelessWidget {
     required String unit,
     required bool isCurrentPlan,
     required List<PlanFeatureModel> features,
+    bool isLoading = false,
+    VoidCallback? onSelect,
   }) {
     return ContainerW(
       color: context.cardSurface,
@@ -250,6 +311,7 @@ class PaymentPage extends StatelessWidget {
             Divider(color: context.borderColor, thickness: 1),
             const SizedBox(height: 16),
             ContainerW(
+              onTap: (isCurrentPlan || isLoading) ? null : onSelect,
               color: isCurrentPlan
                   ? AppColors.primary
                   : AppColors.primary.withOpacity(0.2),
@@ -258,12 +320,29 @@ class PaymentPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Center(
-                  child: AppText(
-                    text: isCurrentPlan ? AppLocalizations.of(context)!.paymentCurrentPlan : AppLocalizations.of(context)!.paymentSelectPlan,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: isCurrentPlan ? AppColors.white : primaryColor,
-                  ),
+                  child: isLoading
+                      ? SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: primaryColor,
+                          ),
+                        )
+                      : AppText(
+                          text: isCurrentPlan
+                              ? AppLocalizations.of(
+                                  context,
+                                )!.paymentCurrentPlan
+                              : AppLocalizations.of(
+                                  context,
+                                )!.paymentSelectPlan,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: isCurrentPlan
+                              ? AppColors.white
+                              : primaryColor,
+                        ),
                 ),
               ),
             ),

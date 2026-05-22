@@ -27,16 +27,11 @@ class _ProfilePageState extends State<ProfilePage> {
     final isDark = context.isDark;
     final bodyBg = context.bodyBackground;
     final containerBg = context.surfaceContainer;
-    return Scaffold(
-      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        color: isDark ? AppColors.darkBackground : AppColors.black50,
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimens.paddingMedium),
-            child: BlocBuilder<ProfileBloc, ProfileState>(
+    return UzXaridScaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.black50,
+      body: Padding(
+        padding: const EdgeInsets.all(AppDimens.paddingMedium),
+        child: BlocBuilder<ProfileBloc, ProfileState>(
               builder: (context, state) {
                 final profile = state.profileModel;
 
@@ -74,8 +69,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               },
             ),
-          ),
-        ),
       ),
     );
   }

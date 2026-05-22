@@ -164,6 +164,10 @@ class ListingRepositoryImpl implements ListingRepository {
           'brand_model': params.brandModel,
         if (params.vehicleDetail != null && params.vehicleDetail!.isNotEmpty)
           'vehicle_detail': jsonEncode(params.vehicleDetail),
+        if (params.contactPhone != null && params.contactPhone!.isNotEmpty)
+          'contact_phone': params.contactPhone,
+        if (params.extraPhone != null && params.extraPhone!.isNotEmpty)
+          'extra_phone': params.extraPhone,
         for (final entry in params.dynamicFields.entries)
           'attributes[${entry.key}]': entry.value is List
               ? jsonEncode(entry.value)
@@ -348,6 +352,10 @@ class ListingRepositoryImpl implements ListingRepository {
           'brand_model': params.brandModel,
         if (params.vehicleDetail != null && params.vehicleDetail!.isNotEmpty)
           'vehicle_detail': jsonEncode(params.vehicleDetail),
+        if (params.contactPhone != null && params.contactPhone!.isNotEmpty)
+          'contact_phone': params.contactPhone,
+        if (params.extraPhone != null && params.extraPhone!.isNotEmpty)
+          'extra_phone': params.extraPhone,
         for (final entry in params.dynamicFields.entries)
           'attributes[${entry.key}]': entry.value is List
               ? jsonEncode(entry.value)

@@ -388,14 +388,11 @@ class _AddAddressPageState extends State<AddAddressPage> {
     final textSecondary = context.textSecondary;
     final borderColor = context.borderColor;
 
-    return Scaffold(
-      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-      body: Container(
-        color: bodyBg,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimens.paddingMedium),
-            child: Column(
+    return UzXaridScaffold(
+      backgroundColor: bodyBg,
+      body: Padding(
+        padding: const EdgeInsets.all(AppDimens.paddingMedium),
+        child: Column(
               children: [
                 Row(
                   children: [
@@ -637,8 +634,6 @@ class _AddAddressPageState extends State<AddAddressPage> {
               ],
             ),
           ),
-        ),
-      ),
       bottomNavigationBar: SafeArea(
         child: Container(
           color: bodyBg,

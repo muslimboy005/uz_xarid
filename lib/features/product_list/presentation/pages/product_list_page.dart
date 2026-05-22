@@ -382,30 +382,48 @@ class _ProductListPageState extends State<ProductListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _mapViewMode ? null : _buildAppBar(context),
-      body: Container(
-        color: context.bodyBackground,
-        height: MediaQuery.of(context).size.height,
-        child: _error != null && !_loading
-            ? _buildErrorBody(AppLocalizations.of(context)!)
-            : _mapViewMode
-            ? ProductListMapView(
-                title: _currentTitle,
-                items: _items,
-                filterActive: _activeFilter != null,
-                onBack: () => setState(() => _mapViewMode = false),
-                onOpenFilters: _openFilterSheet,
-              )
-            : _buildBody(AppLocalizations.of(context)!),
+    final l10n = AppLocalizations.of(context)!;
+    if (_mapViewMode) {
+      return Scaffold(
+        body: Container(
+          color: context.bodyBackground,
+          height: MediaQuery.of(context).size.height,
+          child: ProductListMapView(
+            title: _currentTitle,
+            items: _items,
+            filterActive: _activeFilter != null,
+            onBack: () => setState(() => _mapViewMode = false),
+            onOpenFilters: _openFilterSheet,
+          ),
+        ),
+      );
+    }
+    final searchHeader = Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: UzXaridSearchField(
+        hintText: l10n.searchHint,
+        onTap: () => context.push('/search'),
       ),
+    );
+    if (_error != null && !_loading) {
+      return UzXaridScaffold(
+        backgroundColor: context.bodyBackground,
+        actions: [_buildFilterButton(context)],
+        floatingHeader: searchHeader,
+        body: _buildErrorBody(l10n),
+      );
+    }
+    return UzXaridScaffold.slivers(
+      backgroundColor: context.bodyBackground,
+      actions: [_buildFilterButton(context)],
+      floatingHeader: searchHeader,
+      slivers: _buildBodySlivers(l10n),
     );
   }
 
-  Widget _buildBody(AppLocalizations l10n) {
+  List<Widget> _buildBodySlivers(AppLocalizations l10n) {
     final hasSubcategories = _effectiveSubcategories.isNotEmpty;
-    return CustomScrollView(
-      slivers: [
+    return [
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 16, 16, 12),
@@ -480,8 +498,7 @@ class _ProductListPageState extends State<ProductListPage> {
               ),
             ),
           ),
-      ],
-    );
+    ];
   }
 
   Widget _buildSortButton(BuildContext context) {
@@ -733,44 +750,38 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  Widget _buildFilterButton(BuildContext context) {
     final appMode = context.watch<AppModeCubit>().state;
     final onHeader = appMode.onAppBarColor;
-    return UzXaridAppBar(
-      onSearchTap: () => context.push('/search'),
-      onMenuTap: () {},
-      actions: [
-        GestureDetector(
-          onTap: _openFilterSheet,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: onHeader.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(Icons.filter_list, color: onHeader),
-                if (_activeFilter != null)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+    return GestureDetector(
+      onTap: _openFilterSheet,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: onHeader.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
         ),
-      ],
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(Icons.filter_list, color: onHeader),
+            if (_activeFilter != null)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

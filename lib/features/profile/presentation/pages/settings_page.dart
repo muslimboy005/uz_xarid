@@ -77,14 +77,9 @@ class _SettingsPageState extends State<SettingsPage>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: UzXaridAppBar(onSearchChanged: (_) {}, onMenuTap: () {}),
-
-      body: Container(
-        color: isDark ? AppColors.darkBackground : AppColors.black50,
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
+    return UzXaridScaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.black50,
+      body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 16),
@@ -273,9 +268,6 @@ class _SettingsPageState extends State<SettingsPage>
                 ),
               ],
             ),
-          ),
-        ),
-      ),
     );
   }
 }

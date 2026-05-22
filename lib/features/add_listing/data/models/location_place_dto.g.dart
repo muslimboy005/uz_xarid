@@ -10,8 +10,8 @@ LocationPlaceDto _$LocationPlaceDtoFromJson(Map<String, dynamic> json) =>
     LocationPlaceDto(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
-      latitude: json['latitude'] as String,
-      longitude: json['longitude'] as String,
+      latitude: json['latitude'] as String?,
+      longitude: json['longitude'] as String?,
       region: (json['region'] as num?)?.toInt(),
       district: (json['district'] as num?)?.toInt(),
     );

@@ -9,21 +9,17 @@ class SoonPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: UzXaridAppBar(
-        onSearchChanged: (_) {},
-        onMenuTap: () {},
-        leading: ContainerW(
-          onTap: () => context.pop(),
-          radius: 10,
-          color: Colors.white.withOpacity(0.2),
-          child: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
-              size: 20,
-            ),
+    return UzXaridScaffold(
+      leading: ContainerW(
+        onTap: () => context.pop(),
+        radius: 10,
+        color: Colors.white.withValues(alpha: 0.2),
+        child: const Padding(
+          padding: EdgeInsets.all(10),
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
           ),
         ),
       ),

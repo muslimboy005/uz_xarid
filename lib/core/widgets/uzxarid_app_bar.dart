@@ -4,8 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
 import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_state.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_state.dart';
 
-import 'package:uzxarid/app/router/app_router.dart';
 import 'package:uzxarid/core/app_config.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
@@ -13,378 +14,451 @@ import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/localization/locale_cubit.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
-class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const UzXaridAppBar({
+const double _kPinnedRowHeight = 56;
+const double _kHorizontalPadding = 16;
+
+/// Sahifalar uchun yagona wrapper:
+/// - Pinned `_UzXaridTopAppBar` (faqat top row: logo + cart + bell yoki close)
+/// - Ixtiyoriy `floatingHeader` (search/toggle) — `SliverAppBar(floating, snap)`
+///   sifatida, pastga scrollda yo‘qoladi, yuqoriga scrollda darhol qaytadi.
+/// - Body — body widget yoki sliverlar.
+class UzXaridScaffold extends StatelessWidget {
+  const UzXaridScaffold({
     super.key,
-    this.leading,
-    this.onSearchChanged,
-    this.onSearchTap,
-    this.onMenuTap,
-    this.isMenuOpen = false,
-    this.actions,
-    this.searchHint,
+    required this.body,
     this.onClose,
+    this.leading,
+    this.actions,
+    this.trailing,
     this.showLanguageSelector = false,
-  });
+    this.floatingActionButton,
+    this.bottomNavigationBar,
+    this.backgroundColor,
+    this.scrollController,
+    this.floatingHeader,
+    this.floatingHeaderHeight = 74,
+  }) : slivers = null;
 
-  /// Chap tomonda ko'rsatiladigan widget (masalan, orqaga tugmasi).
-  final Widget? leading;
-  final ValueChanged<String>? onSearchChanged;
-
-  /// Qidirish maydonini bosganda ochiladigan sahifa (masalan, to'liq qidirish ekrani).
-  final VoidCallback? onSearchTap;
-  final VoidCallback? onMenuTap;
-  final bool isMenuOpen;
-  final List<Widget>? actions;
-
-  /// Search input hint (berilmasa l10n.searchHint ishlatiladi).
-  final String? searchHint;
-
-  /// Modal/menu rejimi: berilsa, apps/cart/menu o'rniga X close ko'rsatiladi va
-  /// til selektor avtomatik yoqiladi.
-  final VoidCallback? onClose;
-
-  /// Header da til selektorni ko'rsatish (default: yashirin).
-  final bool showLanguageSelector;
-
-  static const double _height = 112;
-
-  @override
-  Size get preferredSize => const Size.fromHeight(_height);
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
-
-    return AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      toolbarHeight: _height,
-      flexibleSpace: _UzXaridAppBarContent(
-        locale: locale,
-        hintText: searchHint ?? l10n.searchHint,
-        leading: leading,
-        onSearchChanged: onSearchChanged,
-        onSearchTap: onSearchTap,
-        onMenuTap: () => context.push('/support-menu'),
-        isMenuOpen: isMenuOpen,
-        actions: actions,
-        onClose: onClose,
-        showLanguageSelector: showLanguageSelector || onClose != null,
-      ),
-    );
-  }
-}
-
-/// Sliver variant, ishlatmoqchi bo‘lsangiz:
-/// CustomScrollView(
-///   slivers: [
-///     UzXaridSliverAppBar(...),
-///     ...
-///   ],
-/// )
-class UzXaridSliverAppBar extends StatelessWidget {
-  const UzXaridSliverAppBar({
+  const UzXaridScaffold.slivers({
     super.key,
-    this.leading,
-    this.onSearchChanged,
-    this.onSearchTap,
-    this.onMenuTap,
-    this.isMenuOpen = false,
-    this.actions,
-  });
-
-  final Widget? leading;
-  final ValueChanged<String>? onSearchChanged;
-  final VoidCallback? onSearchTap;
-  final VoidCallback? onMenuTap;
-  final bool isMenuOpen;
-  final List<Widget>? actions;
-
-  static const double _height = 112;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
-
-    return SliverAppBar(
-      pinned: true,
-      floating: false,
-      snap: false,
-      expandedHeight: _height,
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      flexibleSpace: _UzXaridAppBarContent(
-        locale: locale,
-        hintText: l10n.searchHint,
-        leading: leading,
-        onSearchChanged: onSearchChanged,
-        onSearchTap: onSearchTap,
-        onMenuTap: onMenuTap,
-        isMenuOpen: isMenuOpen,
-        actions: actions,
-      ),
-    );
-  }
-}
-
-class _UzXaridAppBarContent extends StatelessWidget {
-  const _UzXaridAppBarContent({
-    required this.locale,
-    required this.hintText,
-    this.leading,
-    this.onSearchChanged,
-    this.onSearchTap,
-    this.onMenuTap,
-    this.isMenuOpen = false,
-    this.actions,
+    required List<Widget> this.slivers,
     this.onClose,
+    this.leading,
+    this.actions,
+    this.trailing,
     this.showLanguageSelector = false,
-  });
+    this.floatingActionButton,
+    this.bottomNavigationBar,
+    this.backgroundColor,
+    this.scrollController,
+    this.floatingHeader,
+    this.floatingHeaderHeight = 74,
+  }) : body = const SizedBox.shrink();
 
-  final Locale locale;
-  final String hintText;
-  final Widget? leading;
-  final ValueChanged<String>? onSearchChanged;
-  final VoidCallback? onSearchTap;
-  final VoidCallback? onMenuTap;
-  final bool isMenuOpen;
-  final List<Widget>? actions;
+  final Widget body;
+  final List<Widget>? slivers;
   final VoidCallback? onClose;
+  final Widget? leading;
+  final List<Widget>? actions;
+  /// Notifikatsiya tugmasidan keyin (eng chetga) qo‘yiladigan widget.
+  final Widget? trailing;
   final bool showLanguageSelector;
+  final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
+  final Color? backgroundColor;
+  final ScrollController? scrollController;
 
-  static const double _height = 112;
+  /// Search field yoki Sotaman/Sotib olaman toggle kabi widgetlar.
+  /// Berilganda body color ustida `SliverAppBar(floating: true, snap: true)`
+  /// sifatida ko‘rinadi: pastga scrollda yo‘qoladi, yuqoriga scrollda darhol
+  /// qaytib chiqadi.
+  final Widget? floatingHeader;
+
+  /// `floatingHeader` ning balandligi (pikselda). Default: 74 (faqat search).
+  /// Home uchun ~134 (toggle + search).
+  final double floatingHeaderHeight;
 
   @override
   Widget build(BuildContext context) {
-    void onAppsIconTapped() {
-      showDialog(
-        context: context,
-        builder: (dialogContext) {
-          final l10n = AppLocalizations.of(dialogContext)!;
-          final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
-          final currentMode = dialogContext.watch<AppModeCubit>().state;
-          final textColor = isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.textPrimary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = backgroundColor ??
+        (isDark ? AppColors.darkBackground : AppColors.background);
 
-          return AlertDialog(
-            backgroundColor: isDark ? AppColors.darkCard : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Text(
-              l10n.appsTitle,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+    final appBar = _UzXaridTopAppBar(
+      leading: leading,
+      actions: actions,
+      trailing: trailing,
+      onClose: onClose,
+      showLanguageSelector: showLanguageSelector || onClose != null,
+    );
+
+    // Floating header bor — CustomScrollView ichida birinchi sliver sifatida
+    // SliverAppBar(floating, snap) yaratamiz.
+    if (floatingHeader != null) {
+      final bodySlivers = slivers ?? [SliverToBoxAdapter(child: body)];
+      return Scaffold(
+        backgroundColor: bg,
+        appBar: appBar,
+        body: CustomScrollView(
+          controller: scrollController,
+          slivers: [
+            SliverAppBar(
+              pinned: false,
+              floating: true,
+              snap: true,
+              backgroundColor: bg,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false,
+              toolbarHeight: floatingHeaderHeight,
+              flexibleSpace: SafeArea(
+                top: false,
+                bottom: false,
+                child: Container(
+                  color: bg,
+                  alignment: Alignment.center,
+                  child: floatingHeader,
+                ),
               ),
             ),
-            contentPadding: const EdgeInsets.only(top: 16, bottom: 24),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: currentMode.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.local_shipping,
-                      color: currentMode.primaryColor,
-                    ),
-                  ),
-                  title: Text(
-                    'Tez Elt',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: textColor,
-                    ),
-                  ),
-                  subtitle: Text(
-                    l10n.tezEltSubtitle,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(dialogContext);
-                    AppRouter.openApp1(context);
-                  },
-                ),
-              ],
-            ),
-          );
-        },
+            ...bodySlivers,
+          ],
+        ),
+        floatingActionButton: floatingActionButton,
+        bottomNavigationBar: bottomNavigationBar,
       );
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bodyBg = isDark ? AppColors.darkBackground : AppColors.background;
-    final appMode = context.watch<AppModeCubit>().state;
-    final headerColor = appMode.appBarColor;
-    final onHeader = appMode.onAppBarColor;
-    final topPadding = MediaQuery.of(context).padding.top;
+    if (slivers != null) {
+      return Scaffold(
+        backgroundColor: bg,
+        appBar: appBar,
+        body: CustomScrollView(
+          controller: scrollController,
+          slivers: slivers!,
+        ),
+        floatingActionButton: floatingActionButton,
+        bottomNavigationBar: bottomNavigationBar,
+      );
+    }
 
-    return Container(
-      color: bodyBg,
-      child: Stack(
-        children: [
-          // Ko'k/sariq header qismi – pastki burchaklari yumaloq, status barni ham qoplaydi
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 112 + topPadding,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              decoration: BoxDecoration(
-                color: headerColor,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(14),
-                  bottomRight: Radius.circular(14),
-                ),
-              ),
+    return Scaffold(
+      backgroundColor: bg,
+      appBar: appBar,
+      body: body,
+      floatingActionButton: floatingActionButton,
+      bottomNavigationBar: bottomNavigationBar,
+    );
+  }
+}
+
+/// Search yoki mode selector bolmagan sahifalar uchun oddiy AppBar.
+class _UzXaridTopAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _UzXaridTopAppBar({
+    this.leading,
+    this.actions,
+    this.trailing,
+    this.onClose,
+    this.showLanguageSelector = false,
+  });
+
+  final Widget? leading;
+  final List<Widget>? actions;
+  final Widget? trailing;
+  final VoidCallback? onClose;
+  final bool showLanguageSelector;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(_kPinnedRowHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final mode = context.watch<AppModeCubit>().state;
+    final headerColor = mode.appBarColor;
+    final onHeader = mode.onAppBarColor;
+    final topPadding = MediaQuery.of(context).padding.top;
+    final locale = Localizations.localeOf(context);
+
+    return PreferredSize(
+      preferredSize: Size.fromHeight(_kPinnedRowHeight + topPadding),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(14),
+          bottomRight: Radius.circular(14),
+        ),
+        child: Container(
+          color: headerColor,
+          padding: EdgeInsets.only(
+            top: topPadding,
+            left: _kHorizontalPadding,
+            right: _kHorizontalPadding,
+          ),
+          child: SizedBox(
+            height: _kPinnedRowHeight,
+            child: _TopRow(
+              appMode: mode,
+              onHeader: onHeader,
+              locale: locale,
+              leading: leading,
+              actions: actions,
+              trailing: trailing,
+              onClose: onClose,
+              showLanguageSelector: showLanguageSelector,
             ),
           ),
-          // Content (status bardan pastdan boshlanadi)
-          Positioned.fill(
-            top: topPadding,
-            child: SizedBox(
-              height: _height,
-              child: Stack(
+        ),
+      ),
+    );
+  }
+}
+
+class _TopRow extends StatelessWidget {
+  const _TopRow({
+    required this.appMode,
+    required this.onHeader,
+    required this.locale,
+    required this.leading,
+    required this.actions,
+    required this.trailing,
+    required this.onClose,
+    required this.showLanguageSelector,
+  });
+
+  final AppMode appMode;
+  final Color onHeader;
+  final Locale locale;
+  final Widget? leading;
+  final List<Widget>? actions;
+  final Widget? trailing;
+  final VoidCallback? onClose;
+  final bool showLanguageSelector;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (leading != null) ...[
+          leading!,
+          const SizedBox(width: 8),
+        ],
+        Image.asset(
+          appMode == AppMode.buying
+              ? AppAssets.logoAppBarBuying
+              : AppAssets.logoAppBar,
+          package: AppConfig.packageName,
+          height: 42,
+        ),
+        const Spacer(),
+        if (showLanguageSelector) ...[
+          _LanguageSelector(
+            currentLocale: locale,
+            iconColor: onHeader,
+          ),
+          const SizedBox(width: 8),
+        ],
+        if (onClose != null)
+          _AppBarButton(
+            onTap: onClose,
+            icon: Icon(Icons.close, color: onHeader, size: 22),
+            color: onHeader,
+            alpha: 0.18,
+          )
+        else ...[
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, state) {
+              final count = state.totalItems;
+              return Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  // Leading (back) + logo + language + menu row (ko'k fonda)
-                  Positioned(
-                    left: 16,
-                    right: 16,
-                    top: 12,
-                    child: Row(
-                      children: [
-                        if (leading != null) ...[
-                          leading!,
-                          const SizedBox(width: 8),
-                        ],
-                        Image.asset(
-                          appMode == AppMode.buying
-                              ? AppAssets.logoAppBarBuying
-                              : AppAssets.logoAppBar,
-                          package: AppConfig.packageName,
-                          height: 42,
+                  _AppBarButton(
+                    onTap: () => context.push('/cart'),
+                    icon: Icon(
+                      Icons.shopping_cart_outlined,
+                      color: onHeader,
+                      size: 22,
+                    ),
+                    color: onHeader,
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.red,
+                          shape: BoxShape.circle,
                         ),
-                        const Spacer(),
-                        if (showLanguageSelector) ...[
-                          _LanguageSelector(
-                            currentLocale: locale,
-                            iconColor: onHeader,
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (onClose != null)
-                          _AppBarButton(
-                            onTap: onClose,
-                            icon: Icon(
-                              Icons.close,
-                              color: onHeader,
-                              size: 22,
-                            ),
-                            color: onHeader,
-                            alpha: 0.18,
-                          )
-                        else ...[
-                          _AppBarButton(
-                            onTap: onAppsIconTapped,
-                            icon: Icon(
-                              Icons.apps_outlined,
-                              color: onHeader,
-                              size: 22,
-                            ),
-                            color: onHeader,
-                          ),
-                          const SizedBox(width: 8),
-                          BlocBuilder<CartBloc, CartState>(
-                            builder: (context, state) {
-                              final count = state.totalItems;
-                              return Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  _AppBarButton(
-                                    onTap: () => context.push('/cart'),
-                                    icon: Icon(
-                                      Icons.shopping_cart_outlined,
-                                      color: onHeader,
-                                      size: 22,
-                                    ),
-                                    color: onHeader,
-                                  ),
-                                  if (count > 0)
-                                    Positioned(
-                                      right: -4,
-                                      top: -4,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 16,
-                                          minHeight: 16,
-                                        ),
-                                        child: Text(
-                                          '$count',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          if (actions != null) ...actions!,
-                          if (actions != null) const SizedBox(width: 8),
-                          _MenuButton(
-                            onTap: onMenuTap,
-                            isOpen: isMenuOpen,
-                            iconColor: onHeader,
-                          ),
-                        ],
-                      ],
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     ),
-                  ),
-                  // Search field floating so that half is on blue, half on white
-                  Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 0,
-                    child: _SearchField(
-                      hintText: hintText,
-                      onChanged: onSearchChanged,
-                      onTap: onSearchTap,
-                    ),
-                  ),
                 ],
-              ),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          if (actions != null) ...actions!,
+          if (actions != null) const SizedBox(width: 8),
+          BlocBuilder<NotificationBloc, NotificationState>(
+            builder: (context, notifState) {
+              final unread = notifState.unreadBadgeCount;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _AppBarButton(
+                    onTap: () => context.push('/profile/notifications'),
+                    icon: Icon(
+                      Icons.notifications_none_rounded,
+                      color: onHeader,
+                      size: 22,
+                    ),
+                    color: onHeader,
+                  ),
+                  if (unread > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          unread > 99 ? '99+' : '$unread',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          if (trailing != null) ...[
+            const SizedBox(width: 8),
+            trailing!,
+          ],
+        ],
+      ],
+    );
+  }
+}
+
+/// Home dagi Sotaman / Sotib olaman segmented toggle. Boshqa joylarda ham
+/// foydalanish uchun ochiq.
+class HomeModeSegmented extends StatelessWidget {
+  const HomeModeSegmented({super.key, required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mode = context.watch<AppModeCubit>().state;
+    final bgColor = isDark ? AppColors.darkCard : AppColors.white;
+    final unselectedText = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    return Container(
+      height: 44,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(3),
+      child: Row(
+        children: [
+          Expanded(
+            child: _HomeModeSegment(
+              label: l10n.supportMenuSotaman,
+              isSelected: mode == AppMode.selling,
+              selectedColor: AppMode.selling.primaryColor,
+              unselectedTextColor: unselectedText,
+              onTap: () => context.read<AppModeCubit>().setSelling(),
+            ),
+          ),
+          Expanded(
+            child: _HomeModeSegment(
+              label: l10n.supportMenuSotibOlaman,
+              isSelected: mode == AppMode.buying,
+              selectedColor: AppMode.buying.primaryColor,
+              unselectedTextColor: unselectedText,
+              onTap: () => context.read<AppModeCubit>().setBuying(),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HomeModeSegment extends StatelessWidget {
+  const _HomeModeSegment({
+    required this.label,
+    required this.isSelected,
+    required this.selectedColor,
+    required this.unselectedTextColor,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final Color selectedColor;
+  final Color unselectedTextColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        decoration: BoxDecoration(
+          color: isSelected ? selectedColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(9),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: isSelected ? AppColors.white : unselectedTextColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
@@ -530,42 +604,21 @@ class _AppBarButton extends StatelessWidget {
   }
 }
 
-class _MenuButton extends StatelessWidget {
-  const _MenuButton({
+class UzXaridSearchField extends StatelessWidget {
+  const UzXaridSearchField({
+    super.key,
+    required this.hintText,
+    this.onChanged,
     this.onTap,
-    this.isOpen = false,
-    this.iconColor = AppColors.white,
   });
 
+  final String hintText;
+  final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
-  final bool isOpen;
-  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
-    return _AppBarButton(
-      onTap: onTap,
-      alpha: isOpen ? 0.25 : 0.12,
-      color: iconColor,
-      icon: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, anim) =>
-            ScaleTransition(scale: anim, child: child),
-        child: isOpen
-            ? Icon(
-                Icons.close,
-                color: iconColor,
-                size: 22,
-                key: const ValueKey('close'),
-              )
-            : Icon(
-                Icons.menu,
-                color: iconColor,
-                size: 25,
-                key: const ValueKey('menu'),
-              ),
-      ),
-    );
+    return _SearchField(hintText: hintText, onChanged: onChanged, onTap: onTap);
   }
 }
 
@@ -583,13 +636,13 @@ class _SearchField extends StatelessWidget {
     final iconColor = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
-    final child = Container(
+    return Container(
       decoration: BoxDecoration(
         color: fillColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -641,6 +694,87 @@ class _SearchField extends StatelessWidget {
         ),
       ),
     );
-    return child;
+  }
+}
+
+// ============================================================================
+// DEPRECATED: UzXaridAppBar / UzXaridSliverAppBar
+// Yangi sahifalar UzXaridScaffold ishlatsin.
+// ============================================================================
+
+@Deprecated('UzXaridScaffold ishlating')
+class UzXaridAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const UzXaridAppBar({
+    super.key,
+    this.leading,
+    this.onSearchChanged,
+    this.onSearchTap,
+    this.onMenuTap,
+    this.isMenuOpen = false,
+    this.actions,
+    this.searchHint,
+    this.onClose,
+    this.showLanguageSelector = false,
+    this.showSearch = true,
+    this.showModeSelector = true,
+  });
+
+  final Widget? leading;
+  final ValueChanged<String>? onSearchChanged;
+  final VoidCallback? onSearchTap;
+  final VoidCallback? onMenuTap;
+  final bool isMenuOpen;
+  final List<Widget>? actions;
+  final String? searchHint;
+  final VoidCallback? onClose;
+  final bool showLanguageSelector;
+  final bool showSearch;
+  final bool showModeSelector;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(64);
+
+  @override
+  Widget build(BuildContext context) {
+    // Deprecation davrida toza top row qaytaramiz.
+    final locale = Localizations.localeOf(context);
+    final mode = context.watch<AppModeCubit>().state;
+    final headerColor = mode.appBarColor;
+    final onHeader = mode.onAppBarColor;
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      toolbarHeight: 64,
+      flexibleSpace: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(14),
+          bottomRight: Radius.circular(14),
+        ),
+        child: Container(
+          color: headerColor,
+          padding: EdgeInsets.only(
+            top: topPadding,
+            left: _kHorizontalPadding,
+            right: _kHorizontalPadding,
+          ),
+          child: SizedBox(
+            height: _kPinnedRowHeight,
+            child: _TopRow(
+              appMode: mode,
+              onHeader: onHeader,
+              locale: locale,
+              leading: leading,
+              actions: actions,
+              trailing: null,
+              onClose: onClose,
+              showLanguageSelector: showLanguageSelector || onClose != null,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

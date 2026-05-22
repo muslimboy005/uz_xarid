@@ -177,13 +177,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
         final cardColor = context.cardSurface;
         final textColor = context.textPrimary;
 
-        return Scaffold(
-          appBar: UzXaridAppBar(onSearchChanged: (q) {}, onMenuTap: () {}),
-
-          body: SafeArea(
-            child: Container(
-              color: bodyBg,
-              child: Column(
+        return UzXaridScaffold(
+          backgroundColor: bodyBg,
+          body: Column(
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
@@ -340,8 +336,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                   _bottomButtons(context, isLoading, l10n),
                 ],
               ),
-            ),
-          ),
         );
       },
     );

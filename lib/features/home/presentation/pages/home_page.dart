@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,57 +6,29 @@ import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
-import 'package:uzxarid/core/widgets/products_not_found_placeholder.dart';
+import 'package:uzxarid/core/widgets/app_image.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
-import 'package:uzxarid/core/widgets/w__container.dart';
-import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/features/home/data/datasources/home_api.dart';
 import 'package:uzxarid/features/home/data/repositories/home_repository_impl.dart';
 import 'package:uzxarid/features/home/domain/usecases/get_home.dart';
 import 'package:uzxarid/features/home/presentation/bloc/home_bloc.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
-import 'package:uzxarid/features/home/presentation/widgets/home_category_card.dart';
 import 'package:uzxarid/features/home/presentation/widgets/recommendation_card.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_event.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
 
-Widget _servicesEmpty(BuildContext context, AppLocalizations l10n) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final bgColor = isDark ? AppColors.darkCard : AppColors.black50;
-  final textColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-  final textSecondary = isDark
-      ? AppColors.darkTextSecondary
-      : AppColors.textSecondary;
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(vertical: 32),
-    decoration: BoxDecoration(
-      color: bgColor,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.settings, size: 48, color: textSecondary),
-        const SizedBox(height: 12),
-        Text(
-          l10n.servicesEmptyTitle,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.servicesEmptySubtitle,
-          textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: textSecondary),
-        ),
-      ],
-    ),
-  );
+class _HomeCategoryData {
+  const _HomeCategoryData({
+    required this.title,
+    required this.asset,
+    required this.categoryType,
+  });
+
+  final String title;
+  final String asset;
+  final String categoryType;
 }
 
 class HomePage extends StatefulWidget {
@@ -68,8 +39,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentCategoryIndex = 0;
-  final CarouselSliderController _carouselController = CarouselSliderController();
+  int _selectedCategoryIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh the notification bell badge each time home opens.
+    context.read<NotificationBloc>().add(
+      const NotificationBadgeLoadRequested(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,30 +58,29 @@ class _HomePageState extends State<HomePage> {
     final textColor = isDark
         ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
-    final mode = context.watch<AppModeCubit>().state;
 
-    final categories = [
-      HomeCategory(
+    final categories = <_HomeCategoryData>[
+      _HomeCategoryData(
         title: l10n.categoryGoods,
         asset: 'assets/images/backet.png',
         categoryType: 'Product',
       ),
-      HomeCategory(
+      _HomeCategoryData(
         title: l10n.categoryConstruction,
         asset: 'assets/images/apartment.png',
         categoryType: 'Home',
       ),
-      HomeCategory(
+      _HomeCategoryData(
         title: l10n.categoryAutoMoto,
         asset: 'assets/images/car.png',
         categoryType: 'Auto',
       ),
-      HomeCategory(
+      _HomeCategoryData(
         title: l10n.categoryServices,
         asset: 'assets/images/service.png',
         categoryType: 'Service',
       ),
-      HomeCategory(
+      _HomeCategoryData(
         title: l10n.categoryEquipment,
         asset: 'assets/images/equipments.png',
         categoryType: 'Equipment',
@@ -131,7 +109,8 @@ class _HomePageState extends State<HomePage> {
           BlocListener<CurrencyCubit, CurrencyState>(
             listenWhen: (prev, curr) => prev.selectedCcy != curr.selectedCcy,
             listener: (context, _) {
-              final adType = context.read<AppModeCubit>().state == AppMode.buying
+              final adType =
+                  context.read<AppModeCubit>().state == AppMode.buying
                   ? 'Buy'
                   : 'Sell';
               context.read<HomeBloc>().add(
@@ -140,599 +119,735 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ],
-        child: Scaffold(
-          appBar: UzXaridAppBar(
-            onSearchTap: () => context.push('/search'),
-            onSearchChanged: (query) {},
-            onMenuTap: () => context.push('/support-menu'),
+        child: UzXaridScaffold(
+          backgroundColor: bodyBg,
+          trailing: _HomeMenuButton(),
+          floatingHeaderHeight: 134,
+          floatingHeader: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppDimens.paddingMedium,
+              8,
+              AppDimens.paddingMedium,
+              8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                HomeModeSegmented(l10n: l10n),
+                const SizedBox(height: 12),
+                UzXaridSearchField(
+                  hintText: l10n.searchHint,
+                  onTap: () => context.push('/search'),
+                ),
+              ],
+            ),
           ),
-          body: Container(
-            color: bodyBg,
-            child: SafeArea(
-              top: false,
-              child: SingleChildScrollView(
-                child: Column(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                // Section title
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: Text(
+                    l10n.homeHeadline,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Horizontal category cards
+                SizedBox(
+                  height: 156,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.paddingMedium,
+                    ),
+                    itemCount: categories.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final cat = categories[index];
+                      return _HomeCategoryTile(
+                        title: cat.title,
+                        asset: cat.asset,
+                        isSelected: _selectedCategoryIndex == index,
+                        onTap: () {
+                          setState(() {
+                            _selectedCategoryIndex = index;
+                          });
+                          context.push(
+                            '/products?title=${Uri.encodeComponent(cat.title)}&categoryType=${cat.categoryType}&source=category',
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppDimens.paddingMedium),
+                // Recommendations grid
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.recommendationsTitle,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: textColor,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      InkWell(
+                        onTap: () => context.push(
+                          '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              l10n.seeAll,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: textColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state.status == HomeStatus.failure &&
+                          state.recommendations.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            state.error ?? l10n.dataLoadError,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.red),
+                          ),
+                        );
+                      }
+
+                      if ((state.status == HomeStatus.initial ||
+                              state.status == HomeStatus.loading) &&
+                          state.recommendations.isEmpty) {
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.78,
+                              ),
+                          itemCount: 4,
+                          itemBuilder: (_, _) => const ShimmerGridProductCard(),
+                        );
+                      }
+
+                      if (state.recommendations.isEmpty) {
+                        return _SectionEmptyCard(
+                          icon: Icons.inventory_2_outlined,
+                          message: l10n.productsNotFoundTitle,
+                        );
+                      }
+
+                      final items = state.recommendations;
+                      final hasOdd = items.length.isOdd;
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.78,
+                            ),
+                        itemCount: items.length + (hasOdd ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= items.length) {
+                            return _SeeAllTile(
+                              label: l10n.seeAll,
+                              caption: l10n.recommendationsTitle,
+                              onTap: () => context.push(
+                                '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
+                              ),
+                            );
+                          }
+                          return RecommendationCard(
+                            item: items[index],
+                            showCartButton: false,
+                            width: null,
+                            height: null,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                // Gifts section — title always visible. Body switches
+                // between shimmer, real grid, or compact empty card.
+                const SizedBox(height: 6),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppDimens.paddingMedium,
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: context.borderColor),
-                          color: context.cardSurface,
-                        ),
-                        padding: const EdgeInsets.all(4),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () =>
-                                    context.read<AppModeCubit>().setSelling(),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.giftHeadline,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: textColor,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: mode == AppMode.selling
-                                        ? AppMode.selling.primaryColor
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: AppText(
-                                    text: 'Sotaman',
-                                    fontSize: 14,
-                                    fontWeight: mode == AppMode.selling
-                                        ? 600
-                                        : 500,
-                                    color: mode == AppMode.selling
-                                        ? AppColors.white
-                                        : textColor,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          InkWell(
+                            onTap: () => context.push(
+                              '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  l10n.seeAll,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
                                 ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                  color: textColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimens.paddingMedium,
+                      ),
+                      child: BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          final isLoading =
+                              state.status == HomeStatus.initial ||
+                              state.status == HomeStatus.loading;
+                          final items = state.gifts;
+                          if (isLoading && items.isEmpty) {
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: 0.78,
+                                  ),
+                              itemCount: 4,
+                              itemBuilder: (_, _) =>
+                                  const ShimmerGridProductCard(),
+                            );
+                          }
+                          if (items.isEmpty) {
+                            return _SectionEmptyCard(
+                              icon: Icons.card_giftcard_outlined,
+                              message: l10n.productsNotFoundTitle,
+                            );
+                          }
+                          final hasOdd = items.length.isOdd;
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 0.78,
+                                ),
+                            itemCount: items.length + (hasOdd ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index >= items.length) {
+                                return _SeeAllTile(
+                                  label: l10n.seeAll,
+                                  caption: l10n.giftHeadline,
+                                  onTap: () => context.push(
+                                    '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
+                                  ),
+                                );
+                              }
+                              return RecommendationCard(
+                                item: items[index],
+                                showCartButton: false,
+                                width: null,
+                                height: null,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                // Services
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.servicesTitle,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: textColor,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      InkWell(
+                        onTap: () => context.push(
+                          '/products?title=${Uri.encodeComponent(l10n.servicesTitle)}&source=services',
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.servicesSeeAll,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
                               ),
                             ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () =>
-                                    context.read<AppModeCubit>().setBuying(),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: mode == AppMode.buying
-                                        ? AppMode.buying.primaryColor
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: AppText(
-                                    text: 'Sotib olaman',
-                                    fontSize: 14,
-                                    fontWeight: mode == AppMode.buying
-                                        ? 600
-                                        : 500,
-                                    color: mode == AppMode.buying
-                                        ? AppColors.white
-                                        : textColor,
-                                  ),
-                                ),
-                              ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: textColor,
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Categories Carousel
-                    Column(
-                      children: [
-                        CarouselSlider.builder(
-                          carouselController: _carouselController,
-                          itemCount: categories.length,
-                          itemBuilder: (context, index, realIndex) {
-                            final cat = categories[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: HomeCategoryCard(
-                                category: HomeCategory(
-                                  title: cat.title,
-                                  asset: cat.asset,
-                                  categoryType: cat.categoryType,
-                                  onTap: () => context.push(
-                                    '/products?title=${Uri.encodeComponent(cat.title)}&categoryType=${cat.categoryType}&source=category',
-                                  ),
-                                ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.paddingMedium,
+                  ),
+                  child: BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state.status == HomeStatus.failure &&
+                          state.services.isEmpty) {
+                        return _SectionEmptyCard(
+                          icon: Icons.handyman_outlined,
+                          message: l10n.servicesEmptyTitle,
+                        );
+                      }
+
+                      if ((state.status == HomeStatus.initial ||
+                              state.status == HomeStatus.loading) &&
+                          state.services.isEmpty) {
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.78,
+                              ),
+                          itemCount: 4,
+                          itemBuilder: (_, _) => const ShimmerServiceCard(),
+                        );
+                      }
+
+                      if (state.services.isEmpty) {
+                        return _SectionEmptyCard(
+                          icon: Icons.handyman_outlined,
+                          message: l10n.servicesEmptyTitle,
+                        );
+                      }
+
+                      final items = state.services;
+                      final hasOdd = items.length.isOdd;
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.78,
+                            ),
+                        itemCount: items.length + (hasOdd ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= items.length) {
+                            return _SeeAllTile(
+                              label: l10n.servicesSeeAll,
+                              caption: l10n.servicesTitle,
+                              onTap: () => context.push(
+                                '/products?title=${Uri.encodeComponent(l10n.servicesTitle)}&source=services',
                               ),
                             );
-                          },
-                          options: CarouselOptions(
-                            height: 125,
-                            viewportFraction: 0.46,
-                            initialPage: 0,
-                            enableInfiniteScroll: true,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 4),
-                            autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                            autoPlayCurve: Curves.fastOutSlowIn,
-                            enlargeCenterPage: false,
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                _currentCategoryIndex = index;
-                              });
-                            },
-                            scrollDirection: Axis.horizontal,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                         SizedBox(
-                           width: MediaQuery.of(context).size.width * 0.8,
-                           height: 8,
-                           child: Row(
-                             children: categories.asMap().entries.map((entry) {
-                               final isSelected = _currentCategoryIndex == entry.key;
-                               return Expanded(
-                                 flex: isSelected ? 3 : 1,
-                                 child: GestureDetector(
-                                   onTap: () => _carouselController.animateToPage(entry.key),
-                                   child: AnimatedContainer(
-                                     duration: const Duration(milliseconds: 300),
-                                     margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                                     decoration: BoxDecoration(
-                                       borderRadius: BorderRadius.circular(4),
-                                       color: mode.primaryColor.withValues(
-                                         alpha: isSelected ? 1.0 : 0.3,
-                                       ),
-                                     ),
-                                   ),
-                                 ),
-                               );
-                             }).toList(),
-                           ),
-                         ),
-                      ],
-                    ),
+                          }
+                          return RecommendationCard(
+                            item: items[index],
+                            showCartButton: false,
+                            width: null,
+                            height: null,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppDimens.bottomNavClearance),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-                    // const SizedBox(height: AppDimens.paddingMedium),
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(
-                    //     horizontal: AppDimens.paddingMedium,
-                    //   ),
-                    //   child: BlocBuilder<HomeBloc, HomeState>(
-                    //     builder: (context, state) {
-                    //       if (state.status == HomeStatus.failure &&
-                    //           state.banners.isEmpty) {
-                    //         return Padding(
-                    //           padding: const EdgeInsets.only(bottom: 16),
-                    //           child: Text(
-                    //             state.error ?? l10n.dataLoadError,
-                    //             style: Theme.of(context).textTheme.bodyMedium
-                    //                 ?.copyWith(color: AppColors.red),
-                    //           ),
-                    //         );
-                    //       }
+class _HomeCategoryTile extends StatelessWidget {
+  const _HomeCategoryTile({
+    required this.title,
+    required this.asset,
+    required this.isSelected,
+    required this.onTap,
+  });
 
-                    //       if (state.status == HomeStatus.loading &&
-                    //           state.banners.isEmpty) {
-                    //         return const ShimmerBanner(
-                    //           height: 180,
-                    //           borderRadius: 16,
-                    //         );
-                    //       }
+  final String title;
+  final String asset;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-                    //       if (state.banners.isEmpty) {
-                    //         return const SizedBox.shrink();
-                    //       }
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primary = context.primaryColor;
+    final unselectedBg = isDark ? AppColors.darkCard : AppColors.white;
+    final textColor = isSelected
+        ? primary
+        : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary);
+    final outerBorderColor = isSelected
+        ? primary
+        : (isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor);
 
-                    //       return SizedBox(
-                    //         height: 200,
-                    //         child: PageView.builder(
-                    //           controller: PageController(viewportFraction: 1),
-                    //           itemCount: state.banners.length,
-                    //           padEnds: false,
-                    //           itemBuilder: (context, index) {
-                    //             final banner = state.banners[index];
-                    //             return HomeBannerCard(banner: banner);
-                    //           },
-                    //         ),
-                    //       );
-                    //     },
-                    //   ),
-                    // ),
-                    const SizedBox(height: AppDimens.paddingLarge),
-                    ContainerW(
-                      width: double.infinity,
-                      // height: 420,
-                      radius: 16,
-                      color: context.surfaceContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          right: 0,
-                          top: 16,
-                          bottom: 0,
-                        ),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      l10n.recommendationsTitle,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w800,
-                                            color: textColor,
-                                          ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  InkWell(
-                                    onTap: () => context.push(
-                                      '/products?title=${Uri.encodeComponent(l10n.recommendationsTitle)}',
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          l10n.seeAll,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: textColor,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 16,
-                                          color: textColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 300,
-                              child: BlocBuilder<HomeBloc, HomeState>(
-                                builder: (context, state) {
-                                  if (state.status == HomeStatus.failure &&
-                                      state.recommendations.isEmpty) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      child: Text(
-                                        state.error ?? l10n.dataLoadError,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(color: AppColors.red),
-                                      ),
-                                    );
-                                  }
+    const double tileSize = 104;
 
-                                  if ((state.status == HomeStatus.initial ||
-                                          state.status == HomeStatus.loading) &&
-                                      state.recommendations.isEmpty) {
-                                    return ListView.separated(
-                                      scrollDirection: Axis.horizontal,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      itemBuilder: (_, __) =>
-                                          const ShimmerProductCard(width: 162),
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(width: 12),
-                                      itemCount: 3,
-                                    );
-                                  }
-
-                                  if (state.recommendations.isEmpty) {
-                                    return ProductsNotFoundPlaceholder(
-                                      l10n: l10n,
-                                    );
-                                  }
-
-                                  return ListView.separated(
-                                    scrollDirection: Axis.horizontal,
-
-                                    itemCount: state.recommendations.length,
-                                    separatorBuilder: (_, __) =>
-                                        const SizedBox(width: 12),
-                                    itemBuilder: (context, index) =>
-                                        RecommendationCard(
-                                          item: state.recommendations[index],
-                                        ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: SizedBox(
+        width: tileSize,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              width: tileSize,
+              height: tileSize,
+              padding: EdgeInsets.all(isSelected ? 4 : 0),
+              decoration: BoxDecoration(
+                color: isSelected ? unselectedBg : unselectedBg,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: outerBorderColor,
+                  width: isSelected ? 2.5 : 1,
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected ? primary : unselectedBg,
+                  borderRadius: BorderRadius.circular(isSelected ? 16 : 20),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(isSelected ? 16 : 20),
+                  child: Stack(
+                    clipBehavior: Clip.hardEdge,
+                    children: [
+                      Positioned(
+                        left: -2,
+                        right: -2,
+                        bottom: -6,
+                        top: 4,
+                        child: AppImage(path: asset, fit: BoxFit.contain),
                       ),
-                    ),
-                    const SizedBox(height: AppDimens.paddingLarge),
-                    // Ideal sovgalar — Sizga tavsiya qilamiz bilan bir xil dizayn
-                    ContainerW(
-                      width: double.infinity,
-                      radius: 16,
-                      color: context.surfaceContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          right: 0,
-                          top: 16,
-                          bottom: 0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        l10n.giftHeadline,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w800,
-                                              color: textColor,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  InkWell(
-                                    onTap: () => context.push(
-                                      '/products?title=${Uri.encodeComponent(l10n.giftHeadline)}&source=gifts',
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          l10n.seeAll,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: textColor,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 16,
-                                          color: textColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // const SizedBox(height: 4),
-                            // Text(
-                            //   l10n.giftSubtitle,
-                            //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            //     color: context.textSecondary,
-                            //     height: 1.3,
-                            //   ),
-                            // ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 300,
-                              child: BlocBuilder<HomeBloc, HomeState>(
-                                builder: (context, state) {
-                                  if (state.status == HomeStatus.failure &&
-                                      state.gifts.isEmpty) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      child: Text(
-                                        state.error ?? l10n.dataLoadError,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(color: AppColors.red),
-                                      ),
-                                    );
-                                  }
-                                  if ((state.status == HomeStatus.initial ||
-                                          state.status == HomeStatus.loading) &&
-                                      state.gifts.isEmpty) {
-                                    return ListView.separated(
-                                      scrollDirection: Axis.horizontal,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      itemBuilder: (_, __) =>
-                                          const ShimmerProductCard(width: 162),
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(width: 12),
-                                      itemCount: 3,
-                                    );
-                                  }
-                                  if (state.gifts.isEmpty) {
-                                    return ProductsNotFoundPlaceholder(
-                                      l10n: l10n,
-                                    );
-                                  }
-                                  return ListView.separated(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                    ),
-                                    itemCount: state.gifts.length,
-                                    separatorBuilder: (_, __) =>
-                                        const SizedBox(width: 12),
-                                    itemBuilder: (context, index) =>
-                                        RecommendationCard(
-                                          item: state.gifts[index],
-                                        ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppDimens.paddingLarge),
-                    // Services section
-                    ContainerW(
-                      width: double.infinity,
-                      radius: 16,
-                      color: context.surfaceContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          right: 0,
-                          top: 16,
-                          bottom: 0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: FittedBox(
-                                      alignment: Alignment.centerLeft,
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        l10n.servicesTitle,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w800,
-                                              color: textColor,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  InkWell(
-                                    onTap: () => context.push(
-                                      '/products?title=${Uri.encodeComponent(l10n.servicesTitle)}&source=services',
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          l10n.servicesSeeAll,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: textColor,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 16,
-                                          color: textColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppDimens.paddingMedium,
-                              ),
-                              child: BlocBuilder<HomeBloc, HomeState>(
-                                builder: (context, state) {
-                                  if (state.status == HomeStatus.failure &&
-                                      state.services.isEmpty) {
-                                    return _servicesEmpty(context, l10n);
-                                  }
-
-                                  if ((state.status == HomeStatus.initial ||
-                                          state.status == HomeStatus.loading) &&
-                                      state.services.isEmpty) {
-                                    return GridView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 2,
-                                            crossAxisSpacing: 12,
-                                            mainAxisSpacing: 12,
-                                            childAspectRatio: 0.72,
-                                          ),
-                                      itemCount: 4,
-                                      itemBuilder: (_, __) =>
-                                          const ShimmerServiceCard(),
-                                    );
-                                  }
-
-                                  if (state.services.isEmpty) {
-                                    return _servicesEmpty(context, l10n);
-                                  }
-
-                                  return GridView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          crossAxisSpacing: 12,
-                                          mainAxisSpacing: 12,
-                                          childAspectRatio: 0.72,
-                                        ),
-                                    itemCount: state.services.length,
-                                    itemBuilder: (context, index) =>
-                                        RecommendationCard(
-                                          item: state.services[index],
-                                        ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppDimens.paddingLarge),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeMenuButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final onHeader = context.watch<AppModeCubit>().state.onAppBarColor;
+    return InkWell(
+      onTap: () => context.push('/support-menu'),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: onHeader.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(Icons.menu_rounded, color: onHeader, size: 22),
+      ),
+    );
+  }
+}
+
+class _SectionEmptyCard extends StatelessWidget {
+  const _SectionEmptyCard({required this.icon, required this.message});
+
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.isDark;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.cardSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  context.textSecondary.withValues(alpha: 0.18),
+                  context.textSecondary.withValues(alpha: 0.08),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(icon, size: 20, color: context.textSecondary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: context.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SeeAllTile extends StatelessWidget {
+  const _SeeAllTile({
+    required this.label,
+    required this.caption,
+    required this.onTap,
+  });
+
+  final String label;
+  final String caption;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = context.primaryColor;
+    return Container(
+      decoration: BoxDecoration(
+        color: context.cardSurface,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final cardHeight = constraints.maxHeight.isFinite
+                  ? constraints.maxHeight
+                  : 220.0;
+              final imageHeight = (cardHeight * 0.55).clamp(
+                80.0,
+                cardHeight - 80,
+              );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    height: imageHeight,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            accent.withValues(alpha: 0.20),
+                            accent.withValues(alpha: 0.08),
+                          ],
+                        ),
+                      ),
+                      child: Center(
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: accent,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: accent.withValues(alpha: 0.35),
+                                blurRadius: 14,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            caption,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: context.textSecondary,
+                              height: 1.2,
+                            ),
+                          ),
+                          Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: accent,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

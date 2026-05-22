@@ -37,13 +37,10 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
 
-    return Scaffold(
-      appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-
-      body: Container(
-        color: isDark ? AppColors.darkBackground : AppColors.black50,
-        child: SafeArea(
-          child: Column(
+    return UzXaridScaffold(
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.black50,
+      body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
@@ -358,8 +355,6 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
               const SizedBox(height: 24),
             ],
           ),
-        ),
-      ),
     );
   }
 

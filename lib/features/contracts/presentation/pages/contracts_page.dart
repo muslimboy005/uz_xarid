@@ -287,20 +287,14 @@ class _ContractsPageState extends State<ContractsPage> {
     final bodyBg = context.bodyBackground;
     final cardColor = context.cardSurface;
 
-    return Scaffold(
-      appBar: UzXaridAppBar(
-        onSearchChanged: (query) {},
-        onMenuTap: () {},
-      ),
-      body: Container(
-        color: bodyBg,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            child: Column(
+    return UzXaridScaffold(
+      backgroundColor: bodyBg,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -381,8 +375,6 @@ class _ContractsPageState extends State<ContractsPage> {
                 const SizedBox(height: 8),
               ],
             ),
-          ),
-        ),
       ),
     );
   }

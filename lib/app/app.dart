@@ -14,6 +14,8 @@ import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_event.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
 class UzXaridApp extends StatelessWidget {
@@ -32,6 +34,10 @@ class UzXaridApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => getIt<CartBloc>()..add(CartLoadRequested()),
+        ),
+        BlocProvider(
+          create: (_) => getIt<NotificationBloc>()
+            ..add(const NotificationBadgeLoadRequested()),
         ),
         BlocProvider<CurrencyCubit>(
           create: (_) => getIt<CurrencyCubit>()..load(),

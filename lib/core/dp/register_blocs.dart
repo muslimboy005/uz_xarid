@@ -22,11 +22,13 @@ import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart
 import 'package:uzxarid/features/order/presentation/bloc/my_orders/my_orders_bloc.dart';
 import 'package:uzxarid/features/order/presentation/bloc/order_create/order_create_cubit.dart';
 import 'package:uzxarid/features/profile/domain/usecases/delete_my_ad.dart';
+import 'package:uzxarid/features/profile/domain/usecases/get_ad_limit_info.dart';
 import 'package:uzxarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/address/address_bloc.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/view_history/view_history_bloc.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/payment/payment_bloc.dart';
+import 'package:uzxarid/features/chat/data/datasources/chat_api.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uzxarid/features/chat/presentation/bloc/ad_chat_bloc.dart';
 import 'package:uzxarid/features/chat/presentation/bloc/chat_list_bloc.dart';
@@ -40,10 +42,17 @@ import 'package:uzxarid/features/cart/domain/usecases/get_cart.dart';
 import 'package:uzxarid/features/cart/domain/usecases/update_cart_quantity.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
+import 'package:uzxarid/features/notification/domain/repositories/notification_repository.dart';
+import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:uzxarid/features/ai_assistant/data/repositories/ai_assistant_repository.dart';
+import 'package:uzxarid/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
 
 Future<void> registerBlocs(GetIt getIt) async {
   getIt
     ..registerLazySingleton<CurrencyCubit>(() => CurrencyCubit())
+    ..registerLazySingleton<NotificationBloc>(
+      () => NotificationBloc(repository: getIt<NotificationRepository>()),
+    )
     ..registerLazySingleton<CartBloc>(
       () => CartBloc(
         getCartItemsUseCase: getIt<GetCartItemsUseCase>(),
@@ -107,7 +116,11 @@ Future<void> registerBlocs(GetIt getIt) async {
     )
     ..registerFactory<MyOrdersBloc>(() => MyOrdersBloc(repository: getIt()))
     ..registerFactory<MyAdsBloc>(
-      () => MyAdsBloc(getIt<GetMyListings>(), getIt<DeleteMyAd>()),
+      () => MyAdsBloc(
+        getIt<GetMyListings>(),
+        getIt<DeleteMyAd>(),
+        getIt<GetAdLimitInfo>(),
+      ),
     )
     ..registerFactory<ViewHistoryBloc>(
       () => ViewHistoryBloc(repository: getIt<ProfileRepository>()),
@@ -116,7 +129,10 @@ Future<void> registerBlocs(GetIt getIt) async {
       () => PaymentBloc(repository: getIt<ProfileRepository>()),
     )
     ..registerFactory<ChatBloc>(
-      () => ChatBloc(repository: getIt<ProfileRepository>()),
+      () => ChatBloc(
+        repository: getIt<ProfileRepository>(),
+        chatApi: getIt<ChatApi>(),
+      ),
     )
     ..registerFactory<AdChatBloc>(
       () => AdChatBloc(
@@ -126,6 +142,9 @@ Future<void> registerBlocs(GetIt getIt) async {
     )
     ..registerFactory<ChatListBloc>(
       () => ChatListBloc(getIt<ChatRepository>()),
+    )
+    ..registerFactory<AiAssistantBloc>(
+      () => AiAssistantBloc(repository: getIt<AiAssistantRepository>()),
     );
 
   log("Register BLOC Complate For GetIT");

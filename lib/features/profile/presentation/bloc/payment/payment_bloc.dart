@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uzxarid/features/profile/data/model/plan_order_model.dart';
 import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
 import 'payment_event.dart';
 import 'payment_state.dart';
@@ -11,6 +12,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       super(const PaymentState()) {
     on<GetPaymentPlansEvent>(_onGetPaymentPlans);
     on<GetPaymentHistoryEvent>(_onGetPaymentHistory);
+    on<CreatePlanOrderEvent>(_onCreatePlanOrder);
+    on<ClearPaymentLinkEvent>(_onClearPaymentLink);
   }
 
   Future<void> _onGetPaymentPlans(
@@ -31,6 +34,50 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         ),
       );
     }
+  }
+
+  Future<void> _onCreatePlanOrder(
+    CreatePlanOrderEvent event,
+    Emitter<PaymentState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        orderStatus: PlanOrderStatus.loading,
+        orderingPlanId: event.userPlanId,
+        clearOrder: false,
+      ),
+    );
+
+    final result = await _repository.createPlanOrder(
+      PlanOrderRequest(
+        orderType: event.orderType,
+        userPlanId: event.userPlanId,
+        paymentMethod: event.paymentMethod,
+      ),
+    );
+
+    if (result.isRight) {
+      emit(
+        state.copyWith(
+          orderStatus: PlanOrderStatus.success,
+          paymentLink: result.right.paymentLink,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          orderStatus: PlanOrderStatus.failure,
+          orderErrorMessage: result.left.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onClearPaymentLink(
+    ClearPaymentLinkEvent event,
+    Emitter<PaymentState> emit,
+  ) async {
+    emit(state.copyWith(clearOrder: true));
   }
 
   Future<void> _onGetPaymentHistory(

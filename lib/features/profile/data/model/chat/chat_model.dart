@@ -35,8 +35,15 @@ class ChatMessagesData {
     required this.results,
   });
 
-  factory ChatMessagesData.fromJson(Map<String, dynamic> json) =>
-      _$ChatMessagesDataFromJson(json);
+  factory ChatMessagesData.fromJson(Map<String, dynamic> json) {
+    if (json['results'] == null && json['id'] != null) {
+      return ChatMessagesData(
+        count: 1,
+        results: [ChatMessageModel.fromJson(json)],
+      );
+    }
+    return _$ChatMessagesDataFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$ChatMessagesDataToJson(this);
 }
@@ -127,11 +134,22 @@ class ChatSenderInfoModel {
   @JsonKey(name: 'first_name')
   final String? firstName;
   @JsonKey(name: 'avatar')
-  final String? avatar;
+  final dynamic avatar;
   @JsonKey(name: 'phone')
   final String? phone;
 
   ChatSenderInfoModel({this.firstName, this.avatar, this.phone});
+
+  String? get avatarUrl {
+    final a = avatar;
+    if (a == null) return null;
+    if (a is String) return a;
+    if (a is Map) {
+      return (a['original'] ?? a['large'] ?? a['medium'] ?? a['small'])
+          as String?;
+    }
+    return null;
+  }
 
   factory ChatSenderInfoModel.fromJson(Map<String, dynamic> json) =>
       _$ChatSenderInfoModelFromJson(json);

@@ -9,6 +9,7 @@ import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/utils/input_formatters.dart';
 import 'package:uzxarid/core/utils/price_formatter.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
@@ -402,46 +403,45 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
   @override
   Widget build(BuildContext context) {
+    const hPad = EdgeInsets.symmetric(horizontal: AppDimens.paddingMedium);
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImageGallery(),
-            const SizedBox(height: 12),
-            _buildTitleSection(),
-            if (ad.attributes.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildVehicleAttributesSection(),
-            ],
-            if (ad.colors.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildColorSection(),
-            ],
-            if (ad.sizes.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildSizeSection(),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: AppDimens.paddingMedium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(padding: hPad, child: _buildImageGallery()),
+          const SizedBox(height: 12),
+          Padding(padding: hPad, child: _buildTitleSection()),
+          if (ad.attributes.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildPriceSection(),
-            const SizedBox(height: 16),
-            _buildActionButtons(),
-            const SizedBox(height: 16),
-            _buildSellerSection(),
-            const SizedBox(height: 16),
-            _buildTabSection(),
-            if (ad.latitude != null && ad.longitude != null) ...[
-              const SizedBox(height: 16),
-              _buildLocationSection(),
-            ],
-            if (ad.similar.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildSimilarSection(),
-            ],
-            const SizedBox(height: 32),
+            Padding(padding: hPad, child: _buildVehicleAttributesSection()),
           ],
-        ),
+          if (ad.colors.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Padding(padding: hPad, child: _buildColorSection()),
+          ],
+          if (ad.sizes.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Padding(padding: hPad, child: _buildSizeSection()),
+          ],
+          const SizedBox(height: 16),
+          Padding(padding: hPad, child: _buildPriceSection()),
+          const SizedBox(height: 16),
+          Padding(padding: hPad, child: _buildActionButtons()),
+          const SizedBox(height: 16),
+          Padding(padding: hPad, child: _buildSellerSection()),
+          const SizedBox(height: 16),
+          Padding(padding: hPad, child: _buildTabSection()),
+          if (ad.latitude != null && ad.longitude != null) ...[
+            const SizedBox(height: 16),
+            Padding(padding: hPad, child: _buildLocationSection()),
+          ],
+          if (ad.similar.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSimilarSection(),
+          ],
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }
@@ -644,6 +644,12 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
       spacing: 8,
       runSpacing: 8,
       children: ad.attributes.map((a) {
+        final labelLower = a.label.toLowerCase();
+        final isMileageLike =
+            labelLower.contains('probeg') || labelLower.contains('mileage');
+        final displayValue = (isMileageLike && a.value.isNotEmpty)
+            ? formatThousands(a.value)
+            : a.value;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
@@ -659,9 +665,9 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 a.label.toUpperCase(),
                 style: labelStyle,
               ),
-              if (a.value.isNotEmpty) ...[
+              if (displayValue.isNotEmpty) ...[
                 const SizedBox(height: 4),
-                Text(a.value, style: valueStyle),
+                Text(displayValue, style: valueStyle),
               ],
             ],
           ),

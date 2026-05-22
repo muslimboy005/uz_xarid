@@ -8,16 +8,16 @@ class LocationPlaceDto {
   const LocationPlaceDto({
     required this.id,
     required this.name,
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
     this.region,
     this.district,
   });
 
   final int id;
   final String name;
-  final String latitude;
-  final String longitude;
+  final String? latitude;
+  final String? longitude;
   final int? region;
   final int? district;
 
@@ -29,8 +29,8 @@ class LocationPlaceDto {
   LocationPlaceEntity toEntity() => LocationPlaceEntity(
         id: id,
         name: name,
-        latitude: double.tryParse(latitude),
-        longitude: double.tryParse(longitude),
+        latitude: latitude == null ? null : double.tryParse(latitude!),
+        longitude: longitude == null ? null : double.tryParse(longitude!),
       );
 }
 

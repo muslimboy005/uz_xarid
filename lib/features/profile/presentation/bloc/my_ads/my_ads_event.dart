@@ -24,3 +24,7 @@ class MyAdsDeleteRequested extends MyAdsEvent {
   @override
   List<Object?> get props => [slug];
 }
+
+class MyAdsLimitInfoRequested extends MyAdsEvent {
+  const MyAdsLimitInfoRequested();
+}

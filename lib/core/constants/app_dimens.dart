@@ -7,6 +7,10 @@ class AppDimens {
   static const double paddingMedium = 16;
   static const double paddingLarge = 24;
 
+  /// ScaffoldWithNavBar shell sahifalari uchun pastki clearance —
+  /// floating nav bar va FAB ostida content yashirinmasligi uchun.
+  static const double bottomNavClearance = 96;
+
   // Radius
   static const double radiusSmall = 8;
   static const double radiusMedium = 12;

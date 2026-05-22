@@ -9,6 +9,7 @@ import 'package:uzxarid/features/profile/domain/entity/business_entity.dart';
 import 'package:uzxarid/features/profile/domain/entity/full_name.dart';
 import 'package:uzxarid/features/profile/data/model/plan_model.dart';
 import 'package:uzxarid/features/profile/data/model/plan_history_model.dart';
+import 'package:uzxarid/features/profile/data/model/plan_order_model.dart';
 import 'package:uzxarid/features/profile/data/model/chat/chat_model.dart';
 
 abstract class ProfileRepository {
@@ -50,6 +51,10 @@ abstract class ProfileRepository {
   Future<Either<Failure, PlanHistoryResponseModel>> getPlanHistory(
     int page,
     int pageSize,
+  );
+
+  Future<Either<Failure, PlanOrderData>> createPlanOrder(
+    PlanOrderRequest request,
   );
 
   Future<Either<Failure, ChatMessagesResponseModel>> getChatMessages(

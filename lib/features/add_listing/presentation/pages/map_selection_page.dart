@@ -14,7 +14,16 @@ import 'package:uzxarid/core/constants/app_keys.dart';
 
 class MapSelectionPage extends StatefulWidget {
   final Point? initialPoint;
-  const MapSelectionPage({super.key, this.initialPoint});
+  final String? initialRegion;
+  final String? initialDistrict;
+  final String? initialNeighborhood;
+  const MapSelectionPage({
+    super.key,
+    this.initialPoint,
+    this.initialRegion,
+    this.initialDistrict,
+    this.initialNeighborhood,
+  });
 
   @override
   State<MapSelectionPage> createState() => _MapSelectionPageState();
@@ -25,20 +34,98 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
   late final ValueNotifier<Point> _centerPosition;
   final ValueNotifier<bool> _isMapReady = ValueNotifier<bool>(false);
   final ValueNotifier<String?> _addressName = ValueNotifier<String?>(null);
+  String? _lastRegion;
+  String? _lastDistrict;
+  String? _lastNeighborhood;
   int _searchSessionId = 0;
 
   @override
   void initState() {
     super.initState();
     _centerPosition = ValueNotifier<Point>(
-      widget.initialPoint ?? const Point(latitude: 41.311081, longitude: 69.240562),
+      widget.initialPoint ??
+          const Point(latitude: 41.311081, longitude: 69.240562),
     );
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        _isMapReady.value = true;
-        _searchAddress(_centerPosition.value);
+    Future.delayed(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      if (widget.initialPoint == null &&
+          ((widget.initialRegion?.isNotEmpty ?? false) ||
+              (widget.initialDistrict?.isNotEmpty ?? false) ||
+              (widget.initialNeighborhood?.isNotEmpty ?? false))) {
+        final geocoded = await _geocodeCascade(
+          region: widget.initialRegion,
+          district: widget.initialDistrict,
+          neighborhood: widget.initialNeighborhood,
+        );
+        if (!mounted) return;
+        if (geocoded != null) {
+          _centerPosition.value = geocoded;
+        }
       }
+      _isMapReady.value = true;
+      _searchAddress(_centerPosition.value);
     });
+  }
+
+  Future<Point?> _geocodeCascade({
+    String? region,
+    String? district,
+    String? neighborhood,
+  }) async {
+    // Try most-specific first, then progressively drop levels so Nominatim
+    // falls back to a known administrative boundary if it doesn't know the
+    // mahalla.
+    final attempts = <Map<String, String>>[
+      {
+        if (region != null && region.isNotEmpty) 'state': region,
+        if (district != null && district.isNotEmpty) 'county': district,
+        if (neighborhood != null && neighborhood.isNotEmpty)
+          'city': neighborhood,
+      },
+      {
+        if (region != null && region.isNotEmpty) 'state': region,
+        if (district != null && district.isNotEmpty) 'county': district,
+      },
+      {
+        if (region != null && region.isNotEmpty) 'state': region,
+      },
+    ];
+    for (final params in attempts) {
+      if (params.isEmpty) continue;
+      final point = await _nominatimSearch(params);
+      if (point != null) return point;
+    }
+    return null;
+  }
+
+
+  Future<Point?> _nominatimSearch(Map<String, String> params) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get<List<dynamic>>(
+        'https://nominatim.openstreetmap.org/search',
+        queryParameters: {
+          'format': 'json',
+          'limit': 1,
+          'countrycodes': 'uz',
+          ...params,
+        },
+        options: Options(
+          headers: {'User-Agent': 'uzxarid-app/1.0'},
+          responseType: ResponseType.json,
+        ),
+      );
+      final data = response.data;
+      if (data == null || data.isEmpty) return null;
+      final first = data.first as Map<String, dynamic>;
+      final lat = double.tryParse(first['lat']?.toString() ?? '');
+      final lon = double.tryParse(first['lon']?.toString() ?? '');
+      if (lat == null || lon == null) return null;
+      return Point(latitude: lat, longitude: lon);
+    } catch (e) {
+      debugPrint('Nominatim error: $e');
+      return null;
+    }
   }
 
   @override
@@ -114,26 +201,59 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
     final sessionId = ++_searchSessionId;
     try {
       final dio = Dio();
-      final url = 'https://geocode-maps.yandex.ru/1.x/?apikey=${AppKeys.yandexGeocoderKey}&geocode=${point.longitude},${point.latitude}&format=json&lang=uz_UZ&results=1&kind=house';
-      
+      final url =
+          'https://geocode-maps.yandex.ru/1.x/?apikey=${AppKeys.yandexGeocoderKey}&geocode=${point.longitude},${point.latitude}&format=json&lang=uz_UZ&results=1&kind=house';
+
       final response = await dio.get(url);
       if (sessionId != _searchSessionId) return;
 
-      if (response.statusCode == 200) {
-        final data = response.data;
-        final featureMember = data['response']['GeoObjectCollection']['featureMember'] as List;
-        if (featureMember.isNotEmpty) {
-          final address = featureMember[0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['text'];
-          _addressName.value = address;
-        } else {
-          _addressName.value = null;
-        }
-      } else {
+      if (response.statusCode != 200) {
         _addressName.value = null;
+        _lastRegion = null;
+        _lastDistrict = null;
+        _lastNeighborhood = null;
+        return;
       }
+      final data = response.data;
+      final featureMember = data['response']['GeoObjectCollection']
+          ['featureMember'] as List;
+      if (featureMember.isEmpty) {
+        _addressName.value = null;
+        _lastRegion = null;
+        _lastDistrict = null;
+        _lastNeighborhood = null;
+        return;
+      }
+      final geoObject =
+          (featureMember[0] as Map)['GeoObject'] as Map<String, dynamic>;
+      final meta = (geoObject['metaDataProperty'] as Map?)?['GeocoderMetaData']
+          as Map<String, dynamic>?;
+      _addressName.value = meta?['text']?.toString();
+
+      Map<String, dynamic>? walk(Map<String, dynamic>? node, String key) =>
+          node?[key] as Map<String, dynamic>?;
+      String? str(Map<String, dynamic>? node, String key) =>
+          node?[key]?.toString();
+
+      final details = meta?['AddressDetails'] as Map<String, dynamic>?;
+      final country = walk(details, 'Country');
+      final adminArea = walk(country, 'AdministrativeArea');
+      final subAdminArea = walk(adminArea, 'SubAdministrativeArea');
+      final locality =
+          walk(subAdminArea, 'Locality') ?? walk(adminArea, 'Locality');
+      final dependentLocality = walk(locality, 'DependentLocality');
+
+      _lastRegion = str(adminArea, 'AdministrativeAreaName');
+      _lastDistrict = str(subAdminArea, 'SubAdministrativeAreaName') ??
+          str(locality, 'LocalityName');
+      _lastNeighborhood = str(dependentLocality, 'DependentLocalityName') ??
+          str(locality, 'LocalityName');
     } catch (e) {
       if (sessionId == _searchSessionId) {
         _addressName.value = null;
+        _lastRegion = null;
+        _lastDistrict = null;
+        _lastNeighborhood = null;
       }
       debugPrint("Search error: $e");
     }
@@ -367,6 +487,9 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
                   Navigator.pop(context, {
                     'point': _centerPosition.value,
                     'address': _addressName.value,
+                    'region': _lastRegion,
+                    'district': _lastDistrict,
+                    'neighborhood': _lastNeighborhood,
                   });
                 },
                 color: primaryColor,

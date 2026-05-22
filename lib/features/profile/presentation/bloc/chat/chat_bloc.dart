@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uzxarid/features/chat/data/datasources/chat_api.dart';
 import 'package:uzxarid/features/profile/data/model/chat/chat_model.dart';
 import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
 import 'chat_event.dart';
@@ -9,10 +10,12 @@ import 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ProfileRepository _repository;
+  final ChatApi _chatApi;
   Timer? _pollingTimer;
 
-  ChatBloc({required ProfileRepository repository})
+  ChatBloc({required ProfileRepository repository, required ChatApi chatApi})
     : _repository = repository,
+      _chatApi = chatApi,
       super(const ChatState()) {
     on<ChatEvent>((event, emit) async {
       try {
@@ -44,7 +47,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         } else if (event is StopChatPollingEvent) {
           _stopPolling();
         } else if (event is InitializeChatEvent) {
-          emit(state.copyWith(chatRoomId: event.chatRoomId));
+          await _onInitializeChat(event, emit);
         } else if (event is SetChatUserIdEvent) {
           emit(state.copyWith(currentUserId: event.userId));
         }
@@ -55,11 +58,75 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               status: ChatStatus.failure,
               errorMessage: e.toString(),
               isSending: false,
+              isInitializing: false,
             ),
           );
         }
       }
     }, transformer: sequential());
+  }
+
+  Future<void> _onInitializeChat(
+    InitializeChatEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    if (event.chatRoomId > 0) {
+      emit(state.copyWith(chatRoomId: event.chatRoomId));
+      add(GetChatMessagesEvent(chatRoomId: event.chatRoomId));
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        isInitializing: true,
+        status: ChatStatus.loading,
+        messages: const [],
+      ),
+    );
+
+    try {
+      int? foundRoomId;
+      for (var page = 1; page <= 3; page++) {
+        final response = await _chatApi.getRooms(page);
+        final supportRoom = response.data.results
+            .where((r) => r.chatType == 'support')
+            .firstOrNull;
+        if (supportRoom != null) {
+          foundRoomId = supportRoom.id;
+          break;
+        }
+        if (response.data.next == null) break;
+      }
+
+      if (foundRoomId != null) {
+        emit(
+          state.copyWith(
+            chatRoomId: foundRoomId,
+            isInitializing: false,
+          ),
+        );
+        add(GetChatMessagesEvent(chatRoomId: foundRoomId));
+        _startPolling(foundRoomId);
+      } else {
+        emit(
+          state.copyWith(
+            chatRoomId: 0,
+            isInitializing: false,
+            status: ChatStatus.success,
+            messages: const [],
+          ),
+        );
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          chatRoomId: 0,
+          isInitializing: false,
+          status: ChatStatus.success,
+          messages: const [],
+        ),
+      );
+    }
   }
 
   void _startPolling(int chatRoomId) {
@@ -280,13 +347,35 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     try {
       dynamic data;
-      final effectiveRoomId = event.chatRoomId > 0
+      var effectiveRoomId = event.chatRoomId > 0
           ? event.chatRoomId
           : (state.chatRoomId ?? 0);
 
+      if (effectiveRoomId <= 0) {
+        try {
+          final roomResponse = await _chatApi.createRoom({
+            'chat_type': 'support',
+          });
+          effectiveRoomId = roomResponse.data.id;
+          emit(state.copyWith(chatRoomId: effectiveRoomId));
+        } catch (e) {
+          final rolledBack = List<ChatMessageModel>.from(state.messages)
+            ..removeWhere((m) => m.id == tempId);
+          emit(
+            state.copyWith(
+              status: ChatStatus.failure,
+              isSending: false,
+              messages: List.unmodifiable(rolledBack),
+              errorMessage: e.toString().split('\n').first,
+            ),
+          );
+          return;
+        }
+      }
+
       if (event.filePaths.isEmpty) {
         data = {
-          if (effectiveRoomId > 0) "chat_room_id": effectiveRoomId,
+          "chat_room_id": effectiveRoomId,
           "content": event.content,
           "files": [],
           "file_urls": [],
@@ -294,7 +383,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         };
       } else {
         final formDataMap = {
-          if (effectiveRoomId > 0) "chat_room_id": effectiveRoomId,
+          "chat_room_id": effectiveRoomId,
           "content": event.content,
         };
         final formData = FormData.fromMap(formDataMap);

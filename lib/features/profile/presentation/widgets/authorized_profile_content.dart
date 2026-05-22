@@ -311,7 +311,7 @@ class AuthorizedProfileContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppDimens.paddingMedium),
+          const SizedBox(height: AppDimens.bottomNavClearance),
         ],
       ),
     );

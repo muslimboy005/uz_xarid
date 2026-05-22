@@ -19,6 +19,7 @@ import 'package:uzxarid/core/face_session/face_session_flow.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/service/local_service.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/input_formatters.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
@@ -84,18 +85,14 @@ class _AddListingPageState extends State<AddListingPage> {
   _NameLang _nameLang = _NameLang.uz;
   String _currency = 'UZS';
 
-  CategoryEntity? _selectedCategory;
-  CategoryEntity? _selectedSubcategory;
-  CategoryEntity? _selectedSubSubcategory;
+  /// Tanlangan turkumlar yo‘li: root → leaf. Daraxt nechta darajaga
+  /// chuqurlashishidan qat'i nazar dinamik kengayadi.
+  final List<CategoryEntity> _categoryPath = [];
 
-  /// GET /api/v2/category/{id}/children/ — v1 daraxtdagi bo‘sh `children` o‘rniga.
-  int? _loadedSubcategoriesParentId;
-  List<CategoryEntity> _loadedSubcategories = [];
-  bool _loadingSubcategories = false;
-
-  int? _loadedSubSubcategoriesParentId;
-  List<CategoryEntity> _loadedSubSubcategories = [];
-  bool _loadingSubSubcategories = false;
+  /// GET /api/v2/category/{id}/children/ — har bir parent uchun yuklab olingan
+  /// bolalar ro‘yxati. Bo‘sh ro‘yxat = leaf (dynamic fields shu yerda yuklanadi).
+  final Map<int, List<CategoryEntity>> _childrenByParent = {};
+  final Set<int> _loadingParentIds = {};
   final _amountController = TextEditingController();
   final _nameUzController = TextEditingController();
   final _nameRuController = TextEditingController();
@@ -114,6 +111,7 @@ class _AddListingPageState extends State<AddListingPage> {
   final _videoInstagramController = TextEditingController();
   final _videoOtherController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _extraPhoneController = TextEditingController();
 
   // ─── Address qo'shimcha maydonlari ───────────────────────────────
   final _streetController = TextEditingController();
@@ -134,7 +132,8 @@ class _AddListingPageState extends State<AddListingPage> {
   final List<_ColorRowData> _colorRows = [_ColorRowData()];
   final List<_SizeRowData> _sizeRows = [_SizeRowData()];
 
-  final List<String?> _imagePaths = [null, null, null, null];
+  final List<String> _imagePaths = [];
+  static const int _maxImages = 20;
   static final _imagePicker = ImagePicker();
   bool _formFilledFromEdit = false;
   bool _usedFallbackForEdit = false;
@@ -233,6 +232,7 @@ class _AddListingPageState extends State<AddListingPage> {
     _videoInstagramController.dispose();
     _videoOtherController.dispose();
     _phoneController.dispose();
+    _extraPhoneController.dispose();
     _streetController.dispose();
     _houseNumberController.dispose();
     _apartmentController.dispose();
@@ -290,15 +290,29 @@ class _AddListingPageState extends State<AddListingPage> {
     final textSecondary = context.textSecondary;
     final borderColor = context.borderColor;
     final l10n = AppLocalizations.of(context)!;
-    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
 
-    return Scaffold(
-      backgroundColor: primaryColor,
-      appBar: UzXaridAppBar(onSearchChanged: (_) {}, onMenuTap: () {}),
-      body: Container(
-        color: bodyBg,
-        height: MediaQuery.of(context).size.height,
-        child: BlocListener<ProfileBloc, ProfileState>(
+    return UzXaridScaffold(
+      backgroundColor: bodyBg,
+      leading: ContainerW(
+        onTap: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        },
+        radius: 10,
+        color: Colors.white.withValues(alpha: 0.18),
+        child: const Padding(
+          padding: EdgeInsets.all(10),
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 18,
+          ),
+        ),
+      ),
+      body: BlocListener<ProfileBloc, ProfileState>(
           listener: (context, state) {
             if (state.status == ProfileStatus.success) _refreshAuth();
           },
@@ -375,7 +389,6 @@ class _AddListingPageState extends State<AddListingPage> {
             },
           ),
         ),
-      ),
     );
   }
 
@@ -535,27 +548,21 @@ class _AddListingPageState extends State<AddListingPage> {
     };
   }
 
-  int? get _selectedCategoryForDynamicFields =>
-      _selectedSubSubcategory?.id ??
-      _selectedSubcategory?.id ??
-      _selectedCategory?.id;
+  CategoryEntity? get _selectedCategory =>
+      _categoryPath.isNotEmpty ? _categoryPath.first : null;
 
-  /// `category-fields` faqat oxirgi turkum aniq bo‘lganda kerak — aks holda ortiqcha ikkinchi so‘rov bo‘ladi.
+  CategoryEntity? get _selectedLeafCategory =>
+      _categoryPath.isNotEmpty ? _categoryPath.last : null;
+
+  int? get _selectedCategoryForDynamicFields => _selectedLeafCategory?.id;
+
+  /// `category-fields` faqat tanlangan eng so‘nggi turkumning bolalari yuklab
+  /// olingan va bo‘sh bo‘lganda (leaf) chaqiriladi — bo‘lmasa ortiqcha so‘rov.
   bool _shouldLoadCategoryFieldsNow() {
-    final root = _selectedCategory;
-    if (root == null) return false;
-
-    if (_selectedSubSubcategory != null) return true;
-
-    if (_selectedSubcategory != null) {
-      if (_loadedSubSubcategoriesParentId != _selectedSubcategory!.id) {
-        return false;
-      }
-      return _loadedSubSubcategories.isEmpty;
-    }
-
-    if (_loadedSubcategoriesParentId != root.id) return false;
-    return _loadedSubcategories.isEmpty;
+    final leaf = _selectedLeafCategory;
+    if (leaf == null) return false;
+    final children = _childrenByParent[leaf.id];
+    return children != null && children.isEmpty;
   }
 
   void _clearDynamicFieldsWithoutFetch() {
@@ -604,56 +611,35 @@ class _AddListingPageState extends State<AddListingPage> {
 
   static const int _categoryChildrenPageSize = 12;
 
-  Future<void> _fetchSubcategoriesForCategory(int parentId) async {
-    setState(() => _loadingSubcategories = true);
+  /// Tanlangan turkumning bolalarini yuklab oladi. Javob bo‘sh bo‘lsa — bu
+  /// leaf, dynamic fields shu yerda chaqiriladi; aks holda keyingi dropdown
+  /// avtomatik chiqadi.
+  Future<void> _fetchChildrenForCategory(CategoryEntity parent) async {
+    final parentId = parent.id;
+    if (_loadingParentIds.contains(parentId)) return;
+    setState(() => _loadingParentIds.add(parentId));
     final result = await getIt<CatalogRepository>().getCategoryChildren(
       parentCategoryId: parentId,
       pageSize: _categoryChildrenPageSize,
       categoryType: _categoryTypeForListingType(_listingType),
     );
     if (!mounted) return;
-    if (_selectedCategory?.id != parentId) return;
+    // Foydalanuvchi orada boshqa turkum tanlasa, eskirgan natijani tashlaymiz.
+    if (!_categoryPath.any((c) => c.id == parentId)) {
+      setState(() => _loadingParentIds.remove(parentId));
+      return;
+    }
     result.either(
       (_) {
         setState(() {
-          _loadingSubcategories = false;
-          _loadedSubcategoriesParentId = parentId;
-          _loadedSubcategories = _selectedCategory?.children ?? [];
+          _loadingParentIds.remove(parentId);
+          _childrenByParent[parentId] = parent.children;
         });
       },
       (list) {
         setState(() {
-          _loadingSubcategories = false;
-          _loadedSubcategoriesParentId = parentId;
-          _loadedSubcategories = list;
-        });
-      },
-    );
-    _refreshDynamicFieldsAfterCategoryStep();
-  }
-
-  Future<void> _fetchSubSubcategoriesForSubcategory(int parentId) async {
-    setState(() => _loadingSubSubcategories = true);
-    final result = await getIt<CatalogRepository>().getCategoryChildren(
-      parentCategoryId: parentId,
-      pageSize: _categoryChildrenPageSize,
-      categoryType: _categoryTypeForListingType(_listingType),
-    );
-    if (!mounted) return;
-    if (_selectedSubcategory?.id != parentId) return;
-    result.either(
-      (_) {
-        setState(() {
-          _loadingSubSubcategories = false;
-          _loadedSubSubcategoriesParentId = parentId;
-          _loadedSubSubcategories = _selectedSubcategory?.children ?? [];
-        });
-      },
-      (list) {
-        setState(() {
-          _loadingSubSubcategories = false;
-          _loadedSubSubcategoriesParentId = parentId;
-          _loadedSubSubcategories = list;
+          _loadingParentIds.remove(parentId);
+          _childrenByParent[parentId] = list;
         });
       },
     );
@@ -661,12 +647,20 @@ class _AddListingPageState extends State<AddListingPage> {
   }
 
   void _clearLoadedNestedCategories() {
-    _loadedSubcategoriesParentId = null;
-    _loadedSubcategories = [];
-    _loadingSubcategories = false;
-    _loadedSubSubcategoriesParentId = null;
-    _loadedSubSubcategories = [];
-    _loadingSubSubcategories = false;
+    _childrenByParent.clear();
+    _loadingParentIds.clear();
+  }
+
+  /// Tanlangan darajadan (inclusive) keyingi barcha bolalarni tozalaydi.
+  /// `level` = 0 — butun yo‘l tozalanadi.
+  void _truncateCategoryPath(int level) {
+    if (level < 0 || level >= _categoryPath.length) return;
+    final removed = _categoryPath.sublist(level);
+    _categoryPath.removeRange(level, _categoryPath.length);
+    for (final c in removed) {
+      _childrenByParent.remove(c.id);
+      _loadingParentIds.remove(c.id);
+    }
   }
 
   TextEditingController _controllerForDynamicField(String key) {
@@ -677,9 +671,7 @@ class _AddListingPageState extends State<AddListingPage> {
     final condition = field.condition;
     if (condition == null) return true;
     if (condition.field == 'category') {
-      final selectedName =
-          (_selectedSubSubcategory ?? _selectedSubcategory ?? _selectedCategory)
-              ?.displayName;
+      final selectedName = _selectedLeafCategory?.displayName;
       return selectedName == condition.equals;
     }
     final current = _dynamicValues[condition.field];
@@ -722,7 +714,7 @@ class _AddListingPageState extends State<AddListingPage> {
     _descUzController.text = ad.description ?? '';
     _descRuController.text = '';
     _descEnController.text = '';
-    _amountController.text = ad.price ?? ad.finalPrice ?? '';
+    _amountController.text = formatThousands(ad.price ?? ad.finalPrice ?? '');
     _currency = (ad.currency ?? 'uzs').toUpperCase();
     if (ad.weight != null) _weightValueController.text = ad.weight.toString();
     if (ad.width != null) _widthController.text = ad.width.toString();
@@ -761,9 +753,9 @@ class _AddListingPageState extends State<AddListingPage> {
     if (ad.categoryId != null && categories != null && categories.isNotEmpty) {
       final path = _findCategoryPath(categories, ad.categoryId!);
       if (path != null && path.isNotEmpty) {
-        _selectedCategory = path[0];
-        _selectedSubcategory = path.length > 1 ? path[1] : null;
-        _selectedSubSubcategory = path.length > 2 ? path[2] : null;
+        _categoryPath
+          ..clear()
+          ..addAll(path);
       }
     }
     _latitude = ad.latitude;
@@ -772,14 +764,7 @@ class _AddListingPageState extends State<AddListingPage> {
     setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (_selectedCategory != null) {
-        _fetchSubcategoriesForCategory(_selectedCategory!.id).then((_) {
-          if (!mounted) return;
-          if (_selectedSubcategory != null) {
-            _fetchSubSubcategoriesForSubcategory(_selectedSubcategory!.id);
-          }
-        });
-      }
+      _chainFetchChildrenForPath();
     });
   }
 
@@ -800,7 +785,9 @@ class _AddListingPageState extends State<AddListingPage> {
     _descUzController.text = item.description ?? '';
     _descRuController.text = '';
     _descEnController.text = '';
-    _amountController.text = item.price ?? item.finalPrice ?? '';
+    _amountController.text = formatThousands(
+      item.price ?? item.finalPrice ?? '',
+    );
     _currency = (item.currency).toUpperCase();
     if (item.adType != null) {
       final t = item.adType!;
@@ -834,9 +821,9 @@ class _AddListingPageState extends State<AddListingPage> {
         categories.isNotEmpty) {
       final path = _findCategoryPath(categories, item.categoryId!);
       if (path != null && path.isNotEmpty) {
-        _selectedCategory = path[0];
-        _selectedSubcategory = path.length > 1 ? path[1] : null;
-        _selectedSubSubcategory = path.length > 2 ? path[2] : null;
+        _categoryPath
+          ..clear()
+          ..addAll(path);
       }
     }
     _latitude = item.latitude;
@@ -845,15 +832,20 @@ class _AddListingPageState extends State<AddListingPage> {
     setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (_selectedCategory != null) {
-        _fetchSubcategoriesForCategory(_selectedCategory!.id).then((_) {
-          if (!mounted) return;
-          if (_selectedSubcategory != null) {
-            _fetchSubSubcategoriesForSubcategory(_selectedSubcategory!.id);
-          }
-        });
-      }
+      _chainFetchChildrenForPath();
     });
+  }
+
+  /// Edit oqimida: tanlangan yo‘ldagi har bir node uchun bolalarni ketma-ket
+  /// yuklaymiz (oldingisi tugagach keyingisi) — dropdownlarni to‘g‘ri
+  /// to‘ldirish va leaf aniqlash uchun.
+  Future<void> _chainFetchChildrenForPath() async {
+    for (final node in List<CategoryEntity>.of(_categoryPath)) {
+      if (!mounted) return;
+      // Yo‘l orada o‘zgargan bo‘lsa, to‘xtaymiz.
+      if (!_categoryPath.any((c) => c.id == node.id)) return;
+      await _fetchChildrenForCategory(node);
+    }
   }
 
   // ─── FORM ───────────────────────────────────────────────────────
@@ -1092,8 +1084,7 @@ class _AddListingPageState extends State<AddListingPage> {
 
   Future<void> _submitCreateAd(BuildContext formContext) async {
     final l10n = AppLocalizations.of(formContext)!;
-    final category =
-        _selectedSubSubcategory ?? _selectedSubcategory ?? _selectedCategory;
+    final category = _selectedLeafCategory;
     if (category == null) {
       ScaffoldMessenger.of(formContext).showSnackBar(
         SnackBar(
@@ -1113,7 +1104,7 @@ class _AddListingPageState extends State<AddListingPage> {
       );
       return;
     }
-    final price = _amountController.text.trim();
+    final price = stripThousandsSpaces(_amountController.text.trim());
     if (price.isEmpty) {
       ScaffoldMessenger.of(formContext).showSnackBar(
         SnackBar(
@@ -1144,7 +1135,10 @@ class _AddListingPageState extends State<AddListingPage> {
 
       if (type == 'text' || type == 'number' || type == 'range') {
         final c = _dynamicTextControllers[field.name];
-        final value = c?.text.trim() ?? '';
+        var value = c?.text.trim() ?? '';
+        if (_isThousandsField(field.name)) {
+          value = stripThousandsSpaces(value);
+        }
         if (field.required && value.isEmpty) {
           showError('${field.label} to\'ldirilishi shart');
           return;
@@ -1266,7 +1260,7 @@ class _AddListingPageState extends State<AddListingPage> {
                     adDetail.images.isNotEmpty)) ||
             (fallbackItem?.mainImage != null &&
                 fallbackItem!.mainImage!.isNotEmpty));
-    final mainImage = _imagePaths[0];
+    final mainImage = _imagePaths.isNotEmpty ? _imagePaths.first : null;
     if ((mainImage == null || mainImage.isEmpty) && !hasExistingImages) {
       ScaffoldMessenger.of(formContext).showSnackBar(
         SnackBar(
@@ -1325,7 +1319,7 @@ class _AddListingPageState extends State<AddListingPage> {
       mainImagePath: (mainImage != null && mainImage.isNotEmpty)
           ? mainImage
           : null,
-      additionalImagePaths: _imagePaths.skip(1).whereType<String>().toList(),
+      additionalImagePaths: _imagePaths.skip(1).toList(),
       existingMainImageUrl: existingMainUrl,
       existingImageUrls: existingUrls,
       weight: _weightValueController.text.trim().isEmpty
@@ -1364,6 +1358,8 @@ class _AddListingPageState extends State<AddListingPage> {
       brand: brandValue,
       brandModel: brandModelValue,
       vehicleDetail: vehicleDetail,
+      contactPhone: _normalizePhone(_phoneController.text),
+      extraPhone: _normalizePhone(_extraPhoneController.text),
     );
     if (!isEdit) {
       final user = formContext
@@ -1429,6 +1425,7 @@ class _AddListingPageState extends State<AddListingPage> {
 
   Widget _buildAdTypeTabs(Color cardColor, Color textColor, Color borderColor) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final types = [
       ('Sell', l10n.supportMenuSotaman),
       ('Buy', l10n.supportMenuSotibOlaman),
@@ -1436,9 +1433,16 @@ class _AddListingPageState extends State<AddListingPage> {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor.withValues(alpha: 0.4)),
         color: cardColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
@@ -1462,17 +1466,27 @@ class _AddListingPageState extends State<AddListingPage> {
                 }
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: selected ? selectedColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
+                  boxShadow: selected
+                      ? [
+                          BoxShadow(
+                            color: selectedColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ]
+                      : null,
                 ),
                 alignment: Alignment.center,
                 child: AppText(
                   text: e.$2,
-                  fontSize: 14,
-                  fontWeight: selected ? 600 : 500,
+                  fontSize: 15,
+                  fontWeight: selected ? 700 : 500,
                   color: selected ? AppColors.white : textColor,
                 ),
               ),
@@ -1502,11 +1516,11 @@ class _AddListingPageState extends State<AddListingPage> {
     ];
 
     return SizedBox(
-      height: 46,
+      height: 48,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: types.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, i) {
           final e = types[i];
           final selected = _listingType == e.$1;
@@ -1514,9 +1528,7 @@ class _AddListingPageState extends State<AddListingPage> {
             onTap: () {
               setState(() {
                 _listingType = e.$1;
-                _selectedCategory = null;
-                _selectedSubcategory = null;
-                _selectedSubSubcategory = null;
+                _categoryPath.clear();
                 _dynamicValues.clear();
                 _clearLoadedNestedCategories();
                 _dynamicFields = [];
@@ -1530,18 +1542,32 @@ class _AddListingPageState extends State<AddListingPage> {
               );
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               decoration: BoxDecoration(
                 color: selected ? primaryColor : cardColor,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: borderColor),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: selected
+                      ? primaryColor
+                      : borderColor.withValues(alpha: 0.4),
+                ),
+                boxShadow: selected
+                    ? [
+                        BoxShadow(
+                          color: primaryColor.withValues(alpha: 0.28),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
               alignment: Alignment.center,
               child: AppText(
                 text: e.$2,
                 fontSize: 14,
-                fontWeight: selected ? 600 : 500,
+                fontWeight: selected ? 700 : 500,
                 color: selected ? AppColors.white : textColor,
               ),
             ),
@@ -1586,6 +1612,7 @@ class _AddListingPageState extends State<AddListingPage> {
                   controller: _amountController,
                   hint: l10n.addListingPrice,
                   isNumber: true,
+                  thousands: true,
                   borderColor: borderColor,
                 ),
               ],
@@ -1662,24 +1689,71 @@ class _AddListingPageState extends State<AddListingPage> {
         final categories = state.categories ?? [];
         final isLoading = state.categoriesLoading;
 
-        final subcategories = _selectedCategory == null
-            ? <CategoryEntity>[]
-            : (_loadedSubcategoriesParentId == _selectedCategory!.id
-                  ? _loadedSubcategories
-                  : <CategoryEntity>[]);
-
-        final subSubcategories = _selectedSubcategory == null
-            ? <CategoryEntity>[]
-            : (_loadedSubSubcategoriesParentId == _selectedSubcategory!.id
-                  ? _loadedSubSubcategories
-                  : <CategoryEntity>[]);
-
-        final showSubcategoryRow =
-            _selectedCategory != null &&
-            (_loadingSubcategories || subcategories.isNotEmpty);
-        final showSubSubcategoryRow =
-            _selectedSubcategory != null &&
-            (_loadingSubSubcategories || subSubcategories.isNotEmpty);
+        // Har bir tanlangan node uchun keyingi daraja dropdownini quramiz.
+        // Agar shu node uchun bolalar yuklab olinmagan bo‘lsa — loader; agar
+        // yuklab olingan va bo‘sh bo‘lsa — bu leaf, dropdown ko‘rsatmaymiz
+        // (uning o‘rniga dynamic fields chiqadi).
+        final nestedRows = <Widget>[];
+        for (var level = 0; level < _categoryPath.length; level++) {
+          final parent = _categoryPath[level];
+          final isLoadingChildren = _loadingParentIds.contains(parent.id);
+          final loadedChildren = _childrenByParent[parent.id];
+          if (!isLoadingChildren &&
+              loadedChildren != null &&
+              loadedChildren.isEmpty) {
+            continue; // leaf
+          }
+          final childIndex = level + 1;
+          final selectedChild = childIndex < _categoryPath.length
+              ? _categoryPath[childIndex]
+              : null;
+          final label = level == 0
+              ? l10n.addListingSelectSubcategory
+              : l10n.addListingSelectType;
+          nestedRows.add(const SizedBox(height: 16));
+          nestedRows.add(_fieldLabel(label, false, textColor, textSecondary));
+          nestedRows.add(const SizedBox(height: 8));
+          if (isLoadingChildren && loadedChildren == null) {
+            nestedRows.add(
+              Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  color: context.surfaceContainer,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor),
+                ),
+                alignment: Alignment.center,
+                child: const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            );
+          } else {
+            nestedRows.add(
+              _categoryDropdown(
+                hint: label,
+                items: loadedChildren ?? const <CategoryEntity>[],
+                selected: selectedChild,
+                textColor: textColor,
+                textSecondary: textSecondary,
+                borderColor: borderColor,
+                onSelected: (cat) {
+                  setState(() {
+                    // Tanlovdan past barcha bolalarni va ularning cache'ini
+                    // tozalaymiz, so‘ng yangi tanlovni qo‘shamiz.
+                    _truncateCategoryPath(childIndex);
+                    _categoryPath.add(cat);
+                    _dynamicValues.clear();
+                    _resetCarBrandModelTrim();
+                  });
+                  _fetchChildrenForCategory(cat);
+                },
+              ),
+            );
+          }
+        }
 
         return _cardWithHeader(
           cardColor: cardColor,
@@ -1724,104 +1798,17 @@ class _AddListingPageState extends State<AddListingPage> {
                   enableSearch: true,
                   onSelected: (cat) {
                     setState(() {
-                      _selectedCategory = cat;
-                      _selectedSubcategory = null;
-                      _selectedSubSubcategory = null;
+                      _categoryPath
+                        ..clear()
+                        ..add(cat);
                       _dynamicValues.clear();
                       _clearLoadedNestedCategories();
                       _resetCarBrandModelTrim();
                     });
-                    _fetchSubcategoriesForCategory(cat.id);
+                    _fetchChildrenForCategory(cat);
                   },
                 ),
-              if (showSubcategoryRow) ...[
-                const SizedBox(height: 16),
-                _fieldLabel(
-                  l10n.addListingSelectSubcategory,
-                  false,
-                  textColor,
-                  textSecondary,
-                ),
-                const SizedBox(height: 8),
-                if (_loadingSubcategories)
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: context.surfaceContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: borderColor),
-                    ),
-                    alignment: Alignment.center,
-                    child: const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                else
-                  _categoryDropdown(
-                    hint: l10n.addListingSelectSubcategory,
-                    items: subcategories,
-                    selected: _selectedSubcategory,
-                    textColor: textColor,
-                    textSecondary: textSecondary,
-                    borderColor: borderColor,
-                    onSelected: (cat) {
-                      setState(() {
-                        _selectedSubcategory = cat;
-                        _selectedSubSubcategory = null;
-                        _dynamicValues.clear();
-                        _loadedSubSubcategoriesParentId = null;
-                        _loadedSubSubcategories = [];
-                        _loadingSubSubcategories = false;
-                        _resetCarBrandModelTrim();
-                      });
-                      _fetchSubSubcategoriesForSubcategory(cat.id);
-                    },
-                  ),
-              ],
-              if (showSubSubcategoryRow) ...[
-                const SizedBox(height: 16),
-                _fieldLabel(
-                  l10n.addListingSelectType,
-                  false,
-                  textColor,
-                  textSecondary,
-                ),
-                const SizedBox(height: 8),
-                if (_loadingSubSubcategories)
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: context.surfaceContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: borderColor),
-                    ),
-                    alignment: Alignment.center,
-                    child: const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                else
-                  _categoryDropdown(
-                    hint: l10n.addListingSelectType,
-                    items: subSubcategories,
-                    selected: _selectedSubSubcategory,
-                    textColor: textColor,
-                    textSecondary: textSecondary,
-                    borderColor: borderColor,
-                    onSelected: (cat) {
-                      setState(() {
-                        _selectedSubSubcategory = cat;
-                        _dynamicValues.clear();
-                        _resetCarBrandModelTrim();
-                      });
-                      _refreshDynamicFieldsAfterCategoryStep();
-                    },
-                  ),
-              ],
+              ...nestedRows,
             ],
           ),
         );
@@ -2791,8 +2778,13 @@ class _AddListingPageState extends State<AddListingPage> {
       if (value.isEmpty) return;
       if (type == 'text' || type == 'number' || type == 'range') {
         final c = _controllerForDynamicField(field.name);
-        c.text = value;
-        _dynamicValues[field.name] = value;
+        final useThousands =
+            (type == 'number' || type == 'range') &&
+            _isThousandsField(field.name);
+        c.text = useThousands ? formatThousands(value) : value;
+        _dynamicValues[field.name] = useThousands
+            ? stripThousandsSpaces(value)
+            : value;
         return;
       }
       if (type == 'select' || type == 'multiselect') {
@@ -2983,10 +2975,12 @@ class _AddListingPageState extends State<AddListingPage> {
     // text / number / range — barchasi bitta input.
     // range uchun min_value/max_value faqat validation uchun.
     final controller = _controllerForDynamicField(field.name);
-    if (_dynamicValues[field.name] != null && controller.text.isEmpty) {
-      controller.text = _dynamicValues[field.name].toString();
-    }
     final isNumeric = type == 'number' || type == 'range';
+    final useThousands = isNumeric && _isThousandsField(field.name);
+    if (_dynamicValues[field.name] != null && controller.text.isEmpty) {
+      final raw = _dynamicValues[field.name].toString();
+      controller.text = useThousands ? formatThousands(raw) : raw;
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2998,6 +2992,7 @@ class _AddListingPageState extends State<AddListingPage> {
               ? field.placeholder!
               : field.label,
           isNumber: isNumeric,
+          thousands: useThousands,
           borderColor: borderColor,
           suffix: field.suffix,
         ),
@@ -3347,13 +3342,17 @@ class _AddListingPageState extends State<AddListingPage> {
     required String hint,
     required Color borderColor,
     bool isNumber = false,
+    bool thousands = false,
     String? suffix,
   }) {
     return SizedBox(
       height: _kInputHeight,
       child: TextField(
         controller: controller,
-        keyboardType: isNumber ? TextInputType.number : null,
+        keyboardType: (isNumber || thousands) ? TextInputType.number : null,
+        inputFormatters: thousands
+            ? [ThousandsSeparatorInputFormatter()]
+            : null,
         style: TextStyle(fontSize: 14, color: context.textPrimary),
         decoration: InputDecoration(
           hintText: hint,
@@ -3406,6 +3405,22 @@ class _AddListingPageState extends State<AddListingPage> {
         ],
       ),
     );
+  }
+
+  bool _isThousandsField(String name) {
+    final n = name.toLowerCase();
+    return n == 'mileage' || n == 'probeg' || n.contains('price');
+  }
+
+  /// UI-da `+998 XX XXX-XX-XX` ko‘rinishidagi raqamni API uchun toza
+  /// `998XXXXXXXXX` formatiga keltiradi. Bo‘sh / 9 ta raqamdan kam bo‘lsa
+  /// `null` qaytariladi — formData’ga umuman qo‘shilmaydi.
+  String? _normalizePhone(String raw) {
+    var digits = raw.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty) return null;
+    if (digits.startsWith('998')) digits = digits.substring(3);
+    if (digits.length != 9) return null;
+    return '998$digits';
   }
 
   String _rangeHintText(double? min, double? max) {
@@ -3547,7 +3562,7 @@ class _AddListingPageState extends State<AddListingPage> {
           const SizedBox(height: 16),
           _fieldLabel(
             'Nomi ($langCode)',
-            true,
+            _nameLang == _NameLang.uz,
             textColor,
             textSecondary,
           ),
@@ -3563,7 +3578,7 @@ class _AddListingPageState extends State<AddListingPage> {
           const SizedBox(height: 16),
           _fieldLabel(
             'Tavsif ($langCode)',
-            true,
+            _nameLang == _NameLang.uz,
             textColor,
             textSecondary,
           ),
@@ -3704,6 +3719,21 @@ class _AddListingPageState extends State<AddListingPage> {
             hint: '+998 __ ___ __ __',
             controller: _phoneController,
             keyboardType: TextInputType.phone,
+            inputFormatters: [UzbekPhoneInputFormatter()],
+          ),
+          const SizedBox(height: 16),
+          _fieldLabel(
+            'Qo‘shimcha telefon raqam',
+            false,
+            textColor,
+            textSecondary,
+          ),
+          const SizedBox(height: 8),
+          _inputField(
+            hint: '+998 __ ___ __ __',
+            controller: _extraPhoneController,
+            keyboardType: TextInputType.phone,
+            inputFormatters: [UzbekPhoneInputFormatter()],
           ),
         ],
       ),
@@ -3712,16 +3742,29 @@ class _AddListingPageState extends State<AddListingPage> {
 
   // ─── RASM YUKLASH CARD ──────────────────────────────────────────
 
-  Future<void> _pickImage(int index) async {
-    final file = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-    if (file != null && mounted) {
-      setState(() {
-        _imagePaths[index] = file.path;
-      });
-    }
+  Future<void> _pickImages() async {
+    final remaining = _maxImages - _imagePaths.length;
+    if (remaining <= 0) return;
+    final files = await _imagePicker.pickMultiImage(imageQuality: 85);
+    if (files.isEmpty || !mounted) return;
+    final picked = files.take(remaining).map((f) => f.path).toList();
+    setState(() {
+      _imagePaths.addAll(picked);
+    });
+  }
+
+  void _removeImageAt(int index) {
+    setState(() {
+      _imagePaths.removeAt(index);
+    });
+  }
+
+  void _makeMainAt(int index) {
+    if (index <= 0 || index >= _imagePaths.length) return;
+    setState(() {
+      final picked = _imagePaths.removeAt(index);
+      _imagePaths.insert(0, picked);
+    });
   }
 
   Widget _buildImageUploadCard(
@@ -3731,131 +3774,141 @@ class _AddListingPageState extends State<AddListingPage> {
     Color borderColor,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    final labels = [
-      l10n.addListingMainImage,
-      l10n.addListingImageUpload,
-      l10n.addListingImageUpload,
-      l10n.addListingImageUpload,
-    ];
     final primaryColor = context.read<AppModeCubit>().state.primaryColor;
+    final canAddMore = _imagePaths.length < _maxImages;
+    final tileCount = _imagePaths.length + (canAddMore ? 1 : 0);
     return _cardWithHeader(
       cardColor: cardColor,
       borderColor: borderColor,
       title: l10n.addListingImageUpload,
       subtitle:
-          'Mahsulotning real rasmlarini yuklang. Maksimal 4 ta, har biri 5MB',
+          'Mahsulotning real rasmlarini yuklang. Birinchi rasm asosiy bo‘ladi. Boshqa rasmga bossangiz asosiy bilan o‘rin almashadi.',
       textColor: textColor,
       textSecondary: textSecondary,
-      child: Row(
-        children: List.generate(4, (i) {
-          final path = _imagePaths[i];
-          final hasImage = path != null && path.isNotEmpty;
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: i < 3 ? 10 : 0),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: GestureDetector(
-                  onTap: () => _pickImage(i),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: context.surfaceContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: hasImage ? primaryColor : borderColor,
-                        width: hasImage ? 1.5 : 1,
-                        style: hasImage
-                            ? BorderStyle.solid
-                            : BorderStyle.solid,
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1,
+        ),
+        itemCount: tileCount,
+        itemBuilder: (context, i) {
+          final isAddTile = i >= _imagePaths.length;
+          if (isAddTile) {
+            return GestureDetector(
+              onTap: _pickImages,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: context.surfaceContainer,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor, width: 1),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_photo_alternate_outlined,
+                      size: 26,
+                      color: textSecondary,
+                    ),
+                    const SizedBox(height: 6),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: Text(
+                        l10n.addListingImageUpload,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                          color: textSecondary,
+                        ),
                       ),
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: hasImage
-                        ? Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image.file(File(path), fit: BoxFit.cover),
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: GestureDetector(
-                                  onTap: () => setState(
-                                    () => _imagePaths[i] = null,
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.black54,
-                                    ),
-                                    child: const Icon(
-                                      Icons.close_rounded,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (i == 0)
-                                Positioned(
-                                  bottom: 4,
-                                  left: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius:
-                                          BorderRadius.circular(4),
-                                    ),
-                                    child: const Text(
-                                      'Asosiy',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          )
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                i == 0
-                                    ? Icons.image_outlined
-                                    : Icons.add_photo_alternate_outlined,
-                                size: 26,
-                                color: textSecondary,
-                              ),
-                              const SizedBox(height: 6),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                ),
-                                child: Text(
-                                  labels[i],
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w400,
-                                    color: textSecondary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
+                  ],
                 ),
+              ),
+            );
+          }
+          final path = _imagePaths[i];
+          final isMain = i == 0;
+          return GestureDetector(
+            onTap: isMain ? null : () => _makeMainAt(i),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.surfaceContainer,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isMain ? primaryColor : borderColor,
+                  width: isMain ? 1.5 : 1,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.file(File(path), fit: BoxFit.cover),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _removeImageAt(i),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black54,
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 4,
+                    right: 4,
+                    bottom: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isMain
+                            ? primaryColor
+                            : primaryColor.withValues(alpha: 0.92),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          isMain
+                              ? l10n.addListingMainImage
+                              : 'Asosiy qilish',
+                          maxLines: 1,
+                          softWrap: false,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
-        }),
+        },
       ),
     );
   }
@@ -3994,11 +4047,15 @@ class _AddListingPageState extends State<AddListingPage> {
     return null;
   }
 
-  void _applyCoordsFromPlace(LocationPlaceEntity? place) {
-    if (place?.latitude != null && place?.longitude != null) {
-      _latitude = place!.latitude;
-      _longitude = place.longitude;
-    }
+  String? _cascadeLocationName() {
+    final parts = <String>[
+      ?_placeById(_neighborhoods, _selectedNeighborhoodId)?.name,
+      ?_placeById(_districts, _selectedDistrictId)?.name,
+      ?_placeById(_regions, _selectedRegionId)?.name,
+    ];
+    if (parts.isEmpty) return null;
+    parts.add('O\'zbekiston');
+    return parts.join(', ');
   }
 
   Future<void> _loadRegions() async {
@@ -4206,13 +4263,9 @@ class _AddListingPageState extends State<AddListingPage> {
                 _selectedNeighborhoodId = null;
                 _districts = [];
                 _neighborhoods = [];
-                if (id != null) {
-                  _applyCoordsFromPlace(_placeById(_regions, id));
-                } else {
-                  _latitude = null;
-                  _longitude = null;
-                  _addressName = null;
-                }
+                _latitude = null;
+                _longitude = null;
+                _addressName = null;
               });
               if (id != null) _loadDistricts(id);
             },
@@ -4246,13 +4299,9 @@ class _AddListingPageState extends State<AddListingPage> {
                 _selectedDistrictId = id;
                 _selectedNeighborhoodId = null;
                 _neighborhoods = [];
-                if (id != null) {
-                  _applyCoordsFromPlace(_placeById(_districts, id));
-                } else {
-                  _applyCoordsFromPlace(
-                    _placeById(_regions, _selectedRegionId),
-                  );
-                }
+                _latitude = null;
+                _longitude = null;
+                _addressName = null;
               });
               if (id != null) _loadNeighborhoods(id);
             },
@@ -4261,7 +4310,9 @@ class _AddListingPageState extends State<AddListingPage> {
                 _selectedDistrictId = null;
                 _selectedNeighborhoodId = null;
                 _neighborhoods = [];
-                _applyCoordsFromPlace(_placeById(_regions, _selectedRegionId));
+                _latitude = null;
+                _longitude = null;
+                _addressName = null;
               });
             },
           ),
@@ -4280,21 +4331,17 @@ class _AddListingPageState extends State<AddListingPage> {
             onChanged: (id) {
               setState(() {
                 _selectedNeighborhoodId = id;
-                if (id != null) {
-                  _applyCoordsFromPlace(_placeById(_neighborhoods, id));
-                } else {
-                  _applyCoordsFromPlace(
-                    _placeById(_districts, _selectedDistrictId),
-                  );
-                }
+                _latitude = null;
+                _longitude = null;
+                _addressName = null;
               });
             },
             onClear: () {
               setState(() {
                 _selectedNeighborhoodId = null;
-                _applyCoordsFromPlace(
-                  _placeById(_districts, _selectedDistrictId),
-                );
+                _latitude = null;
+                _longitude = null;
+                _addressName = null;
               });
             },
           ),
@@ -4312,17 +4359,28 @@ class _AddListingPageState extends State<AddListingPage> {
                   Icon(Icons.location_on_outlined, color: textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: AppText(
-                      text:
-                          _addressName ??
-                          ((_latitude != null && _longitude != null)
-                              ? l10n.addListingCoordinates(
-                                  _latitude!.toStringAsFixed(5),
-                                  _longitude!.toStringAsFixed(5),
-                                )
-                              : l10n.addListingSelectOnMap),
-                      fontSize: 14,
-                      color: (_latitude != null) ? textColor : textSecondary,
+                    child: Builder(
+                      builder: (_) {
+                        final cascadeName = _cascadeLocationName();
+                        final displayText =
+                            _addressName ??
+                            cascadeName ??
+                            ((_latitude != null && _longitude != null)
+                                ? l10n.addListingCoordinates(
+                                    _latitude!.toStringAsFixed(5),
+                                    _longitude!.toStringAsFixed(5),
+                                  )
+                                : l10n.addListingSelectOnMap);
+                        final hasValue =
+                            _addressName != null ||
+                            cascadeName != null ||
+                            _latitude != null;
+                        return AppText(
+                          text: displayText,
+                          fontSize: 14,
+                          color: hasValue ? textColor : textSecondary,
+                        );
+                      },
                     ),
                   ),
                   Icon(Icons.chevron_right, color: textSecondary),
@@ -4414,16 +4472,154 @@ class _AddListingPageState extends State<AddListingPage> {
           initialPoint: (_latitude != null && _longitude != null)
               ? Point(latitude: _latitude!, longitude: _longitude!)
               : null,
+          initialRegion: _placeById(_regions, _selectedRegionId)?.name,
+          initialDistrict: _placeById(_districts, _selectedDistrictId)?.name,
+          initialNeighborhood: _placeById(
+            _neighborhoods,
+            _selectedNeighborhoodId,
+          )?.name,
         ),
       ),
     );
 
     if (result != null) {
+      final point = result['point'] as Point;
       setState(() {
-        final point = result['point'] as Point;
         _latitude = point.latitude;
         _longitude = point.longitude;
         _addressName = result['address'] as String?;
+      });
+      await _autoSelectCascadeFromReverse(
+        regionName: result['region'] as String?,
+        districtName: result['district'] as String?,
+        neighborhoodName: result['neighborhood'] as String?,
+        displayName: result['address'] as String?,
+      );
+    }
+  }
+
+  String _normalizePlaceName(String value) {
+    var v = value.toLowerCase().trim();
+    v = v.replaceAll(RegExp(r"[ʻʼ`‘’']"), '');
+    // English/Russian → Uzbek Latin transliterations for Uzbek admin names.
+    const transliterations = <String, String>{
+      'tashkent': 'toshkent',
+      'andijan': 'andijon',
+      'bukhara': 'buxoro',
+      'samarkand': 'samarqand',
+      'fergana': 'fargona',
+      'farghona': 'fargona',
+      'khorezm': 'xorazm',
+      'khwarezm': 'xorazm',
+      'jizzakh': 'jizzax',
+      'jizzaq': 'jizzax',
+      'shaikh': 'shayx',
+      'shaykh': 'shayx',
+      'shaykhantakhur': 'shayxontohur',
+      'qashqadarya': 'qashqadaryo',
+      'kashkadarya': 'qashqadaryo',
+      'surkhandarya': 'surxondaryo',
+      'syrdarya': 'sirdaryo',
+      'karakalpakstan': 'qoraqalpogiston',
+      'navoi': 'navoiy',
+    };
+    for (final e in transliterations.entries) {
+      v = v.replaceAll(e.key, e.value);
+    }
+    v = v.replaceAll('kh', 'x').replaceAll('gh', 'g');
+    const suffixes = [
+      ' viloyati',
+      ' tumani',
+      ' mahallasi',
+      ' shahar',
+      ' shahri',
+      ' qishlogi',
+      ' qishloq',
+      ' mfy',
+      ' qfy',
+      ' district',
+      ' region',
+      ' city',
+    ];
+    bool changed = true;
+    while (changed) {
+      changed = false;
+      for (final s in suffixes) {
+        if (v.endsWith(s)) {
+          v = v.substring(0, v.length - s.length).trim();
+          changed = true;
+        }
+      }
+    }
+    v = v.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return v;
+  }
+
+  int? _findIdInText(
+    List<LocationPlaceEntity> list,
+    Iterable<String?> candidates,
+  ) {
+    final normalizedCandidates = candidates
+        .where((c) => c != null && c.isNotEmpty)
+        .map((c) => _normalizePlaceName(c!))
+        .where((c) => c.isNotEmpty)
+        .toSet();
+    if (normalizedCandidates.isEmpty) return null;
+    // Exact match against any candidate first.
+    for (final e in list) {
+      final normName = _normalizePlaceName(e.name);
+      if (normName.isEmpty) continue;
+      if (normalizedCandidates.contains(normName)) return e.id;
+    }
+    // Substring match (either way) against any candidate.
+    for (final e in list) {
+      final normName = _normalizePlaceName(e.name);
+      if (normName.isEmpty) continue;
+      for (final cand in normalizedCandidates) {
+        if (cand.contains(normName) || normName.contains(cand)) return e.id;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _autoSelectCascadeFromReverse({
+    required String? regionName,
+    required String? districtName,
+    required String? neighborhoodName,
+    required String? displayName,
+  }) async {
+    final regionId = _findIdInText(_regions, [regionName, displayName]);
+    if (regionId == null) return;
+    if (_selectedRegionId != regionId) {
+      setState(() {
+        _selectedRegionId = regionId;
+        _selectedDistrictId = null;
+        _selectedNeighborhoodId = null;
+        _districts = [];
+        _neighborhoods = [];
+      });
+      await _loadDistricts(regionId);
+      if (!mounted) return;
+    }
+    final districtId = _findIdInText(_districts, [districtName, displayName]);
+    if (districtId == null) return;
+    if (_selectedDistrictId != districtId) {
+      setState(() {
+        _selectedDistrictId = districtId;
+        _selectedNeighborhoodId = null;
+        _neighborhoods = [];
+      });
+      await _loadNeighborhoods(districtId);
+      if (!mounted) return;
+    }
+    final neighborhoodId = _findIdInText(_neighborhoods, [
+      neighborhoodName,
+      displayName,
+    ]);
+    if (neighborhoodId == null) return;
+    if (_selectedNeighborhoodId != neighborhoodId) {
+      setState(() {
+        _selectedNeighborhoodId = neighborhoodId;
       });
     }
   }
@@ -4975,13 +5171,21 @@ class _AddListingPageState extends State<AddListingPage> {
     required Color borderColor,
     required Widget child,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor.withValues(alpha: 0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: child,
     );
@@ -4996,28 +5200,50 @@ class _AddListingPageState extends State<AddListingPage> {
     required Color textSecondary,
     required Widget child,
   }) {
+    final primaryColor = context.read<AppModeCubit>().state.primaryColor;
     return _card(
       cardColor: cardColor,
       borderColor: borderColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText(
-            text: title,
-            fontSize: 17,
-            fontWeight: 700,
-            color: textColor,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 4,
+                height: 22,
+                margin: const EdgeInsets.only(top: 2, right: 10),
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText(
+                      text: title,
+                      fontSize: 17,
+                      fontWeight: 700,
+                      color: textColor,
+                    ),
+                    if (subtitle != null && subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      AppText(
+                        text: subtitle,
+                        fontSize: 13,
+                        fontWeight: 400,
+                        color: textSecondary,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
-          if (subtitle != null && subtitle.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            AppText(
-              text: subtitle,
-              fontSize: 13,
-              fontWeight: 400,
-              color: textSecondary,
-            ),
-          ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           child,
         ],
       ),
@@ -5048,6 +5274,7 @@ class _AddListingPageState extends State<AddListingPage> {
     int maxLines = 1,
     int minLines = 1,
     VoidCallback? onTap,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     final surfaceBg = context.surfaceContainer;
     final border = context.borderColor;
@@ -5061,6 +5288,7 @@ class _AddListingPageState extends State<AddListingPage> {
       onTap: onTap,
       maxLines: maxLines,
       minLines: minLines,
+      inputFormatters: inputFormatters,
       style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w400,

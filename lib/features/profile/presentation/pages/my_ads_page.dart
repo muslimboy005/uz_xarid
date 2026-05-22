@@ -135,11 +135,6 @@ class MyAdsPage extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add-listing'),
-        backgroundColor: primaryColor,
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
-      ),
     );
   }
 
@@ -152,72 +147,94 @@ class MyAdsPage extends StatelessWidget {
     Color textSecondary,
     Color borderColor,
   ) {
-    const limit = 4;
-    const used = 1; // TODO: API dan kelganda almashtirish
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText(
-            text: l10n.myAdsLimitTitle,
-            fontSize: 16,
-            fontWeight: 600,
-            color: textColor,
+    return BlocBuilder<MyAdsBloc, MyAdsState>(
+      buildWhen: (prev, cur) =>
+          prev.limitInfo != cur.limitInfo ||
+          prev.limitLoading != cur.limitLoading,
+      builder: (context, state) {
+        final info = state.limitInfo;
+        final limit = info?.maxAdsAllowed ?? 0;
+        final used = info?.adsCreated ?? 0;
+        final segmentCount = limit > 0 ? limit : 1;
+
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor),
           ),
-          const SizedBox(height: 4),
-          AppText(
-            text: l10n.myAdsLimitUpTo(limit),
-            fontSize: 13,
-            fontWeight: 400,
-            color: textSecondary,
-          ),
-          const SizedBox(height: 12),
-          TextButton.icon(
-            onPressed: () => context.push('/profile/payment'),
-            icon: Icon(
-              Icons.arrow_outward_rounded,
-              size: 16,
-              color: primaryColor,
-            ),
-            label: AppText(
-              text: l10n.myAdsIncreaseLimit,
-              fontSize: 14,
-              fontWeight: 500,
-              color: primaryColor,
-            ),
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: List.generate(limit, (i) {
-              final filled = i < used;
-              return Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(right: i < limit - 1 ? 6 : 0),
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: filled
-                        ? primaryColor
-                        : borderColor.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(3),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppText(
+                text: l10n.myAdsLimitTitle,
+                fontSize: 16,
+                fontWeight: 600,
+                color: textColor,
+              ),
+              const SizedBox(height: 4),
+              if (info == null && state.limitLoading)
+                SizedBox(
+                  height: 14,
+                  width: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(textSecondary),
                   ),
+                )
+              else
+                AppText(
+                  text: l10n.myAdsLimitUpTo(limit),
+                  fontSize: 13,
+                  fontWeight: 400,
+                  color: textSecondary,
                 ),
-              );
-            }),
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: () => context.push('/profile/payment'),
+                icon: Icon(
+                  Icons.arrow_outward_rounded,
+                  size: 16,
+                  color: primaryColor,
+                ),
+                label: AppText(
+                  text: l10n.myAdsIncreaseLimit,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: primaryColor,
+                ),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: List.generate(segmentCount, (i) {
+                  final filled = i < used;
+                  return Expanded(
+                    child: Container(
+                      margin: EdgeInsets.only(
+                        right: i < segmentCount - 1 ? 6 : 0,
+                      ),
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: filled
+                            ? primaryColor
+                            : borderColor.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -507,24 +524,29 @@ class _MyAdCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              Icon(
-                                Icons.schedule_rounded,
-                                size: 14,
-                                color: textSecondary,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.schedule_rounded,
+                                    size: 14,
+                                    color: textSecondary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  AppText(
+                                    text: _formatDate(item.createdAt),
+                                    fontSize: 11,
+                                    fontWeight: 400,
+                                    color: textSecondary,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: AppText(
-                                  text: _formatDate(item.createdAt),
-                                  fontSize: 11,
-                                  fontWeight: 400,
-                                  color: textSecondary,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 6,
@@ -541,7 +563,6 @@ class _MyAdCard extends StatelessWidget {
                                   color: textColor,
                                 ),
                               ),
-                              const SizedBox(width: 4),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 6,

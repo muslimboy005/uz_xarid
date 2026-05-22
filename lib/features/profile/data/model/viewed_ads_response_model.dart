@@ -19,7 +19,7 @@ class ViewedAdsData {
   final int totalPages;
   final int pageSize;
   final int currentPage;
-  final List<ProductListItemDto> results;
+  final List<ViewedAdItem> results;
   final String? next;
   final String? previous;
 
@@ -43,13 +43,25 @@ class ViewedAdsData {
       next: links['next'],
       previous: links['previous'],
       results: json['results'] != null
-          ? List<ProductListItemDto>.from(
-              json['results'].map((x) {
-                final adJson = x['ad'] ?? x;
-                return ProductListItemDto.fromJson(adJson);
-              }),
+          ? List<ViewedAdItem>.from(
+              json['results'].map((x) => ViewedAdItem.fromJson(x)),
             )
           : [],
+    );
+  }
+}
+
+class ViewedAdItem {
+  final ProductListItemDto ad;
+  final DateTime? viewedAt;
+
+  ViewedAdItem({required this.ad, this.viewedAt});
+
+  factory ViewedAdItem.fromJson(Map<String, dynamic> json) {
+    final adJson = json['ad'] ?? json;
+    return ViewedAdItem(
+      ad: ProductListItemDto.fromJson(adJson),
+      viewedAt: DateTime.tryParse(json['viewed_at']?.toString() ?? ''),
     );
   }
 }

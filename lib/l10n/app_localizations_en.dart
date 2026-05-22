@@ -303,6 +303,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addressTitle => 'Address';
 
   @override
+  String get aiAssistantError => 'Something went wrong. Please try again';
+
+  @override
+  String get aiAssistantGreeting =>
+      'Hello! I\'m the UZXARID AI assistant. How can I help you?';
+
+  @override
+  String get aiAssistantHint => 'Write your question...';
+
+  @override
+  String get aiAssistantOpenPage => 'Open page';
+
+  @override
+  String get aiAssistantRouteNotFound => 'Page not found';
+
+  @override
+  String get aiAssistantSubtitle => 'Write your question — I\'ll guide you';
+
+  @override
+  String get aiAssistantTitle => 'AI assistant';
+
+  @override
   String get allCategories => 'All categories';
 
   @override

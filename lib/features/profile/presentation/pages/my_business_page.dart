@@ -99,13 +99,10 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          appBar: UzXaridAppBar(onSearchChanged: (query) {}, onMenuTap: () {}),
-
-          body: Container(
-            color: isDark ? AppColors.darkBackground : AppColors.black50,
-            child: SafeArea(
-              child: Column(
+        return UzXaridScaffold(
+          backgroundColor:
+              isDark ? AppColors.darkBackground : AppColors.black50,
+          body: Column(
                 children: [
                   SizedBox(height: 16),
                   Padding(
@@ -686,8 +683,6 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                   ),
                 ],
               ),
-            ),
-          ),
         );
       },
     );

@@ -50,6 +50,7 @@ class ApiUrls {
   static const String viewedAdsClear = 'viewed-ads/clear/';
   static const String plans = 'plan/';
   static const String planHistory = 'plan-order-history/';
+  static const String planOrder = 'plan-order/';
   static const String chatRooms = 'chat/rooms/';
   static const String chatRoomMessages = 'chat/rooms/{id}/messages/';
   static const String chatMessages = 'chat/messages/';
@@ -59,6 +60,9 @@ class ApiUrls {
 
   /// Foydalanuvchi e'lonlari: GET ad/me/?status=active|pending|unpaid|inactive|rejected
   static const String myListings = 'ad/me/';
+
+  /// E'lonlar limiti haqida ma'lumot: GET ad/limit-info/
+  static const String adLimitInfo = 'ad/limit-info/';
 
   /// Sort param values for recommendations endpoint (?sort=...)
   static const String sortPopular = 'popular';
@@ -71,4 +75,13 @@ class ApiUrls {
   static const String cartId = 'cart/{id}/';
   static const String cartCheckout = 'cart/checkout/';
   static const String cartClear = 'cart/clear/';
+
+  /// AI Assistant API
+  static const String aiAssistant = 'ai-assistant/';
+
+  /// Notification API
+  static const String userNotification = 'user-notification/';
+  static const String userNotificationId = 'user-notification/{id}/';
+  static const String userNotificationMarkAllRead =
+      'user-notification/mark-all-read/';
 }

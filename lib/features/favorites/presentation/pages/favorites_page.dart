@@ -21,19 +21,9 @@ class FavoritesPage extends StatelessWidget {
     final bodyBg = context.bodyBackground;
     final textColor = context.textSecondary;
 
-    return Scaffold(
-      appBar: UzXaridAppBar(
-        onSearchChanged: (query) {
-          // TODO: implement favorites search or filter
-        },
-        onMenuTap: () {
-          // TODO: open favorites menu
-        },
-      ),
-      body: Container(
-        color: bodyBg,
-        child: SafeArea(
-          child: Column(
+    return UzXaridScaffold(
+      backgroundColor: bodyBg,
+      body: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -147,9 +137,11 @@ class FavoritesPage extends StatelessWidget {
                         );
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppDimens.paddingMedium,
-                          vertical: AppDimens.paddingSmall,
+                        padding: const EdgeInsets.fromLTRB(
+                          AppDimens.paddingMedium,
+                          AppDimens.paddingSmall,
+                          AppDimens.paddingMedium,
+                          AppDimens.bottomNavClearance,
                         ),
                         child: GridView.builder(
                           gridDelegate:
@@ -172,16 +164,16 @@ class FavoritesPage extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 
   Widget _buildShimmerGrid() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.paddingMedium,
-        vertical: AppDimens.paddingSmall,
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.paddingMedium,
+        AppDimens.paddingSmall,
+        AppDimens.paddingMedium,
+        AppDimens.bottomNavClearance,
       ),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

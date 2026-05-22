@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -43,6 +45,8 @@ import 'package:uzxarid/features/profile/presentation/pages/settings_page.dart';
 import 'package:uzxarid/features/profile/presentation/pages/support_chat_page.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/chat/chat_event.dart';
+import 'package:uzxarid/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
+import 'package:uzxarid/features/ai_assistant/presentation/pages/ai_assistant_page.dart';
 import 'package:uzxarid/features/contracts/presentation/pages/contracts_page.dart';
 import 'package:uzxarid/features/contracts/presentation/pages/document_detail_page.dart';
 import 'package:uzxarid/features/add_listing/presentation/pages/add_listing_page.dart';
@@ -150,6 +154,45 @@ class AppRouter {
         path: '/soon',
         name: 'soon',
         builder: (context, state) => const SoonPage(),
+      ),
+      GoRoute(
+        path: '/add-listing',
+        name: 'add-listing',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => BlocProvider<ProfileBloc>(
+          create: (_) {
+            final bloc = getIt<ProfileBloc>();
+            getIt<SecureStorageService>().hasToken().then((hasToken) {
+              if (hasToken) bloc.add(const ProfileLoadEvent());
+            });
+            return bloc;
+          },
+          child: const AddListingPage(editSlug: null),
+        ),
+        routes: [
+          GoRoute(
+            path: ':slug',
+            name: 'add-listing-edit',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) {
+              final slug = state.pathParameters['slug'] ?? '';
+              final fallbackItem = state.extra;
+              return BlocProvider<ProfileBloc>(
+                create: (_) {
+                  final bloc = getIt<ProfileBloc>();
+                  getIt<SecureStorageService>().hasToken().then((hasToken) {
+                    if (hasToken) bloc.add(const ProfileLoadEvent());
+                  });
+                  return bloc;
+                },
+                child: AddListingPage(
+                  editSlug: slug.isNotEmpty ? slug : null,
+                  editFallbackItem: fallbackItem,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/add-address',
@@ -262,6 +305,17 @@ class AppRouter {
             },
           ),
           GoRoute(
+            path: '/favorites',
+            name: 'favorites-tab',
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('shell-favorites'),
+              child: BlocProvider<FavoritesBloc>.value(
+                value: context.read<FavoritesBloc>(),
+                child: const FavoritesPage(),
+              ),
+            ),
+          ),
+          GoRoute(
             path: '/keraklilar',
             name: 'keraklilar',
             pageBuilder: (context, state) => NoTransitionPage(
@@ -298,51 +352,6 @@ class AppRouter {
                     },
                   ),
                 ],
-              ),
-            ],
-          ),
-          GoRoute(
-            path: '/add-listing',
-            name: 'add-listing',
-            pageBuilder: (context, state) => NoTransitionPage(
-              key: const ValueKey('shell-add-listing'),
-              child: BlocProvider<ProfileBloc>(
-                create: (_) {
-                  final bloc = getIt<ProfileBloc>();
-                  getIt<SecureStorageService>().hasToken().then((hasToken) {
-                    if (hasToken) bloc.add(const ProfileLoadEvent());
-                  });
-                  return bloc;
-                },
-                child: const AddListingPage(editSlug: null),
-              ),
-            ),
-            routes: [
-              GoRoute(
-                path: ':slug',
-                name: 'add-listing-edit',
-                pageBuilder: (context, state) {
-                  final slug = state.pathParameters['slug'] ?? '';
-                  final fallbackItem = state.extra;
-                  return NoTransitionPage(
-                    key: ValueKey('shell-add-listing-edit-$slug'),
-                    child: BlocProvider<ProfileBloc>(
-                      create: (_) {
-                        final bloc = getIt<ProfileBloc>();
-                        getIt<SecureStorageService>().hasToken().then((
-                          hasToken,
-                        ) {
-                          if (hasToken) bloc.add(const ProfileLoadEvent());
-                        });
-                        return bloc;
-                      },
-                      child: AddListingPage(
-                        editSlug: slug.isNotEmpty ? slug : null,
-                        editFallbackItem: fallbackItem,
-                      ),
-                    ),
-                  );
-                },
               ),
             ],
           ),
@@ -396,7 +405,8 @@ class AppRouter {
                 builder: (context, state) => BlocProvider(
                   create: (_) =>
                       getIt<MyAdsBloc>()
-                        ..add(const MyAdsLoadRequested('active')),
+                        ..add(const MyAdsLoadRequested('active'))
+                        ..add(const MyAdsLimitInfoRequested()),
                   child: const MyAdsPage(),
                 ),
               ),
@@ -450,6 +460,15 @@ class AppRouter {
                 builder: (context, state) => const SupportPage(),
               ),
               GoRoute(
+                path: 'ai-assistant',
+                name: 'ai-assistant',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) => BlocProvider(
+                  create: (_) => getIt<AiAssistantBloc>(),
+                  child: const AiAssistantPage(),
+                ),
+              ),
+              GoRoute(
                 path: 'feedback',
                 name: 'profile-feedback',
                 builder: (context, state) => FeedbackPage(
@@ -475,7 +494,7 @@ class AppRouter {
                     providers: [
                       BlocProvider(
                         create: (_) => getIt<ChatBloc>()
-                          ..add(GetChatMessagesEvent(chatRoomId: chatRoomId)),
+                          ..add(InitializeChatEvent(chatRoomId)),
                       ),
                       BlocProvider.value(
                         value: getIt<ProfileBloc>()
@@ -520,13 +539,13 @@ class AppRouter {
     if (location.startsWith('/catalog')) {
       return 1;
     }
-    if (location.startsWith('/add-listing')) {
+    if (location.startsWith('/favorites')) {
       return 2;
     }
-    if (location.startsWith('/keraklilar')) {
+    if (location.startsWith('/profile')) {
       return 3;
     }
-    if (location.startsWith('/profile')) {
+    if (location.startsWith('/keraklilar')) {
       return 4;
     }
     return 0;
@@ -541,13 +560,13 @@ class AppRouter {
         context.go('/catalog');
         break;
       case 2:
-        context.go('/add-listing');
+        context.go('/favorites');
         break;
       case 3:
-        context.go('/keraklilar');
+        context.go('/profile');
         break;
       case 4:
-        context.go('/profile');
+        context.go('/keraklilar');
         break;
     }
   }
@@ -574,7 +593,6 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final appMode = context.watch<AppModeCubit>().state;
-    final barColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final selectedColor = appMode.primaryColor;
     final unselectedColor = isDark
         ? AppColors.darkTextSecondary
@@ -583,19 +601,30 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
     final items = <_NavItem>[
       _NavItem(Icons.home_outlined, Icons.home_rounded, l10n.navHome),
       _NavItem(Icons.grid_view_outlined, Icons.grid_view_rounded, l10n.navCatalog),
-      _NavItem(Icons.add_box_outlined, Icons.add_box_rounded, 'Qo\'shish'),
-      _NavItem(Icons.star_border_rounded, Icons.star_rounded, 'Keraklilar'),
+      _NavItem(Icons.favorite_border_rounded, Icons.favorite_rounded, l10n.navFavorites),
       _NavItem(Icons.person_outline_rounded, Icons.person_rounded, l10n.navProfile),
+      _NavItem(Icons.menu_rounded, Icons.menu_rounded, 'Boshqalar'),
     ];
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: widget.child,
-      extendBody: false,
-      bottomNavigationBar: _PillBottomNav(
+      extendBody: true,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: FloatingActionButton(
+          backgroundColor: selectedColor,
+          elevation: 6,
+          onPressed: () => context.push('/add-listing'),
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, color: Colors.white, size: 30),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: _LiquidGlassNavBar(
         items: items,
         currentIndex: widget.currentIndex,
-        barColor: barColor,
+        isDark: isDark,
         selectedColor: selectedColor,
         unselectedColor: unselectedColor,
         onTap: (i) => AppRouter._onItemTapped(context, i),
@@ -611,11 +640,11 @@ class _NavItem {
   final String label;
 }
 
-class _PillBottomNav extends StatelessWidget {
-  const _PillBottomNav({
+class _LiquidGlassNavBar extends StatelessWidget {
+  const _LiquidGlassNavBar({
     required this.items,
     required this.currentIndex,
-    required this.barColor,
+    required this.isDark,
     required this.selectedColor,
     required this.unselectedColor,
     required this.onTap,
@@ -623,39 +652,60 @@ class _PillBottomNav extends StatelessWidget {
 
   final List<_NavItem> items;
   final int currentIndex;
-  final Color barColor;
+  final bool isDark;
   final Color selectedColor;
   final Color unselectedColor;
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
+    final glassFill = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.white.withValues(alpha: 0.72);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.white.withValues(alpha: 0.55);
+
     return SafeArea(
       top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: barColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, -2),
+      minimum: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(36),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              decoration: BoxDecoration(
+                color: glassFill,
+                borderRadius: BorderRadius.circular(36),
+                border: Border.all(color: borderColor, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(items.length, (i) {
+                  final isSelected = currentIndex == i;
+                  return Flexible(
+                    child: _PillNavTab(
+                      item: items[i],
+                      isSelected: isSelected,
+                      selectedColor: selectedColor,
+                      unselectedColor: unselectedColor,
+                      onTap: () => onTap(i),
+                    ),
+                  );
+                }),
+              ),
             ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(items.length, (i) {
-            final isSelected = currentIndex == i;
-            return _PillNavTab(
-              item: items[i],
-              isSelected: isSelected,
-              selectedColor: selectedColor,
-              unselectedColor: unselectedColor,
-              onTap: () => onTap(i),
-            );
-          }),
+          ),
         ),
       ),
     );
@@ -679,50 +729,32 @@ class _PillNavTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = isSelected ? selectedColor : unselectedColor;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.symmetric(
-            horizontal: isSelected ? 14 : 12,
-            vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? selectedColor.withValues(alpha: 0.14)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Row(
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 isSelected ? item.iconOn : item.iconOff,
-                color: isSelected ? selectedColor : unselectedColor,
-                size: 22,
+                color: color,
+                size: 24,
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOut,
-                child: isSelected
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Text(
-                          item.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: selectedColor,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+              const SizedBox(height: 4),
+              Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
             ],
           ),

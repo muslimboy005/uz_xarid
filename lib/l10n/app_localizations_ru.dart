@@ -305,6 +305,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addressTitle => 'Адрес';
 
   @override
+  String get aiAssistantError => 'Произошла ошибка. Попробуйте снова';
+
+  @override
+  String get aiAssistantGreeting =>
+      'Привет! Я AI-помощник UZXARID. Чем могу помочь?';
+
+  @override
+  String get aiAssistantHint => 'Напишите ваш вопрос...';
+
+  @override
+  String get aiAssistantOpenPage => 'Открыть страницу';
+
+  @override
+  String get aiAssistantRouteNotFound => 'Страница не найдена';
+
+  @override
+  String get aiAssistantSubtitle => 'Напишите вопрос — я подскажу';
+
+  @override
+  String get aiAssistantTitle => 'AI-помощник';
+
+  @override
   String get allCategories => 'Все категории';
 
   @override

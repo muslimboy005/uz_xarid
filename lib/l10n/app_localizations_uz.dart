@@ -305,6 +305,29 @@ class AppLocalizationsUz extends AppLocalizations {
   String get addressTitle => 'Manzil';
 
   @override
+  String get aiAssistantError => 'Xatolik yuz berdi. Qayta urinib ko\'ring';
+
+  @override
+  String get aiAssistantGreeting =>
+      'Salom! Men UZXARID AI yordamchisiman. Sizga qanday yordam bera olaman?';
+
+  @override
+  String get aiAssistantHint => 'Savolingizni yozing...';
+
+  @override
+  String get aiAssistantOpenPage => 'Sahifaga o\'tish';
+
+  @override
+  String get aiAssistantRouteNotFound => 'Sahifa topilmadi';
+
+  @override
+  String get aiAssistantSubtitle =>
+      'Savolingizni yozing — sizga yo\'l-yo\'riq beraman';
+
+  @override
+  String get aiAssistantTitle => 'AI yordamchi';
+
+  @override
   String get allCategories => 'Barcha turkumlar';
 
   @override

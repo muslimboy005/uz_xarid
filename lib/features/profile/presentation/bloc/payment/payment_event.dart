@@ -20,3 +20,22 @@ class GetPaymentHistoryEvent extends PaymentEvent {
   @override
   List<Object?> get props => [page, pageSize];
 }
+
+class CreatePlanOrderEvent extends PaymentEvent {
+  final int userPlanId;
+  final String paymentMethod;
+  final String orderType;
+
+  const CreatePlanOrderEvent({
+    required this.userPlanId,
+    required this.paymentMethod,
+    this.orderType = 'user_plan',
+  });
+
+  @override
+  List<Object?> get props => [userPlanId, paymentMethod, orderType];
+}
+
+class ClearPaymentLinkEvent extends PaymentEvent {
+  const ClearPaymentLinkEvent();
+}

@@ -19,6 +19,7 @@ import 'package:uzxarid/features/product_list/domain/usecases/get_subcategories_
 import 'package:uzxarid/features/profile/domain/repositories/my_listings_repository.dart';
 import 'package:uzxarid/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uzxarid/features/profile/domain/usecases/delete_my_ad.dart';
+import 'package:uzxarid/features/profile/domain/usecases/get_ad_limit_info.dart';
 import 'package:uzxarid/features/profile/domain/usecases/get_my_listings.dart';
 import 'package:uzxarid/features/profile/domain/usecase/profile_usecase.dart';
 import 'package:uzxarid/features/favorites/domain/repositories/favorites_repository.dart';
@@ -132,6 +133,9 @@ Future<void> registerUseCases(GetIt getIt) async {
     )
     ..registerLazySingleton<DeleteMyAd>(
       () => DeleteMyAd(getIt<MyListingsRepository>()),
+    )
+    ..registerLazySingleton<GetAdLimitInfo>(
+      () => GetAdLimitInfo(getIt<MyListingsRepository>()),
     );
   log("Register Use Cases Complate For GetIT");
 }
