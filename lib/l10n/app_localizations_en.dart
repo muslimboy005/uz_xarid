@@ -730,6 +730,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lunchBreakLabel => 'Lunch break';
 
   @override
+  String get mapTypeHybrid => 'Hybrid';
+
+  @override
+  String get mapTypeSatellite => 'Satellite';
+
+  @override
+  String get mapTypeScheme => 'Scheme';
+
+  @override
   String get myAddressesTitle => 'My addresses';
 
   @override

@@ -107,16 +107,16 @@ class _CatalogPageState extends State<CatalogPage> {
       },
       child: Builder(
         builder: (innerContext) {
-          final categoryType = innerContext
-              .select<CatalogBloc, String>((b) => b.state.categoryType);
+          final categoryType = innerContext.select<CatalogBloc, String>(
+            (b) => b.state.categoryType,
+          );
           return UzXaridScaffold.slivers(
             backgroundColor: bodyBg,
             floatingHeader: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: UzXaridSearchField(
                 hintText: 'Kategoriya qidirish...',
-                onChanged: (query) =>
-                    _onSearchChanged(query, categoryType),
+                onChanged: (query) => _onSearchChanged(query, categoryType),
               ),
             ),
             slivers: [
@@ -124,11 +124,7 @@ class _CatalogPageState extends State<CatalogPage> {
                 builder: (context, state) {
                   if (_searchQuery.isNotEmpty) {
                     return SliverMainAxisGroup(
-                      slivers: _buildSearchResultSlivers(
-                        context,
-                        state,
-                        l10n,
-                      ),
+                      slivers: _buildSearchResultSlivers(context, state, l10n),
                     );
                   }
                   final slivers = <Widget>[];
@@ -265,10 +261,7 @@ class _CatalogPageState extends State<CatalogPage> {
                 fontWeight: 500,
                 color: context.textPrimary,
               ),
-              trailing: Icon(
-                Icons.chevron_right,
-                color: context.textSecondary,
-              ),
+              trailing: Icon(Icons.chevron_right, color: context.textSecondary),
               onTap: () {
                 context.push(
                   '/products?categoryId=${cat.id}'
@@ -299,9 +292,7 @@ class _CatalogPageState extends State<CatalogPage> {
     if (state.stack.isNotEmpty) {
       return [
         SliverPadding(
-          padding: const EdgeInsets.only(
-            bottom: AppDimens.bottomNavClearance,
-          ),
+          padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
           sliver: _buildCategoryListSliver(context, state, l10n),
         ),
       ];
@@ -374,8 +365,7 @@ class _CatalogPageState extends State<CatalogPage> {
         final e = types[index];
         final assetPath = _typeAssets[e.$2];
         return Card(
-          elevation: 8,
-
+          elevation: 2,
           child: ListTile(
             leading: assetPath != null
                 ? ClipRRect(

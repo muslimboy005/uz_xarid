@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_map.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/glass_container.dart';
+import 'package:uzxarid/core/widgets/map_type_selector.dart';
 import 'package:uzxarid/core/widgets/w__container.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
@@ -13,7 +17,7 @@ import 'package:dio/dio.dart';
 import 'package:uzxarid/core/constants/app_keys.dart';
 
 class MapSelectionPage extends StatefulWidget {
-  final Point? initialPoint;
+  final LatLng? initialPoint;
   final String? initialRegion;
   final String? initialDistrict;
   final String? initialNeighborhood;
@@ -30,21 +34,21 @@ class MapSelectionPage extends StatefulWidget {
 }
 
 class _MapSelectionPageState extends State<MapSelectionPage> {
-  late YandexMapController _mapController;
-  late final ValueNotifier<Point> _centerPosition;
+  final MapController _mapController = MapController();
+  late final ValueNotifier<LatLng> _centerPosition;
   final ValueNotifier<bool> _isMapReady = ValueNotifier<bool>(false);
   final ValueNotifier<String?> _addressName = ValueNotifier<String?>(null);
   String? _lastRegion;
   String? _lastDistrict;
   String? _lastNeighborhood;
   int _searchSessionId = 0;
+  AppMapType _mapType = AppMapType.scheme;
 
   @override
   void initState() {
     super.initState();
-    _centerPosition = ValueNotifier<Point>(
-      widget.initialPoint ??
-          const Point(latitude: 41.311081, longitude: 69.240562),
+    _centerPosition = ValueNotifier<LatLng>(
+      widget.initialPoint ?? const LatLng(41.311081, 69.240562),
     );
     Future.delayed(const Duration(milliseconds: 300), () async {
       if (!mounted) return;
@@ -67,14 +71,11 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
     });
   }
 
-  Future<Point?> _geocodeCascade({
+  Future<LatLng?> _geocodeCascade({
     String? region,
     String? district,
     String? neighborhood,
   }) async {
-    // Try most-specific first, then progressively drop levels so Nominatim
-    // falls back to a known administrative boundary if it doesn't know the
-    // mahalla.
     final attempts = <Map<String, String>>[
       {
         if (region != null && region.isNotEmpty) 'state': region,
@@ -98,8 +99,7 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
     return null;
   }
 
-
-  Future<Point?> _nominatimSearch(Map<String, String> params) async {
+  Future<LatLng?> _nominatimSearch(Map<String, String> params) async {
     try {
       final dio = Dio();
       final response = await dio.get<List<dynamic>>(
@@ -121,7 +121,7 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
       final lat = double.tryParse(first['lat']?.toString() ?? '');
       final lon = double.tryParse(first['lon']?.toString() ?? '');
       if (lat == null || lon == null) return null;
-      return Point(latitude: lat, longitude: lon);
+      return LatLng(lat, lon);
     } catch (e) {
       debugPrint('Nominatim error: $e');
       return null;
@@ -133,6 +133,7 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
     _centerPosition.dispose();
     _isMapReady.dispose();
     _addressName.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -154,20 +155,9 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
       );
 
       if (_isMapReady.value) {
-        _mapController.moveCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: Point(
-                latitude: position.latitude,
-                longitude: position.longitude,
-              ),
-              zoom: 16.0,
-            ),
-          ),
-          animation: const MapAnimation(
-            type: MapAnimationType.smooth,
-            duration: 1.0,
-          ),
+        _mapController.move(
+          LatLng(position.latitude, position.longitude),
+          16.0,
         );
       }
     } catch (e) {
@@ -175,29 +165,19 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
     }
   }
 
-  Future<void> _zoomIn() async {
+  void _zoomIn() {
     if (!_isMapReady.value) return;
-    await _mapController.moveCamera(
-      CameraUpdate.zoomIn(),
-      animation: const MapAnimation(
-        type: MapAnimationType.smooth,
-        duration: 0.3,
-      ),
-    );
+    final camera = _mapController.camera;
+    _mapController.move(camera.center, (camera.zoom + 1).clamp(3, 19));
   }
 
-  Future<void> _zoomOut() async {
+  void _zoomOut() {
     if (!_isMapReady.value) return;
-    await _mapController.moveCamera(
-      CameraUpdate.zoomOut(),
-      animation: const MapAnimation(
-        type: MapAnimationType.smooth,
-        duration: 0.3,
-      ),
-    );
+    final camera = _mapController.camera;
+    _mapController.move(camera.center, (camera.zoom - 1).clamp(3, 19));
   }
 
-  Future<void> _searchAddress(Point point) async {
+  Future<void> _searchAddress(LatLng point) async {
     final sessionId = ++_searchSessionId;
     try {
       final dio = Dio();
@@ -273,23 +253,15 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
             valueListenable: _isMapReady,
             builder: (context, isReady, child) {
               return isReady
-                  ? YandexMap(
-                      onMapCreated: (controller) {
-                        _mapController = controller;
-                        _mapController.moveCamera(
-                          CameraUpdate.newCameraPosition(
-                            CameraPosition(
-                              target: _centerPosition.value,
-                              zoom: 14.0,
-                            ),
-                          ),
-                        );
-                      },
-                      onCameraPositionChanged: (cameraPosition, reason, finished) {
-                        if (finished && mounted) {
-                          _centerPosition.value = cameraPosition.target;
-                          _searchAddress(cameraPosition.target);
-                        }
+                  ? AppMap(
+                      mapController: _mapController,
+                      initialCenter: _centerPosition.value,
+                      initialZoom: 14,
+                      mapType: _mapType,
+                      onPositionChanged: (camera, hasGesture) {
+                        if (!mounted) return;
+                        _centerPosition.value = camera.center;
+                        _searchAddress(camera.center);
                       },
                     )
                   : Center(
@@ -332,7 +304,7 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: textColor.withOpacity(0.2),
+                          color: textColor.withValues(alpha: 0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -359,53 +331,55 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
               ),
             ),
           ),
+          // Map type selector (Sxema / Sputnik / Gibrid)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            right: 16,
+            child: MapTypeSelector(
+              current: _mapType,
+              onChanged: (t) => setState(() => _mapType = t),
+            ),
+          ),
           // Zoom +/- controls
           Positioned(
             right: 16,
             bottom: 220,
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: textColor.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InkWell(
-                    onTap: _zoomIn,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(12),
+            child: GlassContainer(
+              borderRadius: 14,
+              child: Material(
+                color: Colors.transparent,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: _zoomIn,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(14),
+                      ),
+                      child: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Icon(Icons.add, color: textColor, size: 22),
+                      ),
                     ),
-                    child: SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: Icon(Icons.add, color: textColor, size: 22),
+                    Container(
+                      width: 28,
+                      height: 1,
+                      color: textColor.withValues(alpha: 0.18),
                     ),
-                  ),
-                  Container(
-                    width: 28,
-                    height: 1,
-                    color: textColor.withValues(alpha: 0.12),
-                  ),
-                  InkWell(
-                    onTap: _zoomOut,
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(12),
+                    InkWell(
+                      onTap: _zoomOut,
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(14),
+                      ),
+                      child: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Icon(Icons.remove, color: textColor, size: 22),
+                      ),
                     ),
-                    child: SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: Icon(Icons.remove, color: textColor, size: 22),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -417,43 +391,38 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: textColor.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                GlassContainer(
+                  borderRadius: 14,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => Navigator.pop(context),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: AppImage(
+                          path: AppAssets.backDropleft,
+                          color: textColor,
                         ),
-                      ],
-                    ),
-                    child: AppImage(
-                      path: AppAssets.backDropleft,
-                      color: textColor,
+                      ),
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: _getCurrentLocation,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: textColor.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                GlassContainer(
+                  borderRadius: 14,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: _getCurrentLocation,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: AppImage(
+                          path: AppAssets.location,
+                          color: textColor,
                         ),
-                      ],
+                      ),
                     ),
-                    child: AppImage(path: AppAssets.location, color: textColor),
                   ),
                 ),
               ],
@@ -464,23 +433,15 @@ class _MapSelectionPageState extends State<MapSelectionPage> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
+            child: GlassContainer(
+              borderRadiusGeometry: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
               padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: 16,
                 bottom: MediaQuery.of(context).padding.bottom + 16,
-              ),
-              decoration: BoxDecoration(
-                color: context.cardSurface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, -2),
-                  ),
-                ],
               ),
               child: ContainerW(
                 onTap: () {

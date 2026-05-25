@@ -13,6 +13,7 @@ import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/either/either.dart';
 import 'package:uzxarid/core/error/failures.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/product_card.dart';
 import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
 import 'package:uzxarid/features/product_list/domain/usecases/get_product_list.dart';
@@ -206,12 +207,7 @@ class _SearchPageState extends State<SearchPage> {
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.54,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
+            gridDelegate: AppResponsive.productGridDelegate(context),
             itemCount: _searchResults.length,
             itemBuilder: (context, index) {
               final item = _searchResults[index];
@@ -275,12 +271,7 @@ class _SearchPageState extends State<SearchPage> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.54,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
+      gridDelegate: AppResponsive.productGridDelegate(context),
       itemCount: _recommendations.length,
       itemBuilder: (context, index) {
         final item = _recommendations[index];

@@ -10,9 +10,9 @@ class RecommendationCard extends StatelessWidget {
   const RecommendationCard({
     super.key,
     required this.item,
-    this.showCartButton = true,
-    this.width = 162,
-    this.height = 220,
+    this.showCartButton = false,
+    this.width,
+    this.height,
   });
 
   final HomeRecommendation item;

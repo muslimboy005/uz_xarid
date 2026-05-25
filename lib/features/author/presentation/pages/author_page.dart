@@ -5,6 +5,7 @@ import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/product_card.dart';
 import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uzxarid/features/author/domain/entities/author_entity.dart';
@@ -286,12 +287,7 @@ class _AuthorPageState extends State<AuthorPage>
     }
     return GridView.builder(
       padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.54,
-      ),
+      gridDelegate: AppResponsive.productGridDelegate(context),
       itemCount: author.ads.length + (isFetchingMore ? 2 : 0),
       itemBuilder: (context, index) {
         if (index >= author.ads.length) {

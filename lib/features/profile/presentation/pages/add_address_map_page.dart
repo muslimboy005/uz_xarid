@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:latlong2/latlong.dart' as lt;
+import 'package:latlong2/latlong.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
+import 'package:uzxarid/core/widgets/app_map.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/glass_container.dart';
+import 'package:uzxarid/core/widgets/map_type_selector.dart';
 import 'package:uzxarid/core/widgets/w__container.dart';
 import 'package:uzxarid/features/profile/data/model/address_model.dart';
 
@@ -23,23 +26,20 @@ class AddAddressMapPage extends StatefulWidget {
 }
 
 class _AddAddressMapPageState extends State<AddAddressMapPage> {
-  late YandexMapController _mapController;
-  late final ValueNotifier<Point> _centerPosition;
+  final MapController _mapController = MapController();
+  late final ValueNotifier<LatLng> _centerPosition;
 
   final ValueNotifier<bool> _isMapReady = ValueNotifier<bool>(false);
+  AppMapType _mapType = AppMapType.scheme;
 
   @override
   void initState() {
     super.initState();
-    _centerPosition = ValueNotifier<Point>(
+    _centerPosition = ValueNotifier<LatLng>(
       widget.address != null
-          ? Point(
-              latitude: widget.address!.latitude,
-              longitude: widget.address!.longitude,
-            )
-          : const Point(latitude: 41.311081, longitude: 69.240562),
+          ? LatLng(widget.address!.latitude, widget.address!.longitude)
+          : const LatLng(41.311081, 69.240562),
     );
-    // Delay initialization to prevent page transition jank
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         _isMapReady.value = true;
@@ -51,6 +51,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
   void dispose() {
     _centerPosition.dispose();
     _isMapReady.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -98,20 +99,9 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
       );
 
       if (_isMapReady.value) {
-        _mapController.moveCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: Point(
-                latitude: position.latitude,
-                longitude: position.longitude,
-              ),
-              zoom: 16.0,
-            ),
-          ),
-          animation: const MapAnimation(
-            type: MapAnimationType.smooth,
-            duration: 1.0,
-          ),
+        _mapController.move(
+          LatLng(position.latitude, position.longitude),
+          16.0,
         );
       }
     } catch (e) {
@@ -132,24 +122,16 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
             valueListenable: _isMapReady,
             builder: (context, isReady, child) {
               return isReady
-                  ? YandexMap(
-                      onMapCreated: (controller) {
-                        _mapController = controller;
-                        _mapController.moveCamera(
-                          CameraUpdate.newCameraPosition(
-                            CameraPosition(
-                              target: _centerPosition.value,
-                              zoom: 14.0,
-                            ),
-                          ),
-                        );
+                  ? AppMap(
+                      mapController: _mapController,
+                      initialCenter: _centerPosition.value,
+                      initialZoom: 14,
+                      mapType: _mapType,
+                      onPositionChanged: (camera, hasGesture) {
+                        if (mounted) {
+                          _centerPosition.value = camera.center;
+                        }
                       },
-                      onCameraPositionChanged:
-                          (cameraPosition, reason, finished) {
-                            if (finished && mounted) {
-                              _centerPosition.value = cameraPosition.target;
-                            }
-                          },
                     )
                   : Center(
                       child: CircularProgressIndicator(color: primaryColor),
@@ -162,7 +144,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
             child: Padding(
               padding: const EdgeInsets.only(
                 bottom: 60,
-              ), // Adjust for the pin's stalk
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -191,7 +173,7 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: textColor.withOpacity(0.2),
+                          color: textColor.withValues(alpha: 0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -219,51 +201,56 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
             ),
           ),
 
+          // Map type selector (Sxema / Sputnik / Gibrid)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            right: 16,
+            child: MapTypeSelector(
+              current: _mapType,
+              onChanged: (t) => setState(() => _mapType = t),
+            ),
+          ),
+
           // Controls at the bottom (Back and GPS)
           Positioned(
-            bottom: 150, // Above the save button panel
+            bottom: 150,
             left: 16,
             right: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () => context.pop(),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: textColor.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                GlassContainer(
+                  borderRadius: 14,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => context.pop(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: AppImage(
+                          path: AppAssets.backDropleft,
+                          color: textColor,
                         ),
-                      ],
-                    ),
-                    child: AppImage(
-                      path: AppAssets.backDropleft,
-                      color: textColor,
+                      ),
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: _getCurrentLocation,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: textColor.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                GlassContainer(
+                  borderRadius: 14,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: _getCurrentLocation,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: AppImage(
+                          path: AppAssets.location,
+                          color: textColor,
                         ),
-                      ],
+                      ),
                     ),
-                    child: AppImage(path: AppAssets.location, color: textColor),
                   ),
                 ),
               ],
@@ -275,32 +262,19 @@ class _AddAddressMapPageState extends State<AddAddressMapPage> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
+            child: GlassContainer(
+              borderRadiusGeometry: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
               padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: 16,
                 bottom: MediaQuery.of(context).padding.bottom + 16,
               ),
-              decoration: BoxDecoration(
-                color: context.cardSurface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
               child: ContainerW(
                 onTap: () async {
-                  final latLng = lt.LatLng(
-                    _centerPosition.value.latitude,
-                    _centerPosition.value.longitude,
-                  );
+                  final latLng = _centerPosition.value;
                   if (widget.address != null) {
                     final updatedAddress = AddressModel(
                       id: widget.address!.id,

@@ -1498,6 +1498,24 @@ abstract class AppLocalizations {
   /// **'Lunch break'**
   String get lunchBreakLabel;
 
+  /// No description provided for @mapTypeHybrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Hybrid'**
+  String get mapTypeHybrid;
+
+  /// No description provided for @mapTypeSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite'**
+  String get mapTypeSatellite;
+
+  /// No description provided for @mapTypeScheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheme'**
+  String get mapTypeScheme;
+
   /// No description provided for @myAddressesTitle.
   ///
   /// In en, this message translates to:

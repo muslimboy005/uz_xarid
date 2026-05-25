@@ -7,6 +7,7 @@ import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
 import 'package:uzxarid/core/utils/price_formatter.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/cart_counter.dart';
 import 'package:uzxarid/features/currency/domain/currency.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
@@ -21,72 +22,112 @@ class ProductListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedCcy = context.watch<CurrencyCubit>().state.selectedCcy;
     final currency = currencyDisplayLabel(selectedCcy);
-    return Container(
-      decoration: BoxDecoration(
-        color: context.cardSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.borderColor),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => context.push('/ad/${item.slug}'),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildImage(),
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        height: 40,
-                        child: Text(
-                          item.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: context.textPrimary,
-                                height: 1.2,
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : AppResponsive.productGridCellWidth(context);
+        final layout = AppResponsive.productCardLayout(
+          context,
+          cardWidth: cardWidth,
+          cardHeight: constraints.maxHeight.isFinite
+              ? constraints.maxHeight
+              : null,
+          showCartButton: true,
+        );
+
+        return Container(
+          decoration: BoxDecoration(
+            color: context.cardSurface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.borderColor),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () => context.push('/ad/${item.slug}'),
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildImage(layout.imageHeight),
+                    Padding(
+                      padding: EdgeInsets.all(layout.hPad),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: layout.titleFontSize * 2.4,
+                            child: Text(
+                              item.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: context.textPrimary,
+                                    height: 1.2,
+                                    fontSize: layout.titleFontSize,
+                                  ),
+                            ),
+                          ),
+                          if (item.finalPrice != null) ...[
+                            const SizedBox(height: 4),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '${formatPrice(item.finalPrice)} $currency',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: layout.priceFontSize,
+                                      color: context
+                                          .watch<AppModeCubit>()
+                                          .state
+                                          .primaryColor,
+                                    ),
                               ),
-                        ),
+                            ),
+                          ],
+                        ],
                       ),
-                      if (item.finalPrice != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          '${formatPrice(item.finalPrice)} $currency',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: context.watch<AppModeCubit>().state.primaryColor,
-                              ),
-                        ),
-                      ],
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  layout.hPad,
+                  0,
+                  layout.hPad,
+                  layout.hPad,
+                ),
+                child: CartCounter(
+                  adSlug: item.slug,
+                  height: layout.cartHeight,
+                ),
+              ),
+            ],
           ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-            child: CartCounter(adSlug: item.slug, height: 36),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(double height) {
     final hasImage = item.mainImage != null && item.mainImage!.isNotEmpty;
     return SizedBox(
-      height: 120,
+      height: height,
       width: double.infinity,
       child: hasImage
           ? CachedNetworkImage(
@@ -100,7 +141,7 @@ class ProductListCard extends StatelessWidget {
   }
 
   Widget _placeholderImage() => Container(
-    color: AppColors.black100,
-    child: const Center(child: Icon(Icons.image)),
-  );
+        color: AppColors.black100,
+        child: const Center(child: Icon(Icons.image)),
+      );
 }

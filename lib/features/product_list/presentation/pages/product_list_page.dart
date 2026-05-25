@@ -16,6 +16,7 @@ import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/products_not_found_placeholder.dart';
 import 'package:uzxarid/core/widgets/product_card.dart';
 import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
 import 'package:uzxarid/features/product_list/domain/entities/subcategory_item.dart';
@@ -137,6 +138,31 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
+  int? get _selectedFilterCategoryId {
+    final pathIds = _activeFilter?.categoryPathIds;
+    if (pathIds == null || pathIds.isEmpty) return null;
+    return pathIds.last;
+  }
+
+  List<int> _currentCategoryPathIds() {
+    final ids = <int>[];
+
+    void addId(int? id) {
+      if (id == null || id <= 0) return;
+      if (ids.isEmpty || ids.last != id) {
+        ids.add(id);
+      }
+    }
+
+    addId(widget.categoryId);
+    for (final crumb in _navigationStack) {
+      addId(crumb.activeChipId);
+    }
+    addId(_activeChipId);
+    addId(_activeCardId);
+    return ids;
+  }
+
   Future<void> _load() async {
     final l10n = AppLocalizations.of(context)!;
     setState(() {
@@ -147,7 +173,11 @@ class _ProductListPageState extends State<ProductListPage> {
     final mode = context.read<AppModeCubit>().state;
     final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
 
-    final filterId = _activeCardId ?? _activeChipId ?? widget.categoryId;
+    final filterId =
+        _selectedFilterCategoryId ??
+        _activeCardId ??
+        _activeChipId ??
+        widget.categoryId;
 
     final result = await getIt<GetProductList>()(
       GetProductListParams(
@@ -183,7 +213,11 @@ class _ProductListPageState extends State<ProductListPage> {
       if (f.hasServices) params['listing_type'] = 'Service';
       if (widget.categoryType == 'Auto') {
         if (f.onlyTop) params['is_top'] = true;
+        if (f.vehicleMarkId != null) params['brand'] = f.vehicleMarkId;
         if (f.vehicleMark != null) params['mark'] = f.vehicleMark;
+        if (f.vehicleModelId != null) {
+          params['brand_model'] = f.vehicleModelId;
+        }
         if (f.vehicleModel != null && f.vehicleModel!.trim().isNotEmpty) {
           params['model'] = f.vehicleModel!.trim();
         }
@@ -232,6 +266,9 @@ class _ProductListPageState extends State<ProductListPage> {
             f.vehicleConfiguration!.trim().isNotEmpty) {
           params['configuration'] = f.vehicleConfiguration!.trim();
         }
+        if (f.vehicleConfigurationId != null) {
+          params['vehicle_trims'] = f.vehicleConfigurationId;
+        }
         if (f.vehiclePaymentType != null) {
           params['payment_type'] = f.vehiclePaymentType;
         }
@@ -278,12 +315,15 @@ class _ProductListPageState extends State<ProductListPage> {
   bool _filterDataIsEmpty(ProductFilterData f) {
     if (widget.categoryType == 'Auto') {
       bool emptyStr(String? s) => s == null || s.trim().isEmpty;
-      return f.minPrice == null &&
+      return f.categoryPathIds.isEmpty &&
+          f.minPrice == null &&
           f.maxPrice == null &&
           !f.hasDiscount &&
           !f.onlyTop &&
           f.selectedConditionIndex == null &&
+          f.vehicleMarkId == null &&
           f.vehicleMark == null &&
+          f.vehicleModelId == null &&
           emptyStr(f.vehicleModel) &&
           f.yearFrom == null &&
           f.yearTo == null &&
@@ -298,11 +338,13 @@ class _ProductListPageState extends State<ProductListPage> {
           f.vehiclePrivod == null &&
           f.vehicleBody == null &&
           f.selectedColorIndex == null &&
+          f.vehicleConfigurationId == null &&
           emptyStr(f.vehicleConfiguration) &&
           f.vehiclePaymentType == null &&
           f.dynamicFields.isEmpty;
     }
-    return f.minPrice == null &&
+    return f.categoryPathIds.isEmpty &&
+        f.minPrice == null &&
         f.maxPrice == null &&
         !f.hasDiscount &&
         !f.hasServices &&
@@ -342,6 +384,7 @@ class _ProductListPageState extends State<ProductListPage> {
       vehicleListing: widget.categoryType == 'Auto',
       vehiclePrimaryCategories: _primarySubcategories,
       currentVehiclePrimaryCategoryId: _activeChipId,
+      baseCategoryPathIds: _currentCategoryPathIds(),
       listingType: widget.categoryType,
       categoryId: _activeCardId ?? _activeChipId ?? widget.categoryId,
     );
@@ -424,80 +467,72 @@ class _ProductListPageState extends State<ProductListPage> {
   List<Widget> _buildBodySlivers(AppLocalizations l10n) {
     final hasSubcategories = _effectiveSubcategories.isNotEmpty;
     return [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 16, 16, 12),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                  onPressed: _onBackTap,
-                  color: context.textPrimary,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 40,
-                    minHeight: 40,
-                  ),
-                ),
-                Expanded(
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                onPressed: _onBackTap,
+                color: context.textPrimary,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              ),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     _currentTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
+                      fontSize: 16,
                       color: context.textPrimary,
                     ),
                   ),
                 ),
-                _buildSortButton(context),
-              ],
+              ),
+              _buildSortButton(context),
+            ],
+          ),
+        ),
+      ),
+      if (hasSubcategories) ...[
+        SliverToBoxAdapter(child: _buildSubcategoriesStrip()),
+        if (_secondarySubcategories.isNotEmpty) ...[
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          SliverToBoxAdapter(child: _buildSecondarySubcategoriesStrip()),
+        ],
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+      ],
+      if (_loading)
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          sliver: SliverGrid(
+            gridDelegate: AppResponsive.productGridDelegate(context),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => const ShimmerGridProductCard(),
+              childCount: 6,
+            ),
+          ),
+        )
+      else if (_items.isEmpty)
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: ProductsNotFoundPlaceholder(l10n: l10n),
+        )
+      else
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          sliver: SliverGrid(
+            gridDelegate: AppResponsive.productGridDelegate(context),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildCard(context, _items[index]),
+              childCount: _items.length,
             ),
           ),
         ),
-        if (hasSubcategories) ...[
-          SliverToBoxAdapter(child: _buildSubcategoriesStrip()),
-          if (_secondarySubcategories.isNotEmpty) ...[
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            SliverToBoxAdapter(child: _buildSecondarySubcategoriesStrip()),
-          ],
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
-        ],
-        if (_loading)
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.48,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => const ShimmerGridProductCard(),
-                childCount: 6,
-              ),
-            ),
-          )
-        else if (_items.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: ProductsNotFoundPlaceholder(l10n: l10n),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.54,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildCard(context, _items[index]),
-                childCount: _items.length,
-              ),
-            ),
-          ),
     ];
   }
 
@@ -583,7 +618,7 @@ class _ProductListPageState extends State<ProductListPage> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           itemCount: list.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final sub = list[index];
             final isSelected = _activeChipId == sub.id;
@@ -625,7 +660,7 @@ class _ProductListPageState extends State<ProductListPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final sub = list[index];
           return _SubcategoryCard(
@@ -645,7 +680,7 @@ class _ProductListPageState extends State<ProductListPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: _secondarySubcategories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final sub = _secondarySubcategories[index];
           final isSelected = _activeCardId == sub.id;
@@ -812,7 +847,6 @@ class _ProductListPageState extends State<ProductListPage> {
         slug: item.slug,
         title: item.title,
         color: context.cardSurface,
-        height: 300,
         mainImage: item.mainImage,
         price: item.price,
         finalPrice: item.finalPrice,

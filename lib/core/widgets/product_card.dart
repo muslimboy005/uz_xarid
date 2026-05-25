@@ -6,6 +6,7 @@ import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/price_formatter.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/cart_counter.dart';
@@ -61,7 +62,6 @@ class ProductCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final currentPrice = formatPrice(finalPrice ?? price);
     final formattedOld = formatPrice(price);
-    // Eski narx faqat haqiqiy chegirma bo'lganda ko'rsatiladi (joriy narxdan farqli).
     final oldPrice = (finalPrice != null && formattedOld != currentPrice)
         ? formattedOld
         : '';
@@ -76,7 +76,7 @@ class ProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -85,29 +85,23 @@ class ProductCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final cardWidth = constraints.maxWidth;
-          final cardHeight = constraints.maxHeight.isFinite ? constraints.maxHeight : 220.0;
+          final cardWidth = width ??
+              (constraints.maxWidth.isFinite ? constraints.maxWidth : 170.0);
+          final cardHeight = height ??
+              (constraints.maxHeight.isFinite ? constraints.maxHeight : null);
 
-          // Responsive o'lchamlar: kart kengligi/balandligiga qarab moslashadi.
-          final isCompact = cardWidth < 170 || cardHeight < 240;
-          final cartHeight = isCompact ? 34.0 : 40.0;
-          final hPad = isCompact ? 8.0 : 10.0;
-          // Matn bloki uchun zarur joy: rating + title (2 satr) + price block + paddings.
-          final textBlockHeight = isCompact ? 95.0 : 108.0;
-          final reservedForContent =
-              textBlockHeight + (showCartButton ? cartHeight + 10 : 12);
-          final imageHeight = (cardHeight - reservedForContent)
-              .clamp(70.0, cardHeight * 0.55);
-          final iconSize = isCompact ? 12.0 : 14.0;
-          final metaFontSize = isCompact ? 11.0 : 12.0;
-          final titleFontSize = isCompact ? 13.0 : 14.0;
-          final oldPriceFontSize = isCompact ? 10.5 : 11.5;
-          final priceFontSize = isCompact ? 16.0 : 18.0;
-          // Eski narx qatori uchun balandlik (chegirma yo'q bo'lsa ham joy saqlanadi).
-          final oldPriceLineHeight = oldPriceFontSize * 1.2;
+          final layout = AppResponsive.productCardLayout(
+            context,
+            cardWidth: cardWidth,
+            cardHeight: cardHeight,
+            showCartButton: showCartButton,
+          );
+
+          final oldPriceLineHeight = layout.oldPriceFontSize * 1.2;
+          final metaSpacing = layout.isCompact ? 8.0 : 14.0;
 
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               GestureDetector(
                 onTap: () => _openDetail(context),
@@ -115,54 +109,51 @@ class ProductCard extends StatelessWidget {
                 child: Stack(
                   children: [
                     SizedBox(
-                      height: imageHeight,
+                      height: layout.imageHeight,
                       width: double.infinity,
                       child: AppImage(
                         path: mainImage ?? '',
                         fit: BoxFit.cover,
                         errorWidget: Container(
-                          color: isDark ? AppColors.darkSurface : AppColors.black50,
+                          color: isDark
+                              ? AppColors.darkSurface
+                              : AppColors.black50,
                           child: Center(
                             child: Icon(
                               Icons.image,
                               color: context.textSecondary,
-                              size: 40,
+                              size: layout.isCompact ? 32 : 40,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    if (onLikeTap != null)
-                      Positioned(
-                        right: 12,
-                        top: 12,
-                        child: GestureDetector(
-                          onTap: () {
-                            onLikeTap!();
-                          },
-                          child: AppImage(
-                            path: AppAssets.heartOutline,
-                            color: isLiked ? AppColors.red : AppColors.black200,
-                            size: 22,
-                          ),
-                        ),
-                      )
-                    else
-                      Positioned(
-                        right: 12,
-                        top: 12,
-                        child: Icon(
-                          Icons.favorite_border,
-                          color: Colors.white,
-                          size: 22,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.25),
-                              blurRadius: 6,
+                    Positioned(
+                      right: layout.heartInset,
+                      top: layout.heartInset,
+                      child: onLikeTap != null
+                          ? GestureDetector(
+                              onTap: onLikeTap,
+                              child: AppImage(
+                                path: AppAssets.heartOutline,
+                                color: isLiked
+                                    ? AppColors.red
+                                    : AppColors.black200,
+                                size: layout.heartSize,
+                              ),
+                            )
+                          : Icon(
+                              Icons.favorite_border,
+                              color: Colors.white,
+                              size: layout.heartSize,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 6,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                    ),
                   ],
                 ),
               ),
@@ -171,29 +162,34 @@ class ProductCard extends StatelessWidget {
                   onTap: () => _openDetail(context),
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(hPad, 6, hPad, 2),
+                    padding: EdgeInsets.fromLTRB(
+                      layout.hPad,
+                      layout.isCompact ? 4 : 6,
+                      layout.hPad,
+                      2,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            AppImage(path: AppAssets.star, size: iconSize),
+                            AppImage(path: AppAssets.star, size: layout.iconSize),
                             const SizedBox(width: 4),
                             AppText(
                               text: rating.toStringAsFixed(1),
                               color: context.textPrimary,
-                              fontSize: metaFontSize,
+                              fontSize: layout.metaFontSize,
                               fontWeight: 500,
                             ),
-                            SizedBox(width: isCompact ? 10 : 14),
-                            AppImage(path: AppAssets.chat, size: iconSize),
+                            SizedBox(width: metaSpacing),
+                            AppImage(path: AppAssets.chat, size: layout.iconSize),
                             const SizedBox(width: 4),
                             Flexible(
                               child: AppText(
                                 text: '$reviewCount ${l10n.reviewsLabel}',
                                 color: context.textPrimary,
-                                fontSize: metaFontSize,
+                                fontSize: layout.metaFontSize,
                                 fontWeight: 500,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -201,7 +197,6 @@ class ProductCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
                         Flexible(
                           child: AppText(
                             text: title,
@@ -209,11 +204,10 @@ class ProductCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             fontWeight: 600,
                             height: 1.2,
-                            fontSize: titleFontSize,
+                            fontSize: layout.titleFontSize,
                             color: context.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 2),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
@@ -225,7 +219,7 @@ class ProductCard extends StatelessWidget {
                                       text: '$oldPrice $displayCurrency',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      fontSize: oldPriceFontSize,
+                                      fontSize: layout.oldPriceFontSize,
                                       color: context.textSecondary,
                                       decoration: TextDecoration.lineThrough,
                                     )
@@ -241,7 +235,7 @@ class ProductCard extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: priceFontSize,
+                                  fontSize: layout.priceFontSize,
                                   fontWeight: FontWeight.w800,
                                   color: context
                                       .watch<AppModeCubit>()
@@ -259,11 +253,16 @@ class ProductCard extends StatelessWidget {
               ),
               if (showCartButton)
                 Padding(
-                  padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 8),
-                  child: CartCounter(adSlug: slug, height: cartHeight),
+                  padding: EdgeInsets.fromLTRB(
+                    layout.hPad,
+                    0,
+                    layout.hPad,
+                    layout.isCompact ? 6 : 8,
+                  ),
+                  child: CartCounter(adSlug: slug, height: layout.cartHeight),
                 )
               else
-                const SizedBox(height: 8),
+                SizedBox(height: layout.isCompact ? 6 : 8),
             ],
           );
         },

@@ -2,22 +2,25 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
-import 'package:uzxarid/core/network/yandex_map_coverage.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/price_formatter.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
+import 'package:uzxarid/core/widgets/app_map.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
+import 'package:uzxarid/core/widgets/glass_container.dart';
+import 'package:uzxarid/core/widgets/map_type_selector.dart';
 import 'package:uzxarid/features/currency/domain/currency.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uzxarid/features/favorites/domain/entities/favorite_item_entity.dart';
 import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 /// Mahsulotlar ro‘yxati — xarita rejimi (Yandex) va «Ro‘yxat» bottom sheet.
 class ProductListMapView extends StatefulWidget {
@@ -36,10 +39,7 @@ class ProductListMapView extends StatefulWidget {
   final VoidCallback onOpenFilters;
   final bool filterActive;
 
-  static const Point kMapCenter = Point(
-    latitude: 41.32178969,
-    longitude: 69.24735733,
-  );
+  static const LatLng kMapCenter = LatLng(41.32178969, 69.24735733);
 
   static const double kInitialZoom = 14;
 
@@ -49,25 +49,17 @@ class ProductListMapView extends StatefulWidget {
 
 class _ProductListMapViewState extends State<ProductListMapView> {
   bool _mapReady = false;
-  YandexMapController? _mapController;
-
-  static const MapAnimation _zoomAnim = MapAnimation(
-    type: MapAnimationType.smooth,
-    duration: 0.22,
-  );
+  final MapController _mapController = MapController();
+  AppMapType _mapType = AppMapType.scheme;
 
   void _zoomIn() {
-    _mapController?.moveCamera(
-      CameraUpdate.zoomIn(),
-      animation: _zoomAnim,
-    );
+    final camera = _mapController.camera;
+    _mapController.move(camera.center, (camera.zoom + 1).clamp(3, 19));
   }
 
   void _zoomOut() {
-    _mapController?.moveCamera(
-      CameraUpdate.zoomOut(),
-      animation: _zoomAnim,
-    );
+    final camera = _mapController.camera;
+    _mapController.move(camera.center, (camera.zoom - 1).clamp(3, 19));
   }
 
   @override
@@ -76,15 +68,16 @@ class _ProductListMapViewState extends State<ProductListMapView> {
     Future<void>.delayed(const Duration(milliseconds: 200), () {
       if (mounted) setState(() => _mapReady = true);
     });
-    fetchYandexMapCoverageSuccess(
-      longitude: ProductListMapView.kMapCenter.longitude,
-      latitude: ProductListMapView.kMapCenter.latitude,
-      zoom: ProductListMapView.kInitialZoom.round(),
-    );
   }
 
-  List<MapObject> _mapObjects(BuildContext context) {
-    final center = ProductListMapView.kMapCenter;
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  List<Marker> _markers(BuildContext context) {
+    const center = ProductListMapView.kMapCenter;
     if (widget.items.isEmpty) return [];
     const maxPins = 48;
     final pinColor = context.read<AppModeCubit>().state.primaryColor;
@@ -92,28 +85,33 @@ class _ProductListMapViewState extends State<ProductListMapView> {
       final idx = e.key;
       final item = e.value;
       final p = _scatterPoint(center, item.slug, idx);
-      return CircleMapObject(
-        mapId: MapObjectId('pin_$idx'),
-        circle: Circle(center: p, radius: 42),
-        fillColor: pinColor,
-        strokeColor: Colors.white,
-        strokeWidth: 2,
-        consumeTapEvents: true,
-        onTap: (CircleMapObject circle, Point point) {
-          if (item.slug.isNotEmpty) context.push('/ad/${item.slug}');
-        },
+      return Marker(
+        point: p,
+        width: 20,
+        height: 20,
+        child: GestureDetector(
+          onTap: () {
+            if (item.slug.isNotEmpty) context.push('/ad/${item.slug}');
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: pinColor,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+          ),
+        ),
       );
     }).toList();
   }
 
-  /// API koordinatasi bo‘lmaganda — markaz atrofida tarqatilgan ko‘k nuqtalar.
-  static Point _scatterPoint(Point center, String slug, int index) {
+  static LatLng _scatterPoint(LatLng center, String slug, int index) {
     final h = slug.hashCode ^ (17 * index);
     final a = (h % 360) * math.pi / 180;
     final r = 0.001 + (h.abs() % 7) * 0.00022;
-    return Point(
-      latitude: center.latitude + r * math.sin(a),
-      longitude: center.longitude + r * math.cos(a),
+    return LatLng(
+      center.latitude + r * math.sin(a),
+      center.longitude + r * math.cos(a),
     );
   }
 
@@ -133,7 +131,7 @@ class _ProductListMapViewState extends State<ProductListMapView> {
     final border = context.borderColor;
     final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final count = widget.items.length;
-    final zoomReady = _mapController != null;
+    final zoomReady = _mapReady;
 
     return Stack(
       fit: StackFit.expand,
@@ -141,21 +139,12 @@ class _ProductListMapViewState extends State<ProductListMapView> {
         ColoredBox(
           color: const Color(0xFFEEF2F6),
           child: _mapReady
-              ? YandexMap(
-                  mapObjects: _mapObjects(context),
-                  mode2DEnabled: true,
-                  onMapCreated: (YandexMapController c) {
-                    _mapController = c;
-                    c.moveCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                          target: ProductListMapView.kMapCenter,
-                          zoom: ProductListMapView.kInitialZoom,
-                        ),
-                      ),
-                    );
-                    setState(() {});
-                  },
+              ? AppMap(
+                  mapController: _mapController,
+                  initialCenter: ProductListMapView.kMapCenter,
+                  initialZoom: ProductListMapView.kInitialZoom,
+                  mapType: _mapType,
+                  markerLayer: MarkerLayer(markers: _markers(context)),
                 )
               : Center(
                   child: CircularProgressIndicator(
@@ -267,43 +256,51 @@ class _ProductListMapViewState extends State<ProductListMapView> {
           bottom: 0,
           child: SafeArea(
             child: Center(
-              child: Material(
-                color: Colors.white,
-                elevation: 4,
-                shadowColor: Colors.black26,
-                borderRadius: BorderRadius.circular(12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      onPressed: zoomReady ? _zoomIn : null,
-                      icon: Icon(Icons.add, size: 22, color: textPrimary),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 10,
+              child: GlassContainer(
+                borderRadius: 14,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: zoomReady ? _zoomIn : null,
+                        icon: Icon(Icons.add, size: 22, color: textPrimary),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 10,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 44,
+                          minHeight: 44,
+                        ),
                       ),
-                      constraints: const BoxConstraints(
-                        minWidth: 44,
-                        minHeight: 44,
+                      Divider(height: 1, thickness: 1, color: border),
+                      IconButton(
+                        onPressed: zoomReady ? _zoomOut : null,
+                        icon: Icon(Icons.remove, size: 22, color: textPrimary),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 10,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 44,
+                          minHeight: 44,
+                        ),
                       ),
-                    ),
-                    Divider(height: 1, thickness: 1, color: border),
-                    IconButton(
-                      onPressed: zoomReady ? _zoomOut : null,
-                      icon: Icon(Icons.remove, size: 22, color: textPrimary),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 10,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 44,
-                        minHeight: 44,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 64,
+          right: 16,
+          child: MapTypeSelector(
+            current: _mapType,
+            onChanged: (t) => setState(() => _mapType = t),
           ),
         ),
       ],

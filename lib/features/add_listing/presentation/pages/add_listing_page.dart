@@ -39,8 +39,8 @@ import 'package:uzxarid/features/add_listing/presentation/widgets/size_dropdown_
 import 'package:uzxarid/features/profile/presentation/widgets/bottom_sheets/name_bottom_sheet.dart';
 import 'package:uzxarid/features/profile/presentation/widgets/bottom_sheets/otp_bottom_sheet.dart';
 import 'package:uzxarid/features/profile/presentation/widgets/bottom_sheets/phone_bottom_sheet.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:uzxarid/features/add_listing/presentation/pages/map_selection_page.dart';
 
 enum _ListingType { product, service, car, home, equipment }
@@ -4470,7 +4470,7 @@ class _AddListingPageState extends State<AddListingPage> {
       MaterialPageRoute(
         builder: (context) => MapSelectionPage(
           initialPoint: (_latitude != null && _longitude != null)
-              ? Point(latitude: _latitude!, longitude: _longitude!)
+              ? LatLng(_latitude!, _longitude!)
               : null,
           initialRegion: _placeById(_regions, _selectedRegionId)?.name,
           initialDistrict: _placeById(_districts, _selectedDistrictId)?.name,
@@ -4483,7 +4483,7 @@ class _AddListingPageState extends State<AddListingPage> {
     );
 
     if (result != null) {
-      final point = result['point'] as Point;
+      final point = result['point'] as LatLng;
       setState(() {
         _latitude = point.latitude;
         _longitude = point.longitude;

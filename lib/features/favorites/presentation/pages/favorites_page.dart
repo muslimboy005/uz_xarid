@@ -5,6 +5,7 @@ import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/product_card.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uzxarid/core/widgets/w__container.dart';
@@ -62,7 +63,7 @@ class FavoritesPage extends StatelessWidget {
                   builder: (context, state) {
                     if (state.status == FavoritesStatus.loading &&
                         state.list.isEmpty) {
-                      return _buildShimmerGrid();
+                      return _buildShimmerGrid(context);
                     }
                     if (state.status == FavoritesStatus.failure &&
                         state.list.isEmpty) {
@@ -144,13 +145,9 @@ class FavoritesPage extends StatelessWidget {
                           AppDimens.bottomNavClearance,
                         ),
                         child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.54,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
+                          gridDelegate: AppResponsive.productGridDelegate(
+                            context,
+                          ),
                           itemCount: state.list.length,
                           itemBuilder: (context, index) {
                             final item = state.list[index];
@@ -167,7 +164,7 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildShimmerGrid() {
+  Widget _buildShimmerGrid(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppDimens.paddingMedium,
@@ -176,12 +173,7 @@ class FavoritesPage extends StatelessWidget {
         AppDimens.bottomNavClearance,
       ),
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.54,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
+        gridDelegate: AppResponsive.productGridDelegate(context),
         itemCount: 6,
         itemBuilder: (context, index) => const ShimmerGridProductCard(),
       ),

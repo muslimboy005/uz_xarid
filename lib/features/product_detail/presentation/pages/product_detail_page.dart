@@ -11,6 +11,7 @@ import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
 import 'package:uzxarid/core/utils/input_formatters.dart';
 import 'package:uzxarid/core/utils/price_formatter.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
@@ -2138,7 +2139,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 300,
+          height: AppResponsive.horizontalProductCardHeight(context),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -2161,7 +2162,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     currency: item.currency ?? 'uzs',
                     rating: item.rating ?? 0.0,
                     reviewCount: item.reviewCount ?? 0,
-                    width: 162,
+                    width: AppResponsive.horizontalProductCardWidth(context),
+                    showCartButton: false,
                     isLiked: likeState.isLiked(item.slug),
                     onLikeTap: () {
                       context.read<FavoritesBloc>().add(

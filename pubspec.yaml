@@ -1,7 +1,7 @@
 name: uzxarid
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.5+7
+version: 0.1.6+8
 
 environment:
   sdk: ^3.10.7
@@ -38,6 +38,7 @@ dependencies:
   url_launcher: ^6.3.2
   share_plus: ^12.0.2
   yandex_mapkit: ^4.2.1
+  flutter_map: ^7.0.2
   geolocator: ^14.0.2
   firebase_core: ^4.4.0
   firebase_messaging: ^16.1.1

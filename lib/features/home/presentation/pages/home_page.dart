@@ -17,6 +17,7 @@ import 'package:uzxarid/features/home/presentation/widgets/recommendation_card.d
 import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:uzxarid/features/notification/presentation/bloc/notification_event.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
 
 class _HomeCategoryData {
@@ -122,19 +123,19 @@ class _HomePageState extends State<HomePage> {
         child: UzXaridScaffold(
           backgroundColor: bodyBg,
           trailing: _HomeMenuButton(),
-          floatingHeaderHeight: 134,
+          floatingHeaderHeight: AppResponsive.homeFloatingHeaderHeight(context),
           floatingHeader: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppDimens.paddingMedium,
-              8,
-              AppDimens.paddingMedium,
-              8,
+            padding: EdgeInsets.fromLTRB(
+              AppResponsive.horizontalPadding(context),
+              2,
+              AppResponsive.horizontalPadding(context),
+              4,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 HomeModeSegmented(l10n: l10n),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 UzXaridSearchField(
                   hintText: l10n.searchHint,
                   onTap: () => context.push('/search'),
@@ -143,41 +144,40 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.only(top: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
                 // Section title
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.paddingMedium,
-                  ),
-                  child: Text(
-                    l10n.homeHeadline,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(
+                //     horizontal: AppDimens.paddingMedium,
+                //   ),
+                //   child: Text(
+                //     l10n.homeHeadline,
+                //     style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                //       fontWeight: FontWeight.w800,
+                //       color: textColor,
+                //       fontSize: 20,
+                //     ),
+                //   ),
+                // ),
+                const SizedBox(height: 4),
                 // Horizontal category cards
                 SizedBox(
-                  height: 156,
+                  height: AppResponsive.homeCategoryListHeight(context),
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.paddingMedium,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppResponsive.horizontalPadding(context),
                     ),
                     itemCount: categories.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    separatorBuilder: (_, __) => const SizedBox(width: 5),
                     itemBuilder: (context, index) {
                       final cat = categories[index];
                       return _HomeCategoryTile(
                         title: cat.title,
                         asset: cat.asset,
+                        tileSize: AppResponsive.homeCategoryTileSize(context),
                         isSelected: _selectedCategoryIndex == index,
                         onTap: () {
                           setState(() {
@@ -191,11 +191,11 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingMedium),
                 // Recommendations grid
+                const Divider(thickness: 2),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.paddingMedium,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppResponsive.horizontalPadding(context),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,10 +237,10 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.paddingMedium,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppResponsive.horizontalPadding(context),
                   ),
                   child: BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
@@ -262,13 +262,10 @@ class _HomePageState extends State<HomePage> {
                         return GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.78,
-                              ),
+                          gridDelegate: AppResponsive.productGridDelegate(
+                            context,
+                            showCartButton: false,
+                          ),
                           itemCount: 4,
                           itemBuilder: (_, _) => const ShimmerGridProductCard(),
                         );
@@ -286,13 +283,10 @@ class _HomePageState extends State<HomePage> {
                       return GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.78,
-                            ),
+                        gridDelegate: AppResponsive.productGridDelegate(
+                          context,
+                          showCartButton: false,
+                        ),
                         itemCount: items.length + (hasOdd ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index >= items.length) {
@@ -380,13 +374,10 @@ class _HomePageState extends State<HomePage> {
                             return GridView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 12,
-                                    mainAxisSpacing: 12,
-                                    childAspectRatio: 0.78,
-                                  ),
+                              gridDelegate: AppResponsive.productGridDelegate(
+                                context,
+                                showCartButton: false,
+                              ),
                               itemCount: 4,
                               itemBuilder: (_, _) =>
                                   const ShimmerGridProductCard(),
@@ -402,13 +393,10 @@ class _HomePageState extends State<HomePage> {
                           return GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
-                                  childAspectRatio: 0.78,
-                                ),
+                            gridDelegate: AppResponsive.productGridDelegate(
+                              context,
+                              showCartButton: false,
+                            ),
                             itemCount: items.length + (hasOdd ? 1 : 0),
                             itemBuilder: (context, index) {
                               if (index >= items.length) {
@@ -501,13 +489,10 @@ class _HomePageState extends State<HomePage> {
                         return GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.78,
-                              ),
+                          gridDelegate: AppResponsive.productGridDelegate(
+                            context,
+                            showCartButton: false,
+                          ),
                           itemCount: 4,
                           itemBuilder: (_, _) => const ShimmerServiceCard(),
                         );
@@ -525,13 +510,10 @@ class _HomePageState extends State<HomePage> {
                       return GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.78,
-                            ),
+                        gridDelegate: AppResponsive.productGridDelegate(
+                          context,
+                          showCartButton: false,
+                        ),
                         itemCount: items.length + (hasOdd ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index >= items.length) {
@@ -568,12 +550,14 @@ class _HomeCategoryTile extends StatelessWidget {
   const _HomeCategoryTile({
     required this.title,
     required this.asset,
+    required this.tileSize,
     required this.isSelected,
     required this.onTap,
   });
 
   final String title;
   final String asset;
+  final double tileSize;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -589,10 +573,10 @@ class _HomeCategoryTile extends StatelessWidget {
         ? primary
         : (isDark ? AppColors.darkTextSecondary : AppColors.cardBorderColor);
 
-    const double tileSize = 104;
+    final labelSize = tileSize < 66 ? 9.0 : 10.0;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(15),
       onTap: onTap,
       child: SizedBox(
         width: tileSize,
@@ -606,7 +590,7 @@ class _HomeCategoryTile extends StatelessWidget {
               padding: EdgeInsets.all(isSelected ? 4 : 0),
               decoration: BoxDecoration(
                 color: isSelected ? unselectedBg : unselectedBg,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(15),
                 border: Border.all(
                   color: outerBorderColor,
                   width: isSelected ? 2.5 : 1,
@@ -615,16 +599,16 @@ class _HomeCategoryTile extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: isSelected ? primary : unselectedBg,
-                  borderRadius: BorderRadius.circular(isSelected ? 16 : 20),
+                  borderRadius: BorderRadius.circular(isSelected ? 13.5 : 15),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(isSelected ? 16 : 20),
+                  borderRadius: BorderRadius.circular(isSelected ? 13.5 : 15),
                   child: Stack(
                     clipBehavior: Clip.hardEdge,
                     children: [
                       Positioned(
-                        left: -2,
-                        right: -2,
+                        left: 0,
+                        right: 0,
                         bottom: -6,
                         top: 4,
                         child: AppImage(path: asset, fit: BoxFit.contain),
@@ -641,7 +625,7 @@ class _HomeCategoryTile extends StatelessWidget {
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: labelSize,
                 fontWeight: FontWeight.w700,
                 color: textColor,
                 height: 1.2,

@@ -732,6 +732,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lunchBreakLabel => 'Перерыв (обед)';
 
   @override
+  String get mapTypeHybrid => 'Гибрид';
+
+  @override
+  String get mapTypeSatellite => 'Спутник';
+
+  @override
+  String get mapTypeScheme => 'Схема';
+
+  @override
   String get myAddressesTitle => 'Мои адреса';
 
   @override

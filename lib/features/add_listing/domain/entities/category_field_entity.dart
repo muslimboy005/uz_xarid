@@ -8,6 +8,8 @@ class CategoryFieldEntity {
     required this.suffix,
     required this.options,
     required this.condition,
+    this.filterType,
+    this.isFilterable = true,
     this.minValue,
     this.maxValue,
     this.valueSource = 'attributes',
@@ -21,6 +23,8 @@ class CategoryFieldEntity {
   final String? suffix;
   final List<CategoryFieldOptionEntity> options;
   final CategoryFieldConditionEntity? condition;
+  final String? filterType;
+  final bool isFilterable;
   final double? minValue;
   final double? maxValue;
 
@@ -61,6 +65,8 @@ class CategoryFieldEntity {
       suffix: json['suffix']?.toString(),
       options: options,
       condition: condition,
+      filterType: json['filter_type']?.toString(),
+      isFilterable: json['is_filterable'] != false,
       minValue: _parseNum(json['min_value']),
       maxValue: _parseNum(json['max_value']),
       valueSource: (json['value_source'] ?? 'attributes').toString().isEmpty
@@ -79,15 +85,21 @@ class CategoryFieldEntity {
 }
 
 class CategoryFieldOptionEntity {
-  const CategoryFieldOptionEntity({required this.label, required this.value});
+  const CategoryFieldOptionEntity({
+    required this.label,
+    required this.value,
+    this.hexColor,
+  });
 
   final String label;
   final String value;
+  final String? hexColor;
 
   factory CategoryFieldOptionEntity.fromJson(Map<String, dynamic> json) {
     return CategoryFieldOptionEntity(
       label: (json['label'] ?? '').toString(),
       value: (json['value'] ?? '').toString(),
+      hexColor: json['hex_color']?.toString(),
     );
   }
 }

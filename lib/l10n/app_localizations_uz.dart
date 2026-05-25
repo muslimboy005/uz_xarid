@@ -735,6 +735,15 @@ class AppLocalizationsUz extends AppLocalizations {
   String get lunchBreakLabel => 'Tushlik vaqti';
 
   @override
+  String get mapTypeHybrid => 'Gibrid';
+
+  @override
+  String get mapTypeSatellite => 'Sputnik';
+
+  @override
+  String get mapTypeScheme => 'Sxema';
+
+  @override
   String get myAddressesTitle => 'Manzillarim';
 
   @override

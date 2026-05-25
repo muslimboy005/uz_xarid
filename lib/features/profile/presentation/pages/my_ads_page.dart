@@ -6,6 +6,7 @@ import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
+import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/features/profile/data/models/my_listing_item_dto.dart';
 import 'package:uzxarid/features/profile/presentation/bloc/my_ads/my_ads_bloc.dart';
@@ -348,12 +349,7 @@ class MyAdsPage extends StatelessWidget {
     final list = state.list;
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.48,
-      ),
+      gridDelegate: AppResponsive.myAdsGridDelegate(context),
       itemCount: list.length,
       itemBuilder: (_, i) {
         final item = list[i];

@@ -117,7 +117,7 @@ class UzXaridScaffold extends StatelessWidget {
                 bottom: false,
                 child: Container(
                   color: bg,
-                  alignment: Alignment.center,
+                  alignment: Alignment.topCenter,
                   child: floatingHeader,
                 ),
               ),
@@ -637,6 +637,7 @@ class _SearchField extends StatelessWidget {
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
     return Container(
+      height: 44,
       decoration: BoxDecoration(
         color: fillColor,
         borderRadius: BorderRadius.circular(18),
@@ -652,16 +653,21 @@ class _SearchField extends StatelessWidget {
         readOnly: onTap != null,
         onChanged: onChanged,
         onTap: onTap,
-        style: TextStyle(color: isDark ? AppColors.darkTextPrimary : null),
+        style: TextStyle(
+          color: isDark ? AppColors.darkTextPrimary : null,
+          fontSize: 14,
+        ),
         decoration: InputDecoration(
+          isDense: true,
           hintText: hintText,
           hintStyle: TextStyle(
             color: isDark ? AppColors.darkTextSecondary : null,
+            fontSize: 14,
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 12,
+            vertical: 10,
           ),
           prefixIcon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
