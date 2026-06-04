@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:uzxarid/app/router/app_router.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/widgets/shake_detector.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/localization/locale_cubit.dart';
 import 'package:uzxarid/core/theme/app_theme.dart';
@@ -18,6 +19,19 @@ import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart
 import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:uzxarid/features/notification/presentation/bloc/notification_event.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
+
+/// AI yordamchi ekrani allaqachon ochiqligini kuzatuvchi bayroq —
+/// silkitishda ustma-ust ochilib ketmasligi uchun.
+bool _aiAssistantOpen = false;
+
+/// Qurilma silkitilganda AI yordamchi ekranini ochadi (global router orqali).
+void _openAiAssistant() {
+  if (_aiAssistantOpen) return;
+  _aiAssistantOpen = true;
+  AppRouter.router
+      .pushNamed('ai-assistant')
+      .whenComplete(() => _aiAssistantOpen = false);
+}
 
 class UzXaridApp extends StatelessWidget {
   const UzXaridApp({super.key});
@@ -62,9 +76,11 @@ class _AppView extends StatelessWidget {
               builder: (context, appMode) {
                 final primary = appMode.primaryColor;
                 return ScreenUtilInit(
-                  child: MaterialApp.router(
-                    onGenerateTitle: (context) =>
-                        AppLocalizations.of(context)!.appName,
+                  child: ShakeDetector(
+                    onShake: _openAiAssistant,
+                    child: MaterialApp.router(
+                      onGenerateTitle: (context) =>
+                          AppLocalizations.of(context)!.appName,
                     debugShowCheckedModeBanner: false,
                     theme: AppTheme.light(primary: primary),
                     darkTheme: AppTheme.dark(primary: primary),
@@ -82,6 +98,7 @@ class _AppView extends StatelessWidget {
                       GlobalWidgetsLocalizations.delegate,
                       GlobalCupertinoLocalizations.delegate,
                     ],
+                    ),
                   ),
                 );
               },

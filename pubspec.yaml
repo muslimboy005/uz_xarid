@@ -53,6 +53,7 @@ dependencies:
   soliq_id: ^1.5.9
   crypto: ^3.0.5
   flutter_dotenv: ^5.2.1
+  sensors_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:
