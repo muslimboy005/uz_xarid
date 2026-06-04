@@ -491,9 +491,57 @@ class _LanguageSelector extends StatelessWidget {
         return 'Ру';
       case 'en':
         return 'En';
+      case 'kaa':
+        return 'Qq';
+      case 'tg':
+        return 'Тҷ';
+      case 'kk':
+        return 'Қаз';
       case 'uz':
       default:
         return 'Uz';
+    }
+  }
+
+  /// Til uchun yetakchi belgi: uz/ru/en — SVG flag, kk/tg — emoji,
+  /// kaa (Qoraqalpoq) — emoji yo'q, shuning uchun matnli belgi.
+  Widget _langLeading(String code, double size) {
+    switch (code) {
+      case 'uz':
+      case 'ru':
+      case 'en':
+        return ClipOval(
+          child: SvgPicture.asset(
+            _flagAssetFor(code),
+            package: AppConfig.packageName,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+          ),
+        );
+      case 'kk':
+        return Text('🇰🇿', style: TextStyle(fontSize: size * 0.95));
+      case 'tg':
+        return Text('🇹🇯', style: TextStyle(fontSize: size * 0.95));
+      case 'kaa':
+      default:
+        return Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.blue50,
+          ),
+          child: Text(
+            'Qq',
+            style: TextStyle(
+              fontSize: size * 0.46,
+              fontWeight: FontWeight.w700,
+              color: AppColors.blue500,
+            ),
+          ),
+        );
     }
   }
 
@@ -508,9 +556,12 @@ class _LanguageSelector extends StatelessWidget {
         context.read<LocaleCubit>().change(locale);
       },
       itemBuilder: (context) => [
-        _buildItem(context, const Locale('uz'), 'Uz', 'assets/svg/flag_uz.svg'),
-        _buildItem(context, const Locale('ru'), 'Ру', 'assets/svg/flag_ru.svg'),
-        _buildItem(context, const Locale('en'), 'En', 'assets/svg/flag_en.svg'),
+        _buildItem(context, const Locale('uz'), 'Uz'),
+        _buildItem(context, const Locale('ru'), 'Ру'),
+        _buildItem(context, const Locale('en'), 'En'),
+        _buildItem(context, const Locale('kaa'), 'Qaraqalpaqsha'),
+        _buildItem(context, const Locale('tg'), 'Тоҷикӣ'),
+        _buildItem(context, const Locale('kk'), 'Қазақша'),
       ],
       child: Container(
         height: 40,
@@ -519,15 +570,7 @@ class _LanguageSelector extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ClipOval(
-              child: SvgPicture.asset(
-                _flagAssetFor(languageCode),
-                package: AppConfig.packageName,
-                width: 22,
-                height: 22,
-                fit: BoxFit.cover,
-              ),
-            ),
+            _langLeading(languageCode, 22),
             const SizedBox(width: 6),
             Text(
               _shortLabel(languageCode),
@@ -553,20 +596,25 @@ class _LanguageSelector extends StatelessWidget {
     BuildContext context,
     Locale locale,
     String label,
-    String asset,
   ) {
+    final isSelected =
+        currentLocale.languageCode == locale.languageCode;
     return PopupMenuItem<Locale>(
       value: locale,
       child: Row(
         children: [
-          SvgPicture.asset(
-            asset,
-            width: 20,
-            height: 20,
-            package: AppConfig.packageName,
+          _langLeading(locale.languageCode, 20),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
           ),
-          const SizedBox(width: 8),
-          Text(label),
+          if (isSelected) ...[
+            const Spacer(),
+            const Icon(Icons.check, size: 18, color: AppColors.blue500),
+          ],
         ],
       ),
     );

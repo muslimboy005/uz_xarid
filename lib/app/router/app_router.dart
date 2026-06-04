@@ -610,7 +610,7 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
       body: widget.child,
       extendBody: true,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 8),
         child: FloatingActionButton(
           backgroundColor: selectedColor,
           elevation: 6,

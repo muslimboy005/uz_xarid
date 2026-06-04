@@ -88,11 +88,12 @@ class AppResponsive {
   }) {
     final scale = textScale(context).clamp(1.0, 1.35);
     final compact = cellWidth < 165;
-    final imageH = cellWidth * (showCartButton ? 0.54 : 0.58);
+    // Rasm balandligi kenglikdan ozgina baland (~1.1)
+    final imageH = cellWidth * 1.1;
     final metaH = (compact ? 14.0 : 16.0) * scale;
-    final titleH = (compact ? 28.0 : 30.0) * scale;
-    final priceH = (compact ? 30.0 : 34.0) * scale;
-    final cartH = showCartButton ? (compact ? 40.0 : 44.0) : 8.0;
+    final titleH = 30.0 * scale;
+    final priceH = 30.0 * scale;
+    final cartH = showCartButton ? (compact ? 40.0 : 42.0) : 8.0;
     final padding = compact ? 8.0 : 10.0;
     return imageH + metaH + titleH + priceH + cartH + padding + extraContentHeight;
   }
@@ -198,17 +199,18 @@ class AppResponsive {
     final compact = cardWidth < 165;
     final narrow = cardWidth < 140;
 
-    final cartHeight = (compact ? 34.0 : 40.0) * (scale > 1.15 ? 1.05 : 1.0);
+    final cartHeight = (compact ? 30.0 : 34.0) * (scale > 1.15 ? 1.05 : 1.0);
     final hPad = compact ? 8.0 : 10.0;
     final iconSize = compact ? 12.0 : 14.0;
-    final metaFontSize = (compact ? 10.0 : 11.0) * scale.clamp(1.0, 1.2);
-    final titleFontSize = (compact ? 12.0 : 13.0) * scale.clamp(1.0, 1.2);
-    final oldPriceFontSize = (compact ? 9.5 : 10.5) * scale.clamp(1.0, 1.15);
-    final priceFontSize = (compact ? 13.5 : 16.0) * scale.clamp(1.0, 1.15);
+    // Barcha matnlar 11 (productcard)
+    final metaFontSize = 11.0 * scale.clamp(1.0, 1.2);
+    final titleFontSize = 11.0 * scale.clamp(1.0, 1.2);
+    final oldPriceFontSize = 11.0 * scale.clamp(1.0, 1.15);
+    final priceFontSize = 11.0 * scale.clamp(1.0, 1.15);
     final heartSize = compact ? 20.0 : 22.0;
     final heartInset = compact ? 8.0 : 12.0;
 
-    final textBlock = (compact ? 74.0 : 84.0) * scale.clamp(1.0, 1.25);
+    final textBlock = 70.0 * scale.clamp(1.0, 1.25);
     final cartBlock = showCartButton ? cartHeight + 8 : 6;
     final verticalPad = hPad + 6;
 
@@ -216,10 +218,10 @@ class AppResponsive {
     if (cardHeight != null && cardHeight.isFinite && cardHeight > 0) {
       imageHeight = (cardHeight - textBlock - cartBlock - verticalPad).clamp(
         narrow ? 56.0 : 64.0,
-        cardHeight * 0.62,
+        cardHeight * 0.85,
       );
     } else {
-      imageHeight = cardWidth * (showCartButton ? 0.54 : 0.58);
+      imageHeight = cardWidth * 1.1;
     }
 
     return ProductCardLayout(

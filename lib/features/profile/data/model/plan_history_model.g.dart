@@ -39,18 +39,28 @@ PlanHistoryItemModel _$PlanHistoryItemModelFromJson(
   Map<String, dynamic> json,
 ) => PlanHistoryItemModel(
   id: (json['id'] as num).toInt(),
-  planName: json['plan_name'] as String,
-  amount: json['amount'] as String,
-  status: json['status'] as String,
-  createdAt: json['created_at'] as String,
+  orderType: json['order_type'] as String? ?? '',
+  userPlan: json['user_plan'] == null
+      ? null
+      : PlanModel.fromJson(json['user_plan'] as Map<String, dynamic>),
+  amount: json['amount'] as String? ?? '0.00',
+  paymentMethod: json['payment_method'] as String?,
+  paymentStatus: json['payment_status'] as String? ?? '',
+  paymentDate: json['payment_date'] as String?,
+  paymentLink: json['payment_link'] as String?,
+  createdAt: json['created_at'] as String?,
 );
 
 Map<String, dynamic> _$PlanHistoryItemModelToJson(
   PlanHistoryItemModel instance,
 ) => <String, dynamic>{
   'id': instance.id,
-  'plan_name': instance.planName,
+  'order_type': instance.orderType,
+  'user_plan': instance.userPlan,
   'amount': instance.amount,
-  'status': instance.status,
+  'payment_method': instance.paymentMethod,
+  'payment_status': instance.paymentStatus,
+  'payment_date': instance.paymentDate,
+  'payment_link': instance.paymentLink,
   'created_at': instance.createdAt,
 };

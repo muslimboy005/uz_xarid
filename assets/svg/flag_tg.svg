@@ -1,0 +1,21 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask_tg" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20">
+<circle cx="10" cy="10" r="10" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask_tg)">
+<rect width="20" height="20" fill="#F5F7F8"/>
+<rect width="20" height="5.71" fill="#DD2033"/>
+<rect y="14.29" width="20" height="5.71" fill="#009B77"/>
+<path d="M7.4 11.3 L7.4 10.1 L8.55 10.75 L10 9.15 L11.45 10.75 L12.6 10.1 L12.6 11.3 Z" fill="#FFCC00"/>
+<rect x="7.4" y="11.4" width="5.2" height="0.5" fill="#FFCC00"/>
+<g fill="#FFCC00">
+<circle cx="7.2" cy="9.0" r="0.33"/>
+<circle cx="8.1" cy="8.3" r="0.33"/>
+<circle cx="9.05" cy="7.9" r="0.33"/>
+<circle cx="10" cy="7.75" r="0.35"/>
+<circle cx="10.95" cy="7.9" r="0.33"/>
+<circle cx="11.9" cy="8.3" r="0.33"/>
+<circle cx="12.8" cy="9.0" r="0.33"/>
+</g>
+</g>
+</svg>

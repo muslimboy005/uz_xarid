@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,6 +74,10 @@ class _AppView extends StatelessWidget {
                     supportedLocales: AppLocalizations.supportedLocales,
                     localizationsDelegates: const [
                       AppLocalizations.delegate,
+                      // kaa/tg uchun Material/Cupertino lokalizatsiyasi yo'q —
+                      // qo'llab-quvvatlanadigan tilga (kaa→uz, tg→ru) yo'naltiramiz.
+                      _FallbackMaterialLocalizationsDelegate(),
+                      _FallbackCupertinoLocalizationsDelegate(),
                       GlobalMaterialLocalizations.delegate,
                       GlobalWidgetsLocalizations.delegate,
                       GlobalCupertinoLocalizations.delegate,
@@ -86,4 +91,51 @@ class _AppView extends StatelessWidget {
       },
     );
   }
+}
+
+/// kaa/tg kabi tillar Flutter'ning Material/Cupertino lokalizatsiyasida yo'q.
+/// Shu tillar uchun eng yaqin qo'llab-quvvatlanadigan tilni qaytaramiz.
+Locale _materialFallbackLocale(Locale locale) {
+  switch (locale.languageCode) {
+    case 'kaa':
+      return const Locale('uz');
+    case 'tg':
+      return const Locale('ru');
+    default:
+      return const Locale('ru');
+  }
+}
+
+/// Faqat global delegat qo'llab-quvvatlamaydigan tillar uchun ishlaydi va
+/// Material lokalizatsiyasini fallback tildan yuklaydi (crash o'rniga).
+class _FallbackMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
+  const _FallbackMaterialLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) =>
+      !GlobalMaterialLocalizations.delegate.isSupported(locale);
+
+  @override
+  Future<MaterialLocalizations> load(Locale locale) =>
+      GlobalMaterialLocalizations.delegate.load(_materialFallbackLocale(locale));
+
+  @override
+  bool shouldReload(_FallbackMaterialLocalizationsDelegate old) => false;
+}
+
+class _FallbackCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _FallbackCupertinoLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) =>
+      !GlobalCupertinoLocalizations.delegate.isSupported(locale);
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) =>
+      GlobalCupertinoLocalizations.delegate.load(_materialFallbackLocale(locale));
+
+  @override
+  bool shouldReload(_FallbackCupertinoLocalizationsDelegate old) => false;
 }

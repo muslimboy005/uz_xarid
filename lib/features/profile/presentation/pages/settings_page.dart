@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
@@ -25,6 +27,9 @@ class _SettingsPageState extends State<SettingsPage>
     Locale('uz'),
     Locale('ru'),
     Locale('en'),
+    Locale('kaa'),
+    Locale('tg'),
+    Locale('kk'),
   ];
 
   final Map<Permission, PermissionStatus> _permissionStatuses = {
@@ -76,6 +81,7 @@ class _SettingsPageState extends State<SettingsPage>
     final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final s = _settingsScale(context);
 
     return UzXaridScaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.black50,
@@ -83,7 +89,7 @@ class _SettingsPageState extends State<SettingsPage>
         child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -94,10 +100,10 @@ class _SettingsPageState extends State<SettingsPage>
                           color: isDark ? AppColors.darkCard : AppColors.white,
                           radius: 8,
                           child: Padding(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(9),
                             child: Icon(
                               Icons.arrow_back_ios_new,
-                              size: 16,
+                              size: 15,
                               color: isDark
                                   ? AppColors.darkTextPrimary
                                   : AppColors.black500,
@@ -109,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage>
                       Expanded(
                         child: AppText(
                           text: l10n.settingsTitle,
-                          fontSize: 20,
+                          fontSize: 18 * s,
                           fontWeight: 700,
                           color: isDark
                               ? AppColors.darkTextPrimary
@@ -119,7 +125,7 @@ class _SettingsPageState extends State<SettingsPage>
                     ],
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingLarge),
+                const SizedBox(height: 12),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,
@@ -135,7 +141,7 @@ class _SettingsPageState extends State<SettingsPage>
                             title: l10n.settingsLanguage,
                             isDark: isDark,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 5),
                           ..._supportedLocales.map((locale) {
                             final currentLocale = context
                                 .watch<LocaleCubit>()
@@ -158,7 +164,7 @@ class _SettingsPageState extends State<SettingsPage>
                     ),
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingMedium),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,
@@ -174,7 +180,7 @@ class _SettingsPageState extends State<SettingsPage>
                             title: l10n.settingsTheme,
                             isDark: isDark,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 5),
                           BlocBuilder<ThemeCubit, ThemeMode>(
                             builder: (context, themeMode) {
                               final isDarkMode = themeMode == ThemeMode.dark;
@@ -218,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage>
                     ),
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingMedium),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,
@@ -234,7 +240,7 @@ class _SettingsPageState extends State<SettingsPage>
                             title: l10n.permissionsTitle,
                             isDark: isDark,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 5),
                           _PermissionTile(
                             icon: Icons.notifications_none,
                             title: l10n.permissionNotification,
@@ -267,11 +273,19 @@ class _SettingsPageState extends State<SettingsPage>
                     ),
                   ),
                 ),
+                // Pastdagi suzuvchi bottom-nav ortida kontent qolib ketmasligi uchun.
+                SizedBox(height: 110 + MediaQuery.paddingOf(context).bottom),
               ],
             ),
       ),
     );
   }
+}
+
+/// Ekran kengligiga qarab o'lchamlarni moslashtiruvchi koeffitsiyent (responsiv).
+double _settingsScale(BuildContext context) {
+  final w = MediaQuery.sizeOf(context).width;
+  return (w / 390).clamp(0.85, 1.12);
 }
 
 class _SettingsSectionTitle extends StatelessWidget {
@@ -285,10 +299,10 @@ class _SettingsSectionTitle extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         child: AppText(
           text: title,
-          fontSize: 14,
+          fontSize: 12.5 * _settingsScale(context),
           fontWeight: 600,
           color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
         ),
@@ -320,32 +334,140 @@ class _LanguageTile extends StatelessWidget {
         return 'Русский';
       case 'en':
         return 'English';
+      case 'kaa':
+        return 'Qaraqalpaqsha';
+      case 'tg':
+        return 'Тоҷикӣ';
+      case 'kk':
+        return 'Қазақша';
       default:
         return code.toUpperCase();
     }
   }
 
+  /// Tilning ona tilidagi (yoki mintaqaviy) izohi — ikkilamchi matn.
+  static String _languageSubtitle(String code) {
+    switch (code) {
+      case 'uz':
+        return 'Uzbek';
+      case 'ru':
+        return 'Russian';
+      case 'en':
+        return 'English';
+      case 'kaa':
+        return 'Karakalpak';
+      case 'tg':
+        return 'Tajik';
+      case 'kk':
+        return 'Kazakh';
+      default:
+        return code.toUpperCase();
+    }
+  }
+
+  static String _flagAsset(String code) {
+    switch (code) {
+      case 'uz':
+        return AppAssets.flagUz;
+      case 'ru':
+        return AppAssets.flagRu;
+      case 'en':
+        return AppAssets.flagEn;
+      case 'kaa':
+        return AppAssets.flagKaa;
+      case 'tg':
+        return AppAssets.flagTg;
+      case 'kk':
+        return AppAssets.flagKk;
+      default:
+        return AppAssets.flagUz;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
+    final s = _settingsScale(context);
+    final flagSize = 30.0 * s;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      margin: EdgeInsets.symmetric(vertical: 2 * s),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? primaryColor.withValues(alpha: isDark ? 0.18 : 0.08)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-          child: Row(
-            children: [
-              AppText(
-                text: _languageName(locale.languageCode),
-                fontSize: 16,
-                fontWeight: isSelected ? 700 : 500,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.black500,
-              ),
-              const Spacer(),
-              if (isSelected)
-                Icon(Icons.check_circle, size: 22, color: primaryColor),
-            ],
+        border: Border.all(
+          color: isSelected
+              ? primaryColor.withValues(alpha: 0.45)
+              : Colors.transparent,
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 9 * s, horizontal: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: flagSize,
+                  height: flagSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.white.withValues(alpha: 0.12)
+                          : AppColors.black500.withValues(alpha: 0.08),
+                      width: 1,
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: SvgPicture.asset(
+                    _flagAsset(locale.languageCode),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(width: 12 * s),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: _languageName(locale.languageCode),
+                        fontSize: 14 * s,
+                        fontWeight: isSelected ? 700 : 500,
+                        color: isSelected
+                            ? primaryColor
+                            : (isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.black500),
+                      ),
+                      SizedBox(height: 1 * s),
+                      AppText(
+                        text: _languageSubtitle(locale.languageCode),
+                        fontSize: 11 * s,
+                        fontWeight: 400,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+                AnimatedScale(
+                  duration: const Duration(milliseconds: 180),
+                  scale: isSelected ? 1 : 0,
+                  child: Icon(
+                    Icons.check_circle,
+                    size: 20 * s,
+                    color: primaryColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -372,6 +494,7 @@ class _ThemeOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = _settingsScale(context);
     return Material(
       color: isSelected
           ? (primaryColor.withValues(alpha: 0.15))
@@ -381,22 +504,22 @@ class _ThemeOptionTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          padding: EdgeInsets.symmetric(vertical: 11 * s, horizontal: 12),
           child: Column(
             children: [
               Icon(
                 icon,
-                size: 28,
+                size: 23 * s,
                 color: isSelected
                     ? primaryColor
                     : (isDark
                           ? AppColors.darkTextSecondary
                           : AppColors.textSecondary),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 6 * s),
               AppText(
                 text: label,
-                fontSize: 14,
+                fontSize: 13 * s,
                 fontWeight: isSelected ? 700 : 500,
                 color: isDark
                     ? (isSelected ? primaryColor : AppColors.darkTextPrimary)
@@ -426,6 +549,7 @@ class _PermissionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final s = _settingsScale(context);
     final bool isGranted = status.isGranted || status.isLimited;
     return Material(
       color: Colors.transparent,
@@ -433,7 +557,7 @@ class _PermissionTile extends StatelessWidget {
         onTap: () => openAppSettings(),
         borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          padding: EdgeInsets.symmetric(vertical: 9 * s, horizontal: 12),
           child: Row(
             children: [
               Icon(
@@ -441,25 +565,25 @@ class _PermissionTile extends StatelessWidget {
                 color: isDark
                     ? AppColors.darkTextSecondary
                     : AppColors.textSecondary,
-                size: 24,
+                size: 21 * s,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 12 * s),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppText(
                       text: title,
-                      fontSize: 16,
+                      fontSize: 14 * s,
                       fontWeight: 500,
                       color: isDark
                           ? AppColors.darkTextPrimary
                           : AppColors.black500,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 2 * s),
                     AppText(
                       text: isGranted ? l10n.permissionGranted : l10n.permissionDenied,
-                      fontSize: 12,
+                      fontSize: 11 * s,
                       fontWeight: 400,
                       color: isGranted
                           ? AppColors.green
@@ -473,7 +597,7 @@ class _PermissionTile extends StatelessWidget {
                 color: isDark
                     ? AppColors.darkTextSecondary
                     : AppColors.textSecondary,
-                size: 20,
+                size: 18 * s,
               ),
             ],
           ),

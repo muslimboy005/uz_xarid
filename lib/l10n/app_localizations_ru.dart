@@ -221,7 +221,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addListingWidth => 'Ширина';
 
   @override
-  String get addToCart => 'Add to Cart';
+  String get addToCart => 'В корзину';
 
   @override
   String get addressAdd => 'Добавить';

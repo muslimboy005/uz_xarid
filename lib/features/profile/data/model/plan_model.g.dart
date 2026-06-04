@@ -34,19 +34,35 @@ Map<String, dynamic> _$PlanDataToJson(PlanData instance) => <String, dynamic>{
 PlanModel _$PlanModelFromJson(Map<String, dynamic> json) => PlanModel(
   id: (json['id'] as num).toInt(),
   name: json['name'] as String,
-  price: json['price'] as String,
-  isActive: json['is_active'] as bool,
-  features: (json['features'] as List<dynamic>)
-      .map((e) => PlanFeatureModel.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  isPurchased: json['is_purchased'] as bool,
+  type: json['type'] as String? ?? '',
+  price: json['price'] as String? ?? '0.00',
+  discountPercent: json['discount_percent'] as String? ?? '0.00',
+  finalPrice: json['final_price'] as String? ?? '0.00',
+  currencyPrice: json['currency_price'] as String? ?? '0.00',
+  currency: json['currency'] as String? ?? 'uzs',
+  durationDays: (json['duration_days'] as num?)?.toInt() ?? 0,
+  isActive: json['is_active'] as bool? ?? true,
+  isUrgent: json['is_urgent'] as bool? ?? false,
+  features:
+      (json['features'] as List<dynamic>?)
+          ?.map((e) => PlanFeatureModel.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  isPurchased: json['is_purchased'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$PlanModelToJson(PlanModel instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
+  'type': instance.type,
   'price': instance.price,
+  'discount_percent': instance.discountPercent,
+  'final_price': instance.finalPrice,
+  'currency_price': instance.currencyPrice,
+  'currency': instance.currency,
+  'duration_days': instance.durationDays,
   'is_active': instance.isActive,
+  'is_urgent': instance.isUrgent,
   'features': instance.features,
   'is_purchased': instance.isPurchased,
 };

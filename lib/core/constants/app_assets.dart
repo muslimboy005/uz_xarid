@@ -35,6 +35,9 @@ class AppAssets {
   static const String flagEn = '${_svg}flag_en.svg';
   static const String flagRu = '${_svg}flag_ru.svg';
   static const String flagUz = '${_svg}flag_uz.svg';
+  static const String flagKaa = '${_svg}flag_kaa.svg';
+  static const String flagTg = '${_svg}flag_tg.svg';
+  static const String flagKk = '${_svg}flag_kk.svg';
   static const String forum = '${_svg}forum.svg';
   static const String frame = '${_svg}frame.svg';
   static const String heartOutline = '${_svg}heart_outline.svg';

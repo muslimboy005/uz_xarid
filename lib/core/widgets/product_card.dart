@@ -119,21 +119,24 @@ class ProductCard extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 child: Stack(
                   children: [
-                    SizedBox(
-                      height: layout.imageHeight,
-                      width: double.infinity,
-                      child: AppImage(
-                        path: mainImage ?? '',
-                        fit: BoxFit.cover,
-                        errorWidget: Container(
-                          color: isDark
-                              ? AppColors.darkSurface
-                              : AppColors.black50,
-                          child: Center(
-                            child: Icon(
-                              Icons.image,
-                              color: context.textSecondary,
-                              size: layout.isCompact ? 32 : 40,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: SizedBox(
+                        height: layout.imageHeight,
+                        width: double.infinity,
+                        child: AppImage(
+                          path: mainImage ?? '',
+                          fit: BoxFit.cover,
+                          errorWidget: Container(
+                            color: isDark
+                                ? AppColors.darkSurface
+                                : AppColors.black50,
+                            child: Center(
+                              child: Icon(
+                                Icons.image,
+                                color: context.textSecondary,
+                                size: layout.isCompact ? 32 : 40,
+                              ),
                             ),
                           ),
                         ),

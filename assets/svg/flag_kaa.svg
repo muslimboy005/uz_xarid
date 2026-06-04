@@ -1,0 +1,21 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask_kaa" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20">
+<circle cx="10" cy="10" r="10" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask_kaa)">
+<rect width="20" height="20" fill="#0091DA"/>
+<rect y="6.5" width="20" height="0.8" fill="#DD2033"/>
+<rect y="7.3" width="20" height="5.4" fill="#FFCC00"/>
+<rect y="12.7" width="20" height="0.8" fill="#DD2033"/>
+<rect y="13.5" width="20" height="6.5" fill="#009B77"/>
+<circle cx="5.2" cy="3.6" r="1.7" fill="#F5F7F8"/>
+<circle cx="5.85" cy="3.6" r="1.42" fill="#0091DA"/>
+<g fill="#F5F7F8">
+<circle cx="7.7" cy="2.2" r="0.3"/>
+<circle cx="8.65" cy="2.75" r="0.3"/>
+<circle cx="9.15" cy="3.7" r="0.3"/>
+<circle cx="8.65" cy="4.65" r="0.3"/>
+<circle cx="7.7" cy="5.0" r="0.3"/>
+</g>
+</g>
+</svg>

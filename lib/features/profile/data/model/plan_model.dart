@@ -38,9 +38,21 @@ class PlanData {
 class PlanModel {
   final int id;
   final String name;
+  final String type;
   final String price;
+  @JsonKey(name: 'discount_percent')
+  final String discountPercent;
+  @JsonKey(name: 'final_price')
+  final String finalPrice;
+  @JsonKey(name: 'currency_price')
+  final String currencyPrice;
+  final String currency;
+  @JsonKey(name: 'duration_days')
+  final int durationDays;
   @JsonKey(name: 'is_active')
   final bool isActive;
+  @JsonKey(name: 'is_urgent')
+  final bool isUrgent;
   final List<PlanFeatureModel> features;
   @JsonKey(name: 'is_purchased')
   final bool isPurchased;
@@ -48,11 +60,24 @@ class PlanModel {
   PlanModel({
     required this.id,
     required this.name,
+    this.type = '',
     required this.price,
+    this.discountPercent = '0.00',
+    this.finalPrice = '0.00',
+    this.currencyPrice = '0.00',
+    this.currency = 'uzs',
+    this.durationDays = 0,
     required this.isActive,
+    this.isUrgent = false,
     required this.features,
     required this.isPurchased,
   });
+
+  /// Chegirma foizi (raqamli).
+  double get discountValue => double.tryParse(discountPercent) ?? 0;
+
+  /// Chegirma mavjudligi.
+  bool get hasDiscount => discountValue > 0;
 
   factory PlanModel.fromJson(Map<String, dynamic> json) =>
       _$PlanModelFromJson(json);
