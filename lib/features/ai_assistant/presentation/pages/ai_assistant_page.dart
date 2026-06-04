@@ -8,6 +8,7 @@ import 'package:uzxarid/features/ai_assistant/domain/entities/ai_message.dart';
 import 'package:uzxarid/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
 import 'package:uzxarid/features/ai_assistant/presentation/bloc/ai_assistant_event.dart';
 import 'package:uzxarid/features/ai_assistant/presentation/bloc/ai_assistant_state.dart';
+import 'package:uzxarid/features/ai_assistant/presentation/widgets/robot_mascot.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
 // Web URL → mobile route name. Locale prefix is stripped before lookup.
@@ -48,6 +49,7 @@ class AiAssistantPage extends StatefulWidget {
 class _AiAssistantPageState extends State<AiAssistantPage> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
   bool _hasText = false;
   bool _greeted = false;
 
@@ -141,10 +143,13 @@ class _AiAssistantPageState extends State<AiAssistantPage> {
                       color: primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      Icons.auto_awesome,
-                      color: primary,
-                      size: 22,
+                    // Leadingdagi kichik 2D robot — doim shu yerda turadi va
+                    // sekin harakatlanadi (bodyga tushmaydi).
+                    child: const Center(
+                      child: RobotMascot(
+                        size: Size(34, 42),
+                        flat: true,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
