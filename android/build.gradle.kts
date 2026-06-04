@@ -6,8 +6,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // AAR bor bo‘lsa Nexus kerak emas (Cloudflare Gradle ni ko‘pincha bloklaydi).
-        if (!yuzFaceDetectionAar.exists()) {
+        // Use local AAR file if it exists
+        if (yuzFaceDetectionAar.exists()) {
+            maven {
+                url = rootProject.layout.projectDirectory.file("yuzid_libs").asFile.toURI()
+            }
+        } else {
+            // AAR yo’q bo’lsa Nexus dan yukla (Cloudflare Gradle ni ko’pincha bloklaydi).
             maven {
                 url = uri("https://nexus.yt.uz/repository/maven-public/")
                 credentials {

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -659,12 +658,15 @@ class _LiquidGlassNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glassFill = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.white.withValues(alpha: 0.72);
+    // Opaque (blursiz) fon: BackdropFilter ba'zi Android qurilmalarida
+    // (Impeller) noto'g'ri render bo'lib oq quti chiqarib yuboradi va
+    // navigatsiya elementlarini yopib qo'yadi. Shuning uchun to'q fon.
+    final navFill = isDark
+        ? const Color(0xFF1E1E1E)
+        : Colors.white;
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.10)
-        : Colors.white.withValues(alpha: 0.55);
+        : Colors.black.withValues(alpha: 0.06);
 
     return SafeArea(
       top: false,
@@ -673,37 +675,34 @@ class _LiquidGlassNavBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(36),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              decoration: BoxDecoration(
-                color: glassFill,
-                borderRadius: BorderRadius.circular(36),
-                border: Border.all(color: borderColor, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: navFill,
+              borderRadius: BorderRadius.circular(36),
+              border: Border.all(color: borderColor, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(items.length, (i) {
+                final isSelected = currentIndex == i;
+                return Flexible(
+                  child: _PillNavTab(
+                    item: items[i],
+                    isSelected: isSelected,
+                    selectedColor: selectedColor,
+                    unselectedColor: unselectedColor,
+                    onTap: () => onTap(i),
                   ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(items.length, (i) {
-                  final isSelected = currentIndex == i;
-                  return Flexible(
-                    child: _PillNavTab(
-                      item: items[i],
-                      isSelected: isSelected,
-                      selectedColor: selectedColor,
-                      unselectedColor: unselectedColor,
-                      onTap: () => onTap(i),
-                    ),
-                  );
-                }),
-              ),
+                );
+              }),
             ),
           ),
         ),

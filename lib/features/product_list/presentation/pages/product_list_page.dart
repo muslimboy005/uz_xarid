@@ -24,7 +24,20 @@ import 'package:uzxarid/features/product_list/domain/usecases/get_product_list.d
 import 'package:uzxarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
 import 'package:uzxarid/features/product_list/presentation/widgets/product_filter_sheet.dart';
 import 'package:uzxarid/features/product_list/presentation/widgets/product_list_map_view.dart';
+import 'package:uzxarid/features/product_list/presentation/widgets/product_list_tile_card.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
+
+/// E'lonlar ro'yxati ko'rinish rejimlari.
+enum ProductViewMode {
+  /// Hozirgi holat — 2 ustunli grid (default).
+  grid,
+
+  /// Bitta ustunli list tile ko'rinishi.
+  list,
+
+  /// Bir qatorda 3 ta karta — to'liq responsiv grid.
+  grid3,
+}
 
 class CategoryBreadcrumb {
   final String title;
@@ -80,6 +93,7 @@ class _ProductListPageState extends State<ProductListPage> {
   ProductFilterData? _activeFilter;
   bool _initialLoadDone = false;
   bool _mapViewMode = false;
+  ProductViewMode _viewMode = ProductViewMode.grid;
 
   @override
   void initState() {
@@ -442,10 +456,23 @@ class _ProductListPageState extends State<ProductListPage> {
       );
     }
     final searchHeader = Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: UzXaridSearchField(
-        hintText: l10n.searchHint,
-        onTap: () => context.push('/search'),
+      padding: const EdgeInsets.fromLTRB(8, 12, 16, 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            onPressed: _onBackTap,
+            color: context.textPrimary,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          ),
+          Expanded(
+            child: UzXaridSearchField(
+              hintText: l10n.searchHint,
+              onTap: () => context.push('/search'),
+            ),
+          ),
+        ],
       ),
     );
     if (_error != null && !_loading) {
@@ -469,31 +496,25 @@ class _ProductListPageState extends State<ProductListPage> {
     return [
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                onPressed: _onBackTap,
-                color: context.textPrimary,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              ),
               Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _currentTitle,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: context.textPrimary,
-                    ),
+                child: Text(
+                  _currentTitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    height: 1.15,
+                    color: context.textPrimary,
                   ),
                 ),
               ),
               _buildSortButton(context),
+              const SizedBox(width: 8),
+              _buildViewModeButton(context),
             ],
           ),
         ),
@@ -507,33 +528,137 @@ class _ProductListPageState extends State<ProductListPage> {
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
       ],
       if (_loading)
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          sliver: SliverGrid(
-            gridDelegate: AppResponsive.productGridDelegate(context),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => const ShimmerGridProductCard(),
-              childCount: 6,
-            ),
-          ),
-        )
+        _buildLoadingSliver(context)
       else if (_items.isEmpty)
         SliverFillRemaining(
           hasScrollBody: false,
           child: ProductsNotFoundPlaceholder(l10n: l10n),
         )
       else
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          sliver: SliverGrid(
-            gridDelegate: AppResponsive.productGridDelegate(context),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildCard(context, _items[index]),
-              childCount: _items.length,
-            ),
-          ),
-        ),
+        _buildItemsSliver(context),
     ];
+  }
+
+  Widget _buildLoadingSliver(BuildContext context) {
+    if (_viewMode == ProductViewMode.list) {
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => const Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: ShimmerGridProductCard(),
+          ),
+          childCount: 6,
+        ),
+      );
+    }
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      sliver: SliverGrid(
+        gridDelegate: _gridDelegateForMode(context),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => const ShimmerGridProductCard(),
+          childCount: 6,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemsSliver(BuildContext context) {
+    if (_viewMode == ProductViewMode.list) {
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: _buildListTile(context, _items[index]),
+          ),
+          childCount: _items.length,
+        ),
+      );
+    }
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      sliver: SliverGrid(
+        gridDelegate: _gridDelegateForMode(context),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _buildCard(context, _items[index]),
+          childCount: _items.length,
+        ),
+      ),
+    );
+  }
+
+  SliverGridDelegate _gridDelegateForMode(BuildContext context) {
+    if (_viewMode == ProductViewMode.grid3) {
+      return AppResponsive.productGridDelegateFixedCount(
+        context,
+        3,
+        extraContentHeight: 22,
+      );
+    }
+    return AppResponsive.productGridDelegate(context);
+  }
+
+  Widget _buildViewModeButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
+    final options = <(ProductViewMode, IconData, String)>[
+      (ProductViewMode.grid, Icons.grid_view_rounded, l10n.viewModeGrid),
+      (ProductViewMode.list, Icons.view_list_rounded, l10n.viewModeList),
+      (ProductViewMode.grid3, Icons.grid_on_rounded, l10n.viewModeGrid3),
+    ];
+    final current = options.firstWhere((o) => o.$1 == _viewMode);
+    return PopupMenuButton<ProductViewMode>(
+      color: context.cardSurface,
+      tooltip: '',
+      onSelected: (value) {
+        if (value == _viewMode) return;
+        setState(() => _viewMode = value);
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      offset: const Offset(0, 44),
+      itemBuilder: (_) => options
+          .map(
+            (o) => PopupMenuItem<ProductViewMode>(
+              value: o.$1,
+              child: Row(
+                children: [
+                  Icon(
+                    o.$2,
+                    size: 10,
+                    color: _viewMode == o.$1
+                        ? primaryColor
+                        : context.textPrimary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      o.$3,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.textPrimary,
+                        fontWeight: _viewMode == o.$1
+                            ? FontWeight.w700
+                            : FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  if (_viewMode == o.$1)
+                    Icon(Icons.check_rounded, color: primaryColor, size: 18),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: context.cardSurface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: context.borderColor),
+        ),
+        child: Icon(current.$2, size: 20, color: context.textPrimary),
+      ),
+    );
   }
 
   Widget _buildSortButton(BuildContext context) {
@@ -655,7 +780,7 @@ class _ProductListPageState extends State<ProductListPage> {
     }
 
     return SizedBox(
-      height: 100,
+      height: 116,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -675,7 +800,7 @@ class _ProductListPageState extends State<ProductListPage> {
 
   Widget _buildSecondarySubcategoriesStrip() {
     return SizedBox(
-      height: 100,
+      height: 116,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -840,6 +965,40 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
+  Widget _buildListTile(BuildContext context, ProductListItemEntity item) {
+    return BlocBuilder<FavoritesBloc, FavoritesState>(
+      buildWhen: (p, c) => p.isLiked(item.slug) != c.isLiked(item.slug),
+      builder: (context, s) => ProductListTileCard(
+        slug: item.slug,
+        title: item.title,
+        color: context.cardSurface,
+        mainImage: item.mainImage,
+        price: item.price,
+        finalPrice: item.finalPrice,
+        currency: item.currency,
+        rating: item.rating,
+        reviewCount: item.reviewCount,
+        isLiked: s.isLiked(item.slug),
+        onLikeTap: () => context.read<FavoritesBloc>().add(
+          FavoritesToggleRequested(
+            adSlug: item.slug,
+            adForLocal: FavoriteItemEntity(
+              slug: item.slug,
+              title: item.title,
+              mainImage: item.mainImage,
+              price: item.price,
+              finalPrice: item.finalPrice,
+              currency: item.currency,
+              rating: item.rating,
+              reviewCount: item.reviewCount,
+              isLiked: true,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCard(BuildContext context, ProductListItemEntity item) {
     return BlocBuilder<FavoritesBloc, FavoritesState>(
       buildWhen: (p, c) => p.isLiked(item.slug) != c.isLiked(item.slug),
@@ -904,10 +1063,8 @@ class _SubcategoryCard extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                flex: 2,
                 child: SizedBox(
                   width: double.infinity,
                   child: item.image != null && item.image!.isNotEmpty
@@ -923,22 +1080,17 @@ class _SubcategoryCard extends StatelessWidget {
                         ),
                 ),
               ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
-                  ),
-                  child: Text(
-                    item.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : context.textPrimary,
-                    ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
+                child: Text(
+                  item.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    height: 1.15,
+                    color: isSelected ? Colors.white : context.textPrimary,
                   ),
                 ),
               ),

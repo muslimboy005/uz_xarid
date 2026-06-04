@@ -35,8 +35,8 @@ class CatalogCategoryTile extends StatelessWidget {
           padding: EdgeInsets.only(
             left: horizontalPadding,
             right: AppDimens.paddingMedium,
-            top: AppDimens.paddingSmall2,
-            bottom: AppDimens.paddingSmall2,
+            top: 2,
+            bottom: 2,
           ),
           child: Row(
             children: [
@@ -45,13 +45,13 @@ class CatalogCategoryTile extends StatelessWidget {
                 child: (category.image != null && category.image!.isNotEmpty)
                     ? AppImage(
                         path: category.image!,
-                        width: 56,
-                        height: 56,
+                        width: 40,
+                        height: 40,
                         fit: BoxFit.cover,
                       )
                     : Container(
-                        width: 56,
-                        height: 56,
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
                           color: context.cardSurface,
                           border: Border.all(
@@ -75,18 +75,22 @@ class CatalogCategoryTile extends StatelessWidget {
                   category.displayName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    height: 1.15,
                     color: isExpanded ? AppColors.primary : textColor,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (category.hasChildren)
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_down : Icons.chevron_right,
-                  color: isExpanded ? AppColors.primary : textColor,
-                  size: 24,
-                ),
+              const SizedBox(width: 8),
+              Icon(
+                isExpanded
+                    ? Icons.keyboard_arrow_down
+                    : Icons.arrow_forward_ios,
+                color: isExpanded ? AppColors.primary : textColor,
+                size: isExpanded ? 24 : 16,
+              ),
             ],
           ),
         ),

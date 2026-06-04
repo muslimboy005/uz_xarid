@@ -72,15 +72,23 @@ class ProductCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: color ?? context.bodyBackground,
+        color: color ?? context.cardSurface,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : AppColors.cardBorderColor.withValues(alpha: 0.8),
+          width: 1,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       clipBehavior: Clip.antiAlias,
       child: LayoutBuilder(
@@ -98,6 +106,9 @@ class ProductCard extends StatelessWidget {
           );
 
           final oldPriceLineHeight = layout.oldPriceFontSize * 1.2;
+          // Sarlavha har doim 2 qatorlik joyni egallaydi — shunda narx/tugma
+          // kartalar bo'ylab bir xil chiziqda turadi (1 va 2 qatorli sarlavhalarda ham).
+          final titleBlockHeight = layout.titleFontSize * 1.2 * 2;
           final metaSpacing = layout.isCompact ? 8.0 : 14.0;
 
           return Column(
@@ -164,13 +175,13 @@ class ProductCard extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       layout.hPad,
-                      layout.isCompact ? 4 : 6,
+                      layout.isCompact ? 3 : 4,
                       layout.hPad,
                       2,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -197,7 +208,10 @@ class ProductCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Flexible(
+                        SizedBox(height: layout.isCompact ? 2 : 3),
+                        SizedBox(
+                          width: double.infinity,
+                          height: titleBlockHeight,
                           child: AppText(
                             text: title,
                             maxLines: 2,
@@ -208,6 +222,7 @@ class ProductCard extends StatelessWidget {
                             color: context.textPrimary,
                           ),
                         ),
+                        SizedBox(height: layout.isCompact ? 2 : 3),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,

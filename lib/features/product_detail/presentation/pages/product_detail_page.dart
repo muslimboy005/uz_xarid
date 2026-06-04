@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -95,6 +97,57 @@ String? _formatAuthorDate(String? raw, String localeCode) {
       : enMonths;
   final month = months[date.month - 1];
   return '${date.day} $month ${date.year}';
+}
+
+/// Atribut qiymati boolean (true/false) ekanligini aniqlaydi.
+/// 1 = true (Bor), -1 = false (Yo'q), 0 = boolean emas.
+int _attributeBoolSign(String raw) {
+  final v = raw.trim().toLowerCase();
+  if (v == 'true') return 1;
+  if (v == 'false') return -1;
+  return 0;
+}
+
+/// API dan kelgan atribut qiymatini tozalaydi:
+/// - `["BENZIN"]` -> `BENZIN`, `[50,""]` -> `50`, bir nechta bo'lsa `, ` bilan birlashtiradi
+/// - `true`/`false` -> tilga mos `Bor`/`Yo'q`
+String _formatAttributeValue(String raw, String yesLabel, String noLabel) {
+  final v = raw.trim();
+  if (v.isEmpty) return v;
+
+  final sign = _attributeBoolSign(v);
+  if (sign == 1) return yesLabel;
+  if (sign == -1) return noLabel;
+
+  String cleanItem(dynamic e) {
+    if (e == null) return '';
+    if (e is bool) return e ? yesLabel : noLabel;
+    return e.toString().trim();
+  }
+
+  // JSON ko'rinishidagi ro'yxat ("BENZIN" / 50 va h.k.)
+  if (v.startsWith('[') && v.endsWith(']')) {
+    try {
+      final decoded = jsonDecode(v);
+      if (decoded is List) {
+        final parts = decoded
+            .map(cleanItem)
+            .where((e) => e.isNotEmpty)
+            .toList();
+        return parts.join(', ');
+      }
+    } catch (_) {
+      // Qo'lda ajratish (noto'g'ri JSON bo'lsa)
+      final inner = v.substring(1, v.length - 1);
+      final parts = inner
+          .split(',')
+          .map((e) => e.replaceAll('"', '').replaceAll("'", '').trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+      return parts.join(', ');
+    }
+  }
+  return v;
 }
 
 /// Mening e'lonlarimdan 404 bo'lganda ko'rsatish uchun MyListingItemDto -> AdDetailEntity.
@@ -624,9 +677,12 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     );
   }
 
-  /// Avto / mototexnika: API `attributes` (MARKA, MODEL, PROBEG …) — veb-saytdagi chip uslubi.
+  /// Avto / mototexnika / ko'chmas mulk: API `attributes` (MARKA, MODEL, PROBEG …).
+  /// Ro'yxat (`["BENZIN"]`) va boolean (`true`/`false`) qiymatlari tozalanadi va
+  /// tilga moslab ko'rsatiladi.
   Widget _buildVehicleAttributesSection() {
     if (ad.attributes.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
     final textPrimary = context.textPrimary;
     final textSecondary = context.textSecondary;
     final borderColor = context.borderColor;
@@ -634,46 +690,136 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
       color: textSecondary,
       fontWeight: FontWeight.w600,
-      letterSpacing: 0.4,
+      letterSpacing: 0.3,
+      fontSize: 11,
     );
     final valueStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
       color: textPrimary,
       fontWeight: FontWeight.w700,
-      height: 1.25,
+      height: 1.2,
     );
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: ad.attributes.map((a) {
-        final labelLower = a.label.toLowerCase();
-        final isMileageLike =
-            labelLower.contains('probeg') || labelLower.contains('mileage');
-        final displayValue = (isMileageLike && a.value.isNotEmpty)
-            ? formatThousands(a.value)
-            : a.value;
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Sarlavha + primary rangli accent chiziq.
+        Text(
+          l10n.productDetailSpecifications,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: 44,
+          height: 3,
           decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: borderColor),
+            color: _primaryColor,
+            borderRadius: BorderRadius.circular(2),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                a.label.toUpperCase(),
-                style: labelStyle,
-              ),
-              if (displayValue.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(displayValue, style: valueStyle),
-              ],
-            ],
-          ),
-        );
-      }).toList(),
+        ),
+        const SizedBox(height: 14),
+        // Bir xil kenglikdagi 2 ustunli grid.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const spacing = 10.0;
+            final itemWidth = (constraints.maxWidth - spacing) / 2;
+            return Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
+              children: ad.attributes.map((a) {
+                final raw = a.value.trim();
+                final boolSign = _attributeBoolSign(raw);
+                final isBool = boolSign != 0;
+                final labelLower = a.label.toLowerCase();
+                final isMileageLike =
+                    labelLower.contains('probeg') ||
+                    labelLower.contains('mileage');
+                var displayValue = _formatAttributeValue(
+                  raw,
+                  l10n.attributeYes,
+                  l10n.attributeNo,
+                );
+                if (isMileageLike && !isBool && displayValue.isNotEmpty) {
+                  displayValue = formatThousands(displayValue);
+                }
+                final boolColor = boolSign == 1
+                    ? AppColors.green
+                    : AppColors.red;
+                final accentColor = isBool ? boolColor : _primaryColor;
+                return SizedBox(
+                  width: itemWidth,
+                  child: Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Chap tomonda rangli accent chiziq.
+                          Container(
+                            width: 3,
+                            color: accentColor.withValues(alpha: 0.85),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 11,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    a.label.toUpperCase(),
+                                    style: labelStyle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (displayValue.isNotEmpty) ...[
+                                    const SizedBox(height: 5),
+                                    if (isBool)
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            boolSign == 1
+                                                ? Icons.check_circle_rounded
+                                                : Icons.cancel_rounded,
+                                            size: 16,
+                                            color: boolColor,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            displayValue,
+                                            style: valueStyle?.copyWith(
+                                              color: boolColor,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    else
+                                      Text(displayValue, style: valueStyle),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -960,16 +1106,16 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: CartCounter(adSlug: ad.slug, height: 48),
-              ),
+              Expanded(child: CartCounter(adSlug: ad.slug, height: 48)),
               const SizedBox(width: 12),
               Expanded(
                 child: ContainerW(
                   onTap: () {
                     final cartState = context.read<CartBloc>().state;
                     final cartItem = cartState.items
-                        .where((e) => e.adSlug == ad.slug && e.variantId == null)
+                        .where(
+                          (e) => e.adSlug == ad.slug && e.variantId == null,
+                        )
                         .firstOrNull;
                     final qty = (cartItem?.quantity ?? 0) > 0
                         ? cartItem!.quantity
@@ -1965,7 +2111,11 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             if (ad.address != null && ad.address!.isNotEmpty) ...[
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined, size: 18, color: context.textSecondary),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 18,
+                    color: context.textSecondary,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -2009,7 +2159,10 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                               decoration: BoxDecoration(
                                 color: _primaryColor,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 3),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.25),
@@ -2193,7 +2346,6 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     );
   }
 }
-
 
 class _LocationButton extends StatelessWidget {
   const _LocationButton({

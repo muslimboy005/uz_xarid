@@ -133,6 +133,7 @@ class CatalogRepositoryImpl implements CatalogRepository {
                     name: (m['name'] ?? '').toString(),
                     image: ImageParser.parse(m['image']),
                     children: const [],
+                    hasChildren: m['has_children'] as bool?,
                   ),
                 );
               }

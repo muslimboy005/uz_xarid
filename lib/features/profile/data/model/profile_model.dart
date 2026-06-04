@@ -97,6 +97,8 @@ class User {
   final String accountType;
   final String role;
   final String avatar;
+  final String dateOfBirth;
+  final String address;
 
   User({
     this.id,
@@ -117,6 +119,8 @@ class User {
     this.accountType = 'basic',
     this.role = 'user',
     this.avatar = '',
+    this.dateOfBirth = '',
+    this.address = '',
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -149,7 +153,17 @@ class User {
       accountType: json['account_type'] ?? 'basic',
       role: json['role'] ?? 'user',
       avatar: ImageParser.parse(json['avatar']) ?? '',
+      dateOfBirth: json['date_of_birth']?.toString() ?? '',
+      address: _parseDidoxAddress(json['didox']),
     );
+  }
+
+  // Propiska (yashash manzili) didox ma'lumotidan olinadi
+  static String _parseDidoxAddress(dynamic didox) {
+    if (didox is Map && didox['address'] != null) {
+      return didox['address'].toString().trim();
+    }
+    return '';
   }
 
   Map<String, dynamic> toJson() {
@@ -172,6 +186,8 @@ class User {
       'account_type': accountType,
       'role': role,
       'avatar': avatar,
+      'date_of_birth': dateOfBirth,
+      if (address.isNotEmpty) 'didox': {'address': address},
     };
   }
 }

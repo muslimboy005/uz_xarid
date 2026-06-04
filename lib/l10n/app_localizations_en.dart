@@ -971,6 +971,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneLabel => 'Phone';
 
   @override
+  String get attributeYes => 'Yes';
+
+  @override
+  String get attributeNo => 'No';
+
+  @override
+  String get productDetailSpecifications => 'Specifications';
+
+  @override
   String get productDetailCall => 'Call';
 
   @override
@@ -1185,6 +1194,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profilePhotoLabel => 'Profile Photo';
 
   @override
+  String get profileResidenceLabel => 'Registration address';
+
+  @override
   String get profileStreetHint => 'Enter street';
 
   @override
@@ -1330,6 +1342,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sortTitle => 'Sort';
+
+  @override
+  String get viewModeGrid => 'Grid (2 per row)';
+
+  @override
+  String get viewModeList => 'List';
+
+  @override
+  String get viewModeGrid3 => 'Grid (3 per row)';
 
   @override
   String get streetHint => 'Enter street';

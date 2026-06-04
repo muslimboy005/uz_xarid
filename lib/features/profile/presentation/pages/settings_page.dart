@@ -79,7 +79,8 @@ class _SettingsPageState extends State<SettingsPage>
 
     return UzXaridScaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.black50,
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 16),
@@ -268,6 +269,7 @@ class _SettingsPageState extends State<SettingsPage>
                 ),
               ],
             ),
+      ),
     );
   }
 }

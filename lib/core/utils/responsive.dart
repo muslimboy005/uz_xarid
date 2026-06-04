@@ -50,7 +50,7 @@ class AppResponsive {
   static double homeFloatingHeaderHeight(BuildContext context) {
     const toggle = 44.0;
     const gap = 8.0;
-    const search = 44.0;
+    const search = 40.0;
     const padding = 6.0;
     final scale = textScale(context).clamp(1.0, 1.35);
     return padding + toggle + gap + search * scale + 4;
@@ -88,12 +88,12 @@ class AppResponsive {
   }) {
     final scale = textScale(context).clamp(1.0, 1.35);
     final compact = cellWidth < 165;
-    final imageH = cellWidth * (showCartButton ? 0.5 : 0.54);
-    final metaH = (compact ? 16.0 : 18.0) * scale;
-    final titleH = (compact ? 32.0 : 36.0) * scale;
-    final priceH = (compact ? 38.0 : 44.0) * scale;
-    final cartH = showCartButton ? (compact ? 42.0 : 48.0) : 10.0;
-    final padding = compact ? 16.0 : 20.0;
+    final imageH = cellWidth * (showCartButton ? 0.54 : 0.58);
+    final metaH = (compact ? 14.0 : 16.0) * scale;
+    final titleH = (compact ? 28.0 : 30.0) * scale;
+    final priceH = (compact ? 30.0 : 34.0) * scale;
+    final cartH = showCartButton ? (compact ? 40.0 : 44.0) : 8.0;
+    final padding = compact ? 8.0 : 10.0;
     return imageH + metaH + titleH + priceH + cartH + padding + extraContentHeight;
   }
 
@@ -129,6 +129,34 @@ class AppResponsive {
         extraContentHeight: extraContentHeight,
         padding: padding,
       ),
+    );
+  }
+
+  /// Berilgan ustunlar soni bilan moslashuvchan grid (masalan: bir qatorda 3 ta
+  /// karta). Katak kengligi ekran kengligidan hisoblanadi — to'liq responsiv.
+  static SliverGridDelegate productGridDelegateFixedCount(
+    BuildContext context,
+    int crossAxisCount, {
+    bool showCartButton = true,
+    double extraContentHeight = 0,
+    double? padding,
+  }) {
+    final cross = crossAxisCount < 1 ? 1 : crossAxisCount;
+    final spacing = productGridSpacing(context);
+    final pad = padding ?? horizontalPadding(context);
+    final w = screenWidth(context);
+    final cellW = (w - pad * 2 - spacing * (cross - 1)) / cross;
+    final cellH = estimatedProductCardHeight(
+      context,
+      cellWidth: cellW,
+      showCartButton: showCartButton,
+      extraContentHeight: extraContentHeight,
+    );
+    return SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: cross,
+      crossAxisSpacing: spacing,
+      mainAxisSpacing: spacing,
+      childAspectRatio: cellW / cellH,
     );
   }
 
@@ -173,25 +201,25 @@ class AppResponsive {
     final cartHeight = (compact ? 34.0 : 40.0) * (scale > 1.15 ? 1.05 : 1.0);
     final hPad = compact ? 8.0 : 10.0;
     final iconSize = compact ? 12.0 : 14.0;
-    final metaFontSize = (compact ? 11.0 : 12.0) * scale.clamp(1.0, 1.2);
-    final titleFontSize = (compact ? 13.0 : 14.0) * scale.clamp(1.0, 1.2);
-    final oldPriceFontSize = (compact ? 10.5 : 11.5) * scale.clamp(1.0, 1.15);
-    final priceFontSize = (compact ? 15.0 : 18.0) * scale.clamp(1.0, 1.15);
+    final metaFontSize = (compact ? 10.0 : 11.0) * scale.clamp(1.0, 1.2);
+    final titleFontSize = (compact ? 12.0 : 13.0) * scale.clamp(1.0, 1.2);
+    final oldPriceFontSize = (compact ? 9.5 : 10.5) * scale.clamp(1.0, 1.15);
+    final priceFontSize = (compact ? 13.5 : 16.0) * scale.clamp(1.0, 1.15);
     final heartSize = compact ? 20.0 : 22.0;
     final heartInset = compact ? 8.0 : 12.0;
 
-    final textBlock = (compact ? 88.0 : 100.0) * scale.clamp(1.0, 1.25);
-    final cartBlock = showCartButton ? cartHeight + 10 : 8;
-    final verticalPad = hPad + 8;
+    final textBlock = (compact ? 74.0 : 84.0) * scale.clamp(1.0, 1.25);
+    final cartBlock = showCartButton ? cartHeight + 8 : 6;
+    final verticalPad = hPad + 6;
 
     double imageHeight;
     if (cardHeight != null && cardHeight.isFinite && cardHeight > 0) {
       imageHeight = (cardHeight - textBlock - cartBlock - verticalPad).clamp(
         narrow ? 56.0 : 64.0,
-        cardHeight * 0.58,
+        cardHeight * 0.62,
       );
     } else {
-      imageHeight = cardWidth * (showCartButton ? 0.5 : 0.54);
+      imageHeight = cardWidth * (showCartButton ? 0.54 : 0.58);
     }
 
     return ProductCardLayout(

@@ -1960,6 +1960,24 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get phoneLabel;
 
+  /// No description provided for @attributeYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get attributeYes;
+
+  /// No description provided for @attributeNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get attributeNo;
+
+  /// No description provided for @productDetailSpecifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Specifications'**
+  String get productDetailSpecifications;
+
   /// No description provided for @productDetailCall.
   ///
   /// In en, this message translates to:
@@ -2374,6 +2392,12 @@ abstract class AppLocalizations {
   /// **'Profile Photo'**
   String get profilePhotoLabel;
 
+  /// No description provided for @profileResidenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration address'**
+  String get profileResidenceLabel;
+
   /// No description provided for @profileStreetHint.
   ///
   /// In en, this message translates to:
@@ -2667,6 +2691,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sort'**
   String get sortTitle;
+
+  /// No description provided for @viewModeGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid (2 per row)'**
+  String get viewModeGrid;
+
+  /// No description provided for @viewModeList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get viewModeList;
+
+  /// No description provided for @viewModeGrid3.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid (3 per row)'**
+  String get viewModeGrid3;
 
   /// No description provided for @streetHint.
   ///

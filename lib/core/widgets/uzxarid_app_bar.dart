@@ -610,24 +610,37 @@ class UzXaridSearchField extends StatelessWidget {
     required this.hintText,
     this.onChanged,
     this.onTap,
+    this.height = 40,
   });
 
   final String hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    return _SearchField(hintText: hintText, onChanged: onChanged, onTap: onTap);
+    return _SearchField(
+      hintText: hintText,
+      onChanged: onChanged,
+      onTap: onTap,
+      height: height,
+    );
   }
 }
 
 class _SearchField extends StatelessWidget {
-  const _SearchField({required this.hintText, this.onChanged, this.onTap});
+  const _SearchField({
+    required this.hintText,
+    this.onChanged,
+    this.onTap,
+    this.height = 40,
+  });
 
   final String hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -637,10 +650,10 @@ class _SearchField extends StatelessWidget {
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
     return Container(
-      height: 44,
+      height: height,
       decoration: BoxDecoration(
         color: fillColor,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.08),
@@ -653,22 +666,20 @@ class _SearchField extends StatelessWidget {
         readOnly: onTap != null,
         onChanged: onChanged,
         onTap: onTap,
+        textAlignVertical: TextAlignVertical.center,
         style: TextStyle(
           color: isDark ? AppColors.darkTextPrimary : null,
-          fontSize: 14,
+          fontSize: 16,
         ),
         decoration: InputDecoration(
-          isDense: true,
+          isCollapsed: true,
           hintText: hintText,
           hintStyle: TextStyle(
             color: isDark ? AppColors.darkTextSecondary : null,
-            fontSize: 14,
+            fontSize: 16,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 10,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           prefixIcon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SvgPicture.asset(
@@ -679,9 +690,9 @@ class _SearchField extends StatelessWidget {
               colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(
+          prefixIconConstraints: BoxConstraints(
             minWidth: 40,
-            minHeight: 40,
+            minHeight: height,
           ),
           suffixIcon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -693,9 +704,9 @@ class _SearchField extends StatelessWidget {
               colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
           ),
-          suffixIconConstraints: const BoxConstraints(
+          suffixIconConstraints: BoxConstraints(
             minWidth: 40,
-            minHeight: 40,
+            minHeight: height,
           ),
         ),
       ),

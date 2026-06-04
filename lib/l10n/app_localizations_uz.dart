@@ -977,6 +977,15 @@ class AppLocalizationsUz extends AppLocalizations {
   String get phoneLabel => 'Telefon';
 
   @override
+  String get attributeYes => 'Bor';
+
+  @override
+  String get attributeNo => 'Yo\'q';
+
+  @override
+  String get productDetailSpecifications => 'Asosiy ma\'lumotlar';
+
+  @override
   String get productDetailCall => 'Qo\'ng\'iroq';
 
   @override
@@ -1195,6 +1204,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get profilePhotoLabel => 'Profil rasmi';
 
   @override
+  String get profileResidenceLabel => 'Yashash manzili (propiska)';
+
+  @override
   String get profileStreetHint => 'Ko\'chani kiriting';
 
   @override
@@ -1341,6 +1353,15 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get sortTitle => 'Saralash';
+
+  @override
+  String get viewModeGrid => 'Grid (qatorda 2 ta)';
+
+  @override
+  String get viewModeList => 'Ro‘yxat';
+
+  @override
+  String get viewModeGrid3 => 'Grid (qatorda 3 ta)';
 
   @override
   String get streetHint => 'Ko‘chani kiriting';

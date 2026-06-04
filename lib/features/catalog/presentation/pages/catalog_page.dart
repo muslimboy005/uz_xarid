@@ -42,6 +42,44 @@ class _CatalogPageState extends State<CatalogPage> {
   List<CategoryEntity> _searchResults = [];
   bool _isSearching = false;
 
+  /// Tugun ochilganda `category/?parent={id}&page_size=12&page=1` orqali
+  /// yuklangan bolalar keshi (id -> bolalar).
+  final Map<int, List<CategoryEntity>> _childrenCache = {};
+
+  /// Hozir bolalari yuklanayotgan turkum id lari.
+  final Set<int> _loadingChildrenIds = {};
+
+  /// Berilgan turkum uchun ko'rsatiladigan bolalar: kesh bo'lsa kesh,
+  /// aks holda oldindan yuklangan daraxtdagi bolalar.
+  List<CategoryEntity> _effectiveChildren(CategoryEntity category) =>
+      _childrenCache[category.id] ?? category.children;
+
+  /// Tugun ochilganda bolalarni yuqoridagi URL
+  /// (`category/?parent={id}&page_size=12&page=1`) ko'rinishida GET qiladi va
+  /// natijani keshlaydi. Yuklangan bolalar ro'yxatini qaytaradi.
+  Future<List<CategoryEntity>> _ensureChildren(
+    CategoryEntity category,
+    String categoryType,
+  ) async {
+    final cached = _childrenCache[category.id];
+    if (cached != null) return cached;
+
+    setState(() => _loadingChildrenIds.add(category.id));
+    final result = await getIt<CatalogRepository>().getCategoryChildren(
+      parentCategoryId: category.id,
+      categoryType: categoryType.isEmpty ? null : categoryType,
+    );
+    if (!mounted) return category.children;
+
+    var fetched = category.children;
+    result.either((_) {}, (list) => fetched = list);
+    setState(() {
+      _loadingChildrenIds.remove(category.id);
+      _childrenCache[category.id] = fetched;
+    });
+    return fetched;
+  }
+
   @override
   void dispose() {
     _searchDebounce?.cancel();
@@ -112,9 +150,11 @@ class _CatalogPageState extends State<CatalogPage> {
           );
           return UzXaridScaffold.slivers(
             backgroundColor: bodyBg,
+            floatingHeaderHeight: 60,
             floatingHeader: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: UzXaridSearchField(
+                height: 48,
                 hintText: 'Kategoriya qidirish...',
                 onChanged: (query) => _onSearchChanged(query, categoryType),
               ),
@@ -228,7 +268,7 @@ class _CatalogPageState extends State<CatalogPage> {
     }
     return [
       SliverPadding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         sliver: SliverList.separated(
           itemCount: _searchResults.length,
           separatorBuilder: (_, _) =>
@@ -236,9 +276,13 @@ class _CatalogPageState extends State<CatalogPage> {
           itemBuilder: (_, i) {
             final cat = _searchResults[i];
             return ListTile(
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              minVerticalPadding: 0,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               leading: Container(
-                width: 44,
-                height: 44,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: context.surfaceContainer,
                   borderRadius: BorderRadius.circular(8),
@@ -247,21 +291,26 @@ class _CatalogPageState extends State<CatalogPage> {
                 child: cat.image != null && cat.image!.isNotEmpty
                     ? AppImage(
                         path: cat.image!,
-                        size: 44,
+                        size: 36,
                         borderRadius: BorderRadius.circular(8),
                       )
                     : Icon(
                         Icons.category_outlined,
+                        size: 20,
                         color: context.textSecondary,
                       ),
               ),
               title: AppText(
                 text: cat.displayName,
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: 500,
                 color: context.textPrimary,
               ),
-              trailing: Icon(Icons.chevron_right, color: context.textSecondary),
+              trailing: Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: context.textSecondary,
+              ),
               onTap: () {
                 context.push(
                   '/products?categoryId=${cat.id}'
@@ -491,21 +540,30 @@ class _CatalogPageState extends State<CatalogPage> {
     for (var i = 0; i < categories.length; i++) {
       final category = categories[i];
       final isExpanded = _expandedByParentId[parentId] == category.id;
+      final effectiveChildren = _effectiveChildren(category);
+      final isLoadingChildren = _loadingChildrenIds.contains(category.id);
       list.add(
         CatalogCategoryTile(
           category: category,
           indentLevel: indentLevel,
           isExpanded: isExpanded,
-          onTap: () {
-            if (category.hasChildren) {
-              setState(() {
-                if (isExpanded) {
-                  _expandedByParentId[parentId] = null;
-                } else {
-                  _expandedByParentId[parentId] = category.id;
-                }
-              });
-            } else {
+          onTap: () async {
+            // Allaqachon ochiq bo'lsa — yopamiz.
+            if (isExpanded) {
+              setState(() => _expandedByParentId[parentId] = null);
+              return;
+            }
+            // Ochamiz va bolalarni endpoint orqali GET qilamiz.
+            setState(() => _expandedByParentId[parentId] = category.id);
+            final children = await _ensureChildren(
+              category,
+              state.categoryType,
+            );
+            if (!mounted) return;
+            // Bolasi yo'q (haqiqiy barg) — product list sahifaga o'tamiz.
+            if (children.isEmpty) {
+              setState(() => _expandedByParentId[parentId] = null);
+              if (!context.mounted) return;
               context.push(
                 '/products?categoryId=${category.id}&title=${Uri.encodeComponent(category.displayName)}&categoryType=${Uri.encodeComponent(state.categoryType)}',
               );
@@ -513,16 +571,34 @@ class _CatalogPageState extends State<CatalogPage> {
           },
         ),
       );
-      if (isExpanded && category.hasChildren) {
+      if (isExpanded) {
         final childIndent = indentLevel + 1;
         final horizontalPadding =
             AppDimens.paddingMedium + (childIndent * 16.0);
+        if (isLoadingChildren && effectiveChildren.isEmpty) {
+          list.add(
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: AppDimens.paddingMedium,
+              ),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+          );
+        }
         list.add(
           Material(
             color: context.cardSurface,
             child: InkWell(
               onTap: () {
-                final subcategories = category.children
+                final subcategories = effectiveChildren
                     .map(
                       (c) => {
                         'id': c.id,
@@ -578,14 +654,14 @@ class _CatalogPageState extends State<CatalogPage> {
           _buildExpandableCategoryItems(
             context,
             state,
-            category.children,
+            effectiveChildren,
             childIndent,
             category.id,
             l10n,
           ),
         );
       }
-      if (i < categories.length - 1 || (isExpanded && category.hasChildren)) {
+      if (i < categories.length - 1 || isExpanded) {
         list.add(
           Divider(
             height: 1,

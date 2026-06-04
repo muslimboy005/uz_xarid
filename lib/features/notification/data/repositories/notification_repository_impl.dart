@@ -85,6 +85,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       case null:
         return null;
     }
+    return null;
   }
 
   Map<String, dynamic> _extractDataMap(dynamic raw) {

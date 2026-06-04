@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
 import 'package:uzxarid/features/cart/presentation/bloc/cart_state.dart';
@@ -38,6 +39,7 @@ class CartCounter extends StatelessWidget {
   }
 
   Widget _buildAddButton(BuildContext context, bool isLoading) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     return GestureDetector(
       onTap: () {}, // Prevent propagation
       behavior: HitTestBehavior.opaque,
@@ -55,7 +57,7 @@ class CartCounter extends StatelessWidget {
                       ));
                 },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -71,9 +73,15 @@ class CartCounter extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : Text(
-                  AppLocalizations.of(context)!.addToCart,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    AppLocalizations.of(context)!.addToCart,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
         ),
       ),
@@ -81,6 +89,7 @@ class CartCounter extends StatelessWidget {
   }
 
   Widget _buildCounter(BuildContext context, int itemId, int quantity, bool isLoading) {
+    final primaryColor = context.watch<AppModeCubit>().state.primaryColor;
     return GestureDetector(
       onTap: () {}, // Prevent propagation
       behavior: HitTestBehavior.opaque,
@@ -88,15 +97,16 @@ class CartCounter extends StatelessWidget {
         width: width ?? double.infinity,
         height: height,
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+          color: primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Theme.of(context).primaryColor, width: 1.5),
+          border: Border.all(color: primaryColor, width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _ActionButton(
               icon: Icons.remove,
+              color: primaryColor,
               onPressed: isLoading
                   ? null
                   : () {
@@ -118,7 +128,7 @@ class CartCounter extends StatelessWidget {
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                         ),
                       )
                     : Text(
@@ -126,13 +136,14 @@ class CartCounter extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
+                          color: primaryColor,
                         ),
                       ),
               ),
             ),
             _ActionButton(
               icon: Icons.add,
+              color: primaryColor,
               onPressed: isLoading
                   ? null
                   : () {
@@ -151,17 +162,21 @@ class CartCounter extends StatelessWidget {
 
 class _ActionButton extends StatelessWidget {
   final IconData icon;
+  final Color color;
   final VoidCallback? onPressed;
 
-  const _ActionButton({required this.icon, this.onPressed});
+  const _ActionButton({required this.icon, required this.color, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
-      icon: Icon(icon, size: 20, color: Theme.of(context).primaryColor),
-      constraints: const BoxConstraints(),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      icon: Icon(icon, size: 20, color: color),
+      style: IconButton.styleFrom(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: const Size(32, 32),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+      ),
     );
   }
 }

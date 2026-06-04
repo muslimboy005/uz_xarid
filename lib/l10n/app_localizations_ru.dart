@@ -973,6 +973,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneLabel => 'Телефон';
 
   @override
+  String get attributeYes => 'Есть';
+
+  @override
+  String get attributeNo => 'Нет';
+
+  @override
+  String get productDetailSpecifications => 'Основные характеристики';
+
+  @override
   String get productDetailCall => 'Позвонить';
 
   @override
@@ -1190,6 +1199,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profilePhotoLabel => 'Фото профиля';
 
   @override
+  String get profileResidenceLabel => 'Адрес прописки';
+
+  @override
   String get profileStreetHint => 'Введите улицу';
 
   @override
@@ -1335,6 +1347,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sortTitle => 'Сортировка';
+
+  @override
+  String get viewModeGrid => 'Сетка (2 в ряд)';
+
+  @override
+  String get viewModeList => 'Список';
+
+  @override
+  String get viewModeGrid3 => 'Сетка (3 в ряд)';
 
   @override
   String get streetHint => 'Введите улицу';

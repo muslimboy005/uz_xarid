@@ -261,10 +261,11 @@ class _HomePageState extends State<HomePage> {
                           state.recommendations.isEmpty) {
                         return GridView.builder(
                           shrinkWrap: true,
+                          padding: EdgeInsets.zero,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate: AppResponsive.productGridDelegate(
                             context,
-                            showCartButton: false,
+                            showCartButton: true,
                           ),
                           itemCount: 4,
                           itemBuilder: (_, _) => const ShimmerGridProductCard(),
@@ -282,10 +283,11 @@ class _HomePageState extends State<HomePage> {
                       final hasOdd = items.length.isOdd;
                       return GridView.builder(
                         shrinkWrap: true,
+                        padding: EdgeInsets.zero,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: AppResponsive.productGridDelegate(
                           context,
-                          showCartButton: false,
+                          showCartButton: true,
                         ),
                         itemCount: items.length + (hasOdd ? 1 : 0),
                         itemBuilder: (context, index) {
@@ -300,7 +302,7 @@ class _HomePageState extends State<HomePage> {
                           }
                           return RecommendationCard(
                             item: items[index],
-                            showCartButton: false,
+                            showCartButton: true,
                             width: null,
                             height: null,
                           );
@@ -373,10 +375,11 @@ class _HomePageState extends State<HomePage> {
                           if (isLoading && items.isEmpty) {
                             return GridView.builder(
                               shrinkWrap: true,
+                              padding: EdgeInsets.zero,
                               physics: const NeverScrollableScrollPhysics(),
                               gridDelegate: AppResponsive.productGridDelegate(
                                 context,
-                                showCartButton: false,
+                                showCartButton: true,
                               ),
                               itemCount: 4,
                               itemBuilder: (_, _) =>
@@ -392,10 +395,11 @@ class _HomePageState extends State<HomePage> {
                           final hasOdd = items.length.isOdd;
                           return GridView.builder(
                             shrinkWrap: true,
+                            padding: EdgeInsets.zero,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate: AppResponsive.productGridDelegate(
                               context,
-                              showCartButton: false,
+                              showCartButton: true,
                             ),
                             itemCount: items.length + (hasOdd ? 1 : 0),
                             itemBuilder: (context, index) {
@@ -410,7 +414,7 @@ class _HomePageState extends State<HomePage> {
                               }
                               return RecommendationCard(
                                 item: items[index],
-                                showCartButton: false,
+                                showCartButton: true,
                                 width: null,
                                 height: null,
                               );
@@ -488,10 +492,11 @@ class _HomePageState extends State<HomePage> {
                           state.services.isEmpty) {
                         return GridView.builder(
                           shrinkWrap: true,
+                          padding: EdgeInsets.zero,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate: AppResponsive.productGridDelegate(
                             context,
-                            showCartButton: false,
+                            showCartButton: true,
                           ),
                           itemCount: 4,
                           itemBuilder: (_, _) => const ShimmerServiceCard(),
@@ -509,10 +514,11 @@ class _HomePageState extends State<HomePage> {
                       final hasOdd = items.length.isOdd;
                       return GridView.builder(
                         shrinkWrap: true,
+                        padding: EdgeInsets.zero,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: AppResponsive.productGridDelegate(
                           context,
-                          showCartButton: false,
+                          showCartButton: true,
                         ),
                         itemCount: items.length + (hasOdd ? 1 : 0),
                         itemBuilder: (context, index) {
@@ -527,7 +533,7 @@ class _HomePageState extends State<HomePage> {
                           }
                           return RecommendationCard(
                             item: items[index],
-                            showCartButton: false,
+                            showCartButton: true,
                             width: null,
                             height: null,
                           );
@@ -536,7 +542,11 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                const SizedBox(height: AppDimens.bottomNavClearance),
+                SizedBox(
+                  height:
+                      AppDimens.bottomNavClearance +
+                      MediaQuery.of(context).padding.bottom,
+                ),
               ],
             ),
           ),

@@ -262,16 +262,19 @@ class _WTextFieldState extends State<WTextField> {
     final effectiveFillColor = widget.fillColor ?? context.surfaceContainer;
 
     // TextFormField widgetini yaratish
+    final hasTitle = widget.title != null && widget.title!.isNotEmpty;
     final textField = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          text: widget.title ?? "",
-          color: textColor,
-          fontSize: 14,
-          fontWeight: 700,
-        ),
-        SizedBox(height: 8),
+        if (hasTitle) ...[
+          AppText(
+            text: widget.title!,
+            color: textColor,
+            fontSize: 14,
+            fontWeight: 700,
+          ),
+          const SizedBox(height: 8),
+        ],
         TextFormField(
           controller: widget.controller,
           focusNode: _focusNode,

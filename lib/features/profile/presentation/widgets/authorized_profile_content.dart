@@ -6,6 +6,7 @@ import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
+import 'package:uzxarid/core/face_session/face_session_flow.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/service/local_service.dart';
@@ -40,6 +41,21 @@ class AuthorizedProfileContent extends StatelessWidget {
       }
     }
 
+    Future<void> verifyFace() async {
+      final result = await runFaceSessionVerification(context);
+      if (!context.mounted) return;
+      if (result.isSuccess) {
+        context.read<ProfileBloc>().add(const ProfileLoadEvent());
+      } else {
+        final msg = result.message;
+        if (msg != null && msg.trim().isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(msg), backgroundColor: AppColors.red),
+          );
+        }
+      }
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,31 +69,33 @@ class AuthorizedProfileContent extends StatelessWidget {
                 fontWeight: 700,
                 color: textColor,
               ),
-              const SizedBox(width: 12),
-              ContainerW(
-                color: AppColors.blue500,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    children: [
-                      AppImage(path: AppAssets.labelImportant),
-                      const SizedBox(width: 8),
-                      AppText(
-                        text: l10n.profileBasicAccount,
-                        fontSize: 12,
-                        fontWeight: 500,
-                        color: AppColors.white,
-                      ),
-                    ],
+              if (user.accountType == 'basic') ...[
+                const SizedBox(width: 12),
+                ContainerW(
+                  color: AppColors.blue500,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        AppImage(path: AppAssets.labelImportant),
+                        const SizedBox(width: 8),
+                        AppText(
+                          text: l10n.profileBasicAccount,
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: AppColors.white,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: AppDimens.paddingLarge),
+          const SizedBox(height: AppDimens.paddingSmall2),
           ContainerW(
             color: cardColor,
             radius: 16,
@@ -91,30 +109,69 @@ class AuthorizedProfileContent extends StatelessWidget {
                     primaryColor: primaryColor,
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText(
-                        text: "${user.firstName} ${user.lastName}",
-                        fontSize: 16,
-                        fontWeight: 600,
-                        color: textColor,
-                      ),
-                      const SizedBox(height: 4),
-                      AppText(
-                        text: formatUzbekPhone(user.phone),
-                        fontSize: 12,
-                        fontWeight: 400,
-                        color: textSecondary,
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppText(
+                          text: "${user.firstName} ${user.lastName}",
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: textColor,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        AppText(
+                          text: formatUzbekPhone(user.phone),
+                          fontSize: 12,
+                          fontWeight: 400,
+                          color: textSecondary,
+                        ),
+                      ],
+                    ),
                   ),
+                  if (!user.isFaceVerified) ...[
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: verifyFace,
+                      child: ContainerW(
+                        color: primaryColor,
+                        radius: 24,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 8,
+                            top: 6,
+                            bottom: 6,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AppText(
+                                text: l10n.actionGo,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: AppColors.white,
+                              ),
+                              const SizedBox(width: 2),
+                              AppImage(
+                                path: AppAssets.backDropright,
+                                color: AppColors.white,
+                                size: 18,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
 
-          SizedBox(height: 22),
+          const SizedBox(height: AppDimens.paddingSmall),
           ContainerW(
             color: cardColor,
             radius: 16,
@@ -163,7 +220,7 @@ class AuthorizedProfileContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppDimens.paddingMedium),
+          const SizedBox(height: AppDimens.paddingSmall),
           ContainerW(
             radius: 16,
             gradient: LinearGradient(
@@ -215,7 +272,7 @@ class AuthorizedProfileContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppDimens.paddingMedium),
+          const SizedBox(height: AppDimens.paddingSmall),
           ContainerW(
             color: cardColor,
             radius: 16,
@@ -418,7 +475,7 @@ class _ProfileMenuItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 12),
         child: Row(
           children: [
             AppImage(path: icon, size: 24, color: textColor),

@@ -39,6 +39,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   final _avatarFile = ValueNotifier<File?>(null);
   final _selectedGender = ValueNotifier<String?>(null);
   final _selectedDate = ValueNotifier<DateTime?>(null);
+  final _propiska = ValueNotifier<String>('');
   final _serverAvatarUrl = ValueNotifier<String?>(null);
 
   bool _filledFromServer = false;
@@ -65,9 +66,11 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     if (profile.avatar.isNotEmpty) {
       _serverAvatarUrl.value = profile.avatar;
     }
-    if (profile.dateJoined != null) {
-      _selectedDate.value = profile.dateJoined;
+    final dob = DateTime.tryParse(profile.dateOfBirth);
+    if (dob != null) {
+      _selectedDate.value = dob;
     }
+    _propiska.value = profile.address;
   }
 
   @override
@@ -83,6 +86,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     _avatarFile.dispose();
     _selectedGender.dispose();
     _selectedDate.dispose();
+    _propiska.dispose();
     _serverAvatarUrl.dispose();
     super.dispose();
   }
@@ -99,18 +103,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       }
     } catch (e) {
       debugPrint('Image picker error: $e');
-    }
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate.value ?? DateTime(1990),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && mounted) {
-      _selectedDate.value = picked;
     }
   }
 
@@ -138,7 +130,6 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
         house: _houseController.text.trim(),
         district: _districtController.text.trim(),
         gender: _selectedGender.value,
-        birthDate: _formatDate(_selectedDate.value),
         avatarPath: _avatarFile.value?.path,
       ),
     );
@@ -217,118 +208,120 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                             ),
                           ),
                           // _sectionHeader(l10n.profilePersonalDataLabel),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           _card(
                             children: [
                               _avatarRow(),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               _label(l10n.profileFirstNameLabel),
-                              const SizedBox(height: 6),
-                              WTextField(
-                                controller: _firstNameController,
-                                hintText: l10n.profileFirstNameHint,
-                                keyboardType: TextInputType.name,
-                                enabled: !isLoading,
-                                fillColor: surfaceContainer,
-                                borderNoFocusColor: borderColor,
+                              const SizedBox(height: 4),
+                              _readOnlyController(
+                                _firstNameController,
+                                l10n.profileFirstNameHint,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               _label(l10n.profileLastNameLabel),
-                              const SizedBox(height: 6),
-                              WTextField(
-                                controller: _lastNameController,
-                                hintText: l10n.profileLastNameHint,
-                                keyboardType: TextInputType.name,
-                                enabled: !isLoading,
-                                fillColor: surfaceContainer,
-                                borderNoFocusColor: borderColor,
+                              const SizedBox(height: 4),
+                              _readOnlyController(
+                                _lastNameController,
+                                l10n.profileLastNameHint,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               _label(l10n.profileGenderLabel),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               _genderDropdown(isLoading),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               _label(l10n.profileBirthDateLabel),
-                              const SizedBox(height: 6),
-                              _dateField(isLoading),
+                              const SizedBox(height: 4),
+                              _dateField(),
+                              const SizedBox(height: 8),
+                              _label(l10n.profileResidenceLabel),
+                              const SizedBox(height: 4),
+                              _propiskaField(),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          _sectionHeader(l10n.profileContactDataLabel),
                           const SizedBox(height: 12),
+                          _sectionHeader(l10n.profileContactDataLabel),
+                          const SizedBox(height: 8),
                           _card(
                             children: [
                               _label(l10n.profilePhoneLabel),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               WTextField(
                                 controller: _phoneController,
                                 hintText: l10n.profilePhoneHint,
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [UzbekPhoneInputFormatter()],
                                 enabled: !isLoading,
+                                height: 44,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               _label(l10n.profileEmailLabel),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               WTextField(
                                 controller: _emailController,
                                 hintText: l10n.profileEmailHint,
                                 keyboardType: TextInputType.emailAddress,
                                 enabled: !isLoading,
+                                height: 44,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _sectionHeader(l10n.profileAddressSectionLabel),
+                          const SizedBox(height: 8),
+                          _card(
+                            children: [
+                              _label(l10n.profileCityLabel),
+                              const SizedBox(height: 4),
+                              WTextField(
+                                controller: _cityController,
+                                hintText: l10n.profileCityHint,
+                                enabled: !isLoading,
+                                height: 44,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
+                              ),
+                              const SizedBox(height: 8),
+                              _label(l10n.profileStreetLabel),
+                              const SizedBox(height: 4),
+                              WTextField(
+                                controller: _streetController,
+                                hintText: l10n.profileStreetHint,
+                                enabled: !isLoading,
+                                height: 44,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
+                              ),
+                              const SizedBox(height: 8),
+                              _label(l10n.profileHouseOrAptLabel),
+                              const SizedBox(height: 4),
+                              WTextField(
+                                controller: _houseController,
+                                hintText: l10n.profileHouseOrAptLabel,
+                                enabled: !isLoading,
+                                height: 44,
+                                fillColor: surfaceContainer,
+                                borderNoFocusColor: borderColor,
+                              ),
+                              const SizedBox(height: 8),
+                              _label(l10n.profileDistrictLabel),
+                              const SizedBox(height: 4),
+                              WTextField(
+                                controller: _districtController,
+                                hintText: l10n.profileDistrictHint,
+                                enabled: !isLoading,
+                                height: 44,
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _sectionHeader(l10n.profileAddressSectionLabel),
-                          const SizedBox(height: 12),
-                          _card(
-                            children: [
-                              _label(l10n.profileCityLabel),
-                              const SizedBox(height: 6),
-                              WTextField(
-                                controller: _cityController,
-                                hintText: l10n.profileCityHint,
-                                enabled: !isLoading,
-                                fillColor: surfaceContainer,
-                                borderNoFocusColor: borderColor,
-                              ),
-                              const SizedBox(height: 12),
-                              _label(l10n.profileStreetLabel),
-                              const SizedBox(height: 6),
-                              WTextField(
-                                controller: _streetController,
-                                hintText: l10n.profileStreetHint,
-                                enabled: !isLoading,
-                                fillColor: surfaceContainer,
-                                borderNoFocusColor: borderColor,
-                              ),
-                              const SizedBox(height: 12),
-                              _label(l10n.profileHouseOrAptLabel),
-                              const SizedBox(height: 6),
-                              WTextField(
-                                controller: _houseController,
-                                hintText: l10n.profileHouseOrAptLabel,
-                                enabled: !isLoading,
-                                fillColor: surfaceContainer,
-                                borderNoFocusColor: borderColor,
-                              ),
-                              const SizedBox(height: 12),
-                              _label(l10n.profileDistrictLabel),
-                              const SizedBox(height: 6),
-                              WTextField(
-                                controller: _districtController,
-                                hintText: l10n.profileDistrictHint,
-                                enabled: !isLoading,
-                                fillColor: surfaceContainer,
-                                borderNoFocusColor: borderColor,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
                         ],
                       ),
                     ),
@@ -342,9 +335,10 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Widget _avatarRow() {
-    return ValueListenableBuilder<File?>(
-      valueListenable: _avatarFile,
-      builder: (context, avatar, _) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([_avatarFile, _serverAvatarUrl]),
+      builder: (context, _) {
+        final avatar = _avatarFile.value;
         final l10n = AppLocalizations.of(context)!;
         ImageProvider? imageProvider;
         if (avatar != null) {
@@ -450,7 +444,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       valueListenable: _selectedGender,
       builder: (context, gender, _) {
         return Container(
-          height: 48,
+          height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: surfaceContainer,
@@ -491,47 +485,79 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     );
   }
 
-  Widget _dateField(bool disabled) {
+  // Tug'ilgan sana - faqat ko'rsatish uchun (o'zgartirib bo'lmaydi)
+  Widget _dateField() {
+    return ValueListenableBuilder<DateTime?>(
+      valueListenable: _selectedDate,
+      builder: (context, date, _) {
+        return _readOnlyField(
+          value: date != null ? _formatDate(date) : '',
+          placeholder: AppLocalizations.of(context)!.profileBirthDateHint,
+        );
+      },
+    );
+  }
+
+  // Propiska (yashash manzili) - faqat ko'rsatish uchun
+  Widget _propiskaField() {
+    return ValueListenableBuilder<String>(
+      valueListenable: _propiska,
+      builder: (context, address, _) {
+        return _readOnlyField(
+          value: address,
+          placeholder: '—',
+        );
+      },
+    );
+  }
+
+  // Controller qiymatini ko'rsatadigan read-only maydon (ism, familiya)
+  Widget _readOnlyController(
+    TextEditingController controller,
+    String placeholder,
+  ) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        return _readOnlyField(value: value.text, placeholder: placeholder);
+      },
+    );
+  }
+
+  // O'zgarmaydigan (read-only) maydon
+  Widget _readOnlyField({
+    required String value,
+    required String placeholder,
+  }) {
     final textColor = context.textPrimary;
     final textSecondary = context.textSecondary;
     final surfaceContainer = context.surfaceContainer;
     final borderColor = context.borderColor;
+    final hasValue = value.trim().isNotEmpty;
 
-    return ValueListenableBuilder<DateTime?>(
-      valueListenable: _selectedDate,
-      builder: (context, date, _) {
-        return GestureDetector(
-          onTap: disabled ? null : _pickDate,
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: surfaceContainer,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: borderColor),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: AppText(
-                    text: date != null
-                        ? _formatDate(date)
-                        : AppLocalizations.of(context)!.profileBirthDateHint,
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: date != null ? textColor : textSecondary,
-                  ),
-                ),
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 18,
-                  color: textSecondary,
-                ),
-              ],
+    return Container(
+      constraints: const BoxConstraints(minHeight: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: surfaceContainer,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: AppText(
+              text: hasValue ? value : placeholder,
+              fontSize: 14,
+              fontWeight: 400,
+              color: hasValue ? textColor : textSecondary,
             ),
           ),
-        );
-      },
+          const SizedBox(width: 8),
+          Icon(Icons.lock_outline, size: 16, color: textSecondary),
+        ],
+      ),
     );
   }
 
