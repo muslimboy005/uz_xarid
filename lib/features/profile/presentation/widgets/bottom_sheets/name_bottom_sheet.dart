@@ -18,7 +18,8 @@ class NameBottomSheet extends StatefulWidget {
     showModalBottomSheet<void>(
       context: parentContext,
       isScrollControlled: true,
-
+      // Suzuvchi bottom nav / FAB sheet ustini yopmasligi uchun root navigator.
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -104,7 +105,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingLarge),
+                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -123,14 +124,14 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 21),
+                const SizedBox(height: 14),
                 AppText(
                   text: l10n.nameSheetSubtitle,
                   fontSize: 14,
                   fontWeight: 400,
                   color: textSecondary,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 AppText(
                   text: l10n.firstNameLabel,
                   fontSize: 14,
@@ -155,7 +156,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingLarge),
+                const SizedBox(height: 16),
                 AppText(
                   text: l10n.lastNameLabel,
                   fontSize: 14,
@@ -180,7 +181,7 @@ class _NameBottomSheetState extends State<NameBottomSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingLarge),
+                const SizedBox(height: 16),
                 ContainerW(
                   color: AppColors.blue500,
                   radius: 12,

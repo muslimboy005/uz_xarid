@@ -89,7 +89,7 @@ class _SettingsPageState extends State<SettingsPage>
         child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -125,7 +125,7 @@ class _SettingsPageState extends State<SettingsPage>
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,
@@ -164,7 +164,7 @@ class _SettingsPageState extends State<SettingsPage>
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,
@@ -224,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage>
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,
@@ -274,7 +274,11 @@ class _SettingsPageState extends State<SettingsPage>
                   ),
                 ),
                 // Pastdagi suzuvchi bottom-nav ortida kontent qolib ketmasligi uchun.
-                SizedBox(height: 110 + MediaQuery.paddingOf(context).bottom),
+                SizedBox(
+                  height:
+                      AppDimens.bottomNavClearance +
+                      MediaQuery.paddingOf(context).bottom,
+                ),
               ],
             ),
       ),
@@ -409,7 +413,7 @@ class _LanguageTile extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 9 * s, horizontal: 12),
+            padding: EdgeInsets.symmetric(vertical: 7 * s, horizontal: 12),
             child: Row(
               children: [
                 Container(
@@ -504,7 +508,7 @@ class _ThemeOptionTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 11 * s, horizontal: 12),
+          padding: EdgeInsets.symmetric(vertical: 9 * s, horizontal: 12),
           child: Column(
             children: [
               Icon(
@@ -557,7 +561,7 @@ class _PermissionTile extends StatelessWidget {
         onTap: () => openAppSettings(),
         borderRadius: BorderRadius.circular(AppDimens.radiusMedium),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 9 * s, horizontal: 12),
+          padding: EdgeInsets.symmetric(vertical: 7 * s, horizontal: 12),
           child: Row(
             children: [
               Icon(

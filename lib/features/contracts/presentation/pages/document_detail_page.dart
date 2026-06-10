@@ -12,6 +12,7 @@ import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/dio/dio_client.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
@@ -325,9 +326,10 @@ class _DocumentDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: context.cardSurface,
             borderRadius: BorderRadius.circular(16),
@@ -367,7 +369,7 @@ class _DocumentDetailBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               if (detail.dateLabel != null) ...[
                 Text(
                   detail.dateLabel!,
@@ -376,7 +378,7 @@ class _DocumentDetailBody extends StatelessWidget {
                       .bodySmall
                       ?.copyWith(color: context.textSecondary),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
               Text(
                 '${detail.sellerName ?? '—'} → ${detail.buyerName ?? '—'}',
@@ -385,9 +387,9 @@ class _DocumentDetailBody extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Divider(height: 1, color: context.borderColor),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Text(
                 'Actions',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -395,7 +397,7 @@ class _DocumentDetailBody extends StatelessWidget {
                       color: context.textPrimary,
                     ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -425,7 +427,7 @@ class _DocumentDetailBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -465,7 +467,7 @@ class _DocumentDetailBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               const Text(
                 'Agar hujjat tayyor bo‘lmasa, app statusni kutadi.',
                 style: TextStyle(fontSize: 12),

@@ -411,13 +411,13 @@ class _AddAddressPageState extends State<AddAddressPage> {
                     const SizedBox(width: 16),
                     AppText(
                       text: l10n.addressAddTitle,
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: 700,
                       color: textColor,
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Expanded(
                   child: ListView(
                     children: [
@@ -431,13 +431,13 @@ class _AddAddressPageState extends State<AddAddressPage> {
                         mapSelectedLabel: l10n.addressAddMapSelectedLabel,
                         mapSelectedSub: l10n.addressAddMapSelectedSub,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Container(
                         decoration: BoxDecoration(
                           color: cardColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -447,14 +447,14 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                 text: 'Manzil',
                                 textColor: textColor,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _addressDisplay(
                                 surface: context.surfaceContainer,
                                 borderColor: borderColor,
                                 textColor: textColor,
                                 textSecondary: textSecondary,
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               _cascadeDropdown(
                                 label: l10n.addListingViloyat,
                                 required_: true,
@@ -489,7 +489,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   });
                                 },
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 10),
                               _cascadeDropdown(
                                 label: '${l10n.districtLabel} (район)',
                                 required_: true,
@@ -527,7 +527,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   });
                                 },
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 10),
                               _cascadeDropdown(
                                 label: '${l10n.addListingMahalla} (квартал)',
                                 required_: false,
@@ -564,7 +564,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   });
                                 },
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 10),
                               WTextField(
                                 controller: _streetController,
                                 title: l10n.addressStreetLabel,
@@ -576,7 +576,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                     ? l10n.addressRequiredError
                                     : null,
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 10),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -600,7 +600,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                           : null,
                                     ),
                                   ),
-                                  const SizedBox(width: 14),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: WTextField(
                                       controller: _apartmentController,
@@ -613,7 +613,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 14),
+                              const SizedBox(height: 10),
                               WTextField(
                                 controller: _landmarkController,
                                 title: 'Izoh',
@@ -623,7 +623,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                 fillColor: context.surfaceContainer,
                                 borderNoFocusColor: context.borderColor,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                             ],
                           ),
                         ),
@@ -652,7 +652,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
               },
               builder: (context, state) {
                 return Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: ContainerW(
                     height: 50,
                     onTap: state.status == AddressStatus.loading
@@ -705,7 +705,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
       color: cardColor,
       radius: 16,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -715,13 +715,13 @@ class _AddAddressPageState extends State<AddAddressPage> {
               fontWeight: 400,
               color: textSecondary,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ContainerW(
               color: cardColor,
               radius: 12,
               border: Border.all(color: borderColor),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   children: [
                     ContainerW(
@@ -736,7 +736,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,7 +834,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
           text: required_ ? '$label *' : label,
           textColor: textColor,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Row(
           children: [
             Expanded(

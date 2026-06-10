@@ -10,11 +10,13 @@ class SearchApi {
 
   Future<SearchResponseDto> search({
     required String query,
+    int page = 1,
     int pageSize = 200,
     Map<String, dynamic>? extraParams,
   }) async {
     final queryParams = <String, dynamic>{
       'search': query.trim(),
+      'page': page,
       'page_size': pageSize,
     };
     if (extraParams != null) {

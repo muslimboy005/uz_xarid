@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/price_formatter.dart';
@@ -112,12 +113,17 @@ class ViewHistoryPage extends StatelessWidget {
                     slivers: [
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                           child: _ClearHistoryButton(l10n: l10n),
                         ),
                       ),
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                        padding: const EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          AppDimens.bottomNavClearance,
+                        ),
                         sliver: SliverList(
                           delegate: SliverChildBuilderDelegate((
                             context,
@@ -125,7 +131,7 @@ class ViewHistoryPage extends StatelessWidget {
                           ) {
                             final item = history[index];
                             return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.only(bottom: 8),
                               child: _HistoryItemCard(item: item, l10n: l10n),
                             );
                           }, childCount: history.length),
@@ -269,8 +275,8 @@ class _HistoryItemCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
-                width: 92,
-                height: 92,
+                width: 80,
+                height: 80,
                 child: AppImage(
                   path: ad.mainImage ?? '',
                   fit: BoxFit.cover,
@@ -404,14 +410,14 @@ class _EmptyState extends StatelessWidget {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           AppText(
             text: l10n.noViewHistory,
             fontSize: 20,
             fontWeight: 700,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: AppText(

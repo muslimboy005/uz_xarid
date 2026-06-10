@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/input_formatters.dart';
 import 'package:uzxarid/core/widgets/app_image.dart';
@@ -104,7 +105,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
               isDark ? AppColors.darkBackground : AppColors.black50,
           body: Column(
                 children: [
-                  SizedBox(height: 16),
+                  SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -134,7 +135,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -148,7 +149,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 19,
+                                vertical: 12,
                               ),
                               child: AppText(
                                 text: l10n.businessCompanyInfo,
@@ -158,12 +159,12 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           ContainerW(
                             color: cardColor,
                             radius: 12,
                             child: Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -226,13 +227,13 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   WTextField(
                                     title: l10n.businessCompanyName,
                                     hintText: l10n.businessCompanyNameHint,
                                     controller: _companyNameController,
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   WTextField(
                                     title: l10n.businessDescription,
                                     hintText: l10n.businessDescriptionHint,
@@ -240,7 +241,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     maxLines: 4,
                                     minLines: 4,
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   GestureDetector(
                                     onTap: () => _pickImage(false),
                                     child: DottedBorder(
@@ -251,7 +252,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                         radius: const Radius.circular(12),
                                       ),
                                       child: Container(
-                                        height: 120,
+                                        height: 96,
                                         width: double.infinity,
                                         alignment: Alignment.center,
                                         child: _bannerFile != null
@@ -270,10 +271,10 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                                 children: [
                                                   Icon(
                                                     Icons.add,
-                                                    size: 48,
+                                                    size: 40,
                                                     color: textSecondary,
                                                   ),
-                                                  const SizedBox(height: 8),
+                                                  const SizedBox(height: 6),
                                                   AppText(
                                                     text: l10n.businessUploadCover,
                                                     fontSize: 14,
@@ -297,7 +298,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 14,
+                                vertical: 12,
                               ),
                               child: Row(
                                 children: [
@@ -340,7 +341,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             color: cardColor,
                             radius: 12,
                             child: Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 children: List.generate(
                                   _phoneControllers.length,
@@ -395,7 +396,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 19,
+                                vertical: 12,
                               ),
                               child: AppText(
                                 text: l10n.businessWorkingHours,
@@ -405,12 +406,12 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           ContainerW(
                             color: cardColor,
                             radius: 12,
                             child: Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -432,7 +433,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     onChanged: (v) =>
                                         setState(() => _workingHours = v),
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                   AppText(
                                     text: l10n.businessLunchBreak,
                                     fontSize: 13,
@@ -464,7 +465,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 19,
+                                vertical: 12,
                               ),
                               child: AppText(
                                 text: l10n.businessAddress,
@@ -474,12 +475,12 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           ContainerW(
                             color: cardColor,
                             radius: 12,
                             child: Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   WTextField(
@@ -487,7 +488,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                     hintText: l10n.businessCityHint,
                                     controller: _cityController,
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                   Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -509,7 +510,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                   WTextField(
                                     title: l10n.businessLandmark,
                                     hintText: l10n.businessLandmarkHint,
@@ -519,7 +520,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           ContainerW(
                             color: cardColor,
                             radius: 12,
@@ -527,7 +528,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 19,
+                                vertical: 12,
                               ),
                               child: AppText(
                                 text: l10n.businessSocialMedia,
@@ -537,12 +538,12 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           ContainerW(
                             color: cardColor,
                             radius: 12,
                             child: Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 children: [
                                   WTextField(
@@ -555,7 +556,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       color: textSecondary,
                                     ),
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                   WTextField(
                                     title: 'Facebook',
                                     hintText: l10n.businessFacebookHint,
@@ -566,7 +567,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       color: textSecondary,
                                     ),
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                   WTextField(
                                     title: 'Telegram',
                                     hintText: l10n.businessTelegramHint,
@@ -577,7 +578,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                                       color: textSecondary,
                                     ),
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                   WTextField(
                                     title: 'YouTube',
                                     hintText: l10n.businessYoutubeHint,
@@ -592,7 +593,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
 
                           // ── Action buttons ───────────────────────────────
                           Row(
@@ -676,7 +677,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: AppDimens.bottomNavClearance),
                         ],
                       ),
                     ),

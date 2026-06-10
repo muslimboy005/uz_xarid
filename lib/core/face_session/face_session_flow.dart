@@ -647,6 +647,8 @@ Future<String?> _showDocumentBottomSheet(
   return showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
+    // Profil tab kabi shell sahifadan chaqirilganda suzuvchi nav yopmasligi uchun.
+    useRootNavigator: true,
     backgroundColor: context.cardSurface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

@@ -96,7 +96,7 @@ class SupportMenuPage extends StatelessWidget {
             padding: EdgeInsets.only(
               left: horizontalPadding,
               right: horizontalPadding,
-              top: 16,
+              top: 12,
               bottom: MediaQuery.of(context).padding.bottom + 24,
             ),
             child: Center(
@@ -106,15 +106,15 @@ class SupportMenuPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const CurrencyHeroCard(),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     _ModeToggle(
                       isBuying: isBuying,
                       sellLabel: l10n.supportMenuSotaman,
                       buyLabel: l10n.supportMenuSotibOlaman,
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
                     _SectionLabel(text: _sectionLabelFor(l10n)),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     _GroupedCard(
                       children: [
                         for (int i = 0; i < services.length; i++) ...[
@@ -123,9 +123,9 @@ class SupportMenuPage extends StatelessWidget {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
                     _SectionLabel(text: _infoSectionLabelFor(l10n)),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     _GroupedCard(
                       children: [
                         for (int i = 0; i < infos.length; i++) ...[
@@ -389,7 +389,7 @@ class _ServiceItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             children: [
               Container(
@@ -471,7 +471,7 @@ class _InfoItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           child: Row(
             children: [
               Container(

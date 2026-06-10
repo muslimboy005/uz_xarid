@@ -23,16 +23,21 @@ abstract class HomeApi {
   Future<RecommendationResponseDto> getRecommendations(
     @Query('page_size') int pageSize,
     @Query('ad_type') String adType, {
+    @Query('page') int page = 1,
     @Query('sort') String? sort,
   });
 
   @GET(ApiUrls.gifts)
-  Future<RecommendationResponseDto> getGifts(@Query('page_size') int pageSize);
+  Future<RecommendationResponseDto> getGifts(
+    @Query('page_size') int pageSize, {
+    @Query('page') int page = 1,
+  });
 
   @GET(ApiUrls.services)
   Future<RecommendationResponseDto> getServices(
-    @Query('page_size') int pageSize,
-  );
+    @Query('page_size') int pageSize, {
+    @Query('page') int page = 1,
+  });
 }
 
 class RecommendationResponseDto {

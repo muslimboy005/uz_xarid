@@ -38,7 +38,12 @@ class OtpBottomSheet extends StatefulWidget {
     showModalBottomSheet<void>(
       context: parentContext,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      // Root navigator ustida ko'rsatamiz, aks holda sheet shell navigatori
+      // ichida ochilib, suzuvchi bottom nav va FAB uning ustini yopib qoladi.
+      useRootNavigator: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (sheetContext) {
         return BlocProvider.value(
           value: parentContext.read<ProfileBloc>(),
@@ -171,7 +176,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 22),
+                const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -190,7 +195,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 21),
+                const SizedBox(height: 14),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: RichText(
@@ -210,7 +215,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 Pinput(
                   controller: _otpController,
                   length: 6,
@@ -267,7 +272,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                   ),
                   onCompleted: (_) {},
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 ContainerW(
                   color: AppColors.blue500,
                   radius: 12,
@@ -304,8 +309,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppDimens.paddingMedium),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 ValueListenableBuilder<bool>(
                   valueListenable: _isResendEnabled,
                   builder: (context, resendEnabled, _) {

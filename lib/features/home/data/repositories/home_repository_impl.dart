@@ -13,12 +13,13 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<Either<Failure, HomeEntity>> getHome({
     String categoryType = 'Product',
-    int pageSize = 16,
+    int pageSize = 10,
     String adType = 'Sell',
   }) async {
     try {
-      final categoriesResponse = await homeApi.getCategories(categoryType);
-      final bannersResponse = await homeApi.getBanners();
+      // HomePage faqat recommendations/gifts/services'ni ko'rsatadi; yuqoridagi
+      // kategoriya plitkalari lokal (hardcoded). Banner ham UI'da chizilmaydi.
+      // Shuning uchun `category/` va `banner/` so'rovlari yuborilmaydi.
       final recommendationsResponse = await homeApi.getRecommendations(
         pageSize,
         adType,
@@ -26,27 +27,10 @@ class HomeRepositoryImpl implements HomeRepository {
       final giftsResponse = await homeApi.getGifts(pageSize);
       final servicesResponse = await homeApi.getServices(pageSize);
 
-      final results = categoriesResponse.data.results;
-      final categoryIdToChildren = <int, List<HomeCategory>>{};
-      for (final dto in results) {
-        if (dto.children.isNotEmpty) {
-          categoryIdToChildren[dto.id] = dto.children
-              .map((c) => c.toHomeCategory())
-              .toList();
-        }
-      }
-
       final entity = HomeEntity(
-        // Show only top-level categories returned by the API (expected 6),
-        // preserving order and falling back to safe name when empty.
-        categories: results
-            .where((e) => e.showHome)
-            .map((e) => e.toHomeCategory())
-            .toList(),
-        categoryIdToChildren: categoryIdToChildren,
-        banners: bannersResponse.data.results
-            .map((e) => e.toHomeBanner())
-            .toList(),
+        categories: const [],
+        categoryIdToChildren: const {},
+        banners: const [],
         recommendations: recommendationsResponse.data.results
             .map((e) => e.toHomeRecommendation())
             .toList(),

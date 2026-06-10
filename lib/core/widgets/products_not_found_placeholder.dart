@@ -30,7 +30,7 @@ class ProductsNotFoundPlaceholder extends StatelessWidget {
                 color: AppColors.white,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             Text(
               l10n.productsNotFoundTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -39,7 +39,7 @@ class ProductsNotFoundPlaceholder extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               l10n.productsNotFoundSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

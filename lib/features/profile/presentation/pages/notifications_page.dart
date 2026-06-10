@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
@@ -83,7 +84,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -132,7 +133,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -192,12 +193,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 12,
                                 4,
                                 12,
-                                bottomInset + 110,
+                                bottomInset + AppDimens.bottomNavClearance,
                               ),
                               itemCount: filtered.length +
                                   (tab.isLoadingMore ? 1 : 0),
                               separatorBuilder: (_, _) =>
-                                  const SizedBox(height: 10),
+                                  const SizedBox(height: 8),
                               itemBuilder: (context, index) {
                                 if (index >= filtered.length) {
                                   return const Padding(
@@ -233,7 +234,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
         ],
       ),
     );
@@ -432,7 +433,7 @@ class _EmptyState extends StatelessWidget {
             ),
             child: Icon(icon, color: AppColors.white, size: 34),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           AppText(text: title, fontSize: 16, fontWeight: 700, color: textColor),
           if (subtitle != null) ...[
             const SizedBox(height: 8),

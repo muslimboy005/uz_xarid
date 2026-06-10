@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -76,43 +74,70 @@ class _ProductListMapViewState extends State<ProductListMapView> {
     super.dispose();
   }
 
+  /// Koordinatasi (lat/long) bor e'lonlar — xaritada shu nuqtada ko'rsatiladi.
+  List<ProductListItemEntity> get _locatedItems =>
+      widget.items.where((e) => e.hasLocation).toList();
+
+  List<LatLng> get _points => _locatedItems
+      .map((e) => LatLng(e.latitude!, e.longitude!))
+      .toList(growable: false);
+
+  /// Boshlang'ich markaz: koordinatalar o'rtasi (yo'q bo'lsa — Toshkent markazi).
+  LatLng get _initialCenter {
+    final pts = _points;
+    if (pts.isEmpty) return ProductListMapView.kMapCenter;
+    var lat = 0.0;
+    var lng = 0.0;
+    for (final p in pts) {
+      lat += p.latitude;
+      lng += p.longitude;
+    }
+    return LatLng(lat / pts.length, lng / pts.length);
+  }
+
+  /// Xarita tayyor bo'lgach, barcha pinlar ko'rinadigan qilib kamerani moslaydi.
+  void _fitToMarkers() {
+    final pts = _points;
+    if (pts.isEmpty) return;
+    if (pts.length == 1) {
+      _mapController.move(pts.first, 15);
+      return;
+    }
+    _mapController.fitCamera(
+      CameraFit.coordinates(
+        coordinates: pts,
+        padding: const EdgeInsets.all(64),
+        maxZoom: 16,
+      ),
+    );
+  }
+
   List<Marker> _markers(BuildContext context) {
-    const center = ProductListMapView.kMapCenter;
-    if (widget.items.isEmpty) return [];
-    const maxPins = 48;
+    final located = _locatedItems;
+    if (located.isEmpty) return [];
+    const maxPins = 60;
     final pinColor = context.read<AppModeCubit>().state.primaryColor;
-    return widget.items.take(maxPins).toList().asMap().entries.map((e) {
-      final idx = e.key;
-      final item = e.value;
-      final p = _scatterPoint(center, item.slug, idx);
+    final ccyLabel = currencyDisplayLabel(
+      context.read<CurrencyCubit>().state.selectedCcy,
+    );
+    return located.take(maxPins).map((item) {
+      final priceStr = formatPrice(item.finalPrice ?? item.price);
+      final label = priceStr.isEmpty ? null : '$priceStr $ccyLabel';
       return Marker(
-        point: p,
-        width: 20,
-        height: 20,
-        child: GestureDetector(
+        point: LatLng(item.latitude!, item.longitude!),
+        width: 160,
+        height: 46,
+        // Pin uchi (pastki qismi) aynan koordinata ustida tursin.
+        alignment: Alignment.topCenter,
+        child: _PriceMarker(
+          label: label,
+          color: pinColor,
           onTap: () {
             if (item.slug.isNotEmpty) context.push('/ad/${item.slug}');
           },
-          child: Container(
-            decoration: BoxDecoration(
-              color: pinColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-          ),
         ),
       );
     }).toList();
-  }
-
-  static LatLng _scatterPoint(LatLng center, String slug, int index) {
-    final h = slug.hashCode ^ (17 * index);
-    final a = (h % 360) * math.pi / 180;
-    final r = 0.001 + (h.abs() % 7) * 0.00022;
-    return LatLng(
-      center.latitude + r * math.sin(a),
-      center.longitude + r * math.cos(a),
-    );
   }
 
   void _openListingsSheet() {
@@ -141,9 +166,10 @@ class _ProductListMapViewState extends State<ProductListMapView> {
           child: _mapReady
               ? AppMap(
                   mapController: _mapController,
-                  initialCenter: ProductListMapView.kMapCenter,
+                  initialCenter: _initialCenter,
                   initialZoom: ProductListMapView.kInitialZoom,
                   mapType: _mapType,
+                  onMapReady: _fitToMarkers,
                   markerLayer: MarkerLayer(markers: _markers(context)),
                 )
               : Center(
@@ -308,6 +334,81 @@ class _ProductListMapViewState extends State<ProductListMapView> {
   }
 }
 
+/// Xaritadagi e'lon belgisi: narx «pill» ko'rinishida, ostida pastga ishora
+/// qiluvchi uchi bilan (narx bo'lmasa — oddiy doira nuqta).
+class _PriceMarker extends StatelessWidget {
+  const _PriceMarker({required this.color, this.label, this.onTap});
+
+  final Color color;
+  final String? label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (label == null) {
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+          ),
+        ),
+      );
+    }
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white, width: 1.5),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                label!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          // Pill ostidagi pastga qaragan uchi.
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 0.7853981633974483, // 45°
+              child: Container(width: 8, height: 8, color: color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ListingsBottomSheet extends StatelessWidget {
   const _ListingsBottomSheet({required this.items});
   final List<ProductListItemEntity> items;
@@ -339,7 +440,7 @@ class _ListingsBottomSheet extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Container(
               width: 40,
               height: 4,
@@ -381,7 +482,7 @@ class _ListingsBottomSheet extends StatelessWidget {
                     )
                   : ListView.separated(
                       controller: scrollController,
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                       itemCount: items.length,
                       separatorBuilder: (_, __) => Divider(color: border),
                       itemBuilder: (context, index) {
@@ -399,7 +500,7 @@ class _ListingsBottomSheet extends StatelessWidget {
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -492,7 +593,7 @@ class _ListingsBottomSheet extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: 6),
                                       AppText(
                                         text: priceStr.isEmpty
                                             ? ''

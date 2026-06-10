@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
@@ -159,8 +160,8 @@ class MyAdsPage extends StatelessWidget {
         final segmentCount = limit > 0 ? limit : 1;
 
         return Container(
-          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(12),
@@ -192,7 +193,7 @@ class MyAdsPage extends StatelessWidget {
                   fontWeight: 400,
                   color: textSecondary,
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               TextButton.icon(
                 onPressed: () => context.push('/profile/payment'),
                 icon: Icon(
@@ -212,7 +213,7 @@ class MyAdsPage extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Row(
                 children: List.generate(segmentCount, (i) {
                   final filled = i < used;
@@ -252,7 +253,7 @@ class MyAdsPage extends StatelessWidget {
       buildWhen: (prev, cur) => prev.status != cur.status,
       builder: (context, state) {
         return Container(
-          margin: const EdgeInsets.only(top: 12),
+          margin: const EdgeInsets.only(top: 8),
           height: 44,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
@@ -314,7 +315,7 @@ class MyAdsPage extends StatelessWidget {
               size: 80,
               color: primaryColor.withValues(alpha: 0.7),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             AppText(
               text: l10n.myAdsEmptyTitle,
               fontSize: 18,
@@ -348,7 +349,12 @@ class MyAdsPage extends StatelessWidget {
   ) {
     final list = state.list;
     return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
+      padding: const EdgeInsets.fromLTRB(
+        12,
+        12,
+        12,
+        AppDimens.bottomNavClearance,
+      ),
       gridDelegate: AppResponsive.myAdsGridDelegate(context),
       itemCount: list.length,
       itemBuilder: (_, i) {
@@ -644,7 +650,7 @@ class _MyAdCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _CardButton(
                       label: l10n.myAdsPromoFrom,
                       color: textSecondary.withValues(alpha: 0.2),

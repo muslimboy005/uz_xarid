@@ -46,7 +46,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 16,
+                  vertical: 12,
                 ),
                 child: Row(
                   children: [
@@ -68,7 +68,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                     const SizedBox(width: 12),
                     AppText(
                       text: l10n.addressMyAddressesTitle,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: 700,
                       color: textColor,
                     ),
@@ -151,12 +151,15 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           Expanded(
                             child: ListView.separated(
+                              padding: const EdgeInsets.only(
+                                bottom: AppDimens.bottomNavClearance,
+                              ),
                               itemCount: state.addresses.length,
                               separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                               itemBuilder: (context, index) {
                                 final address = state.addresses[index];
                                 final isSelected =
@@ -172,7 +175,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                         : (context.borderColor),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
+                                    padding: const EdgeInsets.all(12.0),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -224,7 +227,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 16),
+                                        const SizedBox(height: 12),
                                         Row(
                                           children: [
                                             ContainerW(
@@ -352,7 +355,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
             ],
           ),
     );
@@ -385,10 +388,10 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           AppText(
             text: l10n.addressAddOwn,
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: 700,
             color: textColor,
           ),
@@ -401,7 +404,7 @@ class _MyAddressesPageState extends State<MyAddressesPage> {
             textAlign: TextAlign.center,
             maxLines: 2,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           ContainerW(
             onTap: () async {
               final result = await context.push('/add-address');

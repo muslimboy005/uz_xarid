@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/image_parser.dart';
@@ -208,41 +209,41 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                             ),
                           ),
                           // _sectionHeader(l10n.profilePersonalDataLabel),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           _card(
                             children: [
                               _avatarRow(),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               _label(l10n.profileFirstNameLabel),
                               const SizedBox(height: 4),
                               _readOnlyController(
                                 _firstNameController,
                                 l10n.profileFirstNameHint,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileLastNameLabel),
                               const SizedBox(height: 4),
                               _readOnlyController(
                                 _lastNameController,
                                 l10n.profileLastNameHint,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileGenderLabel),
                               const SizedBox(height: 4),
                               _genderDropdown(isLoading),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileBirthDateLabel),
                               const SizedBox(height: 4),
                               _dateField(),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileResidenceLabel),
                               const SizedBox(height: 4),
                               _propiskaField(),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          _sectionHeader(l10n.profileContactDataLabel),
                           const SizedBox(height: 8),
+                          _sectionHeader(l10n.profileContactDataLabel),
+                          const SizedBox(height: 6),
                           _card(
                             children: [
                               _label(l10n.profilePhoneLabel),
@@ -257,7 +258,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileEmailLabel),
                               const SizedBox(height: 4),
                               WTextField(
@@ -271,9 +272,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          _sectionHeader(l10n.profileAddressSectionLabel),
                           const SizedBox(height: 8),
+                          _sectionHeader(l10n.profileAddressSectionLabel),
+                          const SizedBox(height: 6),
                           _card(
                             children: [
                               _label(l10n.profileCityLabel),
@@ -286,7 +287,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileStreetLabel),
                               const SizedBox(height: 4),
                               WTextField(
@@ -297,7 +298,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileHouseOrAptLabel),
                               const SizedBox(height: 4),
                               WTextField(
@@ -308,7 +309,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                                 fillColor: surfaceContainer,
                                 borderNoFocusColor: borderColor,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               _label(l10n.profileDistrictLabel),
                               const SizedBox(height: 4),
                               WTextField(
@@ -567,7 +568,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       width: double.infinity,
       radius: 16,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: AppText(
           text: title,
           fontSize: 18,
@@ -584,7 +585,7 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       color: context.cardSurface,
       radius: 16,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: children,
@@ -611,7 +612,12 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     final borderColor = context.borderColor;
     return Container(
       color: context.cardSurface,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        12 + AppDimens.bottomNavClearance,
+      ),
       child: Row(
         children: [
           Expanded(

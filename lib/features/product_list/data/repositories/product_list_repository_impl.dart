@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:uzxarid/core/either/either.dart';
 import 'package:uzxarid/core/error/failures.dart';
 import 'package:uzxarid/features/product_list/data/datasources/product_list_remote_datasource.dart';
-import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_result.dart';
 import 'package:uzxarid/features/product_list/domain/repositories/product_list_repository.dart';
 
 class ProductListRepositoryImpl implements ProductListRepository {
@@ -11,10 +11,11 @@ class ProductListRepositoryImpl implements ProductListRepository {
   final ProductListRemoteDatasource _remoteDatasource;
 
   @override
-  Future<Either<Failure, List<ProductListItemEntity>>> getProducts({
+  Future<Either<Failure, ProductListResult>> getProducts({
     String? searchQuery,
     int? categoryId,
     String listSource = 'recommendations',
+    int page = 1,
     int pageSize = 100,
     String adType = 'Sell',
     String? categoryType,
@@ -27,12 +28,20 @@ class ProductListRepositoryImpl implements ProductListRepository {
       final dtos = searchQuery != null && searchQuery.trim().isNotEmpty
           ? await _remoteDatasource.getSearchResults(
               query: searchQuery.trim(),
+              page: page,
               pageSize: pageSize,
               filterParams: filterParams,
             )
-          : categoryId != null
+          // categoryId bo'lsa o'sha turkum; categoryId null bo'lsa-yu
+          // listSource == 'category' bo'lsa (bosh ekrandagi asosiy
+          // kategoriya tanlangan holat) — turkum turi (listing_type)
+          // bo'yicha /ad/ endpointidan e'lon olamiz, tavsiyalar
+          // (/ad/recommendations/) emas.
+          : categoryId != null || listSource == 'category'
           ? await _remoteDatasource.getByCategory(
               categoryId: categoryId,
+              page: page,
+              pageSize: pageSize,
               adType: adType,
               listingType: categoryType,
               filterParams: filterParams,
@@ -42,21 +51,25 @@ class ProductListRepositoryImpl implements ProductListRepository {
           : hasFilters
           ? await _remoteDatasource.getFiltered(
               filterParams: filterParams,
+              page: page,
               pageSize: pageSize,
               adType: adType,
               listingType: categoryType,
             )
           : listSource == 'services'
-          ? await _remoteDatasource.getServices(pageSize: pageSize)
+          ? await _remoteDatasource.getServices(page: page, pageSize: pageSize)
           : listSource == 'gifts'
-          ? await _remoteDatasource.getGifts(pageSize: pageSize)
+          ? await _remoteDatasource.getGifts(page: page, pageSize: pageSize)
           : await _remoteDatasource.getRecommendations(
+              page: page,
               pageSize: pageSize,
               adType: adType,
               sort: sort, // 'popular' | 'cheap' | 'expensive' | 'high-ranking'
             );
       final list = dtos.map((dto) => dto.toEntity()).toList();
-      return Right(list);
+      // To'liq sahifa qaytdi — ehtimol yana sahifa bor. Kam qaytsa — oxiri.
+      final hasMore = dtos.length >= pageSize;
+      return Right(ProductListResult(items: list, hasMore: hasMore));
     } on DioException catch (e) {
       final message = e.response?.statusMessage ?? e.message ?? 'Tarmoq xatosi';
       return Left(ServerFailure(message: message));

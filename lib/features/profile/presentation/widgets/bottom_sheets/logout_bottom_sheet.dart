@@ -24,7 +24,7 @@ class LogoutBottomSheet extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -37,7 +37,7 @@ class LogoutBottomSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // Close button
               Align(
@@ -64,17 +64,17 @@ class LogoutBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Title
               AppText(
                 text: l10n.profileLogoutBottomTitle,
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: 700,
                 color: context.textPrimary,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // Subtitle
               AppText(
@@ -85,7 +85,7 @@ class LogoutBottomSheet extends StatelessWidget {
                 maxLines: 2,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // Action Buttons
               Row(

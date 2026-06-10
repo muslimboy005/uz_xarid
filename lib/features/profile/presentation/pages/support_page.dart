@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uzxarid/core/app_config.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
@@ -89,6 +90,12 @@ class SupportPage extends StatelessWidget {
                 ),
               ),
             ),
+            // Pastdagi suzuvchi bottom-nav ortida kontent qolib ketmasligi uchun.
+            SizedBox(
+              height:
+                  AppDimens.bottomNavClearance +
+                  MediaQuery.of(context).padding.bottom,
+            ),
           ],
         ),
     );
@@ -117,7 +124,7 @@ class _SupportItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
             if (iconPath != null)

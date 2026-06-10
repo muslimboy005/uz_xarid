@@ -273,7 +273,7 @@ class _WTextFieldState extends State<WTextField> {
             fontSize: 14,
             fontWeight: 700,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
         ],
         TextFormField(
           controller: widget.controller,
@@ -419,7 +419,7 @@ class _WTextFieldState extends State<WTextField> {
   // Content padding ni hisoblash uchun helper method
   EdgeInsets _calculateContentPadding() {
     if (widget.height == null) {
-      return const EdgeInsets.symmetric(horizontal: 16, vertical: 14);
+      return const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
     }
 
     // Height berilgan bo'lsa, minimal paddingni ishlatamiz

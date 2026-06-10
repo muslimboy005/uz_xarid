@@ -79,12 +79,14 @@ class _HomeApi implements HomeApi {
   Future<RecommendationResponseDto> getRecommendations(
     int pageSize,
     String adType, {
+    int page = 1,
     String? sort,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'page_size': pageSize,
       r'ad_type': adType,
+      r'page': page,
       r'sort': sort,
     };
     queryParameters.removeWhere((k, v) => v == null);
@@ -112,9 +114,15 @@ class _HomeApi implements HomeApi {
   }
 
   @override
-  Future<RecommendationResponseDto> getGifts(int pageSize) async {
+  Future<RecommendationResponseDto> getGifts(
+    int pageSize, {
+    int page = 1,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'page_size': pageSize};
+    final queryParameters = <String, dynamic>{
+      r'page_size': pageSize,
+      r'page': page,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<RecommendationResponseDto>(
@@ -139,9 +147,15 @@ class _HomeApi implements HomeApi {
   }
 
   @override
-  Future<RecommendationResponseDto> getServices(int pageSize) async {
+  Future<RecommendationResponseDto> getServices(
+    int pageSize, {
+    int page = 1,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'page_size': pageSize};
+    final queryParameters = <String, dynamic>{
+      r'page_size': pageSize,
+      r'page': page,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<RecommendationResponseDto>(

@@ -10,6 +10,8 @@ class ProductListItemEntity {
     this.rating = 0,
     this.reviewCount = 0,
     this.categoryName,
+    this.latitude,
+    this.longitude,
   });
 
   final String slug;
@@ -21,4 +23,11 @@ class ProductListItemEntity {
   final double rating;
   final int reviewCount;
   final String? categoryName;
+
+  /// E'lon joylashuvi (xaritada o'z koordinatasi ustida ko'rsatish uchun).
+  final double? latitude;
+  final double? longitude;
+
+  /// Xaritada chizish uchun yaroqli koordinata bor-yo'qligi.
+  bool get hasLocation => latitude != null && longitude != null;
 }

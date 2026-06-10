@@ -26,7 +26,7 @@ class HomeParams {
 
   const HomeParams({
     this.categoryType = 'Product',
-    this.pageSize = 16,
+    this.pageSize = 10,
     this.adType = 'Sell',
   });
 }

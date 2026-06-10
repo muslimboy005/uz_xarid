@@ -77,7 +77,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(Icons.error_outline, size: 48, color: Colors.grey),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             Text(state.error ?? 'Error loading chat'),
                             TextButton(
                               onPressed: () => context.read<AdChatBloc>().add(ChatRoomOpened(widget.adSlug)),
@@ -96,7 +96,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
                     return ListView.builder(
                       reverse: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       itemCount: state.messages.length,
                       itemBuilder: (context, index) {
                         final message = state.messages[index];

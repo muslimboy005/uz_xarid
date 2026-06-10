@@ -16,6 +16,7 @@ import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/product_card.dart';
 import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_result.dart';
 import 'package:uzxarid/features/product_list/domain/usecases/get_product_list.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
@@ -88,8 +89,8 @@ class _SearchPageState extends State<SearchPage> {
     if (!mounted) return;
     setState(() {
       _searchLoading = false;
-      _searchResults = result is Right<Failure, List<ProductListItemEntity>>
-          ? result.right
+      _searchResults = result is Right<Failure, ProductListResult>
+          ? result.right.items
           : [];
     });
   }
@@ -106,8 +107,8 @@ class _SearchPageState extends State<SearchPage> {
         adType: adType,
       ),
     );
-    final list = result is Right<Failure, List<ProductListItemEntity>>
-        ? result.right
+    final list = result is Right<Failure, ProductListResult>
+        ? result.right.items
         : <ProductListItemEntity>[];
     if (!mounted) return;
     setState(() {
@@ -139,7 +140,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
               child: _buildSearchField(context, l10n),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(
@@ -153,12 +154,12 @@ class _SearchPageState extends State<SearchPage> {
                       color: textColor,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   _buildFrequentChips(context),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   if (_searchController.text.trim().isNotEmpty) ...[
                     _buildSearchResultsSection(textColor),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                   ],
                   Text(
                     l10n.recommendationsTitle,
@@ -317,7 +318,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     final textColor = context.textPrimary;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
       child: Column(
         children: [
           Row(
@@ -364,7 +365,7 @@ class _SearchPageState extends State<SearchPage> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 14,
+            vertical: 12,
           ),
           prefixIcon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),

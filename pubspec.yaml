@@ -1,7 +1,7 @@
 name: uzxarid
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.7+9
+version: 0.1.9+11
 
 environment:
   sdk: ^3.10.7
@@ -54,6 +54,7 @@ dependencies:
   crypto: ^3.0.5
   flutter_dotenv: ^5.2.1
   sensors_plus: ^7.0.0
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   flutter_test:

@@ -347,7 +347,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
                 color: isRoomNotFound ? Colors.orange : Colors.red,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             AppText(
               text: isRoomNotFound
                   ? 'Qo\'llab-quvvatlash xizmati hali sozlanmagan.\nIltimos, keyinroq urinib ko\'ring.'
@@ -357,7 +357,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
               fontSize: 14,
               color: context.textSecondary,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             if (!isRoomNotFound)
               FilledButton(
                 onPressed: () {
@@ -684,7 +684,7 @@ class _SupportChatPageState extends State<SupportChatPage> {
     } catch (_) {}
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: Opacity(
         opacity: isOptimistic ? 0.7 : 1.0,
         child: Row(

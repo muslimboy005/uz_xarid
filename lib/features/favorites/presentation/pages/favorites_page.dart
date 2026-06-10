@@ -29,7 +29,7 @@ class FavoritesPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 16,
+                  vertical: 12,
                 ),
                 child: Row(
                   children: [
@@ -51,7 +51,7 @@ class FavoritesPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     AppText(
                       text: l10n.favoritesTitle,
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: 700,
                       color: context.textPrimary,
                     ),
@@ -78,7 +78,7 @@ class FavoritesPage extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(color: textColor),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               TextButton(
                                 onPressed: () {
                                   context.read<FavoritesBloc>().add(
@@ -102,7 +102,7 @@ class FavoritesPage extends StatelessWidget {
                               size: 68,
                               color: textColor.withValues(alpha: 0.6),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 14),
                             Text(
                               l10n.favoritesEmptyTitle,
                               style: Theme.of(context).textTheme.titleMedium

@@ -62,7 +62,7 @@ class CartPage extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
             itemCount: state.items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               return _CartItemTile(item: state.items[index]);
             },
@@ -82,7 +82,7 @@ class CartPage extends StatelessWidget {
             size: 80,
             color: context.textSecondary.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             l10n.cartEmpty,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -95,7 +95,7 @@ class CartPage extends StatelessWidget {
             l10n.cartEmptySubtitle,
             style: TextStyle(color: context.textSecondary),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => context.pop(),
             style: ElevatedButton.styleFrom(
@@ -237,7 +237,7 @@ class _CartItemTile extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           SizedBox(
             height: 42,
             child: ElevatedButton.icon(

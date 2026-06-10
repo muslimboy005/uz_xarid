@@ -70,7 +70,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       HomeRequested(
         categoryType: event.categoryType,
         adType: state.lastAdType,
-        pageSize: 16,
+        pageSize: 10,
       ),
     );
   }

@@ -10,7 +10,7 @@ abstract class HomeEvent extends Equatable {
 class HomeRequested extends HomeEvent {
   const HomeRequested({
     this.categoryType = 'Product',
-    this.pageSize = 16,
+    this.pageSize = 10,
     this.adType = 'Sell',
   });
 

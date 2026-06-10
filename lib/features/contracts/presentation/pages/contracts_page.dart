@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uzxarid/core/dio/dio_client.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
@@ -314,13 +315,13 @@ class _ContractsPageState extends State<ContractsPage> {
                     const SizedBox(width: 12),
                     AppText(
                       text: 'Shartnomalar',
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: 700,
                       color: context.textPrimary,
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -348,10 +349,12 @@ class _ContractsPageState extends State<ContractsPage> {
                           : RefreshIndicator(
                               onRefresh: _loadDocuments,
                               child: ListView.separated(
-                                padding: EdgeInsets.zero,
+                                padding: const EdgeInsets.only(
+                                  bottom: AppDimens.bottomNavClearance,
+                                ),
                                 itemCount: _documents.length,
                                 separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
                                   final doc = _documents[index];
                                   final primaryColor = context
@@ -434,7 +437,7 @@ class _DocumentCard extends StatelessWidget {
         : '$typeText #${doc.id}';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cardSurface,
         borderRadius: BorderRadius.circular(14),
@@ -490,7 +493,7 @@ class _DocumentCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -501,7 +504,7 @@ class _DocumentCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Row(
             children: [
               if (docNumber != null && docNumber.isNotEmpty) ...[
@@ -532,7 +535,7 @@ class _DocumentCard extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(

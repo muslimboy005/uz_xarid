@@ -113,9 +113,8 @@ class PaymentPage extends StatelessWidget {
                           right: AppDimens.paddingMedium,
                           top: AppDimens.paddingMedium,
                           bottom:
-                              AppDimens.paddingMedium +
-                              MediaQuery.of(context).padding.bottom +
-                              80,
+                              AppDimens.bottomNavClearance +
+                              MediaQuery.of(context).padding.bottom,
                         ),
                         children: [
                           Row(
@@ -141,7 +140,7 @@ class PaymentPage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           ...plans.asMap().entries.map((entry) {
                             final index = entry.key;
                             final plan = entry.value;
@@ -150,7 +149,7 @@ class PaymentPage extends StatelessWidget {
                                 state.orderingPlanId == plan.id;
                             return Padding(
                               padding: EdgeInsets.only(
-                                bottom: index == plans.length - 1 ? 0 : 16,
+                                bottom: index == plans.length - 1 ? 0 : 12,
                               ),
                               child: _buildTariffCard(
                                 primaryColor: primaryColor,
@@ -163,13 +162,13 @@ class PaymentPage extends StatelessWidget {
                               ),
                             );
                           }),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 20),
                           ContainerW(
                             color: cardColor,
                             radius: 12,
                             border: Border.all(color: borderColor),
                             child: Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(12.0),
                               child: Column(
                                 children: [
                                   Row(
@@ -202,11 +201,11 @@ class PaymentPage extends StatelessWidget {
                                         ),
                                     ],
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   if (history.isEmpty)
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                        vertical: 24,
+                                        vertical: 16,
                                       ),
                                       child: Center(
                                         child: AppText(
@@ -262,7 +261,7 @@ class PaymentPage extends StatelessWidget {
       radius: 16,
       border: Border.all(color: palette.border),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -300,7 +299,7 @@ class PaymentPage extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             // Chegirma bo'lsa - eski narx (chizilgan)
             if (hasDiscount)
               Padding(
@@ -345,7 +344,7 @@ class PaymentPage extends StatelessWidget {
               fontWeight: 400,
               color: palette.subtitleColor,
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
             ContainerW(
               onTap: buttonDisabled ? null : onSelect,
               color: isCurrent ? palette.buttonDisabledBg : palette.buttonBg,
@@ -376,12 +375,12 @@ class PaymentPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             Divider(color: palette.dividerColor, thickness: 1, height: 1),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ...plan.features.map((feature) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -508,7 +507,7 @@ class PaymentPage extends StatelessWidget {
         final item = entry.value;
         final isLast = index == history.length - 1;
         return Padding(
-          padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+          padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
           child: _buildHistoryCard(context, item),
         );
       }).toList(),
@@ -525,7 +524,7 @@ class PaymentPage extends StatelessWidget {
       radius: 12,
       border: Border.all(color: context.borderColor),
       child: Padding(
-        padding: const EdgeInsets.all(14.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -570,7 +569,7 @@ class PaymentPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildHistoryRow(
               context,
               l10n.paymentTariff,

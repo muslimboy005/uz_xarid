@@ -24,6 +24,7 @@ import 'package:uzxarid/core/widgets/app_image.dart';
 import 'package:uzxarid/core/widgets/app_text.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uzxarid/core/widgets/w__container.dart';
+import 'package:uzxarid/features/add_listing/data/datasources/cadastre_service.dart';
 import 'package:uzxarid/features/add_listing/domain/entities/create_ad_params.dart';
 import 'package:uzxarid/features/add_listing/domain/entities/category_field_entity.dart';
 import 'package:uzxarid/features/add_listing/domain/entities/location_place_entity.dart';
@@ -182,6 +183,12 @@ class _AddListingPageState extends State<AddListingPage> {
   int? _selectedCarTrimId;
   String? _selectedCarTrimName;
 
+  // ─── Uy / ko'chmas mulk: kadastr raqami orqali avtofill (UZKAD) ──
+  final TextEditingController _cadastreController = TextEditingController();
+  bool _cadastreSearching = false;
+  String? _cadastreError;
+  CadastreResult? _cadastreResult;
+
   @override
   void initState() {
     super.initState();
@@ -227,6 +234,7 @@ class _AddListingPageState extends State<AddListingPage> {
     _carPlateController.dispose();
     _carTechSeriesController.dispose();
     _carTechNumberController.dispose();
+    _cadastreController.dispose();
     _videoYoutubeController.dispose();
     _videoTelegramController.dispose();
     _videoInstagramController.dispose();
@@ -412,7 +420,7 @@ class _AddListingPageState extends State<AddListingPage> {
               children: [
                 AppText(
                   text: l10n.addListingCreateHeadline,
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: 700,
                   color: textColor,
                 ),
@@ -423,7 +431,7 @@ class _AddListingPageState extends State<AddListingPage> {
                   fontWeight: 400,
                   color: textSecondary,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 22),
                 _card(
                   cardColor: cardColor,
                   borderColor: borderColor,
@@ -436,7 +444,7 @@ class _AddListingPageState extends State<AddListingPage> {
                         fontWeight: 600,
                         color: textColor,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       AppText(
                         text: l10n.profileAuthDescription,
                         fontSize: 14,
@@ -457,7 +465,7 @@ class _AddListingPageState extends State<AddListingPage> {
             onTap: _showPhoneBottomSheet,
           ),
         ),
-        const SizedBox(height: 100),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -482,7 +490,7 @@ class _AddListingPageState extends State<AddListingPage> {
               children: [
                 AppText(
                   text: l10n.addListingCreateHeadline,
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: 700,
                   color: textColor,
                 ),
@@ -494,7 +502,7 @@ class _AddListingPageState extends State<AddListingPage> {
                   fontWeight: 400,
                   color: textSecondary,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 _card(
                   cardColor: cardColor,
                   borderColor: borderColor,
@@ -533,7 +541,7 @@ class _AddListingPageState extends State<AddListingPage> {
                   },
           ),
         ),
-        const SizedBox(height: 100),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -604,6 +612,11 @@ class _AddListingPageState extends State<AddListingPage> {
         setState(() {
           _dynamicFieldsLoading = false;
           _dynamicFields = fields;
+          // Kadastr ma'lumoti category fieldlardan oldin olingan bo'lsa,
+          // fieldlar yuklanganda qaytadan to'ldiramiz.
+          if (_cadastreResult != null) {
+            _applyCadastreToDynamicFields(_cadastreResult!);
+          }
         });
       },
     );
@@ -958,7 +971,7 @@ class _AddListingPageState extends State<AddListingPage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: textSecondary),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => formContext.pop(),
                     child: Text(l10n.addListingBack),
@@ -979,71 +992,74 @@ class _AddListingPageState extends State<AddListingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAdTypeTabs(cardColor, textColor, borderColor),
-                    const SizedBox(height: 16),
-                    _buildTypeTabs(
-                      formContext,
-                      cardColor,
-                      textColor,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildCategoryCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildDynamicFieldsCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildProductNameCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildVideoLinksCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSummaCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPhoneCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildImageUploadCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildLocationCard(
-                      cardColor,
-                      textColor,
-                      textSecondary,
-                      borderColor,
-                    ),
-                    const SizedBox(height: 24),
+                    // Bo'sh (SizedBox.shrink) bo'limlar avtomatik tashlab
+                    // yuboriladi; ko'rinadigan bo'limlar orasiga faqat bitta
+                    // ixcham bo'shliq qo'yiladi — ortiqcha bo'sh joy qolmaydi.
+                    _spacedSections([
+                      _buildAdTypeTabs(cardColor, textColor, borderColor),
+                      _buildTypeTabs(
+                        formContext,
+                        cardColor,
+                        textColor,
+                        borderColor,
+                      ),
+                      _buildCategoryCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      if (_listingType == _ListingType.home)
+                        _buildCadastreSearchCard(
+                          cardColor,
+                          textColor,
+                          textSecondary,
+                          borderColor,
+                        ),
+                      _buildDynamicFieldsCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      _buildProductNameCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      _buildVideoLinksCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      _buildSummaCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      _buildPhoneCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      _buildImageUploadCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                      _buildLocationCard(
+                        cardColor,
+                        textColor,
+                        textSecondary,
+                        borderColor,
+                      ),
+                    ]),
+                    const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: BlocBuilder<AddListingBloc, AddListingState>(
@@ -1071,7 +1087,7 @@ class _AddListingPageState extends State<AddListingPage> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -1468,7 +1484,7 @@ class _AddListingPageState extends State<AddListingPage> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
                   color: selected ? selectedColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
@@ -1516,7 +1532,7 @@ class _AddListingPageState extends State<AddListingPage> {
     ];
 
     return SizedBox(
-      height: 48,
+      height: 42,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: types.length,
@@ -1544,7 +1560,7 @@ class _AddListingPageState extends State<AddListingPage> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOut,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
               decoration: BoxDecoration(
                 color: selected ? primaryColor : cardColor,
                 borderRadius: BorderRadius.circular(14),
@@ -1710,7 +1726,7 @@ class _AddListingPageState extends State<AddListingPage> {
           final label = level == 0
               ? l10n.addListingSelectSubcategory
               : l10n.addListingSelectType;
-          nestedRows.add(const SizedBox(height: 16));
+          nestedRows.add(const SizedBox(height: 12));
           nestedRows.add(_fieldLabel(label, false, textColor, textSecondary));
           nestedRows.add(const SizedBox(height: 8));
           if (isLoadingChildren && loadedChildren == null) {
@@ -1945,15 +1961,15 @@ class _AddListingPageState extends State<AddListingPage> {
                 textSecondary,
                 borderColor,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               _buildCarBrandModelTrimSection(
                 textColor,
                 textSecondary,
                 borderColor,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
@@ -1985,15 +2001,15 @@ class _AddListingPageState extends State<AddListingPage> {
               textSecondary,
               borderColor,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             _buildCarBrandModelTrimSection(
               textColor,
               textSecondary,
               borderColor,
             ),
-            if (visible.isNotEmpty) const SizedBox(height: 16),
+            if (visible.isNotEmpty) const SizedBox(height: 12),
           ],
           for (var i = 0; i < visible.length; i++) ...[
             _buildDynamicField(
@@ -2002,7 +2018,7 @@ class _AddListingPageState extends State<AddListingPage> {
               textSecondary,
               borderColor,
             ),
-            if (i < visible.length - 1) const SizedBox(height: 16),
+            if (i < visible.length - 1) const SizedBox(height: 12),
           ],
         ],
       ),
@@ -2028,7 +2044,7 @@ class _AddListingPageState extends State<AddListingPage> {
           uppercase: true,
           maxLength: 10,
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2077,7 +2093,7 @@ class _AddListingPageState extends State<AddListingPage> {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
           child: ContainerW(
@@ -2281,7 +2297,7 @@ class _AddListingPageState extends State<AddListingPage> {
             );
           },
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         _buildCarStaticDropdown(
           label: 'Model',
           value: _selectedCarModelName,
@@ -2313,7 +2329,7 @@ class _AddListingPageState extends State<AddListingPage> {
             );
           },
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         _buildCarStaticDropdown(
           label: 'Komplektatsiya',
           value: _selectedCarTrimName,
@@ -2923,6 +2939,447 @@ class _AddListingPageState extends State<AddListingPage> {
     };
     if (dynamicTech.isNotEmpty) {
       _applyTechDataToDynamicFields(dynamicTech);
+    }
+  }
+
+  // ─── UY / KO'CHMAS MULK: KADASTR ORQALI AVTOFILL ────────────────
+  //
+  // Kadastr raqamini kiritib "Ma'lumot olish" bosilsa, UZKAD (yer kadastri)
+  // tizimidan rasmiy ma'lumot olinadi va forma avtomatik to'ldiriladi:
+  //   * viloyat / tuman / mahalla (location cascade nom bo'yicha tanlanadi);
+  //   * markaziy nuqta (lat/lng — xaritaga joylashtiriladi);
+  //   * maydon, qavatlar, obyekt turi — dinamik maydonlarga.
+  //
+  // open.ngis.uz (401/anti-bot) va davreestr.uz (rasm captcha) o'rniga
+  // to'g'ridan-to'g'ri UZKAD ArcGIS ishlatiladi — RECAPTCHA chiqmaydi.
+  Widget _buildCadastreSearchCard(
+    Color cardColor,
+    Color textColor,
+    Color textSecondary,
+    Color borderColor,
+  ) {
+    final result = _cadastreResult;
+    String? areaText;
+    final area = result?.areaSqm;
+    if (area != null) {
+      areaText = area >= 100
+          ? '${formatThousands(area.toStringAsFixed(0))} kv.m'
+          : '${area.toStringAsFixed(2)} kv.m';
+    }
+    return _cardWithHeader(
+      cardColor: cardColor,
+      borderColor: borderColor,
+      title: 'Kadastr orqali avtofill',
+      subtitle: "Kadastr raqamini kiriting — manzil va ma'lumotlar "
+          "avtomatik to'ldiriladi",
+      textColor: textColor,
+      textSecondary: textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldLabel('Kadastr raqami', false, textColor, textSecondary),
+          const SizedBox(height: 8),
+          _carTechInput(
+            controller: _cadastreController,
+            hint: '10:05:43:01:02:0170',
+            borderColor: borderColor,
+            maxLength: 40,
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ContainerW(
+              color: AppColors.primary,
+              radius: 12,
+              onTap: _cadastreSearching ? () {} : _searchCadastreData,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Center(
+                  child: _cadastreSearching
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.white,
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.travel_explore_rounded,
+                              color: AppColors.white,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            AppText(
+                              text: "Ma'lumot olish",
+                              fontSize: 15,
+                              fontWeight: 600,
+                              color: AppColors.white,
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.blue50,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.blue500.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 18,
+                  color: AppColors.blue600,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: "Rasmiy Ma'lumotlar Manbai",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: AppColors.blue600,
+                      ),
+                      const SizedBox(height: 2),
+                      AppText(
+                        text: "Ma'lumotlar O'zbekiston yer kadastri (UZKAD) "
+                            "tizimidan rasmiy ravishda olinadi",
+                        fontSize: 12,
+                        fontWeight: 400,
+                        color: textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_cadastreError != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.red.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.red.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded,
+                      color: AppColors.red, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: AppText(
+                      text: _cadastreError!,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: AppColors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (result != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.green.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle_outline_rounded,
+                          color: AppColors.green, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: AppText(
+                          text: result.isParentMatch
+                              ? "Asosiy yer uchastkasi topildi va to'ldirildi"
+                              : "Ma'lumot topildi va formaga kiritildi",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: AppColors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _cadastreSummaryRow('Viloyat', result.regionName,
+                      textColor, textSecondary),
+                  _cadastreSummaryRow('Tuman', result.districtName,
+                      textColor, textSecondary),
+                  _cadastreSummaryRow('Mahalla', result.mahallaName,
+                      textColor, textSecondary),
+                  _cadastreSummaryRow('Obyekt turi', result.objectDescription,
+                      textColor, textSecondary),
+                  _cadastreSummaryRow(
+                      'Maydoni', areaText, textColor, textSecondary),
+                  _cadastreSummaryRow(
+                      'Qavatlar',
+                      result.storeCount?.toString(),
+                      textColor,
+                      textSecondary),
+                  if (result.latitude != null && result.longitude != null)
+                    _cadastreSummaryRow(
+                        'Koordinata',
+                        '${result.latitude!.toStringAsFixed(6)}, '
+                            '${result.longitude!.toStringAsFixed(6)}',
+                        textColor,
+                        textSecondary),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _cadastreSummaryRow(
+    String label,
+    String? value,
+    Color textColor,
+    Color textSecondary,
+  ) {
+    if (value == null || value.trim().isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 96,
+            child: AppText(
+              text: label,
+              fontSize: 12,
+              fontWeight: 500,
+              color: textSecondary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: AppText(
+              text: value,
+              fontSize: 13,
+              fontWeight: 600,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _searchCadastreData() async {
+    final raw = _cadastreController.text.trim();
+    if (raw.length < 5) {
+      setState(() {
+        _cadastreError = "Kadastr raqamini to'liq kiriting "
+            "(masalan: 10:05:43:01:02:0170)";
+        _cadastreResult = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _cadastreSearching = true;
+      _cadastreError = null;
+    });
+
+    developer.log('Qidiruv boshlandi: "$raw"', name: 'CADASTRE-UI');
+    try {
+      final result = await CadastreService().lookup(raw);
+      if (!mounted) return;
+      if (result == null) {
+        developer.log('Natija: topilmadi ("$raw")', name: 'CADASTRE-UI');
+        setState(() {
+          _cadastreSearching = false;
+          _cadastreError = "$raw bo'yicha kadastr tizimida ma'lumot topilmadi";
+          _cadastreResult = null;
+        });
+        return;
+      }
+
+      developer.log(
+        'Natija: ${result.regionName} / ${result.districtName} / '
+        '${result.mahallaName} · turi=${result.objectDescription} · '
+        'maydon=${result.areaSqm} · qavat=${result.storeCount}',
+        name: 'CADASTRE-UI',
+      );
+
+      // 1. Manzil (viloyat / tuman / mahalla) — dropdownlarni nom bo'yicha tanlash.
+      await _autoSelectCascadeFromReverse(
+        regionName: result.regionName,
+        districtName: result.districtName,
+        neighborhoodName: result.mahallaName,
+        displayName: null,
+      );
+      if (!mounted) return;
+      developer.log(
+        'Manzil tanlandi: region=$_selectedRegionId, '
+        'district=$_selectedDistrictId, mahalla=$_selectedNeighborhoodId',
+        name: 'CADASTRE-UI',
+      );
+
+      // 2. Dinamik maydonlar (maydon / qavatlar / obyekt turi).
+      _applyCadastreToDynamicFields(result);
+
+      setState(() {
+        _cadastreSearching = false;
+        _cadastreError = null;
+        _cadastreResult = result;
+        // 3. Xarita uchun markaziy nuqta.
+        if (result.latitude != null && result.longitude != null) {
+          _latitude = result.latitude;
+          _longitude = result.longitude;
+          _addressName = [
+            result.regionName,
+            result.districtName,
+            result.mahallaName,
+          ].where((e) => e != null && e.isNotEmpty).join(', ');
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _cadastreSearching = false;
+        _cadastreError = "Kutilmagan xato: $e";
+        _cadastreResult = null;
+      });
+    }
+  }
+
+  /// Kadastr natijasini dinamik (category) maydonlarga moslashtiradi.
+  /// Field nomi yoki label'i alias ro'yxatiga mos kelsa qiymat yoziladi.
+  void _applyCadastreToDynamicFields(CadastreResult r) {
+    if (_dynamicFields.isEmpty) return;
+
+    String norm(String s) =>
+        s.toLowerCase().replaceAll(RegExp(r'[\s_\-]+'), '');
+
+    bool isMatch(String fieldName, List<String> aliases) {
+      final n = norm(fieldName);
+      for (final a in aliases) {
+        if (n == norm(a)) return true;
+      }
+      for (final a in aliases) {
+        if (n.contains(norm(a))) return true;
+      }
+      return false;
+    }
+
+    void setForField(CategoryFieldEntity field, String rawValue) {
+      final type = field.type.toLowerCase();
+      final value = rawValue.trim();
+      if (value.isEmpty) return;
+      if (type == 'text' || type == 'number' || type == 'range') {
+        final c = _controllerForDynamicField(field.name);
+        final useThousands = (type == 'number' || type == 'range') &&
+            _isThousandsField(field.name);
+        c.text = useThousands ? formatThousands(value) : value;
+        _dynamicValues[field.name] =
+            useThousands ? stripThousandsSpaces(value) : value;
+        return;
+      }
+      if (type == 'select' || type == 'multiselect') {
+        final lowerVal = value.toLowerCase();
+        CategoryFieldOptionEntity? best;
+        for (final o in field.options) {
+          if (o.value.toLowerCase() == lowerVal ||
+              o.label.toLowerCase() == lowerVal) {
+            best = o;
+            break;
+          }
+        }
+        best ??= () {
+          for (final o in field.options) {
+            final v = o.value.toLowerCase();
+            final l = o.label.toLowerCase();
+            if (v.contains(lowerVal) ||
+                lowerVal.contains(v) ||
+                l.contains(lowerVal) ||
+                lowerVal.contains(l)) {
+              return o;
+            }
+          }
+          return null;
+        }();
+        if (best != null) {
+          _dynamicValues[field.name] =
+              type == 'multiselect' ? [best.value] : best.value;
+        }
+      }
+    }
+
+    String? fmtNum(double? v) {
+      if (v == null) return null;
+      if (v == v.roundToDouble()) return v.toInt().toString();
+      return v.toStringAsFixed(2);
+    }
+
+    final cadValue =
+        r.cadastreNumber.isNotEmpty ? r.cadastreNumber : _cadastreController.text.trim();
+
+    final mapping = <(List<String>, String?)>[
+      (
+        ['maydon', 'maydoni', 'umumiymaydon', 'area', 'totalarea',
+            'yermaydoni', 'square', 'kvadratura', 'uchastka'],
+        fmtNum(r.areaSqm),
+      ),
+      (
+        ['qavatlarsoni', 'qavatlar', 'floors', 'floorcount', 'etajnost',
+            'etajlar', 'qavat', 'floor', 'etaj'],
+        r.storeCount?.toString(),
+      ),
+      (['balandlik', 'height'], fmtNum(r.height)),
+      (
+        ['kadastr', 'kadastrraqami', 'cadastre', 'cadastral', 'cadastrenumber',
+            'cadastralnumber'],
+        cadValue,
+      ),
+      (
+        ['obyektturi', 'mulkturi', 'propertytype', 'propertykind', 'binoturi'],
+        r.objectDescription,
+      ),
+      (['viloyat', 'region'], r.regionName),
+      (['tuman', 'district'], r.districtName),
+      (['mahalla', 'mfy', 'neighborhood'], r.mahallaName),
+    ];
+
+    for (final (aliases, value) in mapping) {
+      if (value == null || value.isEmpty) continue;
+      for (final field in _dynamicFields) {
+        if (isMatch(field.name, aliases) || isMatch(field.label, aliases)) {
+          setForField(field, value);
+          developer.log(
+            "Dinamik maydon to'ldirildi: ${field.name} = $value",
+            name: 'CADASTRE-UI',
+          );
+        }
+      }
     }
   }
 
@@ -3559,7 +4016,7 @@ class _AddListingPageState extends State<AddListingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildLangTabs(cardColor, textColor, borderColor),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _fieldLabel(
             'Nomi ($langCode)',
             _nameLang == _NameLang.uz,
@@ -3575,7 +4032,7 @@ class _AddListingPageState extends State<AddListingPage> {
               _NameLang.en => _nameEnController,
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _fieldLabel(
             'Tavsif ($langCode)',
             _nameLang == _NameLang.uz,
@@ -3721,7 +4178,7 @@ class _AddListingPageState extends State<AddListingPage> {
             keyboardType: TextInputType.phone,
             inputFormatters: [UzbekPhoneInputFormatter()],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _fieldLabel(
             'Qo‘shimcha telefon raqam',
             false,
@@ -4282,7 +4739,7 @@ class _AddListingPageState extends State<AddListingPage> {
               });
             },
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _locationCascadeDropdown(
             labelText: l10n.districtLabel,
             isRequiredField: true,
@@ -4316,7 +4773,7 @@ class _AddListingPageState extends State<AddListingPage> {
               });
             },
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _locationCascadeDropdown(
             labelText: l10n.addListingMahalla,
             isRequiredField: false,
@@ -4345,7 +4802,7 @@ class _AddListingPageState extends State<AddListingPage> {
               });
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           GestureDetector(
             onTap: _pickLocation,
             child: Container(
@@ -4388,7 +4845,7 @@ class _AddListingPageState extends State<AddListingPage> {
               ),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -4647,7 +5104,7 @@ class _AddListingPageState extends State<AddListingPage> {
             textColor,
             textSecondary,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           // Og'irlik
           AppText(
             text: l10n.addListingWeight,
@@ -4685,7 +5142,7 @@ class _AddListingPageState extends State<AddListingPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           // O'lchamlar
           AppText(
             text: l10n.addListingDimensions,
@@ -5166,6 +5623,25 @@ class _AddListingPageState extends State<AddListingPage> {
 
   // ─── SHARED WIDGETS ─────────────────────────────────────────────
 
+  /// Bo'limlarni vertikal joylaydi: bo'sh (SizedBox.shrink) bo'limlarni
+  /// tashlab yuboradi va faqat ko'rinadigan bo'limlar orasiga bitta [gap]
+  /// bo'shliq qo'yadi. Shu bilan yashirin kartalardan qoladigan ikki
+  /// karra bo'sh joy yo'qoladi.
+  Widget _spacedSections(List<Widget> sections, {double gap = 12}) {
+    final visible = sections
+        .where((w) => !(w is SizedBox && w.width == 0 && w.height == 0))
+        .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < visible.length; i++) ...[
+          if (i > 0) SizedBox(height: gap),
+          visible[i],
+        ],
+      ],
+    );
+  }
+
   Widget _card({
     required Color cardColor,
     required Color borderColor,
@@ -5174,7 +5650,7 @@ class _AddListingPageState extends State<AddListingPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(18),
@@ -5243,7 +5719,7 @@ class _AddListingPageState extends State<AddListingPage> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 12),
           child,
         ],
       ),
@@ -5305,7 +5781,7 @@ class _AddListingPageState extends State<AddListingPage> {
         fillColor: surfaceBg,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 14,
+          vertical: 11,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -5511,7 +5987,7 @@ class _CategorySheetContentState extends State<_CategorySheetContent> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: AppText(

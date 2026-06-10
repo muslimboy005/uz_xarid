@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
         final repo = HomeRepositoryImpl(homeApi: getIt<HomeApi>());
         final useCase = GetHome(repo);
         return HomeBloc(useCase)
-          ..add(HomeRequested(adType: adType, pageSize: 16));
+          ..add(HomeRequested(adType: adType, pageSize: 10));
       },
       child: MultiBlocListener(
         listeners: [
@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
             listener: (context, mode) {
               final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
               context.read<HomeBloc>().add(
-                HomeRequested(adType: adType, pageSize: 16),
+                HomeRequested(adType: adType, pageSize: 10),
               );
             },
           ),
@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                   ? 'Buy'
                   : 'Sell';
               context.read<HomeBloc>().add(
-                HomeRequested(adType: adType, pageSize: 16),
+                HomeRequested(adType: adType, pageSize: 10),
               );
             },
           ),
@@ -205,6 +205,7 @@ class _HomePageState extends State<HomePage> {
                           l10n.recommendationsTitle,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
+                                fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 color: textColor,
                               ),
@@ -329,6 +330,7 @@ class _HomePageState extends State<HomePage> {
                               l10n.giftHeadline,
                               style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(
+                                    fontSize: 20,
                                     fontWeight: FontWeight.w800,
                                     color: textColor,
                                   ),
@@ -361,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppDimens.paddingMedium,
@@ -439,6 +441,7 @@ class _HomePageState extends State<HomePage> {
                           l10n.servicesTitle,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
+                                fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 color: textColor,
                               ),
@@ -472,7 +475,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.paddingMedium,

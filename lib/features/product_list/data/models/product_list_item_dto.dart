@@ -13,6 +13,8 @@ class ProductListItemDto {
     this.rating = 0,
     this.reviewCount = 0,
     this.categoryName,
+    this.latitude,
+    this.longitude,
   });
 
   final String slug;
@@ -24,6 +26,8 @@ class ProductListItemDto {
   final double rating;
   final int reviewCount;
   final String? categoryName;
+  final double? latitude;
+  final double? longitude;
 
   factory ProductListItemDto.fromJson(Map<String, dynamic> json) {
     String? category;
@@ -41,6 +45,10 @@ class ProductListItemDto {
       rating: (json['rating'] ?? 0).toDouble(),
       reviewCount: json['review_count'] ?? json['reviewCount'] ?? 0,
       categoryName: category,
+      latitude: parseLatLng(json['latitude'] ?? json['lat']),
+      longitude: parseLatLng(
+        json['longitude'] ?? json['lng'] ?? json['long'],
+      ),
     );
   }
 
@@ -54,5 +62,15 @@ class ProductListItemDto {
     rating: rating,
     reviewCount: reviewCount,
     categoryName: categoryName,
+    latitude: latitude,
+    longitude: longitude,
   );
+}
+
+/// `latitude`/`longitude` qiymatini num yoki String dan double ga aylantiradi.
+double? parseLatLng(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
 }

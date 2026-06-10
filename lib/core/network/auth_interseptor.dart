@@ -37,7 +37,7 @@ class AuthInterceptor extends Interceptor {
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         headers: {
-          'Accept': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
         },
       ),

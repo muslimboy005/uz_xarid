@@ -37,15 +37,15 @@ class UnauthProfileContent extends StatelessWidget {
             fontSize: 16,
             color: textColor,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
 
           // Benefits Grid
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
             childAspectRatio: 1.35,
             children: [
               _BenefitCard(
@@ -71,7 +71,7 @@ class UnauthProfileContent extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
 
           InkWell(
             onTap: () => context.push('/profile/settings'),
@@ -93,7 +93,7 @@ class UnauthProfileContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
 
           // CTA Section
           ContainerW(
@@ -109,7 +109,7 @@ class UnauthProfileContent extends StatelessWidget {
               ),
             ],
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 18),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               child: Center(
                 child: AppText(
                   text: l10n.profileAuthCta,
@@ -196,7 +196,7 @@ class _BenefitCard extends StatelessWidget {
             ),
             child: AppImage(path: icon, color: color, size: 20),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           AppText(
             text: text,
             fontSize: 11,

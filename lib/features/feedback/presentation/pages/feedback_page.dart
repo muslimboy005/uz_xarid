@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
 import 'package:uzxarid/features/catalog/domain/entities/category_entity.dart';
 import 'package:uzxarid/features/feedback/data/feedback_repository.dart';
@@ -131,6 +132,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      useRootNavigator: true,
       builder: (context) => _ReasonPickerSheet(
         reasons: _reasons,
         selectedReason: _selectedReason,
@@ -154,6 +156,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      useRootNavigator: true,
       builder: (context) => _CategoryPickerSheet(
         categories: _categories,
         selectedCategory: _selectedCategory,
@@ -168,6 +171,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
+      useRootNavigator: true,
       builder: (context) {
         final cardColor = context.cardSurface;
         final textColor = context.textPrimary;
@@ -374,7 +378,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
         elevation: 0,
       ),
       bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        minimum: const EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          16 + AppDimens.bottomNavClearance,
+        ),
         child: SizedBox(
           height: 52,
           child: FilledButton(
@@ -425,7 +434,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   children: [
                     if (_pageError != null) ...[
                       _InlineBanner(message: _pageError!),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                     ],
                     _SectionCard(
                       color: cardColor,
@@ -433,7 +442,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _FieldLabel('Sabab *', color: textColor),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           _PickerField(
                             title: _selectedReason?.name ?? 'Sababni tanlang',
                             hasValue: _selectedReason != null,
@@ -448,9 +457,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             ),
                           ],
                           if (_requiresCustomReason) ...[
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             _FieldLabel('Boshqa sabab', color: textColor),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 6),
                             TextFormField(
                               controller: _customReasonController,
                               decoration: _inputDecoration(
@@ -470,14 +479,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _SectionCard(
                       color: cardColor,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _FieldLabel('Kategoriya', color: textColor),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           _PickerField(
                             title:
                                 _selectedCategory?.displayName ??
@@ -493,9 +502,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                   )
                                 : null,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           _FieldLabel('Mavzu', color: textColor),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           TextFormField(
                             controller: _subjectController,
                             maxLength: 120,
@@ -506,7 +515,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           ),
                           const SizedBox(height: 8),
                           _FieldLabel('Tavsif *', color: textColor),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           TextFormField(
                             controller: _descriptionController,
                             focusNode: _descriptionFocusNode,
@@ -521,9 +530,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             ),
                             onChanged: (_) => setState(() {}),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           _FieldLabel('Kontakt ma\'lumoti', color: textColor),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           TextFormField(
                             controller: _contactController,
                             keyboardType: TextInputType.emailAddress,
@@ -535,7 +544,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _SectionCard(
                       color: cardColor,
                       child: Column(
@@ -554,14 +563,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           OutlinedButton.icon(
                             onPressed: _showAttachmentSheet,
                             icon: const Icon(Icons.attach_file),
                             label: const Text('Fayl biriktirish'),
                           ),
                           if (_attachments.isNotEmpty) ...[
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 8),
                             ..._attachments.map(
                               (item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
@@ -583,7 +592,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Text(
                       'Sabab tanlanmaguncha yuborish tugmasi faol bo\'lmaydi.',
                       style: TextStyle(color: hintColor, fontSize: 13),
@@ -621,7 +630,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           width: 1.4,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       counterText: '',
     );
   }
@@ -637,7 +646,7 @@ class _SectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
@@ -683,7 +692,7 @@ class _PickerField extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: context.surfaceContainer,
           borderRadius: BorderRadius.circular(12),

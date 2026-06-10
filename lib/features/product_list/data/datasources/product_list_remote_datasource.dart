@@ -9,19 +9,21 @@ import 'package:uzxarid/features/search/data/datasources/search_api.dart';
 abstract class ProductListRemoteDatasource {
   Future<List<ProductListItemDto>> getSearchResults({
     required String query,
+    int page = 1,
     int pageSize = 200,
     Map<String, dynamic>? filterParams,
   });
 
   Future<List<ProductListItemDto>> getRecommendations({
+    int page = 1,
     int pageSize = 100,
     String adType = 'Sell',
     String? sort, // 'popular' | 'cheap' | 'expensive' | 'high-ranking' | null
   });
 
-  Future<List<ProductListItemDto>> getServices({int pageSize = 100});
+  Future<List<ProductListItemDto>> getServices({int page = 1, int pageSize = 100});
 
-  Future<List<ProductListItemDto>> getGifts({int pageSize = 100});
+  Future<List<ProductListItemDto>> getGifts({int page = 1, int pageSize = 100});
 
   Future<List<ProductListItemDto>> getByCategory({
     int? categoryId,
@@ -34,6 +36,7 @@ abstract class ProductListRemoteDatasource {
 
   Future<List<ProductListItemDto>> getFiltered({
     Map<String, dynamic>? filterParams,
+    int page = 1,
     int pageSize = 100,
     String? adType,
     String? listingType,
@@ -54,11 +57,13 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   @override
   Future<List<ProductListItemDto>> getSearchResults({
     required String query,
+    int page = 1,
     int pageSize = 200,
     Map<String, dynamic>? filterParams,
   }) async {
     final response = await searchApi.search(
       query: query,
+      page: page,
       pageSize: pageSize,
       extraParams: filterParams,
     );
@@ -67,6 +72,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
 
   @override
   Future<List<ProductListItemDto>> getRecommendations({
+    int page = 1,
     int pageSize = 100,
     String adType = 'Sell',
     String? sort,
@@ -74,20 +80,27 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
     final response = await homeApi.getRecommendations(
       pageSize,
       adType,
+      page: page,
       sort: sort,
     );
     return response.data.results.map(_fromRecommendationDto).toList();
   }
 
   @override
-  Future<List<ProductListItemDto>> getServices({int pageSize = 100}) async {
-    final response = await homeApi.getServices(pageSize);
+  Future<List<ProductListItemDto>> getServices({
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    final response = await homeApi.getServices(pageSize, page: page);
     return response.data.results.map(_fromRecommendationDto).toList();
   }
 
   @override
-  Future<List<ProductListItemDto>> getGifts({int pageSize = 100}) async {
-    final response = await homeApi.getGifts(pageSize);
+  Future<List<ProductListItemDto>> getGifts({
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    final response = await homeApi.getGifts(pageSize, page: page);
     return response.data.results.map(_fromRecommendationDto).toList();
   }
 
@@ -114,6 +127,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
   @override
   Future<List<ProductListItemDto>> getFiltered({
     Map<String, dynamic>? filterParams,
+    int page = 1,
     int pageSize = 100,
     String? adType,
     String? listingType,
@@ -124,6 +138,7 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
       'listing_type': ?listingType,
     };
     final response = await catalogApi.getAds(
+      page: page,
       pageSize: pageSize,
       extraParams: extra.isEmpty ? null : extra,
     );
@@ -140,6 +155,8 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
       currency: dto.currency,
       rating: dto.rating,
       reviewCount: dto.reviewCount,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
     );
   }
 
@@ -153,6 +170,8 @@ class ProductListRemoteDatasourceImpl implements ProductListRemoteDatasource {
       currency: dto.currency,
       rating: dto.rating,
       reviewCount: dto.reviewCount,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
     );
   }
 }

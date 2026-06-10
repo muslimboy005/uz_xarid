@@ -326,15 +326,15 @@ class ProductDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 ShimmerDetailImage(height: 300),
-                SizedBox(height: 12),
+                SizedBox(height: 8),
                 ShimmerDetailBlock(height: 100),
-                SizedBox(height: 16),
+                SizedBox(height: 12),
                 ShimmerDetailBlock(height: 60),
-                SizedBox(height: 16),
+                SizedBox(height: 12),
                 ShimmerDetailBlock(height: 80),
-                SizedBox(height: 16),
+                SizedBox(height: 12),
                 ShimmerDetailBlock(height: 120),
-                SizedBox(height: 32),
+                SizedBox(height: 20),
               ],
             ),
           );
@@ -464,37 +464,37 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(padding: hPad, child: _buildImageGallery()),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Padding(padding: hPad, child: _buildTitleSection()),
           if (ad.attributes.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Padding(padding: hPad, child: _buildVehicleAttributesSection()),
           ],
           if (ad.colors.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Padding(padding: hPad, child: _buildColorSection()),
           ],
           if (ad.sizes.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Padding(padding: hPad, child: _buildSizeSection()),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Padding(padding: hPad, child: _buildPriceSection()),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Padding(padding: hPad, child: _buildActionButtons()),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Padding(padding: hPad, child: _buildSellerSection()),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Padding(padding: hPad, child: _buildTabSection()),
           if (ad.latitude != null && ad.longitude != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Padding(padding: hPad, child: _buildLocationSection()),
           ],
           if (ad.similar.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildSimilarSection(),
           ],
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -583,7 +583,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
 
         // Thumbnails list
         if (images.length > 1) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           SizedBox(
             height: 64, // Thumbnail height
             child: ListView.separated(
@@ -657,7 +657,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Text(
           ad.title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -666,7 +666,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             height: 1.3,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           AppLocalizations.of(context)!.productDetailInStock(''),
           style: Theme.of(
@@ -718,11 +718,11 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         // Bir xil kenglikdagi 2 ustunli grid.
         LayoutBuilder(
           builder: (context, constraints) {
-            const spacing = 10.0;
+            const spacing = 8.0;
             final itemWidth = (constraints.maxWidth - spacing) / 2;
             return Wrap(
               spacing: spacing,
@@ -769,7 +769,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 11,
+                                vertical: 9,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,7 +834,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             color: context.textPrimary,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         ValueListenableBuilder<int?>(
           valueListenable: _selectedColorId,
           builder: (context, selectedId, _) {
@@ -893,7 +893,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             color: textColor,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         ValueListenableBuilder<int?>(
           valueListenable: _selectedSizeId,
           builder: (context, selectedId, _) {
@@ -1061,7 +1061,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         ContainerW(
           width: double.infinity,
           onTap: () {
@@ -1100,7 +1100,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         SizedBox(
           height: 48,
           child: Row(
@@ -1190,7 +1190,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             radius: 12,
             borderColor: context.borderColor,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1201,7 +1201,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       color: textColor,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1247,14 +1247,14 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   ContainerW(
                     onTap: () => context.go('/profile'),
                     width: double.infinity,
                     color: _primaryColor,
                     radius: 12,
                     child: Padding(
-                      padding: const EdgeInsets.all(14.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: Center(
                         child: AppText(
                           text: 'Mening profilim',
@@ -1278,7 +1278,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
       radius: 12,
       borderColor: context.borderColor,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1294,7 +1294,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1374,7 +1374,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ContainerW(
               onTap: () {
                 if (ad.userId != null) {
@@ -1385,7 +1385,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
               color: _primaryColor,
               radius: 12,
               child: Padding(
-                padding: const EdgeInsets.all(14.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Center(
                   child: AppText(
                     text: l10n.adAuthorOtherAds,
@@ -1463,7 +1463,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.paddingMedium,
-        vertical: 16,
+        vertical: 12,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1476,7 +1476,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             ValueListenableBuilder<bool>(
               valueListenable: _isDescExpanded,
               builder: (context, isDescExpanded, _) {
@@ -1494,7 +1494,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () =>
                           _isDescExpanded.value = !_isDescExpanded.value,
@@ -1528,7 +1528,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 );
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
           ],
           if (ad.options.isNotEmpty) ...[
             Text(
@@ -1538,7 +1538,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ValueListenableBuilder<bool>(
               valueListenable: _isFeaturesExpanded,
               builder: (context, isFeaturesExpanded, _) {
@@ -1548,7 +1548,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                         .take(isFeaturesExpanded ? ad.options.length : 5)
                         .map((o) {
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.only(bottom: 8),
                             child: Column(
                               children: [
                                 Row(
@@ -1579,7 +1579,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
                                 Divider(height: 1, color: context.borderColor),
                               ],
                             ),
@@ -1616,7 +1616,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                     ],
                   ],
                 );
@@ -1637,7 +1637,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
       builder: (context, state) {
         if (state.status == ProductFeedbackStatus.loading) {
           return const Padding(
-            padding: EdgeInsets.all(32),
+            padding: EdgeInsets.all(24),
             child: Center(child: CircularProgressIndicator()),
           );
         }
@@ -1653,7 +1653,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
             padding: const EdgeInsets.all(AppDimens.paddingMedium),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+              padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
               decoration: BoxDecoration(
                 color: context.cardSurface,
                 borderRadius: BorderRadius.circular(12),
@@ -1676,7 +1676,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       color: AppColors.white,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Text(
                     l10n.reviewsEmptyTitle,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -1685,7 +1685,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
                     l10n.reviewsEmptySubtitle,
                     style: Theme.of(
@@ -1693,7 +1693,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     ).textTheme.bodySmall?.copyWith(color: textSecondary),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -1747,7 +1747,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               ...results.map((r) {
                 final author = r['user'] ?? {};
                 final name =
@@ -1768,8 +1768,8 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                     : '';
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: context.cardSurface,
                     borderRadius: BorderRadius.circular(12),
@@ -1827,7 +1827,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                             ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       Text(
                         text,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -1926,7 +1926,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -1946,7 +1946,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       }),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: controller,
                     maxLines: 4,
@@ -1976,7 +1976,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -2058,7 +2058,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                 ],
               ),
             );
@@ -2082,7 +2082,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
       radius: 16,
       borderColor: context.borderColor,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2107,7 +2107,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             if (ad.address != null && ad.address!.isNotEmpty) ...[
               Row(
                 children: [
@@ -2127,12 +2127,12 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
             ],
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
-                height: 220,
+                height: 180,
                 child: Stack(
                   children: [
                     YandexMap(
@@ -2197,7 +2197,7 @@ class _ProductDetailBodyState extends State<_ProductDetailBody>
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -2371,7 +2371,7 @@ class _LocationButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: context.borderColor),

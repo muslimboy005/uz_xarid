@@ -11,6 +11,8 @@ class RecommendationDto {
   final double rating;
   final int reviewCount;
   final bool isTop;
+  final double? latitude;
+  final double? longitude;
 
   RecommendationDto({
     required this.slug,
@@ -22,6 +24,8 @@ class RecommendationDto {
     this.rating = 0,
     this.reviewCount = 0,
     this.isTop = false,
+    this.latitude,
+    this.longitude,
   });
 
   factory RecommendationDto.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,8 @@ class RecommendationDto {
       rating: (json['rating'] as num?)?.toDouble() ?? 0,
       reviewCount: (json['review_count'] as num?)?.toInt() ?? 0,
       isTop: json['is_top'] as bool? ?? false,
+      latitude: _toDouble(json['latitude'] ?? json['lat']),
+      longitude: _toDouble(json['longitude'] ?? json['lng'] ?? json['long']),
     );
   }
 
@@ -49,4 +55,11 @@ class RecommendationDto {
     reviewCount: reviewCount,
     isTop: isTop,
   );
+}
+
+double? _toDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
 }

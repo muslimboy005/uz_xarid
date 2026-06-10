@@ -115,6 +115,8 @@ Future<SoliqIdentityInput?> showSoliqIdentityInputSheet(
   return showModalBottomSheet<SoliqIdentityInput>(
     context: context,
     isScrollControlled: true,
+    // Profil tab kabi shell sahifadan chaqirilganda suzuvchi nav yopmasligi uchun.
+    useRootNavigator: true,
     backgroundColor: context.cardSurface,
     builder: (ctx) {
       InputDecoration dec(String hint) => InputDecoration(

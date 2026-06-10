@@ -31,6 +31,8 @@ class PhoneBottomSheet extends StatefulWidget {
     showModalBottomSheet<void>(
       context: parentContext,
       isScrollControlled: true,
+      // Suzuvchi bottom nav / FAB sheet ustini yopmasligi uchun root navigator.
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -96,13 +98,9 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
     });
 
     try {
-      final code = Localizations.localeOf(context).languageCode.toLowerCase();
-      final response = await _dio.get(
-        ApiUrls.activeOffer,
-        options: Options(
-          headers: {'Accept-Language': _buildAcceptLanguage(code)},
-        ),
-      );
+      // Accept-Language LanguageInterceptor tomonidan (bitta tanlangan til)
+      // har so'rovga qo'yiladi — bu yerda alohida override kerak emas.
+      final response = await _dio.get(ApiUrls.activeOffer);
 
       final offer = _ActiveOffer.fromAny(response.data);
       if (!mounted) return;
@@ -117,12 +115,6 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
         _isOfferLoading = false;
       });
     }
-  }
-
-  String _buildAcceptLanguage(String current) {
-    const supported = ['uz', 'ru', 'en'];
-    final ordered = <String>[current, ...supported.where((e) => e != current)];
-    return ordered.join(', ');
   }
 
   Future<void> _openOfferPageView() async {
@@ -245,7 +237,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   child: Container(
                     width: 40,
                     height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
+                    margin: const EdgeInsets.only(bottom: 14),
                     decoration: BoxDecoration(
                       color: textSecondary,
                       borderRadius: BorderRadius.circular(2),
@@ -270,7 +262,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: 21),
+              const SizedBox(height: 14),
               AppText(
                 text: l10n.loginSheetDescription,
                 textAlign: TextAlign.center,
@@ -279,7 +271,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 color: textSecondary,
                 maxLines: 2,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               Align(
                 alignment: Alignment.centerLeft,
                 child: AppText(
@@ -315,7 +307,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                 ),
               ),
               if (_cooldownSeconds > 0 || _errorMessage != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -374,7 +366,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -420,7 +412,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               if (_isOfferLoading)
                 SizedBox(
                   height: 18,
@@ -486,7 +478,7 @@ class _PhoneBottomSheetState extends State<PhoneBottomSheet> {
                     style: TextStyle(color: primaryColor, fontSize: 12),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -570,7 +562,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
               borderRadius: BorderRadius.circular(999),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -592,7 +584,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -603,7 +595,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
               },
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: context.surfaceContainer,
@@ -611,7 +603,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
                       border: Border.all(color: context.borderColor),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -652,7 +644,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: context.surfaceContainer,
@@ -660,7 +652,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
                       border: Border.all(color: context.borderColor),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -670,7 +662,7 @@ class _OfferPageViewState extends State<_OfferPageView> {
                             fontWeight: 700,
                             color: textColor,
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           Expanded(
                             child: SingleChildScrollView(
                               child: Text(

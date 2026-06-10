@@ -1,26 +1,23 @@
 import 'package:uzxarid/core/either/either.dart';
 import 'package:uzxarid/core/error/failures.dart';
 import 'package:uzxarid/core/usecases/usecase.dart';
-import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_result.dart';
 import 'package:uzxarid/features/product_list/domain/repositories/product_list_repository.dart';
 
 class GetProductList
-    extends
-        UseCase<
-          Either<Failure, List<ProductListItemEntity>>,
-          GetProductListParams
-        > {
+    extends UseCase<Either<Failure, ProductListResult>, GetProductListParams> {
   GetProductList(this._repository);
 
   final ProductListRepository _repository;
 
   @override
-  Future<Either<Failure, List<ProductListItemEntity>>> call(
+  Future<Either<Failure, ProductListResult>> call(
     GetProductListParams params,
   ) => _repository.getProducts(
     searchQuery: params.searchQuery,
     categoryId: params.categoryId,
     listSource: params.listSource,
+    page: params.page,
     pageSize: params.pageSize,
     adType: params.adType,
     categoryType: params.categoryType,
@@ -34,6 +31,7 @@ class GetProductListParams {
     this.searchQuery,
     this.categoryId,
     this.listSource = 'recommendations',
+    this.page = 1,
     this.pageSize = 100,
     this.adType = 'Sell',
     this.categoryType,
@@ -47,6 +45,9 @@ class GetProductListParams {
 
   /// 'recommendations' | 'services' | 'gifts' – categoryId null bo'lganda qaysi ro'yxat.
   final String listSource;
+
+  /// 1 dan boshlanadigan sahifa raqami (infinite scroll uchun).
+  final int page;
   final int pageSize;
   final String adType;
   final String? categoryType;

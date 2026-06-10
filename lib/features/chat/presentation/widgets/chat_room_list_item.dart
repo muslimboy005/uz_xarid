@@ -26,7 +26,7 @@ class ChatRoomListItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: cardColor,
           border: Border(
@@ -39,7 +39,7 @@ class ChatRoomListItem extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 28,
+              radius: 24,
               backgroundColor: AppColors.blue50,
               backgroundImage: participant?.avatarUrl != null
                   ? NetworkImage(participant!.avatarUrl!.cdnUrl)

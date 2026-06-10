@@ -19,6 +19,7 @@ import 'package:uzxarid/core/widgets/shimmer_placeholders.dart';
 import 'package:uzxarid/core/utils/responsive.dart';
 import 'package:uzxarid/core/widgets/uzxarid_app_bar.dart';
 import 'package:uzxarid/features/product_list/domain/entities/product_list_item_entity.dart';
+import 'package:uzxarid/features/product_list/domain/entities/product_list_result.dart';
 import 'package:uzxarid/features/product_list/domain/entities/subcategory_item.dart';
 import 'package:uzxarid/features/product_list/domain/usecases/get_product_list.dart';
 import 'package:uzxarid/features/product_list/domain/usecases/get_subcategories_by_category_id.dart';
@@ -76,6 +77,9 @@ class ProductListPage extends StatefulWidget {
 }
 
 class _ProductListPageState extends State<ProductListPage> {
+  /// Har bir sahifada nechta e'lon so'raladi (infinite scroll bo'lagi).
+  static const int _pageSize = 20;
+
   List<ProductListItemEntity> _items = [];
   List<SubcategoryItem> _loadedSubcategories = [];
   List<SubcategoryItem> _primarySubcategories = [];
@@ -95,10 +99,24 @@ class _ProductListPageState extends State<ProductListPage> {
   bool _mapViewMode = false;
   ProductViewMode _viewMode = ProductViewMode.grid;
 
+  // Sahifalash holati.
+  final ScrollController _scrollController = ScrollController();
+  int _page = 1;
+  bool _hasMore = false;
+  bool _loadingMore = false;
+
   @override
   void initState() {
     super.initState();
     _currentTitle = widget.title;
+    _scrollController.addListener(_onScroll);
+    // Katalogdan "Barchasi" orqali kirilganda subkategoriyalar
+    // widget.subcategories bilan keladi. Strip _primarySubcategories'dan
+    // chiziladi, shuning uchun uni darhol to'ldiramiz — aks holda ro'yxat
+    // bo'sh bo'lib, kategoriyalar ko'rinmay (faqat bo'sh joy) qoladi.
+    if (widget.subcategories.isNotEmpty) {
+      _primarySubcategories = List.of(widget.subcategories);
+    }
     _loadSubcategoriesIfNeeded();
   }
 
@@ -109,6 +127,13 @@ class _ProductListPageState extends State<ProductListPage> {
       _initialLoadDone = true;
       _load();
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSubcategoriesIfNeeded() async {
@@ -177,13 +202,7 @@ class _ProductListPageState extends State<ProductListPage> {
     return ids;
   }
 
-  Future<void> _load() async {
-    final l10n = AppLocalizations.of(context)!;
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-
+  GetProductListParams _buildParams(int page) {
     final mode = context.read<AppModeCubit>().state;
     final adType = mode == AppMode.buying ? 'Buy' : 'Sell';
 
@@ -193,28 +212,84 @@ class _ProductListPageState extends State<ProductListPage> {
         _activeChipId ??
         widget.categoryId;
 
-    final result = await getIt<GetProductList>()(
-      GetProductListParams(
-        searchQuery: widget.searchQuery,
-        categoryId: filterId,
-        listSource: widget.listSource,
-        adType: adType,
-        categoryType: widget.categoryType,
-        filterParams: _buildFilterParams(),
-        sort: _activeSortValue,
-      ),
+    return GetProductListParams(
+      searchQuery: widget.searchQuery,
+      categoryId: filterId,
+      listSource: widget.listSource,
+      page: page,
+      pageSize: _pageSize,
+      adType: adType,
+      categoryType: widget.categoryType,
+      filterParams: _buildFilterParams(),
+      sort: _activeSortValue,
     );
+  }
+
+  /// Birinchi sahifani yuklaydi (filtrlar/saralash/turkum o'zgarganda chaqiriladi).
+  Future<void> _load() async {
+    final l10n = AppLocalizations.of(context)!;
+    setState(() {
+      _loading = true;
+      _error = null;
+      _page = 1;
+      _hasMore = false;
+      _loadingMore = false;
+    });
+
+    final result = await getIt<GetProductList>()(_buildParams(1));
 
     if (!mounted) return;
     setState(() {
       _loading = false;
-      if (result is Right) {
-        _items = result.right;
+      if (result is Right<Failure, ProductListResult>) {
+        _items = result.right.items;
+        _hasMore = result.right.hasMore;
         _error = null;
       } else {
         _error = (result as Left).left.message ?? l10n.dataLoadError;
       }
     });
+  }
+
+  /// Keyingi sahifani yuklab, mavjud ro'yxatga qo'shadi (infinite scroll).
+  Future<void> _loadMore() async {
+    if (_loadingMore || !_hasMore || _loading) return;
+    setState(() => _loadingMore = true);
+
+    final nextPage = _page + 1;
+    final result = await getIt<GetProductList>()(_buildParams(nextPage));
+
+    if (!mounted) return;
+    setState(() {
+      _loadingMore = false;
+      if (result is Right<Failure, ProductListResult>) {
+        final fetched = result.right;
+        // Slug bo'yicha dublikatlarni olib tashlaymiz (xavfsizlik choragi:
+        // API sahifani takrorlasa ham bir xil karta ikki marta chiqmaydi).
+        final existing = _items.map((e) => e.slug).toSet();
+        final fresh = fetched.items
+            .where((e) => !existing.contains(e.slug))
+            .toList();
+        if (fresh.isEmpty) {
+          _hasMore = false;
+        } else {
+          _items = [..._items, ...fresh];
+          _page = nextPage;
+          _hasMore = fetched.hasMore;
+        }
+      } else {
+        // Xato — keyingi scrollda cheksiz qayta urinmaslik uchun to'xtatamiz.
+        _hasMore = false;
+      }
+    });
+  }
+
+  void _onScroll() {
+    if (!_hasMore || _loadingMore || _loading) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 800) {
+      _loadMore();
+    }
   }
 
   Map<String, dynamic> _buildFilterParams() {
@@ -456,7 +531,7 @@ class _ProductListPageState extends State<ProductListPage> {
       );
     }
     final searchHeader = Padding(
-      padding: const EdgeInsets.fromLTRB(8, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 16, 6),
       child: Row(
         children: [
           IconButton(
@@ -487,6 +562,7 @@ class _ProductListPageState extends State<ProductListPage> {
       backgroundColor: context.bodyBackground,
       actions: [_buildFilterButton(context)],
       floatingHeader: searchHeader,
+      scrollController: _scrollController,
       slivers: _buildBodySlivers(l10n),
     );
   }
@@ -522,10 +598,10 @@ class _ProductListPageState extends State<ProductListPage> {
       if (hasSubcategories) ...[
         SliverToBoxAdapter(child: _buildSubcategoriesStrip()),
         if (_secondarySubcategories.isNotEmpty) ...[
-          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          const SliverToBoxAdapter(child: SizedBox(height: 6)),
           SliverToBoxAdapter(child: _buildSecondarySubcategoriesStrip()),
         ],
-        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
       ],
       if (_loading)
         _buildLoadingSliver(context)
@@ -534,8 +610,22 @@ class _ProductListPageState extends State<ProductListPage> {
           hasScrollBody: false,
           child: ProductsNotFoundPlaceholder(l10n: l10n),
         )
-      else
+      else ...[
         _buildItemsSliver(context),
+        if (_loadingMore)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: SizedBox(
+                  width: 26,
+                  height: 26,
+                  child: CircularProgressIndicator(strokeWidth: 2.4),
+                ),
+              ),
+            ),
+          ),
+      ],
     ];
   }
 
@@ -544,7 +634,7 @@ class _ProductListPageState extends State<ProductListPage> {
       return SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: ShimmerGridProductCard(),
           ),
           childCount: 6,
@@ -552,7 +642,7 @@ class _ProductListPageState extends State<ProductListPage> {
       );
     }
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverGrid(
         gridDelegate: _gridDelegateForMode(context),
         delegate: SliverChildBuilderDelegate(
@@ -568,7 +658,7 @@ class _ProductListPageState extends State<ProductListPage> {
       return SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: _buildListTile(context, _items[index]),
           ),
           childCount: _items.length,
@@ -576,7 +666,7 @@ class _ProductListPageState extends State<ProductListPage> {
       );
     }
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverGrid(
         gridDelegate: _gridDelegateForMode(context),
         delegate: SliverChildBuilderDelegate(
@@ -780,10 +870,10 @@ class _ProductListPageState extends State<ProductListPage> {
     }
 
     return SizedBox(
-      height: 116,
+      height: 106,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         itemCount: list.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
@@ -800,10 +890,10 @@ class _ProductListPageState extends State<ProductListPage> {
 
   Widget _buildSecondarySubcategoriesStrip() {
     return SizedBox(
-      height: 116,
+      height: 106,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         itemCount: _secondarySubcategories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
@@ -957,7 +1047,7 @@ class _ProductListPageState extends State<ProductListPage> {
               style: const TextStyle(color: AppColors.red),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextButton(onPressed: _load, child: Text(l.actionRetry)),
           ],
         ),

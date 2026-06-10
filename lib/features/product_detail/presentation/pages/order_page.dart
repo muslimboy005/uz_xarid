@@ -113,7 +113,7 @@ class _OrderPageState extends State<OrderPage> {
               ),
             ),
             body: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
               child: Column(
                 children: [
                   _productCard(
@@ -128,9 +128,9 @@ class _OrderPageState extends State<OrderPage> {
                     border,
                     primaryColor,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   _deliveryCard(l, card, txt, txtSec, border, primaryColor),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   _commentCard(l, card, txt, border, primaryColor),
                 ],
               ),
@@ -172,7 +172,7 @@ class _OrderPageState extends State<OrderPage> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -208,12 +208,12 @@ class _OrderPageState extends State<OrderPage> {
           ),
           Divider(color: border, height: 1, thickness: 1),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: _qtyRow(txt),
           ),
           Divider(color: border, height: 1, thickness: 1),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -354,7 +354,7 @@ class _OrderPageState extends State<OrderPage> {
     Color primaryColor,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(16),
@@ -370,7 +370,7 @@ class _OrderPageState extends State<OrderPage> {
               color: txt,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           BlocBuilder<AddressBloc, AddressState>(
             builder: (context, state) {
               if (state.status == AddressStatus.loading &&
@@ -410,7 +410,7 @@ class _OrderPageState extends State<OrderPage> {
   ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         color: context.surfaceContainer,
         borderRadius: BorderRadius.circular(14),
@@ -430,7 +430,7 @@ class _OrderPageState extends State<OrderPage> {
               color: AppColors.white,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             l.orderAddressNotSelected,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -447,7 +447,7 @@ class _OrderPageState extends State<OrderPage> {
             ).textTheme.bodySmall?.copyWith(color: txtSec),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             height: 44,
@@ -532,12 +532,12 @@ class _OrderPageState extends State<OrderPage> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: addresses.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final address = addresses[index];
             final isSelected = _selectedAddress?.id == address.id;
@@ -556,7 +556,7 @@ class _OrderPageState extends State<OrderPage> {
                 color: isSelected ? primaryColor : borderColor,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -619,7 +619,7 @@ class _OrderPageState extends State<OrderPage> {
     Color primaryColor,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(16),
@@ -635,7 +635,7 @@ class _OrderPageState extends State<OrderPage> {
               color: txt,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           TextField(
             controller: _commentCtrl,
             maxLines: 4,

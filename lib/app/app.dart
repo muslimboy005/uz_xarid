@@ -17,7 +17,6 @@ import 'package:uzxarid/features/cart/presentation/bloc/cart_event.dart';
 import 'package:uzxarid/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:uzxarid/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:uzxarid/features/notification/presentation/bloc/notification_bloc.dart';
-import 'package:uzxarid/features/notification/presentation/bloc/notification_event.dart';
 import 'package:uzxarid/l10n/app_localizations.dart';
 
 /// AI yordamchi ekrani allaqachon ochiqligini kuzatuvchi bayroq —
@@ -50,9 +49,10 @@ class UzXaridApp extends StatelessWidget {
         BlocProvider(
           create: (_) => getIt<CartBloc>()..add(CartLoadRequested()),
         ),
+        // Badge'ni HomePage initState() o'zi yuklaydi (har home ochilganda
+        // yangilanadi) — bu yerda takroran yuklamaymiz.
         BlocProvider(
-          create: (_) => getIt<NotificationBloc>()
-            ..add(const NotificationBadgeLoadRequested()),
+          create: (_) => getIt<NotificationBloc>(),
         ),
         BlocProvider<CurrencyCubit>(
           create: (_) => getIt<CurrencyCubit>()..load(),

@@ -142,7 +142,7 @@ class _AuthorPageState extends State<AuthorPage>
   ) {
     return Container(
       color: context.surfaceContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         children: [
           Row(
@@ -202,7 +202,7 @@ class _AuthorPageState extends State<AuthorPage>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -286,7 +286,7 @@ class _AuthorPageState extends State<AuthorPage>
       );
     }
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       gridDelegate: AppResponsive.productGridDelegate(context),
       itemCount: author.ads.length + (isFetchingMore ? 2 : 0),
       itemBuilder: (context, index) {
@@ -314,13 +314,13 @@ class _AuthorPageState extends State<AuthorPage>
     Color primaryColor,
   ) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       children: [
         Text(
           AppLocalizations.of(context)!.authorContactsTitle,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _buildInfoCard(
           context,
           primaryColor: primaryColor,
@@ -332,7 +332,7 @@ class _AuthorPageState extends State<AuthorPage>
               ? () => _launchPhone(author.phone!)
               : null,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         _buildInfoCard(
           context,
           primaryColor: primaryColor,
@@ -344,7 +344,7 @@ class _AuthorPageState extends State<AuthorPage>
               ? () => _launchPhone(author.phone!)
               : null,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         _buildInfoCard(
           context,
           primaryColor: primaryColor,
@@ -375,12 +375,12 @@ class _AuthorPageState extends State<AuthorPage>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: context.borderColor),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [Icon(icon, color: primaryColor, size: 20)]),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -396,7 +396,7 @@ class _AuthorPageState extends State<AuthorPage>
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           GestureDetector(
             onTap: onTap,
             child: Row(

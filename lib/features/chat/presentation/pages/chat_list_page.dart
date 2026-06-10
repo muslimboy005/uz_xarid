@@ -51,7 +51,7 @@ class ChatListPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(state.error ?? 'Failed to load chats'),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
                           context.read<ChatListBloc>().add(const LoadChatRooms(refresh: true));

@@ -65,7 +65,7 @@ class AuthorizedProfileContent extends StatelessWidget {
             children: [
               AppText(
                 text: l10n.profileTitle,
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: 700,
                 color: textColor,
               ),
@@ -95,7 +95,7 @@ class AuthorizedProfileContent extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: AppDimens.paddingSmall2),
+          const SizedBox(height: AppDimens.paddingSmall),
           ContainerW(
             color: cardColor,
             radius: 16,
@@ -319,6 +319,8 @@ class AuthorizedProfileContent extends StatelessWidget {
                           context: context,
                           backgroundColor: Colors.transparent,
                           isScrollControlled: true,
+                          // Suzuvchi bottom nav sheet ustini yopmasligi uchun.
+                          useRootNavigator: true,
                           builder: (dialogContext) => const LogoutBottomSheet(),
                         );
 

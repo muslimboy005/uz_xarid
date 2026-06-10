@@ -219,7 +219,7 @@ class _CatalogPageState extends State<CatalogPage> {
     if (_isSearching) {
       return [
         SliverPadding(
-          padding: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.only(top: 12),
           sliver: SliverList.builder(
             itemCount: 8,
             itemBuilder: (_, _) => const Padding(
@@ -236,7 +236,7 @@ class _CatalogPageState extends State<CatalogPage> {
           hasScrollBody: false,
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -245,7 +245,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     size: 56,
                     color: context.textSecondary,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   AppText(
                     text: 'Hech narsa topilmadi',
                     fontSize: 15,
@@ -333,29 +333,21 @@ class _CatalogPageState extends State<CatalogPage> {
     if (state.showTypeTiles) {
       return [
         SliverPadding(
-          padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
+          padding: EdgeInsets.only(
+            bottom:
+                AppDimens.bottomNavClearance +
+                MediaQuery.paddingOf(context).bottom,
+          ),
           sliver: _buildTypeTilesSliver(context, state, l10n),
         ),
       ];
     }
     if (state.stack.isNotEmpty) {
-      return [
-        SliverPadding(
-          padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
-          sliver: _buildCategoryListSliver(context, state, l10n),
-        ),
-      ];
+      // Ro'yxat o'zining oxiriga bottom nav uchun bo'sh joy qo'shadi.
+      return [_buildCategoryListSliver(context, state, l10n)];
     }
-    final content = _buildRootContentSliver(context, state, l10n);
-    if (content is SliverFillRemaining) {
-      return [content];
-    }
-    return [
-      SliverPadding(
-        padding: const EdgeInsets.only(bottom: AppDimens.bottomNavClearance),
-        sliver: content,
-      ),
-    ];
+    // Yuklanish/xato/bo'sh holatlar yoki o'zi-clearance qo'shadigan ro'yxat.
+    return [_buildRootContentSliver(context, state, l10n)];
   }
 
   /// Pathda ko‘rsatiladigan nom: kategoriyadan kirilgan bo‘lsa o‘sha kategoriya, yo‘qsa tur nomi.
@@ -451,7 +443,7 @@ class _CatalogPageState extends State<CatalogPage> {
   ) {
     if (state.status == CatalogStatus.loading) {
       return SliverPadding(
-        padding: const EdgeInsets.only(top: 16, bottom: 24),
+        padding: const EdgeInsets.only(top: 12, bottom: 16),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) => Padding(
@@ -477,7 +469,7 @@ class _CatalogPageState extends State<CatalogPage> {
                   style: const TextStyle(color: AppColors.red),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 TextButton(
                   onPressed: () {
                     context.read<CatalogBloc>().add(
@@ -523,6 +515,13 @@ class _CatalogPageState extends State<CatalogPage> {
       null,
       l10n,
     );
+    // Eng pastdagi itemlar suzuvchi bottom nav orqasida qolib ketmasligi uchun
+    // ro'yxat oxiriga bo'sh joy qo'shamiz. Nav qurilmaning pastki xavfsiz
+    // zonasi (iOS home indicator / Android gesture) ustida suzadi; uning
+    // balandligini extendBody scaffold `padding.bottom` ga joylaydi (viewPadding
+    // emas — u ~0). Home tab ham aynan shu formulani ishlatadi.
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    items.add(SizedBox(height: AppDimens.bottomNavClearance + bottomInset));
     return SliverList(delegate: SliverChildListDelegate(items));
   }
 
@@ -616,8 +615,8 @@ class _CatalogPageState extends State<CatalogPage> {
                 padding: EdgeInsets.only(
                   left: horizontalPadding,
                   right: AppDimens.paddingMedium,
-                  top: AppDimens.paddingSmall2,
-                  bottom: AppDimens.paddingSmall2,
+                  top: AppDimens.paddingSmall,
+                  bottom: AppDimens.paddingSmall,
                 ),
                 child: Row(
                   children: [

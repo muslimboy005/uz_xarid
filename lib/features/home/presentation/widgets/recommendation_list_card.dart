@@ -34,7 +34,7 @@ class RecommendationListCard extends StatelessWidget {
         return InkWell(
           onTap: () => context.push('/product/${item.slug}'),
           child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
               color: cardBg,
               borderRadius: BorderRadius.circular(12),

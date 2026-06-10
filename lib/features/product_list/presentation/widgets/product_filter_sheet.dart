@@ -2691,7 +2691,7 @@ class _CarPagedSelectSheetBodyState extends State<_CarPagedSelectSheetBody> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
@@ -2771,7 +2771,7 @@ class _CarPagedSelectSheetBodyState extends State<_CarPagedSelectSheetBody> {
                     itemBuilder: (_, index) {
                       if (index >= _items.length) {
                         return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           child: Center(
                             child: SizedBox(
                               width: 20,
@@ -2814,7 +2814,7 @@ class _CarPagedSelectSheetBodyState extends State<_CarPagedSelectSheetBody> {
                     },
                   ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
         ],
       ),
     );

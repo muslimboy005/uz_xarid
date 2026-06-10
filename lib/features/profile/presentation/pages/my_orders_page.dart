@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
+import 'package:uzxarid/core/constants/app_dimens.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
 import 'package:uzxarid/core/dp/infection.dart';
 import 'package:uzxarid/core/theme/theme_colors.dart';
@@ -37,7 +38,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     return UzXaridScaffold(
       backgroundColor: bodyBg,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -61,13 +62,13 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                     const SizedBox(width: 12),
                     AppText(
                       text: l10n.myOrdersTitle,
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: 700,
                       color: context.textPrimary,
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Expanded(
                   child: ContainerW(
                     color: context.cardSurface,
@@ -102,7 +103,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
               ],
             ),
           ),
@@ -200,7 +201,7 @@ class _EmptyState extends StatelessWidget {
             ),
             child: Icon(icon, color: AppColors.white, size: 34),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           AppText(text: title, fontSize: 16, fontWeight: 700, color: textColor),
           if (subtitle != null) ...[
             const SizedBox(height: 8),
@@ -241,9 +242,14 @@ class _OrdersListView extends StatelessWidget {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(
+            12,
+            12,
+            12,
+            AppDimens.bottomNavClearance,
+          ),
           itemCount: state.orders.length + (state.hasReachedMax ? 0 : 1),
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             if (index >= state.orders.length) {
               context.read<MyOrdersBloc>().add(const LoadMyOrdersEvent());
@@ -257,7 +263,7 @@ class _OrdersListView extends StatelessWidget {
 
             final order = state.orders[index];
             return Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: context.bodyBackground,
                 borderRadius: BorderRadius.circular(12),
@@ -303,7 +309,7 @@ class _OrdersListView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     'Miqdor: ${order.quantity}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -319,7 +325,7 @@ class _OrdersListView extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     (order.createdAt ?? '').split('T').first,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(

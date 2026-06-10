@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:uzxarid/core/constants/app_assets.dart';
 import 'package:uzxarid/core/constants/app_colors.dart';
 import 'package:uzxarid/core/cubit/app_mode_cubit.dart';
@@ -215,14 +217,18 @@ class ProductCard extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           height: titleBlockHeight,
+                          // Sarlavha qolgan matnlardan ajralib tursin uchun
+                          // boshqacha shrift (Nunito) va yengilroq weight (400).
                           child: AppText(
                             text: title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            fontWeight: 600,
-                            height: 1.2,
-                            fontSize: layout.titleFontSize,
-                            color: context.textPrimary,
+                            style: GoogleFonts.nunito(
+                              fontSize: layout.titleFontSize.sp,
+                              fontWeight: FontWeight.w400,
+                              height: 1.2,
+                              color: context.textPrimary,
+                            ),
                           ),
                         ),
                         SizedBox(height: layout.isCompact ? 2 : 3),
